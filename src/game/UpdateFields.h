@@ -391,6 +391,40 @@ enum EUnitFields
     PLAYER_GLYPHS_ENABLED                     = UNIT_END + 0x0498, // Size: 1, Type: INT, Flags: PRIVATE
     PLAYER_PET_SPELL_POWER                    = UNIT_END + 0x0499, // Size: 1, Type: INT, Flags: PRIVATE
     PLAYER_END                                = UNIT_END + 0x049A,
+
+    // ----------------------------------------------------------------------------------------------
+
+    ANDEERIA_AP_MELEE_1                        = 0x007B, // TYPE: INT
+    ANDEERIA_AP_MELEE_2                        = 0x007C, // TYPE: INT
+    ANDEERIA_AP_RANGED_1                       = 0x007E, // TYPE: INT
+    ANDEERIA_AP_RANGED_2                       = 0x007F, // TYPE: INT
+    ANDEERIA_BLOCKRATING                       = 0x04D3, // TYPE: INT
+    ANDEERIA_DEFRATING                         = 0x04D0, // TYPE: INT
+    ANDEERIA_DODGERATING                       = 0x04D1, // TYPE: INT
+    ANDEERIA_PARRYRATING                       = 0x04D2, // TYPE: INT
+    ANDEERIA_RESILIENCE                        = 0x04DE, // TYPE: INT
+    ANDEERIA_MANAREGEN                         = 0x0028, // TYPE: FLOAT
+    ANDEERIA_MELEE_HITRATING                   = 0x04D4, // TYPE: INT
+    ANDEERIA_MELEE_CRITRATING                  = 0x04D7, // TYPE: INT
+    ANDEERIA_MELEE_HASTERATING                 = 0x04E0, // TYPE: INT
+    ANDEERIA_MELEE_MAINMINDMG                  = 0x0046, // TYPE: FLOAT
+    ANDEERIA_MELEE_MAINMAXDMG                  = 0x0047, // TYPE: FLOAT
+    ANDEERIA_MELEE_OFFMINDMG                   = 0x0046, // TYPE: FLOAT
+    ANDEERIA_MELEE_OFFMAXDMG                   = 0x0047, // TYPE: FLOAT
+    ANDEERIA_MELLE_OFFTIME                     = 0x003E, // TYPE: FLOAT
+    ANDEERIA_MELLE_MAINTIME                    = 0x003E, // TYPE: FLOAT
+    ANDEERIA_RANGED_CRITRATING                 = 0x04D8, // TYPE: INT
+    ANDEERIA_RANGED_HASTERATING                = 0x04E1, // TYPE: INT
+    ANDEERIA_RANGED_HITRATING                  = 0x04D5, // TYPE: INT
+    ANDEERIA_RANGED_MINDMG                     = 0x0081, // TYPE: FLOAT
+    ANDEERIA_RANGED_MAXDMG                     = 0x0082, // TYPE: FLOAT
+    ANDEERIA_RANGED_ATTACKTIME                 = 0x003F, // TYPE: FLOAT
+    ANDEERIA_SPELL_HITRATING                   = 0x04D6, // TYPE: INT
+    ANDEERIA_SPELL_CRITRATING                  = 0x04D9, // TYPE: INT
+    ANDEERIA_SPELL_HASTERATING                 = 0x04E2, // TYPE: INT
+    ANDEERIA_SPELL_BONUSDMG                    = 0x0496, // TYPE: INT
+    ANDEERIA_SPELL_BONUSHEAL                   = 0x04A8, // TYPE: INT
+    ANDEERIA_SPELL_CRITPROC                    = 0x040B, // TYPE: FLOAT
 };
 
 enum EGameObjectFields

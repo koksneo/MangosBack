@@ -33,6 +33,8 @@ libmangosshared_a_SOURCES = \
 	ByteBuffer.h \
 	Common.cpp \
 	Common.h \
+	DelayExecutor.h \
+	DelayExecutor.cpp \
 	Errors.h \
 	LockedQueue.h \
 	Log.cpp \

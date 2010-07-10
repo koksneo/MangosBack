@@ -24,6 +24,7 @@
 #include "ace/Thread_Mutex.h"
 #include "Common.h"
 #include "Map.h"
+#include "MapUpdater.h"
 #include "GridStates.h"
 
 class Transport;
@@ -176,6 +177,7 @@ class MANGOS_DLL_DECL MapManager : public MaNGOS::Singleton<MapManager, MaNGOS::
         IntervalTimer i_timer;
 
         uint32 i_MaxInstanceId;
+        MapUpdater m_updater;
 };
 
 #define sMapMgr MapManager::Instance()

@@ -61,12 +61,12 @@ enum
     SPELL_IMMOLATION        = 31304, //31303,   // 31304     
 };
 
-class MANGOS_DLL_DECL AnetheronSleep : public Aura
+/*class MANGOS_DLL_DECL AnetheronSleep : public Aura
 {
     public:
         AnetheronSleep(SpellEntry *spellInfo, SpellEffectIndex eff, int32 *bp, Unit *target, Unit *caster) : Aura(spellInfo, eff, bp, target, caster, NULL)
             {}
-};
+};*/
 
 struct MANGOS_DLL_DECL boss_anetheronAI : public ScriptedAI
 {
@@ -147,7 +147,7 @@ struct MANGOS_DLL_DECL boss_anetheronAI : public ScriptedAI
                             uint8 eff = spellInfo->Effect[SpellEffectIndex(i)];
                             if (eff >= TOTAL_SPELL_EFFECTS)
                                 continue;
-                            pTarget->AddAura(new AnetheronSleep(spellInfo, SpellEffectIndex(i), NULL, pTarget, pTarget));
+                            /*pTarget->AddAura(new AnetheronSleep(spellInfo, SpellEffectIndex(i), NULL, pTarget, pTarget));*/
                         }
                     }
                     else

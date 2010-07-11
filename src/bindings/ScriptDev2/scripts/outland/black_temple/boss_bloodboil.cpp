@@ -52,12 +52,12 @@ EndScriptData */
 #define SPELL_BERSERK            45078
 #define SPELL_ENRAGE             27680
 
-class MANGOS_DLL_DECL Bloodboil : public Aura
+/*class MANGOS_DLL_DECL Bloodboil : public Aura
 {
     public:
         Bloodboil(SpellEntry *spellInfo, SpellEffectIndex effIndex, int32 *bp, Unit *target, Unit *caster) : Aura(spellInfo, effIndex, bp, target, caster, NULL)
             {}
-};
+};*/
 
 struct MANGOS_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
 {
@@ -177,7 +177,7 @@ struct MANGOS_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
                     if (eff >= TOTAL_SPELL_EFFECTS)
                         continue;
 
-                    target->AddAura(new Bloodboil(spellInfo, SpellEffectIndex(i), NULL, target, target));
+                    /*target->AddAura(new Bloodboil(spellInfo, SpellEffectIndex(i), NULL, target, target));*/
                 }
             }
     }

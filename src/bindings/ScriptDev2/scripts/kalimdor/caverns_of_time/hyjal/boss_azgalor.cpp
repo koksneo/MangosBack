@@ -46,12 +46,12 @@ enum
     SPELL_ENRAGE            = 26662,  // rage id  
 };
 
-class MANGOS_DLL_DECL AzgalorDoom : public Aura
+/*class MANGOS_DLL_DECL AzgalorDoom : public Aura
 {
     public:
         AzgalorDoom(SpellEntry *spellInfo, SpellEffectIndex eff, int32 *bp, Unit *target, Unit *caster) : Aura(spellInfo, eff, bp, target, caster, NULL)
             {}
-};
+};*/
 
 struct MANGOS_DLL_DECL boss_azgalorAI : public ScriptedAI
 {
@@ -129,7 +129,7 @@ struct MANGOS_DLL_DECL boss_azgalorAI : public ScriptedAI
                         if (eff >= TOTAL_SPELL_EFFECTS)
                             continue;
                         //uint8 i=1;
-                        pTarget->AddAura(new AzgalorDoom(spellInfo, SpellEffectIndex(i), NULL, pTarget, pTarget));
+                        /*pTarget->AddAura(new AzgalorDoom(spellInfo, SpellEffectIndex(i), NULL, pTarget, pTarget));*/
                     }
                 }
                 else

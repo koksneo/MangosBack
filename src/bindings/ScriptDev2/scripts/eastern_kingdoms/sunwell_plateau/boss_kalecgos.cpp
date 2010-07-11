@@ -90,13 +90,13 @@ enum Spells
 
 uint32 WildMagic[]= { 44978, 45001, 45002, 45004, 45006, 45010 };
 
-//Wild Magic
+/*//Wild Magic
 class MANGOS_DLL_DECL WildMagicA : public Aura
 {
     public:
         WildMagicA(SpellEntry* spellInfo, SpellEffectIndex eff, int32 *bp, Unit* target, Unit* caster) : Aura(spellInfo, eff, bp, target, caster, NULL)
             {}
-};
+};*/
 
 //KalecgosDragon
 struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
@@ -202,7 +202,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
                         uint8 eff = pSpellInfo->Effect[SpellEffectIndex(i)];
                         if (eff >= TOTAL_SPELL_EFFECTS)
                             continue;
-                        pTarget->AddAura(new WildMagicA(pSpellInfo, SpellEffectIndex(i), NULL, pTarget, pTarget));
+                        //pTarget->AddAura(new WildMagicA(pSpellInfo, SpellEffectIndex(i), NULL, pTarget, pTarget));
                     }
                     m_uiWildMagicTimer = 19000;
                 }else m_uiWildMagicTimer = 1000;

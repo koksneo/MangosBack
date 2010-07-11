@@ -54,7 +54,7 @@ EndScriptData */
 #define SPELL_STORM             26546
 
 struct MANGOS_DLL_DECL aqsentinelAI;
-class MANGOS_DLL_DECL SentinelAbilityAura : public Aura
+/*class MANGOS_DLL_DECL SentinelAbilityAura : public Aura
 {
     public:
         ~SentinelAbilityAura();
@@ -64,7 +64,7 @@ class MANGOS_DLL_DECL SentinelAbilityAura : public Aura
         aqsentinelAI *aOwner;
         int32 currentBasePoints;
         uint32 abilityId;
-};
+};/
 
 struct MANGOS_DLL_DECL aqsentinelAI : public ScriptedAI
 {
@@ -229,7 +229,7 @@ struct MANGOS_DLL_DECL aqsentinelAI : public ScriptedAI
             if (!spell->Effect[i])
                 continue;
             SentinelAbilityAura *a = new SentinelAbilityAura(this, (SpellEntry *)spell, id, SpellEffectIndex(i));
-            m_creature->AddAura(a);
+            /*m_creature->AddAura(a);*/
         }
     }
 

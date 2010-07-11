@@ -1191,8 +1191,16 @@ void Aura::TriggerSpell()
                         triggerTarget->CastCustomSpell(triggerTarget, 29879, &bpDamage, NULL, NULL, true, NULL, this, casterGUID);
                         return;
                     }
-//                    // Detonate Mana
-//                    case 27819: break;
+                    // Detonate Mana (Kel'Thuzad in Naxxramas)
+                    case 27819:
+                    {
+                        if (target->getPowerType() != POWER_MANA)
+                            return;
+                        int32 bpDamage = target->GetMaxPower(POWER_MANA);
+                        target->CastCustomSpell(target, 27820, &bpDamage, 0, 0, true);
+                        target->ModifyPower(POWER_MANA, -2000);
+                        return;
+                    }
 //                    // Controller Timer
 //                    case 28095: break;
 //                    // Stalagg Chain

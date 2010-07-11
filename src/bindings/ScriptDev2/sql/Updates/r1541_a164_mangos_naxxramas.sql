@@ -1,0 +1,1 @@
+UPDATE `creature_template` SET `armor` = '9729', `faction_A` = '21', `faction_H` = '21', `mindmg` = '422', `maxdmg` = '586', `attackpower` = '1000', `dmg_multiplier` = '7.5', `baseattacktime` = '1000' WHERE `entry` IN (27943);

@@ -64,7 +64,7 @@ struct MANGOS_DLL_DECL aqsentinelAI;
         aqsentinelAI *aOwner;
         int32 currentBasePoints;
         uint32 abilityId;
-};/
+}*/
 
 struct MANGOS_DLL_DECL aqsentinelAI : public ScriptedAI
 {

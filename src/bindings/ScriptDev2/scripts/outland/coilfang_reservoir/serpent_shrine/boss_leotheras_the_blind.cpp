@@ -89,12 +89,12 @@ enum
     NPC_SPELLBINDER3_GUID    = 93772
 };
 
-class MANGOS_DLL_DECL InsidiousAura : public Aura
+/*class MANGOS_DLL_DECL InsidiousAura : public Aura
 {
 public:
     InsidiousAura (SpellEntry *spell, SpellEffectIndex effIndex, int32 *bp, Unit *target, Unit *caster) : Aura(spell, effIndex, bp, target, caster, NULL)
     {}
-};
+};*/
 
 struct MANGOS_DLL_DECL mob_inner_demonAI : public ScriptedAI
 {
@@ -619,7 +619,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                             {
                                 if (!spell->Effect[SpellEffectIndex(i)])
                                     continue;
-                                (*itr)->AddAura(new InsidiousAura(spell,SpellEffectIndex(i), NULL, (*itr), (*itr)));
+                                /*(*itr)->AddAura(new InsidiousAura(spell,SpellEffectIndex(i), NULL, (*itr), (*itr)));*/
                             }
                             if (InnderDemon_Count > 4) InnderDemon_Count = 0;
                             //Safe storing of creatures

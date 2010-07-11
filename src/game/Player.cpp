@@ -21914,7 +21914,7 @@ void Player::ActivateSpec(uint8 specNum)
         return;
 
     UnsummonPetTemporaryIfAny();
-
+    RemoveAllEnchantments(TEMP_ENCHANTMENT_SLOT);
     ApplyGlyphs(false);
 
     // copy of new talent spec (we will use it as model for converting current tlanet state to new)

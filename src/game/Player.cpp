@@ -5490,6 +5490,16 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
 
     if ( Roll <= Chance )
     {
+        SkillLineEntry const *pSkill = sSkillLineStore.LookupEntry(SkillId);
+        if(!pSkill)
+        {
+            sLog.outError("Skill not found in SkillLineStore: skill #%u", SkillId);
+            return false;
+        }
+
+        if (pSkill->categoryId == SKILL_CATEGORY_PROFESSION && pSkill->canLink)
+            ApplySkillDependentEnchantments(SkillId, false);
+
         uint32 new_value = SkillValue+step;
         if(new_value > MaxValue)
             new_value = MaxValue;
@@ -5505,6 +5515,10 @@ bool Player::UpdateSkillPro(uint16 SkillId, int32 Chance, uint32 step)
                 break;
             }
         }
+        
+        if (pSkill->categoryId == SKILL_CATEGORY_PROFESSION && pSkill->canLink)
+            ApplySkillDependentEnchantments(SkillId, true);
+
         GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL,SkillId);
         DEBUG_LOG("Player::UpdateSkillPro Chance=%3.1f%% taken", Chance/10.0);
         return true;
@@ -5690,6 +5704,18 @@ void Player::SetSkill(uint16 id, uint16 currVal, uint16 maxVal, uint16 step /*=0
     if(!id)
         return;
 
+
+    SkillLineEntry const *pSkill = sSkillLineStore.LookupEntry(id);
+	
+    if(!pSkill)
+    {
+        sLog.outError("Skill not found in SkillLineStore: skill #%u", id);
+        return;
+    }
+
+    if (pSkill->categoryId == SKILL_CATEGORY_PROFESSION && pSkill->canLink)
+        ApplySkillDependentEnchantments(id, false);
+
     SkillStatusMap::iterator itr = mSkillStatus.find(id);
 
     // has skill
@@ -5733,13 +5759,6 @@ void Player::SetSkill(uint16 id, uint16 currVal, uint16 maxVal, uint16 step /*=0
         {
             if (!GetUInt32Value(PLAYER_SKILL_INDEX(i)))
             {
-                SkillLineEntry const *pSkill = sSkillLineStore.LookupEntry(id);
-                if(!pSkill)
-                {
-                    sLog.outError("Skill not found in SkillLineStore: skill #%u", id);
-                    return;
-                }
-
                 SetUInt32Value(PLAYER_SKILL_INDEX(i), MAKE_PAIR32(id, step));
                 SetUInt32Value(PLAYER_SKILL_VALUE_INDEX(i),MAKE_SKILL_VALUE(currVal, maxVal));
                 GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_REACH_SKILL_LEVEL, id);
@@ -5771,10 +5790,12 @@ void Player::SetSkill(uint16 id, uint16 currVal, uint16 maxVal, uint16 step /*=0
 
                 // Learn all spells for skill
                 learnSkillRewardedSpells(id, currVal);
-                return;
+                break;
             }
         }
     }
+    if (pSkill->categoryId == SKILL_CATEGORY_PROFESSION && pSkill->canLink)
+        ApplySkillDependentEnchantments(id, true);
 }
 
 bool Player::HasSkill(uint32 skill) const
@@ -12260,6 +12281,12 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
     if (!ignore_condition && pEnchant->EnchantmentCondition && !((Player*)this)->EnchantmentFitsRequirements(pEnchant->EnchantmentCondition, -1))
         return;
 
+
+    if (pEnchant->requiredLevel > getLevel())
+        return;
+    if (pEnchant->requiredSkill && pEnchant->requiredSkillValue > GetSkillValue(pEnchant->requiredSkill))
+        return;
+
     if (!item->IsBroken())
     {
         for (int s = 0; s < 3; ++s)
@@ -12581,6 +12608,29 @@ void Player::ApplyEnchantment(Item *item, EnchantmentSlot slot, bool apply, bool
         {
             // duration == 0 will remove EnchantDuration
             AddEnchantmentDuration(item, slot, 0);
+        }
+    }
+}
+
+
+void Player::ApplySkillDependentEnchantments(uint16 skill, bool apply)
+{
+    for (uint8 slot = EQUIPMENT_SLOT_START; slot < EQUIPMENT_SLOT_END; ++slot)
+    {
+        Item* pItem = m_items[slot];
+        if (!pItem)
+            continue;
+
+        for (uint32 i = 0; i < MAX_ENCHANTMENT_SLOT; ++i)
+        {
+            uint32 enchantId = pItem->GetEnchantmentId(EnchantmentSlot(i));
+            if (!enchantId)
+                continue;
+
+            SpellItemEnchantmentEntry const *pEnchant = sSpellItemEnchantmentStore.LookupEntry(enchantId);
+
+            if (pEnchant && pEnchant->requiredSkill == skill)
+               ApplyEnchantment(pItem, EnchantmentSlot(i), apply);
         }
     }
 }

@@ -228,7 +228,7 @@ struct MANGOS_DLL_DECL aqsentinelAI : public ScriptedAI
         {
             if (!spell->Effect[i])
                 continue;
-            SentinelAbilityAura *a = new SentinelAbilityAura(this, (SpellEntry *)spell, id, SpellEffectIndex(i));
+            /*SentinelAbilityAura *a = new SentinelAbilityAura(this, (SpellEntry *)spell, id, SpellEffectIndex(i));*/
             /*m_creature->AddAura(a);*/
         }
     }
@@ -286,7 +286,7 @@ void AddSC_mob_anubisath_sentinel()
     newscript->RegisterSelf();
 }
 
-SentinelAbilityAura::~SentinelAbilityAura() {}
+/*SentinelAbilityAura::~SentinelAbilityAura() {}
 Unit* SentinelAbilityAura::GetTriggerTarget() const
 {
     switch (abilityId)
@@ -315,4 +315,4 @@ SentinelAbilityAura::SentinelAbilityAura(aqsentinelAI *abilityOwner, SpellEntry 
     aOwner = abilityOwner;
     abilityId = ability;
     currentBasePoints = 0;
-}
+}*/

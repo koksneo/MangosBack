@@ -24,6 +24,7 @@
 #include "Transports.h"
 #include "GridDefines.h"
 #include "MapInstanced.h"
+#include "InstanceData.h"
 #include "DestinationHolderImp.h"
 #include "World.h"
 #include "CellImpl.h"
@@ -224,14 +225,16 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
                 DEBUG_LOG("Map::CanEnter - player '%s' is dead but doesn't have a corpse!", player->GetName());
             }
         }
-
-        // TODO: move this to a map dependent location
-        /*if(i_data && i_data->IsEncounterInProgress())
+        if (!player->isGameMaster())
         {
-            DEBUG_LOG("MAP: Player '%s' can't enter instance '%s' while an encounter is in progress.", player->GetName(), GetMapName());
-            player->SendTransferAborted(GetId(), TRANSFER_ABORT_ZONE_IN_COMBAT);
-            return(false);
-        }*/
+            InstanceData* i_data = ((InstanceMap*)CreateMap(mapid, player))->GetInstanceData();
+
+            if (i_data && i_data->IsEncounterInProgress())
+            {
+                player->SendTransferAborted(mapid, TRANSFER_ABORT_ZONE_IN_COMBAT);
+                return false;
+            }
+        }
         return true;
     }
     else

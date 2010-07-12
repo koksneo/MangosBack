@@ -288,7 +288,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             if(m_creature->IsWithinDistInMap(who, attackRadius))
             {
                 // Check first that object is in an angle in front of this one before LoS check
-                if( m_creature->HasInArc(M_PI/2.0f, who) && m_creature->IsWithinLOSInMap(who) )
+                if( m_creature->HasInArc(M_PI_F/2.0f, who) && m_creature->IsWithinLOSInMap(who) )
                 {
                     AttackStart(who);
                     who->RemoveSpellsCausingAura(SPELL_AURA_MOD_STEALTH);

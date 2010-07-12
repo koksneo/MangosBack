@@ -185,7 +185,7 @@ struct MANGOS_DLL_DECL mob_captive_mechagnomeAI : public ScriptedAI
                         case 0:        
                             float x, y, z, o;
                             o = m_creature->GetOrientation();
-                            ((o >= M_PI)? o -= M_PI : o += M_PI);
+                            ((o >= M_PI_F)? o -= M_PI_F : o += M_PI_F);
                             m_creature->GetNearPoint(m_creature, x, y, z, m_creature->GetObjectBoundingRadius(), INTERACTION_DISTANCE, o);
                             m_creature->GetMotionMaster()->MovePoint(POINT_ID, x, y, z);
                             break;

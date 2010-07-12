@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -251,6 +251,7 @@
     <ClCompile Include="..\scripts\eastern_kingdoms\blackrock_depths\boss_high_interrogator_gerstahn.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\blackrock_depths\boss_magmus.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\blackrock_depths\boss_tomb_of_seven.cpp" />
+    <ClCompile Include="..\scripts\eastern_kingdoms\blackrock_depths\boss_coren_direbrew.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\blackrock_depths\instance_blackrock_depths.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\blackrock_spire\boss_drakkisath.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\blackrock_spire\boss_gyth.cpp" />
@@ -350,9 +351,14 @@
     <ClCompile Include="..\scripts\eastern_kingdoms\sunken_temple\instance_sunken_temple.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\sunken_temple\sunken_temple.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\sunwell_plateau\boss_brutallus.cpp" />
+    <ClCompile Include="..\scripts\eastern_kingdoms\sunwell_plateau\boss_eredar_twins.cpp" />
+    <ClCompile Include="..\scripts\eastern_kingdoms\sunwell_plateau\boss_felmyst.cpp" />
+    <ClCompile Include="..\scripts\eastern_kingdoms\sunwell_plateau\boss_kiljaden.cpp" />
+    <ClCompile Include="..\scripts\eastern_kingdoms\sunwell_plateau\boss_muru_entropius.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\sunwell_plateau\boss_kalecgos.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\sunwell_plateau\instance_sunwell_plateau.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\uldaman\boss_ironaya.cpp" />
+    <ClCompile Include="..\scripts\eastern_kingdoms\uldaman\boss_archaedas.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\uldaman\uldaman.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\uldaman\instance_uldaman.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\zulaman\boss_akilzon.cpp" />
@@ -403,6 +409,7 @@
     <ClCompile Include="..\scripts\kalimdor\thunder_bluff.cpp" />
     <ClCompile Include="..\scripts\kalimdor\ungoro_crater.cpp" />
     <ClCompile Include="..\scripts\kalimdor\winterspring.cpp" />
+    <ClCompile Include="..\scripts\kalimdor\blackfathom_deeps\blackfathom_deeps.cpp" />
     <ClCompile Include="..\scripts\kalimdor\blackfathom_deeps\instance_blackfathom_deeps.cpp" />
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\culling_of_stratholme\culling_of_stratholme.cpp" />
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\culling_of_stratholme\instance_culling_of_stratholme.cpp" />
@@ -411,6 +418,9 @@
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\dark_portal\boss_temporus.cpp" />
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\dark_portal\dark_portal.cpp" />
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\dark_portal\instance_dark_portal.cpp" />
+    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\boss_anetheron.cpp" />
+    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\boss_azgalor.cpp" />
+    <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\boss_kazrogal.cpp" />
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\boss_archimonde.cpp" />
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\hyjal.cpp" />
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\hyjal\hyjalAI.cpp" />
@@ -421,7 +431,7 @@
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\instance_old_hillsbrad.cpp" />
     <ClCompile Include="..\scripts\kalimdor\caverns_of_time\old_hillsbrad\old_hillsbrad.cpp" />
     <ClCompile Include="..\scripts\kalimdor\dire_maul\dire_maul.cpp" />
-    <ClCompile Include="..\scripts\kalimdor\dire_maul\instance_maul.cpp" />
+    <ClCompile Include="..\scripts\kalimdor\dire_maul\instance_dire_maul.cpp" />
     <ClCompile Include="..\scripts\kalimdor\maraudon\boss_celebras_the_cursed.cpp" />
     <ClCompile Include="..\scripts\kalimdor\maraudon\boss_landslide.cpp" />
     <ClCompile Include="..\scripts\kalimdor\maraudon\boss_noxxion.cpp" />
@@ -449,6 +459,7 @@
     <ClCompile Include="..\scripts\kalimdor\temple_of_ahnqiraj\boss_viscidus.cpp" />
     <ClCompile Include="..\scripts\kalimdor\temple_of_ahnqiraj\instance_temple_of_ahnqiraj.cpp" />
     <ClCompile Include="..\scripts\kalimdor\temple_of_ahnqiraj\mob_anubisath_sentinel.cpp" />
+    <ClCompile Include="..\scripts\kalimdor\wailing_caverns\wailing_caverns.cpp" />
     <ClCompile Include="..\scripts\kalimdor\wailing_caverns\instance_wailing_caverns.cpp" />
     <ClCompile Include="..\scripts\kalimdor\zulfarrak\zulfarrak.cpp" />
     <ClCompile Include="..\scripts\northrend\borean_tundra.cpp" />
@@ -463,6 +474,7 @@
     <ClCompile Include="..\scripts\northrend\azjol-nerub\ahnkahet\boss_jedoga.cpp" />
     <ClCompile Include="..\scripts\northrend\azjol-nerub\ahnkahet\boss_nadox.cpp" />
     <ClCompile Include="..\scripts\northrend\azjol-nerub\ahnkahet\boss_taldaram.cpp" />
+    <ClCompile Include="..\scripts\northrend\azjol-nerub\ahnkahet\boss_amanitar.cpp" />
     <ClCompile Include="..\scripts\northrend\azjol-nerub\ahnkahet\boss_volazj.cpp" />
     <ClCompile Include="..\scripts\northrend\azjol-nerub\ahnkahet\instance_ahnkahet.cpp" />
     <ClCompile Include="..\scripts\northrend\azjol-nerub\azjol-nerub\boss_anubarak.cpp" />
@@ -478,7 +490,9 @@
     <ClCompile Include="..\scripts\northrend\crusaders_coliseum\trial_of_the_crusader\trial_of_the_crusader.cpp" />
     <ClCompile Include="..\scripts\northrend\draktharon_keep\boss_novos.cpp" />
     <ClCompile Include="..\scripts\northrend\draktharon_keep\boss_tharonja.cpp" />
+    <ClCompile Include="..\scripts\northrend\draktharon_keep\boss_dred.cpp" />
     <ClCompile Include="..\scripts\northrend\draktharon_keep\boss_trollgore.cpp" />
+    <ClCompile Include="..\scripts\northrend\draktharon_keep\instance_draktharon_keep.cpp" />
     <ClCompile Include="..\scripts\northrend\gundrak\boss_colossus.cpp" />
     <ClCompile Include="..\scripts\northrend\gundrak\boss_galdarah.cpp" />
     <ClCompile Include="..\scripts\northrend\gundrak\boss_moorabi.cpp" />
@@ -527,8 +541,12 @@
     <ClCompile Include="..\scripts\northrend\utgarde_keep\utgarde_pinnacle\boss_svala.cpp" />
     <ClCompile Include="..\scripts\northrend\utgarde_keep\utgarde_pinnacle\boss_ymiron.cpp" />
     <ClCompile Include="..\scripts\northrend\utgarde_keep\utgarde_pinnacle\instance_utgarde_pinnacle.cpp" />
-    <ClCompile Include="..\scripts\northrend\violet_hold\instance_violet_hold.cpp" />
     <ClCompile Include="..\scripts\northrend\violet_hold\violet_hold.cpp" />
+    <ClCompile Include="..\scripts\northrend\violet_hold\instance_violet_hold.cpp" />
+    <ClCompile Include="..\scripts\northrend\vault_of_archavon\boss_archavon.cpp" />
+    <ClCompile Include="..\scripts\northrend\vault_of_archavon\boss_emalon.cpp" />
+    <ClCompile Include="..\scripts\northrend\vault_of_archavon\boss_koralon.cpp" />
+    <ClCompile Include="..\scripts\northrend\vault_of_archavon\instance_vault_of_archavon.cpp" />
     <ClCompile Include="..\scripts\northrend\icecrown_citadel\icecrown_citadel\blood_prince_council.cpp" />
     <ClCompile Include="..\scripts\northrend\icecrown_citadel\icecrown_citadel\boss_blood_queen_lanathel.cpp" />
     <ClCompile Include="..\scripts\northrend\icecrown_citadel\icecrown_citadel\boss_deathbringer_saurfang.cpp" />
@@ -581,11 +599,13 @@
     <ClCompile Include="..\scripts\outland\black_temple\boss_warlord_najentus.cpp" />
     <ClCompile Include="..\scripts\outland\black_temple\illidari_council.cpp" />
     <ClCompile Include="..\scripts\outland\black_temple\instance_black_temple.cpp" />
+    <ClCompile Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\serpent_shrine.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\boss_fathomlord_karathress.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\boss_hydross_the_unstable.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\boss_lady_vashj.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\boss_leotheras_the_blind.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\boss_morogrim_tidewalker.cpp" />
+    <ClCompile Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\boss_the_lurker_below.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\instance_serpent_shrine.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\slave_pens\boss_rokmar.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\steam_vault\boss_hydromancer_thespia.cpp" />
@@ -593,6 +613,8 @@
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\steam_vault\boss_warlord_kalithresh.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\steam_vault\instance_steam_vault.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\underbog\boss_hungarfen.cpp" />
+    <ClCompile Include="..\scripts\outland\coilfang_reservoir\underbog\boss_black_stalker.cpp" />
+    <ClCompile Include="..\scripts\outland\coilfang_reservoir\underbog\instance_underbog.cpp" />
     <ClCompile Include="..\scripts\outland\gruuls_lair\boss_gruul.cpp" />
     <ClCompile Include="..\scripts\outland\gruuls_lair\boss_high_king_maulgar.cpp" />
     <ClCompile Include="..\scripts\outland\gruuls_lair\instance_gruuls_lair.cpp" />
@@ -619,6 +641,7 @@
     <ClCompile Include="..\scripts\outland\tempest_keep\the_eye\boss_astromancer.cpp" />
     <ClCompile Include="..\scripts\outland\tempest_keep\the_eye\boss_kaelthas.cpp" />
     <ClCompile Include="..\scripts\outland\tempest_keep\the_eye\boss_void_reaver.cpp" />
+    <ClCompile Include="..\scripts\outland\tempest_keep\the_eye\boss_alar.cpp" />
     <ClCompile Include="..\scripts\outland\tempest_keep\the_eye\instance_the_eye.cpp" />
     <ClCompile Include="..\scripts\outland\tempest_keep\the_eye\the_eye.cpp" />
     <ClCompile Include="..\scripts\outland\tempest_keep\the_mechanar\boss_gatewatcher_gyrokill.cpp" />
@@ -637,6 +660,7 @@
     <ClCompile Include="..\scripts\world\mob_generic_creature.cpp" />
     <ClCompile Include="..\scripts\world\npc_professions.cpp" />
     <ClCompile Include="..\scripts\world\npcs_special.cpp" />
+    <ClCompile Include="..\scripts\world\npc_small_pet_handler.cpp" />
     <ClCompile Include="..\scripts\world\spell_scripts.cpp" />
     <ClCompile Include="..\include\precompiled.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
@@ -686,6 +710,7 @@
     <ClInclude Include="..\scripts\northrend\azjol-nerub\azjol-nerub\azjol-nerub.h" />
     <ClInclude Include="..\scripts\northrend\crusaders_coliseum\trial_of_the_crusader\trial_of_the_crusader.h" />
     <ClInclude Include="..\scripts\northrend\gundrak\gundrak.h" />
+    <ClInclude Include="..\scripts\northrend\draktharon_keep\instance_draktharon_keep.h" />
     <ClInclude Include="..\scripts\northrend\naxxramas\naxxramas.h" />
     <ClInclude Include="..\scripts\northrend\nexus\nexus\nexus.h" />
     <ClInclude Include="..\scripts\northrend\obsidian_sanctum\obsidian_sanctum.h" />
@@ -695,11 +720,13 @@
     <ClInclude Include="..\scripts\northrend\utgarde_keep\utgarde_keep\utgarde_keep.h" />
     <ClInclude Include="..\scripts\northrend\utgarde_keep\utgarde_pinnacle\utgarde_pinnacle.h" />
     <ClInclude Include="..\scripts\northrend\violet_hold\violet_hold.h" />
+    <ClInclude Include="..\scripts\northrend\vault_of_archavon\vault_of_archavon.h" />
     <ClInclude Include="..\scripts\outland\auchindoun\sethekk_halls\sethekk_halls.h" />
     <ClInclude Include="..\scripts\outland\auchindoun\shadow_labyrinth\shadow_labyrinth.h" />
     <ClInclude Include="..\scripts\outland\black_temple\black_temple.h" />
     <ClInclude Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\serpent_shrine.h" />
     <ClInclude Include="..\scripts\outland\coilfang_reservoir\steam_vault\steam_vault.h" />
+    <ClInclude Include="..\scripts\outland\coilfang_reservoir\underbog\def_underbog.h" />
     <ClInclude Include="..\scripts\outland\gruuls_lair\gruuls_lair.h" />
     <ClInclude Include="..\scripts\outland\hellfire_citadel\blood_furnace\blood_furnace.h" />
     <ClInclude Include="..\scripts\outland\hellfire_citadel\hellfire_ramparts\hellfire_ramparts.h" />

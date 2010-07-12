@@ -6409,6 +6409,65 @@ void Player::UpdateHonorFields()
     }
 
     m_lastHonorUpdateTime = now;
+
+    uint32 HonorKills = GetUInt32Value(PLAYER_FIELD_LIFETIME_HONORBALE_KILLS);
+    uint32 victim_rank = 0;
+
+    // lets check if player fits to title brackets (none of players reached by now 100k HK. this is bad condition in aspect
+    // of making code generic, but allows to save some CPU and avoid fourther steps execution
+    if (HonorKills < 150 || HonorKills > 100000)
+        return;
+
+    if (HonorKills >= 150 && HonorKills < 250)
+        victim_rank = 1;
+    else if (HonorKills >= 250 && HonorKills < 400)
+        victim_rank = 2;
+    else if (HonorKills >= 400 && HonorKills < 650)
+        victim_rank = 3;
+    else if (HonorKills >= 650 && HonorKills < 1100)
+        victim_rank = 4;
+    else if (HonorKills >= 1100 && HonorKills < 1800)
+        victim_rank = 5;
+    else if (HonorKills >= 1800 && HonorKills < 3000)
+        victim_rank = 6;
+    else if (HonorKills >= 3000 && HonorKills < 5000)
+       victim_rank = 7;
+    else if (HonorKills >= 5000 && HonorKills < 8000)
+        victim_rank = 8;
+    else if (HonorKills >= 8000 && HonorKills < 13000)
+        victim_rank = 9;
+    else if (HonorKills >= 13000 && HonorKills < 22000)
+        victim_rank = 10;
+    else if (HonorKills >= 22000 && HonorKills < 36000)
+        victim_rank = 11;
+    else if (HonorKills >= 36000 && HonorKills < 60000)
+        victim_rank = 12;
+    else if (HonorKills >= 60000 && HonorKills < 100000)
+        victim_rank = 13;
+    else if (HonorKills == 100000)
+        victim_rank = 14;
+
+    // horde titles starting from 15+
+    if (GetTeam() == HORDE)
+        victim_rank += 14;
+
+    if (CharTitlesEntry const* titleEntry = sCharTitlesStore.LookupEntry(victim_rank))
+    {
+        // if player does have title there is no need to update fourther
+        if (!HasTitle(titleEntry))
+        {
+            // lets remove all previous ranks
+            for (uint8 i = 1; i < 29; ++i)
+            {
+                if (CharTitlesEntry const* title = sCharTitlesStore.LookupEntry(i))
+                    if (HasTitle(title))
+                        SetTitle(title, true);
+            }
+            // finaly apply and set as active new title
+            SetTitle(titleEntry);
+            SetUInt32Value(PLAYER_CHOSEN_TITLE, victim_rank);
+        }
+    }
 }
 
 ///Calculate the amount of honor gained based on the victim

@@ -7858,9 +7858,9 @@ void SpellAuraHolder::_RemoveSpellAuraHolder()
         {
             // Look for another auras with same mechanic
             bool found = false;
- 	        Unit::AuraList const& mPerDmg = m_target->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
- 	        for(Unit::AuraList::const_iterator itr = mPerDmg.begin(); itr != mPerDmg.end(); ++itr)
- 	        {
+            Unit::AuraList const& mPerDmg = m_target->GetAurasByType(SPELL_AURA_PERIODIC_DAMAGE);
+            for(Unit::AuraList::const_iterator itr = mPerDmg.begin(); itr != mPerDmg.end(); ++itr)
+            {
                 if (GetAllSpellMechanicMask((*itr)->GetSpellProto()) & (1<<(MECHANIC_BLEED-1)))
                 {
                     found = true;

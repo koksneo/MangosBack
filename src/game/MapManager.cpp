@@ -243,7 +243,7 @@ bool MapManager::CanPlayerEnter(uint32 mapid, Player* player)
 
 void MapManager::DeleteInstance(uint32 mapid, uint32 instanceId)
 {
-	Guard guard(*this);
+    Guard guard(*this);
 
     Map *m = _createBaseMap(mapid);
     if (m && m->Instanceable())
@@ -260,7 +260,7 @@ MapManager::Update(uint32 diff)
     for(MapMapType::iterator iter=i_maps.begin(); iter != i_maps.end(); ++iter)
     {
         if (m_updater.activated())
-	        m_updater.schedule_update(*iter->second, i_timer.GetCurrent());
+            m_updater.schedule_update(*iter->second, i_timer.GetCurrent());
         else
             iter->second->Update(i_timer.GetCurrent());
     }

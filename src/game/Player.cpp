@@ -5706,7 +5706,6 @@ void Player::SetSkill(uint16 id, uint16 currVal, uint16 maxVal, uint16 step /*=0
 
 
     SkillLineEntry const *pSkill = sSkillLineStore.LookupEntry(id);
-	
     if(!pSkill)
     {
         sLog.outError("Skill not found in SkillLineStore: skill #%u", id);
@@ -17297,7 +17296,7 @@ void Player::_SaveStats()
     std::ostringstream ss;
     ss << "INSERT INTO character_stats (guid, maxhealth, maxpower1, maxpower2, maxpower3, maxpower4, maxpower5, maxpower6, maxpower7, "
         "strength, agility, stamina, intellect, spirit, armor, resHoly, resFire, resNature, resFrost, resShadow, resArcane, "
-        "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower, "	
+        "blockPct, dodgePct, parryPct, critPct, rangedCritPct, spellCritPct, attackPower, rangedAttackPower, spellPower, "
         "a_apmelee, a_ranged, a_blockrating, a_defrating, a_dodgerating, a_parryrating, a_resilience, a_manaregen, "
         "a_melee_hitrating, a_melee_critrating, a_melee_hasterating, a_melee_mainmindmg, a_melee_mainmaxdmg, "
         "a_melee_offmindmg, a_melee_offmaxdmg, a_melee_maintime, a_melee_offtime, a_ranged_critrating, a_ranged_hasterating, "

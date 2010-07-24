@@ -197,6 +197,7 @@ bool ChatHandler::HandleReloadAllLocalesCommand(const char* /*args*/)
     HandleReloadLocalesGameobjectCommand("a");
     HandleReloadLocalesGossipMenuOptionCommand("a");
     HandleReloadLocalesItemCommand("a");
+    HandleReloadMailTemplateCommand("a");
     HandleReloadLocalesNpcTextCommand("a");
     HandleReloadLocalesPageTextCommand("a");
     HandleReloadLocalesPointsOfInterestCommand("a");
@@ -848,6 +849,14 @@ bool ChatHandler::HandleReloadLocalesItemCommand(const char* /*arg*/)
     sLog.outString( "Re-Loading Locales Item ... ");
     sObjectMgr.LoadItemLocales();
     SendGlobalSysMessage("DB table `locales_item` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadMailTemplateCommand(const char* /*args*/)
+{
+    sLog.outString(" Re-Loading Mail Template ...");
+    sObjectMgr.LoadMailTemplate();
+    SendGlobalSysMessage("DB table `mail_template` reloaded.");
     return true;
 }
 

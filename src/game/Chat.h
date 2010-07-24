@@ -377,6 +377,7 @@ class ChatHandler
         bool HandleReloadLootTemplatesSkinningCommand(const char* args);
         bool HandleReloadLootTemplatesSpellCommand(const char* args);
         bool HandleReloadMailLevelRewardCommand(const char* args);
+        bool HandleReloadMailTemplateCommand(const char* args);
         bool HandleReloadMangosStringCommand(const char* args);
         bool HandleReloadNpcGossipCommand(const char* args);
         bool HandleReloadNpcTrainerCommand(const char* args);

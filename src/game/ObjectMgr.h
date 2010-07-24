@@ -83,6 +83,8 @@ struct ScriptInfo
     float y;
     float z;
     float o;
+    std::string mail_title;
+    std::string mail_text;
 };
 
 typedef std::multimap<uint32, ScriptInfo> ScriptMap;
@@ -236,6 +238,26 @@ struct MailLevelReward
 
 typedef std::list<MailLevelReward> MailLevelRewardList;
 typedef UNORDERED_MAP<uint8,MailLevelRewardList> MailLevelRewardMap;
+
+struct MailTemplate
+{
+    std::string title;
+    std::string text;
+
+    uint32 item1;       // item 1
+    uint32 item1_c;
+    uint32 item2;       // item 2
+    uint32 item2_c;
+    uint32 item3;       // item 3
+    uint32 item3_c;
+    uint32 item4;       // item 4
+    uint32 item4_c;
+    uint32 item5;       // item 5
+    uint32 item5_c;
+};
+
+typedef UNORDERED_MAP<uint8, MailTemplate> MailTemplateMap;
+
 
 struct ReputationOnKillEntry
 {
@@ -660,6 +682,7 @@ class ObjectMgr
         void LoadItemRequiredTarget();
         void LoadItemLocales();
         void LoadQuestLocales();
+        void LoadMailTemplate();
         void LoadNpcTextLocales();
         void LoadPageTextLocales();
         void LoadGossipMenuItemsLocales();
@@ -738,6 +761,15 @@ class ObjectMgr
             for(MailLevelRewardList::const_iterator set_itr = map_itr->second.begin(); set_itr != map_itr->second.end(); ++set_itr)
                 if (set_itr->raceMask & raceMask)
                     return &*set_itr;
+
+            return NULL;
+        }
+
+        MailTemplate const* GetMailTemplate(uint32 id) const
+        {
+            MailTemplateMap::const_iterator map_itr = mMailTemplateMap.find(id);
+            if(map_itr != mMailTemplateMap.end())
+                return &map_itr->second;
 
             return NULL;
         }
@@ -1073,6 +1105,7 @@ class ObjectMgr
         GameObjectLocaleMap mGameObjectLocaleMap;
         ItemLocaleMap mItemLocaleMap;
         QuestLocaleMap mQuestLocaleMap;
+        MailTemplateMap mMailTemplateMap;
         NpcTextLocaleMap mNpcTextLocaleMap;
         PageTextLocaleMap mPageTextLocaleMap;
         MangosStringLocaleMap mMangosStringLocaleMap;

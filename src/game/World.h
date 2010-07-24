@@ -415,6 +415,7 @@ enum RealmZone
 #define SCRIPT_COMMAND_CREATE_ITEM          17              // source or target must be player, datalong = item entry, datalong2 = amount
 #define SCRIPT_COMMAND_DESPAWN_SELF         18              // source or target must be creature, datalong = despawn delay
 #define SCRIPT_COMMAND_PLAY_MOVIE           19              // target can only be a player, datalog = movie id
+#define SCRIPT_COMMAND_SEND_MAIL            20              // 
 
 /// Storage class for commands issued for delayed execution
 struct CliCommandHolder

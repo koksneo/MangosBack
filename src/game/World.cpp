@@ -947,6 +947,7 @@ void World::SetInitialWorldSettings()
     sObjectMgr.LoadGameObjectLocales();
     sObjectMgr.LoadItemLocales();
     sObjectMgr.LoadQuestLocales();
+    sObjectMgr.LoadMailTemplate();
     sObjectMgr.LoadNpcTextLocales();
     sObjectMgr.LoadPageTextLocales();
     sObjectMgr.LoadGossipMenuItemsLocales();

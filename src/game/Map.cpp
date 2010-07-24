@@ -25,6 +25,7 @@
 #include "CellImpl.h"
 #include "InstanceData.h"
 #include "Map.h"
+#include "Mail.h"
 #include "GridNotifiersImpl.h"
 #include "Transports.h"
 #include "ObjectAccessor.h"
@@ -2870,6 +2871,104 @@ void Map::ScriptsProcess()
 
                 break;
             }
+            case SCRIPT_COMMAND_SEND_MAIL:
+            {
+                if (!target && !source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_SEND_MAIL (script id %u) call for NULL object.", step.script->id);
+                    break;
+                }
+
+                // only Player
+                if ((!target || target->GetTypeId() != TYPEID_PLAYER) && (!source || source->GetTypeId() != TYPEID_PLAYER))
+                {
+                    sLog.outError("SCRIPT_COMMAND_SEND_MAIL (script id %u) call for non-player (TypeIdSource: %u)(TypeIdTarget: %u), skipping.", step.script->id, source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
+                    break;
+                }
+                
+                Player* pReceiver = target && target->GetTypeId() == TYPEID_PLAYER ? (Player*)target : (Player*)source;
+                if(!pReceiver)
+                    break;
+
+                if(MailTemplate const *mail_template = sObjectMgr.GetMailTemplate(step.script->datalong))
+                {
+                    uint32 from_type    = step.script->datalong2;
+                    uint32 from_entry   = step.script->datalong3;
+
+                    MailDraft draft(mail_template->title, mail_template->text);
+
+                    uint32 item1_c  = (mail_template->item1_c ? mail_template->item1_c : 0);
+                    uint32 item2_c  = (mail_template->item2_c ? mail_template->item2_c : 0);
+                    uint32 item3_c  = (mail_template->item3_c ? mail_template->item3_c : 0);
+                    uint32 item4_c  = (mail_template->item4_c ? mail_template->item4_c : 0);
+                    uint32 item5_c  = (mail_template->item5_c ? mail_template->item5_c : 0);
+
+                    ItemPrototype const* item1 = ObjectMgr::GetItemPrototype(mail_template->item1);
+                    if(!item1)
+                        item1_c = 0;
+                    ItemPrototype const* item2 = ObjectMgr::GetItemPrototype(mail_template->item2);
+                    if(!item2)
+                        item2_c = 0;
+                    ItemPrototype const* item3 = ObjectMgr::GetItemPrototype(mail_template->item3);
+                    if(!item3)
+                        item3_c = 0;
+                    ItemPrototype const* item4 = ObjectMgr::GetItemPrototype(mail_template->item4);
+                    if(!item4)
+                        item4_c = 0;
+                    ItemPrototype const* item5 = ObjectMgr::GetItemPrototype(mail_template->item5);
+                    if(!item5)
+                        item5_c = 0;
+
+                    if(item1_c > 0)
+                        if (Item* cItem1 = Item::CreateItem(mail_template->item1,item1_c,pReceiver))
+                        {
+                            cItem1->SaveToDB();
+                            draft.AddItem(cItem1);
+                        }
+                    if(item2_c > 0)
+                        if (Item* cItem2 = Item::CreateItem(mail_template->item2,item2_c,pReceiver))
+                        {
+                            cItem2->SaveToDB();
+                            draft.AddItem(cItem2);
+                        }
+                    if(item3_c > 0)
+                        if (Item* cItem3 = Item::CreateItem(mail_template->item3,item3_c,pReceiver))
+                        {
+                            cItem3->SaveToDB();
+                            draft.AddItem(cItem3);
+                        }
+                    if(item4_c > 0)
+                        if (Item* cItem4 = Item::CreateItem(mail_template->item4,item4_c,pReceiver))
+                        {
+                            cItem4->SaveToDB();
+                            draft.AddItem(cItem4);
+                        }
+                    if(item5_c > 0)
+                        if (Item* cItem5 = Item::CreateItem(mail_template->item5,item5_c,pReceiver))
+                        {
+                            cItem5->SaveToDB();
+                            draft.AddItem(cItem5);
+                        }
+
+                    switch(step.script->datalong2)
+                    {
+                        case 3: // creature
+                            draft.SendMailTo(pReceiver, MailSender(MAIL_CREATURE , from_entry));
+                            break;
+                        case 4: // object
+                            draft.SendMailTo(pReceiver, MailSender(MAIL_GAMEOBJECT , from_entry));
+                            break;
+                        default:
+                            break;
+                    }
+                }else{
+                    sLog.outError("SCRIPT_COMMAND_SEND_MAIL (script id %u) can't find mail_template (mail_id: %u) ", step.script->id, step.script->datalong);
+                    break;
+                }
+
+                break;
+            }
+
             default:
                 sLog.outError("Unknown SCRIPT_COMMAND_ %u called for script id %u.",step.script->command, step.script->id);
                 break;

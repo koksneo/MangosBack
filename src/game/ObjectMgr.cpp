@@ -4576,6 +4576,31 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
                 }
                 break;
            }
+           case SCRIPT_COMMAND_SEND_MAIL:
+           {
+               if (!sObjectMgr.GetMailTemplate(tmp.datalong))
+               {
+                   sLog.outErrorDb("Table `%s` column datalong(mail_id) is not valid (mail_id: %u) for record id %u",
+                        tablename, tmp.datalong, tmp.id);
+                    continue;
+               }
+                
+               if( tmp.datalong2 != 3 && tmp.datalong2 != 4)
+               {
+                    sLog.outErrorDb("Table '%s' Invalid value datalong2 in record id %u (only 3 or 4)",
+                        tablename, tmp.id);
+                    continue;
+               }
+                
+               if (!tmp.datalong3)
+               {
+                    sLog.outErrorDb("Table '%s' empty value datalong3 in record id %u (only 3 or 4)",
+                        tablename, tmp.id);
+                    continue;
+               }
+
+               break;
+           }
         }
 
         if (scripts.find(tmp.id) == scripts.end())
@@ -4953,6 +4978,56 @@ void ObjectMgr::LoadGossipText()
     sLog.outString();
     sLog.outString( ">> Loaded %u npc texts", count );
     delete result;
+}
+
+void ObjectMgr::LoadMailTemplate()
+{
+    mMailTemplateMap.clear();
+
+    QueryResult *result = WorldDatabase.Query("SELECT id, title, text, item1, item1_count, item2, item2_count, item3, item3_count, item4, item4_count, item5, item5_count FROM mail_template");
+    
+    if(!result)
+    {
+        barGoLink bar(1);
+
+        bar.step();
+
+        sLog.outString();
+        sLog.outString(">> Loaded 0 Mail template. DB table 'mail_template' is empty.");
+        return;
+    }
+
+    barGoLink bar((int)result->GetRowCount());
+
+    do
+    {
+        Field *fields = result->Fetch();
+        bar.step();
+
+        uint32 id = fields[0].GetUInt32();
+        
+        MailTemplate& data = mMailTemplateMap[id];
+
+        data.title      = fields[1].GetString();
+        data.text       = fields[2].GetString();
+        data.item1      = fields[3].GetUInt8();     // item 1
+        data.item1_c    = fields[4].GetUInt8();
+        data.item2      = fields[5].GetUInt8();     // item 2
+        data.item2_c    = fields[6].GetUInt8();
+        data.item3      = fields[7].GetUInt8();     // item 3
+        data.item3_c    = fields[8].GetUInt8();
+        data.item4      = fields[9].GetUInt8();     // item 4
+        data.item4_c    = fields[10].GetUInt8();
+        data.item5      = fields[11].GetUInt8();     // item 5
+        data.item5_c    = fields[12].GetUInt8();
+        
+
+    }while(result->NextRow());
+
+    delete result;
+
+    sLog.outString();
+    sLog.outString( ">> Loaded %lu Mail template", (unsigned long)mMailTemplateMap.size() );
 }
 
 void ObjectMgr::LoadNpcTextLocales()

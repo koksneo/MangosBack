@@ -5010,16 +5010,16 @@ void ObjectMgr::LoadMailTemplate()
 
         data.title      = fields[1].GetString();
         data.text       = fields[2].GetString();
-        data.item1      = fields[3].GetUInt8();     // item 1
-        data.item1_c    = fields[4].GetUInt8();
-        data.item2      = fields[5].GetUInt8();     // item 2
-        data.item2_c    = fields[6].GetUInt8();
-        data.item3      = fields[7].GetUInt8();     // item 3
-        data.item3_c    = fields[8].GetUInt8();
-        data.item4      = fields[9].GetUInt8();     // item 4
-        data.item4_c    = fields[10].GetUInt8();
-        data.item5      = fields[11].GetUInt8();     // item 5
-        data.item5_c    = fields[12].GetUInt8();
+        data.item1      = fields[3].GetUInt32();     // item 1
+        data.item1_c    = fields[4].GetUInt32();
+        data.item2      = fields[5].GetUInt32();     // item 2
+        data.item2_c    = fields[6].GetUInt32();
+        data.item3      = fields[7].GetUInt32();     // item 3
+        data.item3_c    = fields[8].GetUInt32();
+        data.item4      = fields[9].GetUInt32();     // item 4
+        data.item4_c    = fields[10].GetUInt32();
+        data.item5      = fields[11].GetUInt32();     // item 5
+        data.item5_c    = fields[12].GetUInt32();
         
 
     }while(result->NextRow());

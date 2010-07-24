@@ -83,8 +83,6 @@ struct ScriptInfo
     float y;
     float z;
     float o;
-    std::string mail_title;
-    std::string mail_text;
 };
 
 typedef std::multimap<uint32, ScriptInfo> ScriptMap;

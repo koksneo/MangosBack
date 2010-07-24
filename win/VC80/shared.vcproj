@@ -532,6 +532,14 @@
 				RelativePath="..\..\src\shared\Database\DatabaseMysql.h"
 				>
 			</File>
+            <File
+				RelativePath="..\..\src\shared\Database\DelayExecutor.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\shared\Database\DelayExecutor.h"
+				>
+			</File>
 			<File
 				RelativePath="..\..\src\shared\Database\Field.cpp"
 				>

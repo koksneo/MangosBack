@@ -1100,6 +1100,72 @@ bool GOHello_go_acherus_soul_prison(Player* pPlayer, GameObject* pGo)
     return false;
 }
 
+/*######
+## npc_eye_of_acherus
+######*/
+
+struct MANGOS_DLL_DECL npc_eye_of_acherusAI : public ScriptedAI
+{
+    npc_eye_of_acherusAI(Creature *pCreature) : ScriptedAI(pCreature)
+    {
+        m_creature->SetActiveObjectState(true);
+        m_creature->SetLevel(55); //else one hack
+        StartTimer = 2000;
+        Active = false;
+    }
+
+    uint32 StartTimer;
+    bool Active;
+
+    void Reset(){}
+    void AttackStart(Unit *) {}
+    void MoveInLineOfSight(Unit*) {}
+
+    void MovementInform(uint32 uiType, uint32 uiPointId)
+    {
+        if (uiType != POINT_MOTION_TYPE && uiPointId == 0)
+            return;
+
+            char * text = "The Eye of Acherus is in your control";
+            m_creature->MonsterTextEmote(text, m_creature->GetGUID(), true);
+            m_creature->CastSpell(m_creature, 51890, true);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if(m_creature->isCharmed())
+        {
+            if (StartTimer < uiDiff && !Active)
+            {
+                m_creature->CastSpell(m_creature, 70889, true);
+                m_creature->CastSpell(m_creature, 51892, true);
+                char * text = "The Eye of Acherus launches towards its destination";
+                m_creature->MonsterTextEmote(text, m_creature->GetGUID(), true);
+                m_creature->SetSpeedRate(MOVE_FLIGHT, 6.4f,true);
+                m_creature->GetMotionMaster()->MovePoint(0, 1750.8276f, -5873.788f, 151.2266f);
+                Active = true;
+            }
+            else StartTimer -= uiDiff;
+        }
+        else
+        {
+            m_creature->CleanupsBeforeDelete();
+            m_creature->AddObjectToRemoveList();
+        }
+    }
+
+    void JustDied(Unit*u)
+    {
+        m_creature->CleanupsBeforeDelete();
+        m_creature->AddObjectToRemoveList();
+    }
+};
+
+CreatureAI* GetAI_npc_eye_of_acherus(Creature* pCreature)
+{
+    return new npc_eye_of_acherusAI(pCreature);
+}
+
 void AddSC_ebon_hold()
 {
     Script *newscript;
@@ -1135,5 +1201,10 @@ void AddSC_ebon_hold()
     newscript = new Script;
     newscript->Name = "go_acherus_soul_prison";
     newscript->pGOHello = &GOHello_go_acherus_soul_prison;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_eye_of_acherus";
+    newscript->GetAI = &GetAI_npc_eye_of_acherus;
     newscript->RegisterSelf();
 }

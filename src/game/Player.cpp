@@ -6762,16 +6762,12 @@ void Player::UpdateArea(uint32 newArea)
         // Death Knight Dominion Over Acherus
         if ((area->ID == 4356 || area->ID == 4298 || area->ID == 4636) && area->mapid == 609 && !IsFlying())
         {
-            QuestStatus quest_status = GetQuestStatus(12657);
-            if(quest_status && quest_status == QUEST_STATUS_COMPLETE)
+            if(GetQuestRewardStatus(12657))
                 if(!HasAura(51721))
                     CastSpell(this, 51721, true);
         }else{
-            if(HasAura(51721))
-            {
                 RemoveAurasDueToSpell(51721);
                 RemoveAurasDueToSpell(54055);
-            }
         }
     }
 

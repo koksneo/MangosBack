@@ -6758,6 +6758,21 @@ void Player::UpdateArea(uint32 newArea)
         // TODO: implement wintergrasp parachute when battle in progress
         /* if ((area->flags & AREA_FLAG_OUTDOOR_PVP) && IsFreeFlying() && <WINTERGRASP_BATTLE_IN_PROGRESS> && !isGameMaster())
             CastSpell(this, 58730, true); */
+
+        // Death Knight Dominion Over Acherus
+        if ((area->ID == 4356 || area->ID == 4298 || area->ID == 4636) && area->mapid == 609 && !IsFlying())
+        {
+            QuestStatus quest_status = GetQuestStatus(12657);
+            if(quest_status && quest_status == QUEST_STATUS_COMPLETE)
+                if(!HasAura(51721))
+                    CastSpell(this, 51721, true);
+        }else{
+            if(HasAura(51721))
+            {
+                RemoveAurasDueToSpell(51721);
+                RemoveAurasDueToSpell(54055);
+            }
+        }
     }
 
     UpdateAreaDependentAuras(newArea);

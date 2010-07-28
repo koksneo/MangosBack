@@ -368,8 +368,12 @@ struct MANGOS_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
                 }
             }
 
-            Check_Timer = 5000;
-        }else Check_Timer -= diff;
+            Check_Timer = 10000;
+        } else if (m_pInstance) {
+            { 
+            if (m_pInstance->GetData(TYPE_ZATH) == SPECIAL || m_pInstance->GetData(TYPE_THEKAL) == SPECIAL) Check_Timer -= diff; 
+            } 
+        } 
 
         if (m_creature->GetHealthPercent() < 5.0f)
         {
@@ -500,8 +504,12 @@ struct MANGOS_DLL_DECL mob_zealot_zathAI : public ScriptedAI
                 }
             }
 
-            Check_Timer = 5000;
-        }else Check_Timer -= diff;
+            Check_Timer = 10000;
+        } else if (m_pInstance) {
+            { 
+            if (m_pInstance->GetData(TYPE_ZATH) == SPECIAL || m_pInstance->GetData(TYPE_THEKAL) == SPECIAL) Check_Timer -= diff; 
+            } 
+        } 
 
         if (m_creature->GetHealthPercent() <= 5.0f)
         {

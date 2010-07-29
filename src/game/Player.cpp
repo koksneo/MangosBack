@@ -6747,7 +6747,8 @@ void Player::UpdateArea(uint32 newArea)
         // remove ffa flag only if not ffapvp realm
         // removal in sanctuaries and capitals is handled in zone update
         if((IsFFAPvP() && !sWorld.IsFFAPvPRealm()) ||
-        (sAreaTriggerDevelop.GetAreaTriggerDevelop(area->ID)->Type == AREATRIGGER_DEVELOP_AREA &&
+        (sAreaTriggerDevelop.GetAreaTriggerDevelop(area->ID) &&
+        sAreaTriggerDevelop.GetAreaTriggerDevelop(area->ID)->Type == AREATRIGGER_DEVELOP_AREA &&
         sAreaTriggerDevelop.GetAreaTriggerDevelop(area->ID)->Action == AREATRIGGER_DEVELOP_NOPVP))
             SetFFAPvP(false);
     }
@@ -6836,7 +6837,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     }
 
     if((zone->flags & AREA_FLAG_SANCTUARY) || 
-        (sAreaTriggerDevelop.GetAreaTriggerDevelop(zone->ID)->Type == AREATRIGGER_DEVELOP_ZONE &&
+        (sAreaTriggerDevelop.GetAreaTriggerDevelop(zone->ID) &&
+        sAreaTriggerDevelop.GetAreaTriggerDevelop(zone->ID)->Type == AREATRIGGER_DEVELOP_ZONE &&
         sAreaTriggerDevelop.GetAreaTriggerDevelop(zone->ID)->Action == AREATRIGGER_DEVELOP_NOPVP))       // in sanctuary
     {
         SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);

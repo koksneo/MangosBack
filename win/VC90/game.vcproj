@@ -535,6 +535,14 @@
 				>
 			</File>
 			<File
+				RelativePath="..\..\src\game\AreaTriggerDevelop.cpp"
+				>
+			</File>
+			<File
+				RelativePath="..\..\src\game\AreaTriggerDevelop.h"
+				>
+			</File>
+			<File
 				RelativePath="..\..\src\game\ArenaTeamHandler.cpp"
 				>
 			</File>

@@ -6737,7 +6737,7 @@ void Player::UpdateArea(uint32 newArea)
 
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
-    if (area && area->flags & AREA_FLAG_ARENA)
+    if (area && (area->flags & AREA_FLAG_ARENA))
     {
         if (!isGameMaster())
             SetFFAPvP(true);

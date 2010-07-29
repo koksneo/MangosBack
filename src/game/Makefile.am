@@ -34,6 +34,8 @@ libmangosgame_a_SOURCES = \
 	AchievementMgr.cpp \
 	AggressorAI.cpp \
 	AggressorAI.h \
+    AreaTriggerDevelop.cpp \
+    AreaTriggerDevelop.h \
 	ArenaTeam.cpp \
 	ArenaTeam.h \
 	ArenaTeamHandler.cpp \

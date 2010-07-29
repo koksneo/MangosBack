@@ -61,6 +61,7 @@
 #include "GMTicketMgr.h"
 #include "Util.h"
 #include "CharacterDatabaseCleaner.h"
+#include "AreaTriggerDevelop.h"
 
 INSTANTIATE_SINGLETON_1( World );
 
@@ -1075,6 +1076,9 @@ void World::SetInitialWorldSettings()
 
     sLog.outString( "Loading Quest Area Triggers..." );
     sObjectMgr.LoadQuestAreaTriggers();                         // must be after LoadQuests
+
+    sLog.outString( "Loading Area Trigger Develop ..." );
+    sAreaTriggerDevelop.LoadAreaTriggerDevelop();
 
     sLog.outString( "Loading Tavern Area Triggers..." );
     sObjectMgr.LoadTavernAreaTriggers();

@@ -334,6 +334,7 @@ class ChatHandler
 
         bool HandleReloadAchievementCriteriaRequirementCommand(const char* args);
         bool HandleReloadAchievementRewardCommand(const char* args);
+        bool HandleReloadAreaTriggerDevelopCommand(const char* args);
         bool HandleReloadAreaTriggerTavernCommand(const char* args);
         bool HandleReloadAreaTriggerTeleportCommand(const char* args);
         bool HandleReloadEventScriptsCommand(const char* args);

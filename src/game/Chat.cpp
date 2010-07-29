@@ -426,6 +426,7 @@ ChatCommand * ChatHandler::getCommandTable()
         { "achievement_criteria_requirement",SEC_ADMINISTRATOR,true,&ChatHandler::HandleReloadAchievementCriteriaRequirementCommand,"",NULL },
         { "achievement_reward",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadAchievementRewardCommand,       "", NULL },
         { "areatrigger_involvedrelation",SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadQuestAreaTriggersCommand,       "", NULL },
+        { "areatrigger_develop",         SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadAreaTriggerDevelopCommand,       "", NULL },
         { "areatrigger_tavern",          SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadAreaTriggerTavernCommand,       "", NULL },
         { "areatrigger_teleport",        SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadAreaTriggerTeleportCommand,     "", NULL },
         { "command",                     SEC_ADMINISTRATOR, true,  &ChatHandler::HandleReloadCommandCommand,                 "", NULL },

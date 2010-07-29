@@ -61,6 +61,7 @@
 #include "SocialMgr.h"
 #include "AchievementMgr.h"
 #include "Mail.h"
+#include "AreaTriggerDevelop.h"
 
 #include <cmath>
 
@@ -6736,7 +6737,7 @@ void Player::UpdateArea(uint32 newArea)
 
     // FFA_PVP flags are area and not zone id dependent
     // so apply them accordingly
-    if (area && (area->flags & AREA_FLAG_ARENA))
+    if (area && area->flags & AREA_FLAG_ARENA)
     {
         if (!isGameMaster())
             SetFFAPvP(true);
@@ -6745,7 +6746,9 @@ void Player::UpdateArea(uint32 newArea)
     {
         // remove ffa flag only if not ffapvp realm
         // removal in sanctuaries and capitals is handled in zone update
-        if(IsFFAPvP() && !sWorld.IsFFAPvPRealm())
+        if((IsFFAPvP() && !sWorld.IsFFAPvPRealm()) ||
+        (sAreaTriggerDevelop.GetAreaTriggerDevelop(area->ID)->Type == AREATRIGGER_DEVELOP_AREA &&
+        sAreaTriggerDevelop.GetAreaTriggerDevelop(area->ID)->Action == AREATRIGGER_DEVELOP_NOPVP))
             SetFFAPvP(false);
     }
 
@@ -6770,7 +6773,7 @@ void Player::UpdateArea(uint32 newArea)
                 RemoveAurasDueToSpell(54055);
         }
     }
-
+    
     UpdateAreaDependentAuras(newArea);
 }
 
@@ -6832,7 +6835,9 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             pvpInfo.endTimer = time(0);                     // start toggle-off
     }
 
-    if(zone->flags & AREA_FLAG_SANCTUARY)                   // in sanctuary
+    if((zone->flags & AREA_FLAG_SANCTUARY) || 
+        (sAreaTriggerDevelop.GetAreaTriggerDevelop(zone->ID)->Type == AREATRIGGER_DEVELOP_ZONE &&
+        sAreaTriggerDevelop.GetAreaTriggerDevelop(zone->ID)->Action == AREATRIGGER_DEVELOP_NOPVP))       // in sanctuary
     {
         SetByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_SANCTUARY);
         if(sWorld.IsFFAPvPRealm())

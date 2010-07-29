@@ -52,6 +52,7 @@
 #include "InstanceData.h"
 #include "CreatureEventAIMgr.h"
 #include "DBCEnums.h"
+#include "AreaTriggerDevelop.h"
 
 //reload commands
 bool ChatHandler::HandleReloadAllCommand(const char*)
@@ -227,6 +228,14 @@ bool ChatHandler::HandleReloadAchievementRewardCommand(const char*)
     sLog.outString( "Re-Loading Achievement Reward Data..." );
     sAchievementMgr.LoadRewards();
     SendGlobalSysMessage("DB table `achievement_reward` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadAreaTriggerDevelopCommand(const char*)
+{
+    sLog.outString( "Re-Loading Develop Area Triggers..." );
+    sAreaTriggerDevelop.LoadAreaTriggerDevelop();
+    SendGlobalSysMessage("DD table `areatrigger_develop` is reloaded.");
     return true;
 }
 

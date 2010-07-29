@@ -26,6 +26,14 @@
 
 INSTANTIATE_SINGLETON_1( AreaTriggerDevelop );
 
+AreaTriggerDevelop::AreaTriggerDevelop()
+{
+}
+
+AreaTriggerDevelop::~AreaTriggerDevelop()
+{
+}
+
 void AreaTriggerDevelop::LoadAreaTriggerDevelop()
 {
     mAreaTriggerDevelopMap.clear();

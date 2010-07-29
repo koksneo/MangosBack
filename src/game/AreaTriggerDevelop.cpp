@@ -62,7 +62,7 @@ void AreaTriggerDevelop::LoadAreaTriggerDevelop()
 
         data.ID = id;
         data.Type = fields[1].GetUInt32();
-        data.Action = fields[3].GetUInt32();
+        data.Action = fields[2].GetUInt32();
 
     }while(result->NextRow());
 

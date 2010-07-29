@@ -288,12 +288,12 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
         switch(uiPointId)
         {
             case 0:
-                DoScriptText(-1000000, m_creature);//2
+                DoScriptText(-1000094, m_creature);//2
                 m_bCanWalk = false;
                 m_uiEventTimer = 5000;
                 break;
             case 1:
-                DoScriptText(-1000000, m_creature);//4
+                DoScriptText(-1000095, m_creature);//4
                 m_bCanWalk = false;
                 m_uiEventTimer = 5000;
                 break;
@@ -301,10 +301,10 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
                 m_bCanWalk = false;
                 break;
             case 3:
-                DoScriptText(-1000000, m_creature);//5
+                DoScriptText(-1000097, m_creature);//5
                 break;
             case 4:
-                DoScriptText(-1000000, m_creature);//6
+                DoScriptText(-1000099, m_creature);//6
                 m_bCanWalk = false;
                 m_uiEventTimer = 5000;
                 break;
@@ -370,7 +370,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
                 switch(m_uiEventPhase)
                 {
                     case 0:
-                        DoScriptText(-1000000, m_creature);
+                        DoScriptText(-1000096, m_creature);
                         DoGate(DATA_ARENA4, GO_STATE_READY);
                         Start(false, false);
                         m_bCanWalk = true;
@@ -405,7 +405,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
                     case 7:
                         m_creature->SetVisibility(VISIBILITY_ON);
                         DoGate(DATA_ARENA1,GO_STATE_READY);
-                        DoScriptText(-1000000, m_creature);
+                        DoScriptText(-1000098, m_creature);
                         m_bCanWalk = true;
                         m_uiEventTimer = 0;
                         break;

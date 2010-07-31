@@ -1,0 +1,1 @@
+ALTER TABLE `areatrigger_develop` CHANGE `type` `type` TINYINT(1) NOT NULL COMMENT '1 is Zone, 2 is Area (Map > Zone > Area)', CHANGE `action` `action` TINYINT(3) NOT NULL COMMENT '1 is force non-PvP (Sanctuary)', CHANGE `id` `id` SMALLINT(5) NOT NULL COMMENT 'Zone or Area ID from AreaTable DBC file';

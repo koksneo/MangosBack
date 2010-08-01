@@ -1166,6 +1166,60 @@ CreatureAI* GetAI_npc_eye_of_acherus(Creature* pCreature)
     return new npc_eye_of_acherusAI(pCreature);
 }
 
+/*######
+## Val'kyr Battle-Maiden
+######*/
+ 
+#define SPELL_REVIVE                51918
+ 
+struct MANGOS_DLL_DECL npc_valkyr_battlemaidenAI : public ScriptedAI
+{
+    npc_valkyr_battlemaidenAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        pCreature->NearTeleportTo(m_creature->GetPositionX()+5.0f, m_creature->GetPositionY()+5.0f, m_creature->GetPositionZ()+10.0f, m_creature->GetOrientation(), false);
+        Reset();
+    }
+ 
+    uint32 m_uiDespawnTimer;
+ 
+    void Reset()
+    {
+        m_creature->GetMotionMaster()->MovePoint(OWNER_POINT, m_creature->GetPositionX()-5.0f, m_creature->GetPositionY()-5.0f, m_creature->GetPositionZ()-8.0f);
+        m_uiDespawnTimer = 7000;
+    }
+ 
+    void MovementInform(uint32 uiType, uint32 uiPointId)
+    {
+        if (uiType != POINT_MOTION_TYPE)
+            return;
+ 
+        if (uiPointId == OWNER_POINT)
+            if (Unit *pPlayer = Unit::GetUnit(*m_creature, m_creature->GetCreatorGUID()) )
+                DoCastSpellIfCan(pPlayer, SPELL_REVIVE);
+    }
+ 
+    void UpdateAI(uint32 const uiDiff)
+    {
+        if (m_uiDespawnTimer <= uiDiff)
+        {
+            m_uiDespawnTimer = 7000;
+            m_creature->SetVisibility(VISIBILITY_OFF);
+            m_creature->ForcedDespawn(1000);
+        }
+        else m_uiDespawnTimer -= uiDiff;
+    }
+};
+ 
+CreatureAI* GetAI_npc_valkyr_battlemaiden(Creature* pCreature)
+{
+    return new npc_valkyr_battlemaidenAI (pCreature);
+}
+ 
+CreatureAI* GetAI_mob_scarlet_ghoul(Creature* pCreature)
+{
+    return new mob_scarlet_ghoulAI (pCreature);
+}
+
 void AddSC_ebon_hold()
 {
     Script *newscript;
@@ -1206,5 +1260,10 @@ void AddSC_ebon_hold()
     newscript = new Script;
     newscript->Name = "npc_eye_of_acherus";
     newscript->GetAI = &GetAI_npc_eye_of_acherus;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_valkyr_battlemaiden";
+    newscript->GetAI = &GetAI_npc_valkyr_battlemaiden;
     newscript->RegisterSelf();
 }

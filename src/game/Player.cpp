@@ -6764,7 +6764,7 @@ void Player::UpdateArea(uint32 newArea)
             CastSpell(this, 58730, true); */
 
         // Death Knight Dominion Over Acherus
-        if ((area->ID == 4356 || area->ID == 4298 || area->ID == 4636) && area->mapid == 609 && !IsFlying())
+        if ((area->ID == 4356 || area->ID == 4298 || area->ID == 4636) && area->mapid == 609 && !IsFreeFlying())
         {
             if(GetQuestRewardStatus(12657))
                 if(!HasAura(51721))
@@ -6836,7 +6836,7 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
             pvpInfo.endTimer = time(0);                     // start toggle-off
     }
 
-    if((zone->flags & AREA_FLAG_SANCTUARY) || 
+    if((zone->flags & AREA_FLAG_SANCTUARY) || zone->mapid == 609 || 
         (sAreaTriggerDevelop.GetAreaTriggerDevelop(zone->ID) &&
         sAreaTriggerDevelop.GetAreaTriggerDevelop(zone->ID)->Type == AREATRIGGER_DEVELOP_ZONE &&
         sAreaTriggerDevelop.GetAreaTriggerDevelop(zone->ID)->Action == AREATRIGGER_DEVELOP_NOPVP))       // in sanctuary

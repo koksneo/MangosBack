@@ -7,7 +7,7 @@ WHERE entry=28519;
 DELETE FROM creature WHERE id=28523;
 
 UPDATE creature_template SET
-flags_extra=flags_extra 128
+flags_extra=flags_extra|128
 WHERE entry=28523;
 
 DELETE FROM creature_ai_scripts WHERE creature_id=28519;

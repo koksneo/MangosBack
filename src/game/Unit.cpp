@@ -494,7 +494,7 @@ void Unit::DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb)
     if(pVictim != this && GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if(area && (area->flags & AREA_FLAG_SANCTUARY || area->mapid == 609))       //sanctuary
+        if(area && ((area->flags & AREA_FLAG_SANCTUARY) || area->mapid == 609))       //sanctuary
         {
             if(absorb)
                 *absorb += damage;
@@ -1307,7 +1307,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
     if(pVictim != this && GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if(area && (area->flags & AREA_FLAG_SANCTUARY || area->mapid == 609))       // sanctuary
+        if(area && ((area->flags & AREA_FLAG_SANCTUARY) || area->mapid == 609))       // sanctuary
             return;
     }
 
@@ -1611,7 +1611,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
     if(pVictim != this && GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if(area && (area->flags & AREA_FLAG_SANCTUARY || area->mapid == 609))       // sanctuary
+        if(area && ((area->flags & AREA_FLAG_SANCTUARY) || area->mapid == 609))       // sanctuary
             return;
     }
 

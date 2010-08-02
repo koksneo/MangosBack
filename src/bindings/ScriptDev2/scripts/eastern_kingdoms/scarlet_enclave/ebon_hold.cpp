@@ -1171,6 +1171,7 @@ CreatureAI* GetAI_npc_eye_of_acherus(Creature* pCreature)
 ######*/
  
 #define SPELL_REVIVE                51918
+#define OWNER_POINT                 0
  
 struct MANGOS_DLL_DECL npc_valkyr_battlemaidenAI : public ScriptedAI
 {
@@ -1213,11 +1214,6 @@ struct MANGOS_DLL_DECL npc_valkyr_battlemaidenAI : public ScriptedAI
 CreatureAI* GetAI_npc_valkyr_battlemaiden(Creature* pCreature)
 {
     return new npc_valkyr_battlemaidenAI (pCreature);
-}
- 
-CreatureAI* GetAI_mob_scarlet_ghoul(Creature* pCreature)
-{
-    return new mob_scarlet_ghoulAI (pCreature);
 }
 
 void AddSC_ebon_hold()

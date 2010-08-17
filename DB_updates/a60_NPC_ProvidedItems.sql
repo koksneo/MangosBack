@@ -63,11 +63,10 @@ INSERT INTO gossip_scripts (id, delay, command, datalong, datalong2, dataint) VA
 
 ## Raelorasz (26117)
 
--- Missing text 26118. It is something like "Here you are $n| Do be more careful, won't you?"
 DELETE FROM gossip_menu WHERE entry IN (26117,26118);
 INSERT INTO gossip_menu (entry,text_id) VALUES
 (26117,12566), 
-(26118,0);
+(26118,12568);
 
 DELETE FROM gossip_menu_option WHERE menu_id=26117;
 INSERT INTO gossip_menu_option (menu_id,id,option_icon,option_text,option_id,npc_option_npcflag,action_menu_id,action_script_id,cond_1,cond_1_val_1,cond_1_val_2,cond_2,cond_2_val_1,cond_2_val_2) VALUES

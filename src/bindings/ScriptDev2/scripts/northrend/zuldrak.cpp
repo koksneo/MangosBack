@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Zul'Drak
-SD%Complete: Q12512
+SD%Complete: Q12512, Q12916
 SDComment:
 SDCategory: ZulDrak
 EndScriptData */
@@ -24,6 +24,7 @@ EndScriptData */
 /* ContentData
 mob_crusader
 mob_crusader_trigger
+go_scourge_enclosure
 EndContentData 
 */
 
@@ -278,6 +279,29 @@ CreatureAI* GetAI_mob_crusader_trigger(Creature* pCreature)
     return new mob_crusader_triggerAI(pCreature);
 }
 
+/*#####
+## go_scourge_enclosure
+#####*/
+
+enum
+{
+    QUEST_OUR_ONLY_HOPE = 12916,
+    NPC_GYMER = 29928
+
+};
+
+bool GOHello_scourge_enclosure(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestStatus(QUEST_OUR_ONLY_HOPE) == QUEST_STATUS_INCOMPLETE)
+    {
+        if(Creature *pGymer = GetClosestCreatureWithEntry(pPlayer, NPC_GYMER, INTERACTION_DISTANCE))
+        {
+            pPlayer->KilledMonsterCredit(NPC_GYMER, pGymer->GetGUID());
+
+        }
+    }
+    return false;
+};
 void AddSC_zuldrak()
 {
     Script* pNewScript;
@@ -297,5 +321,9 @@ void AddSC_zuldrak()
     pNewScript->Name = "npc_gurgthock";
     pNewScript->pQuestAccept = &QuestAccept_npc_gurgthock;
     pNewScript->RegisterSelf();
-}
 
+    pNewScript = new Script;
+    pNewScript->Name = "go_scourge_enclosure";
+    pNewScript->pGOHello = &GOHello_scourge_enclosure;
+    pNewScript->RegisterSelf();
+}

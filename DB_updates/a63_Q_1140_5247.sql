@@ -1,0 +1,9 @@
+-- The Tower of Althalaxx (1140)
+UPDATE gameobject_template SET flags=flags&~4 WHERE entry IN (19901,20352);
+
+-- Fragments of the Past (part 2) (5247)
+
+DELETE FROM gameobject WHERE id IN (178224,300159);
+INSERT INTO gameobject VALUES
+(761750,300159,1,1,1,-4036.1,1342.28,167.404,1.05181,0,0,0.501996,0.86487,25,0,1),
+(761748,178224,1,1,1,-4035.93,1342.53,159.754,1.06359,0,0,0.507081,0.861898,25,0,1);

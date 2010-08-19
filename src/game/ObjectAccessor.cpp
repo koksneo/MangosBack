@@ -66,7 +66,7 @@ ObjectAccessor::GetUnit(WorldObject const &u, ObjectGuid guid)
     if (!u.IsInWorld())
         return NULL;
 
-    return u.GetMap()->GetCreatureOrPetOrVehicle(guid);
+    return u.GetMap()->GetAnyTypeCreature(guid);
 }
 
 Corpse* ObjectAccessor::GetCorpseInMap(ObjectGuid guid, uint32 mapid)
@@ -111,7 +111,7 @@ ObjectAccessor::SaveAllPlayers()
         itr->second->SaveToDB();
 }
 
-void ObjectAccessor::KickPlayer(uint64 guid)
+void ObjectAccessor::KickPlayer(ObjectGuid guid)
 {
     if (Player* p = HashMapHolder<Player>::Find(guid))
     {

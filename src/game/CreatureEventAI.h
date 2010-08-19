@@ -109,6 +109,7 @@ enum EventAI_ActionType
     ACTION_T_SET_SHEATH                 = 40,               // Sheath (0-passive,1-melee,2-ranged)
     ACTION_T_FORCE_DESPAWN              = 41,               // No Params
     ACTION_T_SET_INVINCIBILITY_HP_LEVEL = 42,               // MinHpValue, format(0-flat,1-percent from max health)
+    ACTION_T_MOUNT_TO_ENTRY_OR_MODEL    = 43,               // Creature_template entry(param1) OR ModelId (param2) (or 0 for both to unmount)
     ACTION_T_END,
 };
 
@@ -146,10 +147,10 @@ enum EventFlags
     EFLAG_DIFFICULTY_1          = 0x04,                     //Event only occurs in instance difficulty 1
     EFLAG_DIFFICULTY_2          = 0x08,                     //Event only occurs in instance difficulty 2
     EFLAG_DIFFICULTY_3          = 0x10,                     //Event only occurs in instance difficulty 3
-    EFLAG_RESERVED_5            = 0x20,
+    EFLAG_RANDOM_ACTION         = 0x20,                     //Event only execute one from existed actions instead each action.
     EFLAG_RESERVED_6            = 0x40,
     EFLAG_DEBUG_ONLY            = 0x80,                     //Event only occurs in debug build
-
+    // no free bits, uint8 field
     EFLAG_DIFFICULTY_ALL        = (EFLAG_DIFFICULTY_0|EFLAG_DIFFICULTY_1|EFLAG_DIFFICULTY_2|EFLAG_DIFFICULTY_3)
 };
 
@@ -377,6 +378,12 @@ struct CreatureEventAI_Action
             uint32 hp_level;
             uint32 is_percent;
         } invincibility_hp_level;
+        // ACTION_T_MOUNT_TO_ENTRY_OR_MODEL                 = 43
+        struct
+        {
+            uint32 creatureId;                              // set one from fields (or 0 for both to dismount)
+            uint32 modelId;
+        } mount;
         // RAW
         struct
         {
@@ -569,7 +576,7 @@ class MANGOS_DLL_SPEC CreatureEventAI : public CreatureAI
         explicit CreatureEventAI(Creature *c);
         ~CreatureEventAI()
         {
-            CreatureEventAIList.clear();
+            m_CreatureEventAIList.clear();
         }
         void JustRespawned();
         void Reset();
@@ -607,18 +614,21 @@ class MANGOS_DLL_SPEC CreatureEventAI : public CreatureAI
         void DoFindFriendlyMissingBuff(std::list<Creature*>& _list, float range, uint32 spellid);
         void DoFindFriendlyCC(std::list<Creature*>& _list, float range);
 
-                                                            //Holder for events (stores enabled, time, and eventid)
-        std::list<CreatureEventAIHolder> CreatureEventAIList;
-        uint32 EventUpdateTime;                             //Time between event updates
-        uint32 EventDiff;                                   //Time between the last event call
-        bool bEmptyList;
+    protected:
+        uint32 m_EventUpdateTime;                           //Time between event updates
+        uint32 m_EventDiff;                                 //Time between the last event call
+        bool   m_bEmptyList;
 
         //Variables used by Events themselves
-        uint8 Phase;                                        // Current phase, max 32 phases
-        bool CombatMovementEnabled;                         // If we allow targeted movment gen (movement twoards top threat)
-        bool MeleeEnabled;                                  // If we allow melee auto attack
-        float AttackDistance;                               // Distance to attack from
-        float AttackAngle;                                  // Angle of attack
-        uint32 InvinceabilityHpLevel;                       // Minimal health level allowed at damage apply
+        typedef std::vector<CreatureEventAIHolder> CreatureEventAIList;
+        CreatureEventAIList m_CreatureEventAIList;          //Holder for events (stores enabled, time, and eventid)
+
+        uint8  m_Phase;                                     // Current phase, max 32 phases
+        bool   m_CombatMovementEnabled;                     // If we allow targeted movment gen (movement twoards top threat)
+        bool   m_MeleeEnabled;                              // If we allow melee auto attack
+        float  m_AttackDistance;                            // Distance to attack from
+        float  m_AttackAngle;                               // Angle of attack
+        uint32 m_InvinceabilityHpLevel;                     // Minimal health level allowed at damage apply
 };
+
 #endif

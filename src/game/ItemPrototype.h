@@ -140,7 +140,7 @@ enum ItemFlags2
     ITEM_FLAGS2_NEED_ROLL_DISABLED            = 0x00000100, // need roll during looting is not allowed for this item
 };
 
-enum BAG_FAMILY_MASK
+enum BagFamilyMask
 {
     BAG_FAMILY_MASK_NONE                      = 0x00000000,
     BAG_FAMILY_MASK_ARROWS                    = 0x00000001,
@@ -484,7 +484,7 @@ enum ItemExtraFlags
     ITEM_EXTRA_NON_CONSUMABLE     = 0x01,                   // use as additional flag to spellcharges_N negative values, item not expire at no chanrges
     ITEM_EXTRA_REAL_TIME_DURATION = 0x02,                   // if set and have Duration time, then offline time included in counting, if not set then counted only in game time
 
-    ITEM_EXTRA_ALL                                          // all used flags, used for check DB data
+    ITEM_EXTRA_ALL                = 0x03                    // all used flags, used for check DB data (mask all above flags)
 };
 
 // GCC have alternative #pragma pack(N) syntax and old gcc version not support pack(push,N), also any gcc version not support it at some platform

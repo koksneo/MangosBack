@@ -28,6 +28,10 @@
 #include <map>
 #include <vector>
 
+struct ItemPrototype;
+class BattleGround;
+class InstanceSave;
+
 #define MAX_GROUP_SIZE 5
 #define MAX_RAID_SIZE 40
 #define MAX_RAID_SUBGROUPS (MAX_RAID_SIZE / MAX_GROUP_SIZE)
@@ -42,8 +46,6 @@ enum LootMethod
     NEED_BEFORE_GREED = 4
 };
 
-#define ALL_ROLL_VOTE_MASK 0x0F                             // set what votes allowed
-
 enum RollVote
 {
     ROLL_PASS              = 0,
@@ -57,6 +59,18 @@ enum RollVote
     ROLL_NOT_EMITED_YET    = 4,                             // send to client
     ROLL_NOT_VALID         = 5                              // not send to client
 };
+
+// set what votes allowed
+enum RollVoteMask
+{
+    ROLL_VOTE_MASK_PASS       = 0x01,
+    ROLL_VOTE_MASK_NEED       = 0x02,
+    ROLL_VOTE_MASK_GREED      = 0x04,
+    ROLL_VOTE_MASK_DISENCHANT = 0x08,
+
+    ROLL_VOTE_MASK_ALL        = 0x0F,
+};
+
 
 enum GroupMemberOnlineStatus
 {
@@ -89,8 +103,6 @@ enum GroupFlagMask
     GROUP_MAIN_TANK      = 0x04,
 };
 
-class BattleGround;
-
 enum GroupUpdateFlags
 {
     GROUP_UPDATE_FLAG_NONE              = 0x00000000,       // nothing
@@ -122,31 +134,37 @@ enum GroupUpdateFlags
                                                                 // 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10,11,12,13,14,15,16,17,18,19
 static const uint8 GroupUpdateLength[GROUP_UPDATE_FLAGS_COUNT] = { 0, 2, 2, 2, 1, 2, 2, 2, 2, 4, 8, 8, 1, 2, 2, 2, 1, 2, 2, 8};
 
-class InstanceSave;
-
 class Roll : public LootValidatorRef
 {
     public:
-        Roll(ObjectGuid _lootedTragetGuid, LootItem const& li)
+        Roll(ObjectGuid _lootedTragetGuid, LootMethod method, LootItem const& li)
             : lootedTargetGUID(_lootedTragetGuid), itemid(li.itemid), itemRandomPropId(li.randomPropertyId), itemRandomSuffix(li.randomSuffix),
-            itemCount(li.count), totalPlayersRolling(0), totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0) {}
+            itemCount(li.count), totalPlayersRolling(0), totalNeed(0), totalGreed(0), totalPass(0), itemSlot(0),
+            m_method(method), m_commonVoteMask(ROLL_VOTE_MASK_ALL) {}
         ~Roll() { }
         void setLoot(Loot *pLoot) { link(pLoot, this); }
         Loot *getLoot() { return getTarget(); }
         void targetObjectBuildLink();
+
+        void CalculateCommonVoteMask(uint32 max_enchanting_skill);
+        RollVoteMask GetVoteMaskFor(Player* player) const;
 
         ObjectGuid lootedTargetGUID;
         uint32 itemid;
         int32  itemRandomPropId;
         uint32 itemRandomSuffix;
         uint8 itemCount;
-        typedef std::map<uint64, RollVote> PlayerVote;
+        typedef UNORDERED_MAP<ObjectGuid, RollVote> PlayerVote;
         PlayerVote playerVote;                              //vote position correspond with player position (in group)
         uint8 totalPlayersRolling;
         uint8 totalNeed;
         uint8 totalGreed;
         uint8 totalPass;
         uint8 itemSlot;
+
+    private:
+        LootMethod m_method;
+        RollVoteMask m_commonVoteMask;
 };
 
 struct InstanceGroupBind
@@ -165,7 +183,7 @@ class MANGOS_DLL_SPEC Group
     public:
         struct MemberSlot
         {
-            uint64      guid;
+            ObjectGuid  guid;
             std::string name;
             uint8       group;
             bool        assistant;
@@ -185,19 +203,18 @@ class MANGOS_DLL_SPEC Group
         ~Group();
 
         // group manipulation methods
-        bool   Create(const uint64 &guid, const char * name);
+        bool   Create(ObjectGuid guid, const char * name);
         bool   LoadGroupFromDB(Field *fields);
         bool   LoadMemberFromDB(uint32 guidLow, uint8 subgroup, bool assistant);
         bool   AddInvite(Player *player);
         uint32 RemoveInvite(Player *player);
         void   RemoveAllInvites();
         bool   AddLeaderInvite(Player *player);
-        bool   AddMember(const uint64 &guid, const char* name);
-                                                            // method: 0=just remove, 1=kick
-        uint32 RemoveMember(const uint64 &guid, const uint8 &method);
-        void   ChangeLeader(const uint64 &guid);
+        bool   AddMember(ObjectGuid guid, const char* name);
+        uint32 RemoveMember(ObjectGuid guid, uint8 method); // method: 0=just remove, 1=kick
+        void   ChangeLeader(ObjectGuid guid);
         void   SetLootMethod(LootMethod method) { m_lootMethod = method; }
-        void   SetLooterGuid(const uint64 &guid) { m_looterGuid = guid; }
+        void   SetLooterGuid(ObjectGuid guid) { m_looterGuid = guid; }
         void   UpdateLooterGuid( Creature* creature, bool ifneed = false );
         void   SetLootThreshold(ItemQualities threshold) { m_lootThreshold = threshold; }
         void   Disband(bool hideDestroy=false);
@@ -208,54 +225,33 @@ class MANGOS_DLL_SPEC Group
         bool isRaidGroup() const { return m_groupType & GROUPTYPE_RAID; }
         bool isBGGroup()   const { return m_bgGroup != NULL; }
         bool IsCreated()   const { return GetMembersCount() > 0; }
-        const uint64& GetLeaderGUID() const { return m_leaderGuid; }
+        ObjectGuid GetLeaderGuid() const { return m_leaderGuid; }
         const char * GetLeaderName() const { return m_leaderName.c_str(); }
         LootMethod    GetLootMethod() const { return m_lootMethod; }
-        const uint64& GetLooterGuid() const { return m_looterGuid; }
+        ObjectGuid GetLooterGuid() const { return m_looterGuid; }
         ItemQualities GetLootThreshold() const { return m_lootThreshold; }
 
         // member manipulation methods
-        bool IsMember(const uint64& guid) const { return _getMemberCSlot(guid) != m_memberSlots.end(); }
-        bool IsLeader(const uint64& guid) const { return (GetLeaderGUID() == guid); }
-        uint64 GetMemberGUID(const std::string& name)
+        bool IsMember(ObjectGuid guid) const { return _getMemberCSlot(guid) != m_memberSlots.end(); }
+        bool IsLeader(ObjectGuid guid) const { return GetLeaderGuid() == guid; }
+        ObjectGuid GetMemberGUID(const std::string& name)
         {
             for(member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
-            {
-                if(itr->name == name)
-                {
+                if (itr->name == name)
                     return itr->guid;
-                }
-            }
-            return 0;
+
+            return ObjectGuid();
         }
-        bool IsAssistant(uint64 guid) const
+        bool IsAssistant(ObjectGuid guid) const
         {
             member_citerator mslot = _getMemberCSlot(guid);
-            if(mslot==m_memberSlots.end())
+            if (mslot==m_memberSlots.end())
                 return false;
 
             return mslot->assistant;
         }
-        Player* GetInvited(const uint64& guid) const;
+        Player* GetInvited(ObjectGuid guid) const;
         Player* GetInvited(const std::string& name) const;
-
-        bool SameSubGroup(uint64 guid1,const uint64& guid2) const
-        {
-            member_citerator mslot2 = _getMemberCSlot(guid2);
-            if(mslot2==m_memberSlots.end())
-                return false;
-
-            return SameSubGroup(guid1,&*mslot2);
-        }
-
-        bool SameSubGroup(uint64 guid1, MemberSlot const* slot2) const
-        {
-            member_citerator mslot1 = _getMemberCSlot(guid1);
-            if(mslot1==m_memberSlots.end() || !slot2)
-                return false;
-
-            return (mslot1->group==slot2->group);
-        }
 
         bool HasFreeSlotSubGroup(uint8 subgroup) const
         {
@@ -268,10 +264,10 @@ class MANGOS_DLL_SPEC Group
         GroupReference* GetFirstMember() { return m_memberMgr.getFirst(); }
         uint32 GetMembersCount() const { return m_memberSlots.size(); }
         void GetDataForXPAtKill(Unit const* victim, uint32& count,uint32& sum_level, Player* & member_with_max_level, Player* & not_gray_member_with_max_level, Player* additional = NULL);
-        uint8  GetMemberGroup(uint64 guid) const
+        uint8 GetMemberGroup(ObjectGuid guid) const
         {
             member_citerator mslot = _getMemberCSlot(guid);
-            if(mslot==m_memberSlots.end())
+            if (mslot == m_memberSlots.end())
                 return MAX_RAID_SUBGROUPS + 1;
 
             return mslot->group;
@@ -283,37 +279,37 @@ class MANGOS_DLL_SPEC Group
         void SetBattlegroundGroup(BattleGround *bg) { m_bgGroup = bg; }
         GroupJoinBattlegroundResult CanJoinBattleGroundQueue(BattleGround const* bgOrTemplate, BattleGroundQueueTypeId bgQueueTypeId, uint32 MinPlayerCount, uint32 MaxPlayerCount, bool isRated, uint32 arenaSlot);
 
-        void ChangeMembersGroup(const uint64 &guid, uint8 group);
+        void ChangeMembersGroup(ObjectGuid guid, uint8 group);
         void ChangeMembersGroup(Player *player, uint8 group);
 
-        uint64 const& GetMainTank() const { return m_mainTank; }
-        uint64 const& GetMainAssistant() const { return m_mainAssistant; }
+        ObjectGuid GetMainTankGuid() const { return m_mainTankGuid; }
+        ObjectGuid GetMainAssistantGuid() const { return m_mainAssistantGuid; }
 
-        void SetAssistant(uint64 guid, bool state)
+        void SetAssistant(ObjectGuid guid, bool state)
         {
-            if(!isRaidGroup())
+            if (!isRaidGroup())
                 return;
-            if(_setAssistantFlag(guid, state))
+            if (_setAssistantFlag(guid, state))
                 SendUpdate();
         }
-        void SetMainTank(uint64 guid)
+        void SetMainTank(ObjectGuid guid)
         {
-            if(!isRaidGroup())
+            if (!isRaidGroup())
                 return;
 
-            if(_setMainTank(guid))
+            if (_setMainTank(guid))
                 SendUpdate();
         }
-        void SetMainAssistant(uint64 guid)
+        void SetMainAssistant(ObjectGuid guid)
         {
-            if(!isRaidGroup())
+            if (!isRaidGroup())
                 return;
 
-            if(_setMainAssistant(guid))
+            if (_setMainAssistant(guid))
                 SendUpdate();
         }
 
-        void SetTargetIcon(uint8 id, uint64 whoGuid, uint64 targetGuid);
+        void SetTargetIcon(uint8 id, ObjectGuid whoGuid, ObjectGuid targetGuid);
 
         Difficulty GetDifficulty(bool isRaid) const { return isRaid ? m_raidDifficulty : m_dungeonDifficulty; }
         Difficulty GetDungeonDifficulty() const { return m_dungeonDifficulty; }
@@ -328,7 +324,7 @@ class MANGOS_DLL_SPEC Group
         void SendUpdate();
         void UpdatePlayerOutOfRange(Player* pPlayer);
                                                             // ignore: GUID of player that will be ignored
-        void BroadcastPacket(WorldPacket *packet, bool ignorePlayersInBGRaid, int group=-1, uint64 ignore=0);
+        void BroadcastPacket(WorldPacket *packet, bool ignorePlayersInBGRaid, int group=-1, ObjectGuid ignore = ObjectGuid());
         void BroadcastReadyCheck(WorldPacket *packet);
         void OfflineReadyCheck();
 
@@ -345,8 +341,8 @@ class MANGOS_DLL_SPEC Group
         void GroupLoot(Creature *creature, Loot *loot);
         void NeedBeforeGreed(Creature *creature, Loot *loot);
         void MasterLoot(Creature *creature, Loot *loot);
-        void CountRollVote(ObjectGuid const& playerGUID, ObjectGuid const& lootedTarget, uint32 itemSlot, RollVote choise);
-        void StartLootRool(Creature* lootTarget, Loot* loot, uint8 itemSlot, bool skipIfCanNotUse);
+        bool CountRollVote(Player* player, ObjectGuid const& lootedTarget, uint32 itemSlot, RollVote vote);
+        void StartLootRool(Creature* lootTarget, LootMethod method, Loot* loot, uint8 itemSlot, uint32 maxEnchantingSkill);
         void EndRoll();
 
         void LinkMember(GroupReference *pRef) { m_memberMgr.insertFirst(pRef); }
@@ -359,17 +355,17 @@ class MANGOS_DLL_SPEC Group
         BoundInstancesMap& GetBoundInstances(Difficulty difficulty) { return m_boundInstances[difficulty]; }
 
     protected:
-        bool _addMember(const uint64 &guid, const char* name, bool isAssistant=false);
-        bool _addMember(const uint64 &guid, const char* name, bool isAssistant, uint8 group);
-        bool _removeMember(const uint64 &guid);             // returns true if leader has changed
-        void _setLeader(const uint64 &guid);
+        bool _addMember(ObjectGuid guid, const char* name, bool isAssistant=false);
+        bool _addMember(ObjectGuid guid, const char* name, bool isAssistant, uint8 group);
+        bool _removeMember(ObjectGuid guid);                // returns true if leader has changed
+        void _setLeader(ObjectGuid guid);
 
-        void _removeRolls(const uint64 &guid);
+        void _removeRolls(ObjectGuid guid);
 
-        bool _setMembersGroup(const uint64 &guid, uint8 group);
-        bool _setAssistantFlag(const uint64 &guid, const bool &state);
-        bool _setMainTank(const uint64 &guid);
-        bool _setMainAssistant(const uint64 &guid);
+        bool _setMembersGroup(ObjectGuid guid, uint8 group);
+        bool _setAssistantFlag(ObjectGuid guid, const bool &state);
+        bool _setMainTank(ObjectGuid guid);
+        bool _setMainAssistant(ObjectGuid guid);
 
         void _homebindIfInstance(Player *player);
 
@@ -385,23 +381,21 @@ class MANGOS_DLL_SPEC Group
                 ++m_subGroupsCounts[itr->group];
         }
 
-        member_citerator _getMemberCSlot(uint64 Guid) const
+        member_citerator _getMemberCSlot(ObjectGuid guid) const
         {
             for(member_citerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
-            {
-                if (itr->guid == Guid)
+                if (itr->guid == guid)
                     return itr;
-            }
+
             return m_memberSlots.end();
         }
 
-        member_witerator _getMemberWSlot(uint64 Guid)
+        member_witerator _getMemberWSlot(ObjectGuid guid)
         {
             for(member_witerator itr = m_memberSlots.begin(); itr != m_memberSlots.end(); ++itr)
-            {
-                if (itr->guid == Guid)
+                if (itr->guid == guid)
                     return itr;
-            }
+
             return m_memberSlots.end();
         }
 
@@ -417,17 +411,19 @@ class MANGOS_DLL_SPEC Group
                 --m_subGroupsCounts[subgroup];
         }
 
+        uint32 GetMaxSkillValueForGroup(SkillType skill);
+
         void CountTheRoll(Rolls::iterator& roll);           // iterator update to next, in CountRollVote if true
-        bool CountRollVote(ObjectGuid const& playerGUID, Rolls::iterator& roll, RollVote choise);
+        bool CountRollVote(ObjectGuid const& playerGUID, Rolls::iterator& roll, RollVote vote);
 
         GroupFlagMask GetFlags(MemberSlot const& slot) const
         {
             uint8 flags = 0;
             if (slot.assistant)
                 flags |= GROUP_ASSISTANT;
-            if (slot.guid == m_mainAssistant)
+            if (slot.guid == m_mainAssistantGuid)
                 flags |= GROUP_MAIN_ASSISTANT;
-            if (slot.guid == m_mainTank)
+            if (slot.guid == m_mainTankGuid)
                 flags |= GROUP_MAIN_TANK;
             return GroupFlagMask(flags);
         }
@@ -436,18 +432,18 @@ class MANGOS_DLL_SPEC Group
         MemberSlotList      m_memberSlots;
         GroupRefManager     m_memberMgr;
         InvitesList         m_invitees;
-        uint64              m_leaderGuid;
+        ObjectGuid          m_leaderGuid;
         std::string         m_leaderName;
-        uint64              m_mainTank;
-        uint64              m_mainAssistant;
+        ObjectGuid          m_mainTankGuid;
+        ObjectGuid          m_mainAssistantGuid;
         GroupType           m_groupType;
         Difficulty          m_dungeonDifficulty;
         Difficulty          m_raidDifficulty;
         BattleGround*       m_bgGroup;
-        uint64              m_targetIcons[TARGET_ICON_COUNT];
+        ObjectGuid          m_targetIcons[TARGET_ICON_COUNT];
         LootMethod          m_lootMethod;
         ItemQualities       m_lootThreshold;
-        uint64              m_looterGuid;
+        ObjectGuid          m_looterGuid;
         Rolls               RollId;
         BoundInstancesMap   m_boundInstances[MAX_DIFFICULTY];
         uint8*              m_subGroupsCounts;

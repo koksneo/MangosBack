@@ -62,7 +62,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accid)
         return AOR_NAME_NOT_EXIST;                          // account doesn't exist
     delete result;
 
-    // existed characters list
+    // existing characters list
     result = CharacterDatabase.PQuery("SELECT guid FROM characters WHERE account='%d'",accid);
     if (result)
     {
@@ -70,7 +70,7 @@ AccountOpResult AccountMgr::DeleteAccount(uint32 accid)
         {
             Field *fields = result->Fetch();
             uint32 guidlo = fields[0].GetUInt32();
-            uint64 guid = MAKE_NEW_GUID(guidlo, 0, HIGHGUID_PLAYER);
+            ObjectGuid guid = ObjectGuid(HIGHGUID_PLAYER, guidlo);
 
             // kick if player currently
             ObjectAccessor::KickPlayer(guid);

@@ -24,7 +24,7 @@
 #include "ace/Thread_Mutex.h"
 #include <list>
 #include <map>
-#include "Utilities/UnorderedMap.h"
+#include "Utilities/UnorderedMapSet.h"
 #include "Database/DatabaseEnv.h"
 #include "DBCEnums.h"
 #include "ObjectGuid.h"
@@ -175,7 +175,7 @@ class InstanceResetScheduler
         InstanceSaveManager& m_InstanceSaves;
 
 
-        // fast lookup for reset times (always use existed functions for access/set)
+        // fast lookup for reset times (always use existing functions for access/set)
         typedef UNORDERED_MAP<uint32 /*PAIR32(map,difficulty)*/,time_t /*resetTime*/> ResetTimeByMapDifficultyMap;
         ResetTimeByMapDifficultyMap m_resetTimeByMapDifficulty;
 

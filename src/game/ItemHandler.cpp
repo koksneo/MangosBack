@@ -487,18 +487,22 @@ void WorldSession::HandlePageQuerySkippedOpcode( WorldPacket & recv_data )
 void WorldSession::HandleSellItemOpcode( WorldPacket & recv_data )
 {
     DEBUG_LOG(  "WORLD: Received CMSG_SELL_ITEM" );
-    uint64 vendorguid, itemguid;
+
+    ObjectGuid vendorGuid;
+    uint64 itemguid;
     uint32 count;
 
-    recv_data >> vendorguid >> itemguid >> count;
+    recv_data >> vendorGuid;
+    recv_data >> itemguid;
+    recv_data >> count;
 
     if(!itemguid)
         return;
 
-    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
+    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!pCreature)
     {
-        DEBUG_LOG( "WORLD: HandleSellItemOpcode - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(vendorguid)) );
+        DEBUG_LOG("WORLD: HandleSellItemOpcode - %s not found or you can't interact with him.", vendorGuid.GetString().c_str());
         _player->SendSellError( SELL_ERR_CANT_FIND_VENDOR, NULL, itemguid, 0);
         return;
     }
@@ -596,15 +600,15 @@ void WorldSession::HandleSellItemOpcode( WorldPacket & recv_data )
 void WorldSession::HandleBuybackItem(WorldPacket & recv_data)
 {
     DEBUG_LOG( "WORLD: Received CMSG_BUYBACK_ITEM" );
-    uint64 vendorguid;
+    ObjectGuid vendorGuid;
     uint32 slot;
 
-    recv_data >> vendorguid >> slot;
+    recv_data >> vendorGuid >> slot;
 
-    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorguid, UNIT_NPC_FLAG_VENDOR);
+    Creature *pCreature = GetPlayer()->GetNPCIfCanInteractWith(vendorGuid, UNIT_NPC_FLAG_VENDOR);
     if (!pCreature)
     {
-        DEBUG_LOG( "WORLD: HandleBuybackItem - Unit (GUID: %u) not found or you can't interact with him.", uint32(GUID_LOPART(vendorguid)) );
+        DEBUG_LOG("WORLD: HandleBuybackItem - %s not found or you can't interact with him.", vendorGuid.GetString().c_str());
         _player->SendSellError( SELL_ERR_CANT_FIND_VENDOR, NULL, 0, 0);
         return;
     }
@@ -740,7 +744,11 @@ void WorldSession::SendListInventory(uint64 vendorguid)
 
     if (!vItems)
     {
-        _player->SendSellError(SELL_ERR_CANT_FIND_VENDOR, NULL, 0, 0);
+        WorldPacket data( SMSG_LIST_INVENTORY, (8+1+1) );
+        data << uint64(vendorguid);
+        data << uint8(0);                                   // count==0, next will be error code
+        data << uint8(0);                                   // "Vendor has no inventory"
+        SendPacket(&data);
         return;
     }
 
@@ -781,7 +789,7 @@ void WorldSession::SendListInventory(uint64 vendorguid)
                 ++count;
 
                 // reputation discount
-                uint32 price = crItem->IsExcludeMoneyPrice() ? 0 : uint32(floor(pProto->BuyPrice * discountMod));
+                uint32 price = (crItem->ExtendedCost == 0 || pProto->Flags2 & ITEM_FLAGS2_EXT_COST_REQUIRES_GOLD) ? uint32(floor(pProto->BuyPrice * discountMod)) : 0;
 
                 data << uint32(vendorslot +1);              // client size expected counting from 1
                 data << uint32(crItem->item);
@@ -790,16 +798,20 @@ void WorldSession::SendListInventory(uint64 vendorguid)
                 data << uint32(price);
                 data << uint32(pProto->MaxDurability);
                 data << uint32(pProto->BuyCount);
-                data << uint32(crItem->GetExtendedCostId());
+                data << uint32(crItem->ExtendedCost);
             }
         }
     }
 
-    if ( count == 0 || data.size() != 8 + 1 + size_t(count) * 8 * 4 )
+    if (count == 0)
+    {
+        data << uint8(0);                                   // "Vendor has no inventory"
+        SendPacket(&data);
         return;
+    }
 
     data.put<uint8>(count_pos, count);
-    SendPacket( &data );
+    SendPacket(&data);
 }
 
 void WorldSession::HandleAutoStoreBagItemOpcode( WorldPacket & recv_data )
@@ -1304,7 +1316,7 @@ void WorldSession::HandleSocketOpcode(WorldPacket& recv_data)
                         if (iGemProto->ItemLimitCategory == Gems[j]->GetProto()->ItemLimitCategory)
                             ++limit_newcount;
                     }
-                    // existed gem
+                    // existing gem
                     else if(OldEnchants[j])
                     {
                         if(SpellItemEnchantmentEntry const* enchantEntry = sSpellItemEnchantmentStore.LookupEntry(OldEnchants[j]))

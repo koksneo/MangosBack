@@ -38,3 +38,6 @@ DELETE FROM `guild_bank_tab` WHERE `guildid` NOT IN (SELECT `guildid` FROM `guil
 DELETE FROM `guild_eventlog` WHERE `guildid` NOT IN (SELECT `guildid` FROM `guild`);
 DELETE FROM `guild_member` WHERE `guildid` NOT IN (SELECT `guildid` FROM `guild`);
 DELETE FROM `guild_rank` WHERE `guildid` NOT IN (SELECT `guildid` FROM `guild`);
+
+-- Warning: this query will be executing extremely long in large databases!
+DELETE FROM `item_instance` WHERE `guid` NOT IN (SELECT `item` FROM `character_inventory`) AND `guid` NOT IN (SELECT `item_guid` FROM `guild_bank_item`) AND `guid` NOT IN (SELECT `item_guid` FROM `mail_items`) AND `guid` NOT IN (SELECT `itemguid` FROM `auctionhouse`);

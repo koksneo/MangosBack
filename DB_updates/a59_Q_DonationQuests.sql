@@ -57,3 +57,67 @@ INSERT INTO creature_questrelation VALUES
 (14727,7834),
 (14727,7833),
 (14727,7837);
+
+-- Darnassus
+DELETE FROM creature_involvedrelation WHERE id=14725;
+INSERT INTO creature_involvedrelation VALUES
+(14725,10352),
+(14725,10354),
+(14725,7799),
+(14725,7800),
+(14725,7801);
+DELETE FROM creature_questrelation WHERE id=14725;
+INSERT INTO creature_questrelation VALUES
+(14725,10352),
+(14725,10354),
+(14725,7799),
+(14725,7800),
+(14725,7801);
+
+-- Exodar
+DELETE FROM creature_involvedrelation WHERE id=20604;
+INSERT INTO creature_involvedrelation VALUES
+(20604,7792),
+(20604,7798),
+(20604,10356),
+(20604,10357),
+(20604,10358);
+DELETE FROM creature_questrelation WHERE id=20604;
+INSERT INTO creature_questrelation VALUES
+(20604,7792),
+(20604,7798),
+(20604,10356),
+(20604,10357),
+(20604,10358);
+
+-- Ironforge
+DELETE FROM creature_involvedrelation WHERE id=14723;
+INSERT INTO creature_involvedrelation VALUES
+(14723,7802),
+(14723,7803),
+(14723,7804),
+(14723,7805),
+(14723,7806);
+DELETE FROM creature_questrelation WHERE id=14723;
+INSERT INTO creature_questrelation VALUES
+(14723,7802),
+(14723,7803),
+(14723,7804),
+(14723,7805),
+(14723,7806);
+
+-- Gnomeregan Exiles
+DELETE FROM creature_involvedrelation WHERE id=14724;
+INSERT INTO creature_involvedrelation VALUES
+(14724,7807),
+(14724,7808),
+(14724,7809),
+(14724,7811),
+(14724,7812);
+DELETE FROM creature_questrelation WHERE id=14724;
+INSERT INTO creature_questrelation VALUES
+(14724,7807),
+(14724,7808),
+(14724,7809),
+(14724,7811),
+(14724,7812);

@@ -184,7 +184,7 @@ struct MANGOS_DLL_DECL npc_ranger_lilathaAI : public npc_escortAI
                 break;
             case 33:
                 DoScriptText(SAY_END2, m_creature, pPlayer);
-                if (Unit* pHelios = Unit::GetUnit(*m_creature, m_uiHeliosGUID))
+                if (Creature* pHelios = m_creature->GetMap()->GetCreature(m_uiHeliosGUID))
                     DoScriptText(CAPTAIN_ANSWER, pHelios, m_creature);
                 break;
         }
@@ -212,7 +212,7 @@ bool QuestAccept_npc_ranger_lilatha(Player* pPlayer, Creature* pCreature, const 
         pCreature->setFaction(FACTION_SMOON_E);
 
         if (npc_ranger_lilathaAI* pEscortAI = dynamic_cast<npc_ranger_lilathaAI*>(pCreature->AI()))
-            pEscortAI->Start(true, false, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
     }
     return true;
 }

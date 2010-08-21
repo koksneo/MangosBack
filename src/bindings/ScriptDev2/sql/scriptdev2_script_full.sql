@@ -3,7 +3,7 @@
 --
 
 DELETE FROM sd2_db_version;
-INSERT INTO sd2_db_version (version) VALUES ('ScriptDev2 (for MaNGOS 10153+) ');
+INSERT INTO sd2_db_version (version) VALUES ('ScriptDev2 (for MaNGOS 10373+) ');
 
 --
 -- Below contains data for table `script_texts` mainly used in C++ parts.
@@ -660,7 +660,11 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 
 -- -1 070 000 ULDAMAN
 INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
-(-1070000,'None may steal the secrets of the makers!',5851,1,0,0,'ironaya SAY_AGGRO');
+(-1070000,'None may steal the secrets of the makers!',5851,1,0,0,'ironaya SAY_AGGRO'),
+(-1070001,'Who dares awaken Archaedas? Who dares the wrath of the makers!',5855,1,0,0,'archaedas SAY_AGGRO'),
+(-1070002,'Awake ye servants, defend the discs!',5856,1,0,0,'archaedas SAY_AWAKE_GUARDIANS'),
+(-1070003,'To my side, brothers. For the makers!',5857,1,0,0,'archaedas SAY_AWAKE_WARDERS'),
+(-1070004,'Reckless mortal.',5858,1,0,0,'archaedas SAY_UNIT_SLAIN');
 
 -- -1 090 000 GNOMEREGAN
 
@@ -2731,11 +2735,26 @@ INSERT INTO script_texts (entry,content_default,sound,type,language,emote,commen
 (-1999925,'Hi!',0,0,0,0,'example_areatrigger SAY_HI');
 
 --
+-- GOSSIP TEXTS
+--
+
+--
+-- Below contains data for table `gossip_texts`
+-- valid entries for table are between -3000000 and -3999999
+--
+
+TRUNCATE gossip_texts;
+
+INSERT INTO gossip_texts (entry,content_default,comment) VALUES
+(-3608000,'Activate the crystals when we get in trouble, right?','sinclari GOSSIP_ITEM_INTRO'),
+(-3608001,'Get your people to safety, we\'ll keep the Blue Dragonflight\'s forces at bay.','sinclari GOSSIP_ITEM_START');
+
+--
 -- Below just for beautiful view in table, run at own desire
 --
 
--- ALTER TABLE `script_texts` ORDER BY `entry` desc;
-
+-- ALTER TABLE script_texts ORDER BY entry desc;
+-- ALTER TABLE gossip_texts ORDER BY entry desc;
 
 --
 -- Below contains all waypoints used by escortAI scripts

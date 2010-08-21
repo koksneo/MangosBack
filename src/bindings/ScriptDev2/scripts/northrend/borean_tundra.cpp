@@ -85,9 +85,6 @@ struct MANGOS_DLL_DECL mob_elderAI : public ScriptedAI
         {
             bEventInProgress = true;
             uiPlayerGUID = pCaster->GetGUID();
-            if (CreatureInfo const* pTemp = GetCreatureTemplateStore(m_creature->GetEntry()))
-                m_creature->SetDisplayId(((Player*)pCaster)->GetTeam() == HORDE ? pTemp->DisplayID_H[0] : pTemp->DisplayID_A[0]);
-
             m_creature->GetMotionMaster()->MoveIdle();
             m_creature->StopMoving();
 
@@ -891,7 +888,7 @@ bool QuestAccept_npc_lurgglbr(Player* pPlayer, Creature* pCreature, const Quest*
         if (npc_lurgglbrAI* pEscortAI = dynamic_cast<npc_lurgglbrAI*>(pCreature->AI()))
         {
             pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_PASSIVE);
-            pEscortAI->Start(true, false, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
         }
     }
     return true;

@@ -187,7 +187,7 @@ static uint32 RingBoss[]=
     9032,                                                   // Hedrum
 };
 
-bool AreaTrigger_at_ring_of_law(Player* pPlayer, AreaTriggerEntry* pAt)
+bool AreaTrigger_at_ring_of_law(Player* pPlayer, AreaTriggerEntry const* pAt)
 {
     if (ScriptedInstance* pInstance = (ScriptedInstance*)pPlayer->GetInstanceData())
     {
@@ -331,7 +331,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
 
                 if (m_uiRingBossGUID)
                 {
-                    Creature* pBoss = (Creature*)Unit::GetUnit(*m_creature, m_uiRingBossGUID);
+                    Creature* pBoss = m_creature->GetMap()->GetCreature(m_uiRingBossGUID);
                     if (pBoss && !pBoss->isAlive() && pBoss->isDead())
                     {
                         m_uiRingBossGUID = 0;
@@ -344,7 +344,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
 
                 for(uint8 i = 0; i < MAX_MOB_AMOUNT; ++i)
                 {
-                    Creature* pMob = (Creature*)Unit::GetUnit(*m_creature, m_auiRingMobGUID[i]);
+                    Creature* pMob = m_creature->GetMap()->GetCreature(m_auiRingMobGUID[i]);
                     if (pMob && !pMob->isAlive() && pMob->isDead())
                     {
                         m_auiRingMobGUID[i] = 0;
@@ -372,7 +372,7 @@ struct MANGOS_DLL_DECL npc_grimstoneAI : public npc_escortAI
                     case 0:
                         DoScriptText(-1000094, m_creature);
                         DoGate(DATA_ARENA4, GO_STATE_READY);
-                        Start(false, false);
+                        Start(false);
                         m_bCanWalk = true;
                         m_uiEventTimer = 0;
                         break;
@@ -706,19 +706,19 @@ struct MANGOS_DLL_DECL npc_rocknotAI : public npc_escortAI
         switch(uiPointId)
         {
             case 1:
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+                m_creature->HandleEmote(EMOTE_ONESHOT_KICK);
                 break;
             case 2:
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
+                m_creature->HandleEmote(EMOTE_ONESHOT_ATTACKUNARMED);
                 break;
             case 3:
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_ATTACKUNARMED);
+                m_creature->HandleEmote(EMOTE_ONESHOT_ATTACKUNARMED);
                 break;
             case 4:
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+                m_creature->HandleEmote(EMOTE_ONESHOT_KICK);
                 break;
             case 5:
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_KICK);
+                m_creature->HandleEmote(EMOTE_ONESHOT_KICK);
                 m_uiBreakKegTimer = 2000;
                 break;
         }
@@ -749,7 +749,7 @@ struct MANGOS_DLL_DECL npc_rocknotAI : public npc_escortAI
                 DoGo(DATA_GO_BAR_KEG_TRAP,0);               //doesn't work very well, leaving code here for future
                                                             //spell by trap has effect61, this indicate the bar go hostile
 
-                if (Unit* pTmp = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_PHALANX)))
+                if (Creature* pTmp = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_PHALANX)))
                     pTmp->setFaction(14);
 
                 //for later, this event(s) has alot more to it.
@@ -771,7 +771,7 @@ CreatureAI* GetAI_npc_rocknot(Creature* pCreature)
 
 bool ChooseReward_npc_rocknot(Player* pPlayer, Creature* pCreature, const Quest* pQuest, uint32 item)
 {
-    ScriptedInstance* pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+    ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
 
     if (!pInstance)
         return true;
@@ -793,7 +793,7 @@ bool ChooseReward_npc_rocknot(Player* pPlayer, Creature* pCreature, const Quest*
             pCreature->CastSpell(pCreature,SPELL_DRUNKEN_RAGE,false);
 
             if (npc_rocknotAI* pEscortAI = dynamic_cast<npc_rocknotAI*>(pCreature->AI()))
-                pEscortAI->Start(false, false, 0, NULL, true);
+                pEscortAI->Start(false, 0, NULL, true);
         }
     }
 

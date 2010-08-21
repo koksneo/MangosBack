@@ -226,7 +226,7 @@ bool GossipSelect_npc_abbot_landgren(Player* pPlayer, Creature* pCreature, uint3
         {
             if (npc_abbot_to_escortAI* pEscortAI = dynamic_cast<npc_abbot_to_escortAI*>(pAbbot->AI()))
             {
-                pEscortAI->Start(false,true,pPlayer->GetGUID());
+                pEscortAI->Start(true,pPlayer->GetGUID());
                 pEscortAI->SetEscortPaused(true);
                 // Don't know why crashing server : / so temp removed
                 //pAbbot->SetVisibility(VISIBILITY_OFF);

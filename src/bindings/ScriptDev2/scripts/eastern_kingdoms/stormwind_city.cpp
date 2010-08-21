@@ -119,7 +119,7 @@ bool QuestAccept_npc_bartleby(Player* pPlayer, Creature* pCreature, const Quest*
     if (pQuest->GetQuestId() == QUEST_BEAT)
     {
         pCreature->setFaction(FACTION_ENEMY);
-        ((npc_bartlebyAI*)pCreature->AI())->AttackStart(pPlayer);
+        pCreature->AI()->AttackStart(pPlayer);
     }
     return true;
 }
@@ -324,7 +324,7 @@ bool ChooseReward_npc_rema_schneider(Player* pPlayer, Creature* pCreature, const
     {
         if (Creature* pCorbett = pCreature->SummonCreature(NPC_CORBETT, CorbettSpawn[0], CorbettSpawn[1], CorbettSpawn[2], CorbettSpawn[3], TEMPSUMMON_CORPSE_DESPAWN, 0))
             if (npc_corbett_schneiderAI* pEscortAI = dynamic_cast<npc_corbett_schneiderAI*>(pCorbett->AI()))
-                pEscortAI->Start(false, false, pPlayer->GetGUID());
+                pEscortAI->Start(false, pPlayer->GetGUID());
     }
     return true;
 }
@@ -389,7 +389,7 @@ bool QuestAccept_npc_dashel_stonefist(Player* pPlayer, Creature* pCreature, cons
     if (pQuest->GetQuestId() == QUEST_MISSING_DIPLO_PT8)
     {
         pCreature->setFaction(FACTION_HOSTILE);
-        ((npc_dashel_stonefistAI*)pCreature->AI())->AttackStart(pPlayer);
+        pCreature->AI()->AttackStart(pPlayer);
     }
     return true;
 }

@@ -292,6 +292,8 @@ scripts/kalimdor/maraudon/boss_landslide.cpp \
 scripts/kalimdor/maraudon/boss_noxxion.cpp \
 scripts/kalimdor/maraudon/boss_princess_theradras.cpp \
 scripts/kalimdor/onyxias_lair/boss_onyxia.cpp \
+scripts/kalimdor/onyxias_lair/instance_onyxias_lair.cpp \
+scripts/kalimdor/onyxias_lair/onyxias_lair.h \
 scripts/kalimdor/razorfen_downs/boss_amnennar_the_coldbringer.cpp \
 scripts/kalimdor/razorfen_downs/razorfen_downs.cpp \
 scripts/kalimdor/razorfen_kraul/instance_razorfen_kraul.cpp \
@@ -407,6 +409,10 @@ scripts/northrend/nexus/nexus/instance_nexus.cpp \
 scripts/northrend/obsidian_sanctum/boss_sartharion.cpp \
 scripts/northrend/obsidian_sanctum/instance_obsidian_sanctum.cpp \
 scripts/northrend/obsidian_sanctum/obsidian_sanctum.h \
+scripts/northrend/ruby_sanctum/boss_halion.cpp \
+scripts/northrend/ruby_sanctum/boss_baltharus.cpp \
+scripts/northrend/ruby_sanctum/boss_saviana.cpp \
+scripts/northrend/ruby_sanctum/boss_zarithian.cpp \
 scripts/northrend/ulduar/halls_of_lightning/boss_bjarngrim.cpp \
 scripts/northrend/ulduar/halls_of_lightning/boss_ionar.cpp \
 scripts/northrend/ulduar/halls_of_lightning/boss_loken.cpp \

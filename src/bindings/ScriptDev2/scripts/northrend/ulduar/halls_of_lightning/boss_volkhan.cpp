@@ -237,7 +237,7 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
         {
-            if (Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr))
+            if (Creature* pTemp = m_creature->GetMap()->GetCreature(*itr))
             {
                 if (pTemp->isAlive())
                     pTemp->ForcedDespawn();

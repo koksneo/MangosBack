@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Instance_Uldaman
-SD%Complete:
+SD%Complete: 60
 SDComment:
 SDCategory: Uldaman
 EndScriptData
@@ -30,7 +30,8 @@ instance_uldaman::instance_uldaman(Map* pMap) : ScriptedInstance(pMap),
     m_uiTempleDoorLowerGUID(0),
     m_uiAncientVaultGUID(0),
     m_uiPlayerGUID(0),
-    m_uiStoneKeepersFallen(0)
+    m_uiStoneKeepersFallen(0),
+    m_uiKeeperCooldown(5000)
 {
     Initialize();
 }
@@ -38,6 +39,8 @@ instance_uldaman::instance_uldaman(Map* pMap) : ScriptedInstance(pMap),
 void instance_uldaman::Initialize()
 {
     memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+    m_lWardens.clear();
+    m_mKeeperMap.clear();
 }
 
 void instance_uldaman::OnObjectCreate(GameObject* pGo)
@@ -59,7 +62,8 @@ void instance_uldaman::OnObjectCreate(GameObject* pGo)
                 pGo->SetGoState(GO_STATE_ACTIVE);
             m_uiAncientVaultGUID = pGo->GetGUID();
             break;
-        default: break;
+        default:
+            break;
     }
 }
 
@@ -67,14 +71,21 @@ void instance_uldaman::OnCreatureCreate(Creature* pCreature)
 {
     switch(pCreature->GetEntry())
     {
-        case MOB_HALLSHAPER:
-        case MOB_CUSTODIAN:
-        case MOB_GUARDIAN:
-        case MOB_VAULT_WARDER:
-            lWardens.push_back(pCreature->GetGUID());
+        case NPC_HALLSHAPER:
+        case NPC_CUSTODIAN:
+        case NPC_GUARDIAN:
+        case NPC_VAULT_WARDER:
+            m_lWardens.push_back(pCreature->GetGUID());
+            pCreature->CastSpell(pCreature, SPELL_STONED, true);
+            pCreature->SetNoCallAssistance(true);           // no assistance
             break;
-
-        default: break;
+        case NPC_STONE_KEEPER:
+            m_mKeeperMap[pCreature->GetGUID()] = pCreature->isAlive();
+            pCreature->CastSpell(pCreature, SPELL_STONED, true);
+            pCreature->SetNoCallAssistance(true);           // no assistance
+            break;
+        default:
+            break;
     }
 }
 
@@ -83,30 +94,31 @@ void instance_uldaman::SetData(uint32 uiType, uint32 uiData)
     switch(uiType)
     {
         case TYPE_ALTAR_EVENT:
-            if (uiData == SPECIAL)
-                ++m_uiStoneKeepersFallen;
-            if (m_uiStoneKeepersFallen > 3)
+            if (uiData == DONE)
             {
-                uiData = DONE;
                 DoUseDoorOrButton(m_uiTempleDoorUpperGUID);
                 DoUseDoorOrButton(m_uiTempleDoorLowerGUID);
+
+                m_auiEncounter[0] = uiData;
             }
-            m_auiEncounter[0] = uiData;
             break;
 
         case TYPE_ARCHAEDAS:
             if (uiData == FAIL)
             {
-                for (std::list<uint64>::iterator itr = lWardens.begin(); itr != lWardens.end(); ++itr)
+                for (std::list<uint64>::iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
                 {
-                    Creature* pWarden = instance->GetCreature(*itr);
-                    if (pWarden && !pWarden->isAlive())
+                    if (Creature* pWarden = instance->GetCreature(*itr))
+                    {
+                        pWarden->setDeathState(JUST_DIED);
                         pWarden->Respawn();
+                        pWarden->SetNoCallAssistance(true);
+                    }
                 }
             }
             else if (uiData == DONE)
             {
-                for (std::list<uint64>::iterator itr = lWardens.begin(); itr != lWardens.end(); ++itr)
+                for (std::list<uint64>::iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
                 {
                     Creature* pWarden = instance->GetCreature(*itr);
                     if (pWarden && pWarden->isAlive())
@@ -184,36 +196,126 @@ uint64 instance_uldaman::GetData64(uint32 uiData)
     return 0;
 }
 
-Creature* instance_uldaman::GetDwarf()
+void instance_uldaman::StartEvent(uint32 uiEventId, Player* pPlayer)
+{
+    m_uiPlayerGUID = pPlayer->GetGUID();
+
+    if (uiEventId == EVENT_ID_ALTAR_KEEPER)
+    {
+        if (m_auiEncounter[0] == NOT_STARTED)
+            m_auiEncounter[0] = IN_PROGRESS;
+    }
+    else if (m_auiEncounter[1] == NOT_STARTED || m_auiEncounter[1] == FAIL)
+        m_auiEncounter[1] = SPECIAL;
+}
+
+void instance_uldaman::DoResetKeeperEvent()
+{
+    m_auiEncounter[0] = NOT_STARTED;
+    m_uiStoneKeepersFallen = 0;
+
+    for (std::map<uint64, bool>::iterator itr = m_mKeeperMap.begin(); itr != m_mKeeperMap.end(); ++itr)
+    {
+        if (Creature* pKeeper = instance->GetCreature(itr->first))
+        {
+            pKeeper->setDeathState(JUST_DIED);
+            pKeeper->Respawn();
+            pKeeper->CastSpell(pKeeper, SPELL_STONED, true);
+            pKeeper->SetNoCallAssistance(true);
+            itr->second = true;
+        }
+    }
+}
+
+Creature* instance_uldaman::GetClosestDwarfNotInCombat(Creature* pSearcher, uint32 uiPhase)
 {
     std::list<Creature*> lTemp;
 
-    for (std::list<uint64>::iterator itr = lWardens.begin(); itr != lWardens.end(); ++itr)
+    for (std::list<uint64>::iterator itr = m_lWardens.begin(); itr != m_lWardens.end(); ++itr)
     {
-       Creature* pTemp = instance->GetCreature(*itr);
-       if (pTemp && pTemp->isAlive() && pTemp->HasAura(SPELL_STONED) && 
-           (pTemp->GetEntry() == MOB_CUSTODIAN || pTemp->GetEntry() == MOB_HALLSHAPER) )
-           lTemp.push_back(pTemp);
+        Creature* pTemp = instance->GetCreature(*itr);
+
+        if (pTemp && pTemp->isAlive() && !pTemp->getVictim())
+        {
+            switch(uiPhase)
+            {
+                case PHASE_ARCHA_1:
+                    if (pTemp->GetEntry() != NPC_CUSTODIAN && pTemp->GetEntry() != NPC_HALLSHAPER)
+                        continue;
+                    break;
+                case PHASE_ARCHA_2:
+                    if (pTemp->GetEntry() != NPC_GUARDIAN)
+                        continue;
+                    break;
+                case PHASE_ARCHA_3:
+                    if (pTemp->GetEntry() != NPC_VAULT_WARDER)
+                        continue;
+                    break;
+            }
+
+            lTemp.push_back(pTemp);
+        }
     }
 
     if (lTemp.empty())
         return NULL;
 
-    std::list<Creature*>::iterator i = lTemp.begin();
-    advance(i, (rand()%lTemp.size()));
-    return (*i);
+    lTemp.sort(ObjectDistanceOrder(pSearcher));
+    return lTemp.front();
 }
 
-// hack
-void instance_uldaman::SimulateSpellHit(uint32 uiCreatureEntry, uint32 uiSpellEntry, Unit* pCaster)
+void instance_uldaman::Update(uint32 uiDiff)
 {
-    for (std::list<uint64>::iterator itr = lWardens.begin(); itr != lWardens.end(); ++itr)
+    if (m_auiEncounter[0] == IN_PROGRESS)
     {
-       Creature* pTemp = instance->GetCreature(*itr);
-       const SpellEntry* pSpell = GetSpellStore()->LookupEntry(uiSpellEntry);
-       if (pSpell && pTemp && pTemp->isAlive() && pTemp->GetEntry() == uiCreatureEntry &&
-           pTemp->HasAura(SPELL_STONED))
-           pTemp->AI()->SpellHit(pCaster, pSpell);
+        if (m_uiKeeperCooldown >= uiDiff)
+            m_uiKeeperCooldown -= uiDiff;
+        else
+        {
+            m_uiKeeperCooldown = 5000;
+
+            if (!m_mKeeperMap.empty())
+            {
+                for(std::map<uint64, bool>::iterator itr = m_mKeeperMap.begin(); itr != m_mKeeperMap.end(); ++itr)
+                {
+                    // died earlier
+                    if (!itr->second)
+                        continue;
+
+                    if (Creature* pKeeper = instance->GetCreature(itr->first))
+                    {
+                        if (pKeeper->isAlive() && !pKeeper->getVictim())
+                        {
+                            if (Player* pPlayer = pKeeper->GetMap()->GetPlayer(m_uiPlayerGUID))
+                            {
+                                // we should use group instead, event starter can be dead while group is still fighting
+                                if (pPlayer->isAlive() && !pPlayer->isInCombat())
+                                {
+                                    pKeeper->RemoveAurasDueToSpell(SPELL_STONED);
+                                    pKeeper->SetInCombatWith(pPlayer);
+                                    pKeeper->AddThreat(pPlayer);
+                                }
+                                else
+                                {
+                                    if (!pPlayer->isAlive())
+                                        DoResetKeeperEvent();
+                                }
+                            }
+
+                            break;
+                        }
+                        else if (!pKeeper->isAlive())
+                        {
+                            itr->second = pKeeper->isAlive();
+                            ++m_uiStoneKeepersFallen;
+                        }
+                    }
+                }
+
+                if (m_uiStoneKeepersFallen == m_mKeeperMap.size())
+                    SetData(TYPE_ALTAR_EVENT, DONE);
+            }
+        }
     }
 }
 
@@ -222,11 +324,30 @@ InstanceData* GetInstanceData_instance_uldaman(Map* pMap)
     return new instance_uldaman(pMap);
 }
 
+bool ProcessEventId_event_spell_altar_boss_aggro(uint32 uiEventId, Object* pSource, Object* pTarget, bool bIsStart)
+{
+    if (bIsStart && pSource->GetTypeId() == TYPEID_PLAYER)
+    {
+        if (instance_uldaman* pInstance = (instance_uldaman*)((Player*)pSource)->GetInstanceData())
+        {
+            pInstance->StartEvent(uiEventId, (Player*)pSource);
+            return true;
+        }
+    }
+    return false;
+}
+
 void AddSC_instance_uldaman()
 {
-    Script* newscript;
-    newscript = new Script;
-    newscript->Name = "instance_uldaman";
-    newscript->GetInstanceData = &GetInstanceData_instance_uldaman;
-    newscript->RegisterSelf();
+    Script* pNewScript;
+
+    pNewScript = new Script;
+    pNewScript->Name = "instance_uldaman";
+    pNewScript->GetInstanceData = &GetInstanceData_instance_uldaman;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "event_spell_altar_boss_aggro";
+    pNewScript->pProcessEventId = &ProcessEventId_event_spell_altar_boss_aggro;
+    pNewScript->RegisterSelf();
 }

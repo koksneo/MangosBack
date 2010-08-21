@@ -167,53 +167,18 @@ bool GossipSelect_npc_lore_keeper_of_norgannon(Player* pPlayer, Creature* pCreat
     return true;
 }
 
-enum
-{
-    NPC_STONE_KEEPER            = 4857,
-    HALL_RADIUS                 = 35
-};
-
-bool GOHello_go_altar_of_keepers(Player* pPlayer, GameObject* pGo)
-{
-    pPlayer->CastSpell(pPlayer, SPELL_USE_ALTAR_VISUAL, true);
-
-    std::list<Creature*> lStoneKeepers;
-    GetCreatureListWithEntryInGrid(lStoneKeepers, pGo, NPC_STONE_KEEPER, HALL_RADIUS);
-
-    if (!lStoneKeepers.empty())
-    {
-        for(std::list<Creature*>::iterator itr = lStoneKeepers.begin(); itr != lStoneKeepers.end(); ++itr)
-        {
-            if (*itr && (*itr)->isAlive())
-            {
-                (*itr)->setFaction(FACTION_TITAN_HOSTILE);
-                (*itr)->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                (*itr)->RemoveAurasDueToSpell(SPELL_STONED);
-                if ((*itr)->AI())
-                    (*itr)->AI()->AttackStart(pPlayer);
-            }
-        }
-    }
-    return false;
-}
-
 void AddSC_uldaman()
 {
-    Script *newscript;
+    Script* pNewScript;
 
-    newscript = new Script;
-    newscript->Name = "mob_jadespine_basilisk";
-    newscript->GetAI = &GetAI_mob_jadespine_basilisk;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "mob_jadespine_basilisk";
+    pNewScript->GetAI = &GetAI_mob_jadespine_basilisk;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_lore_keeper_of_norgannon";
-    newscript->pGossipHello = &GossipHello_npc_lore_keeper_of_norgannon;
-    newscript->pGossipSelect = &GossipSelect_npc_lore_keeper_of_norgannon;
-    newscript->RegisterSelf();
-
-    newscript = new Script;
-    newscript->Name = "go_altar_of_keepers";
-    newscript->pGOHello = &GOHello_go_altar_of_keepers;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_lore_keeper_of_norgannon";
+    pNewScript->pGossipHello = &GossipHello_npc_lore_keeper_of_norgannon;
+    pNewScript->pGossipSelect = &GossipSelect_npc_lore_keeper_of_norgannon;
+    pNewScript->RegisterSelf();
 }

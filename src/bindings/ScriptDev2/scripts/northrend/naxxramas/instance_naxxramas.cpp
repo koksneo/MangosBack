@@ -758,7 +758,7 @@ InstanceData* GetInstanceData_instance_naxxramas(Map* pMap)
     return new instance_naxxramas(pMap);
 }
 
-bool AreaTrigger_at_naxxramas(Player* pPlayer, AreaTriggerEntry* pAt)
+bool AreaTrigger_at_naxxramas(Player* pPlayer, AreaTriggerEntry const* pAt)
 {
     instance_naxxramas* pInstance = (instance_naxxramas*)pPlayer->GetInstanceData();
 

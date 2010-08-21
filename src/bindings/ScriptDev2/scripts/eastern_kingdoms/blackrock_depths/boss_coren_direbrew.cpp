@@ -195,7 +195,7 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
         {
             if (pPlayer->GetQuestStatus(QUEST_INSULT_COREN) == QUEST_STATUS_COMPLETE)
             {
-                Start(false,true,pPlayer->GetGUID());
+                Start(true,pPlayer->GetGUID());
                 EventStarted = true;
             }
         }

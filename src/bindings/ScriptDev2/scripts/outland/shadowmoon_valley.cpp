@@ -62,77 +62,97 @@ struct MANGOS_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
 
     uint64 uiPlayerGUID;
 
+    bool bCanEat;
     bool bIsEating;
-    bool bIsFlying;
 
-    uint32 m_uiEatTimer;
-    uint32 m_uiFlightTimer;
-    uint32 m_uiCastTimer;
+    uint32 EatTimer;
+    uint32 CastTimer;
 
     void Reset()
     {
         uiPlayerGUID = 0;
 
+        bCanEat = false;
         bIsEating = false;
-        bIsFlying = false;
 
-        m_uiEatTimer = 5000;
-        m_uiFlightTimer = 4000;
-        m_uiCastTimer = 5000;
+        EatTimer = 5000;
+        CastTimer = 5000;
     }
 
     void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
     {
-        if (bIsFlying || bIsEating)
+        if (bCanEat || bIsEating)
             return;
 
         if (pCaster->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_PLACE_CARCASS && !m_creature->HasAura(SPELL_JUST_EATEN))
         {
-            float x,y,z;
-            pCaster->GetNearPoint(pCaster, x, y, z, 2.0f, 2.0f, (6.28 - (pCaster->GetOrientation())) );
-            m_creature->SendMonsterMove(x, y, z, SPLINETYPE_FACINGTARGET, SPLINEFLAG_FLYING, m_uiFlightTimer,0);
             uiPlayerGUID = pCaster->GetGUID();
-            bIsFlying = true;
+            bCanEat = true;
         }
     }
 
-    void UpdateAI(const uint32 uiDiff)
+    void MovementInform(uint32 type, uint32 id)
     {
-        if (bIsFlying)
-        {
-            if (m_uiFlightTimer <= uiDiff)
-            {
-                bIsEating = true;
-                bIsFlying = false;
-             }else m_uiFlightTimer -= uiDiff;
-        }
+        if (type != POINT_MOTION_TYPE)
+            return;
 
-        if (bIsEating)
+        if (id == POINT_ID)
         {
-            if (m_uiEatTimer <= uiDiff)
+            bIsEating = true;
+            EatTimer = 7000;
+            m_creature->HandleEmote(EMOTE_ONESHOT_ATTACKUNARMED);
+        }
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+        if (bCanEat || bIsEating)
+        {
+            if (EatTimer < diff)
             {
+                if (bCanEat && !bIsEating)
+                {
+                    if (Player* pPlayer = m_creature->GetMap()->GetPlayer(uiPlayerGUID))
+                    {
+                        if (GameObject* pGo = pPlayer->GetGameObject(SPELL_PLACE_CARCASS))
+                        {
+                            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
+                                m_creature->GetMotionMaster()->MovementExpired();
+
+                            m_creature->GetMotionMaster()->MoveIdle();
+                            m_creature->StopMoving();
+
+                            m_creature->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
+                        }
+                    }
+                    bCanEat = false;
+                }
+                else if (bIsEating)
+                {
                     DoCastSpellIfCan(m_creature, SPELL_JUST_EATEN);
-                DoScriptText(SAY_JUST_EATEN, m_creature);
+                    DoScriptText(SAY_JUST_EATEN, m_creature);
 
-                if (Player* pPlr = (Player*)Unit::GetUnit((*m_creature), uiPlayerGUID))
-                    pPlr->KilledMonsterCredit(NPC_EVENT_PINGER, m_creature->GetGUID());
+                    if (Player* pPlayer = m_creature->GetMap()->GetPlayer(uiPlayerGUID))
+                        pPlayer->KilledMonsterCredit(NPC_EVENT_PINGER, m_creature->GetGUID());
 
-                 float x, y, z;
-                 m_creature->GetRespawnCoord(x, y, z);
-                 m_creature->SendMonsterMove(x, y, z, SPLINETYPE_FACINGTARGET, SPLINEFLAG_FLYING, 5000, 0);
-                 bIsEating = false;
-                 Reset();
-            }else m_uiEatTimer -= uiDiff;
+                    Reset();
+                    m_creature->GetMotionMaster()->Clear();
+                }
+            }
+            else
+                EatTimer -= diff;
+
+            return;
         }
- 
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_uiCastTimer < uiDiff)
+        if (CastTimer < diff)
         {
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_NETHER_BREATH);
-            m_uiCastTimer = 5000;
-        }else m_uiCastTimer -= uiDiff;
+            CastTimer = 5000;
+        }else CastTimer -= diff;
 
         DoMeleeAttackIfReady();
     }
@@ -217,7 +237,7 @@ struct MANGOS_DLL_DECL mob_enslaved_netherwing_drakeAI : public ScriptedAI
                 {
                     Tapped = false;
 
-                    if (Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, PlayerGUID))
+                    if (Player* pPlayer = m_creature->GetMap()->GetPlayer(PlayerGUID))
                     {
                         if (pPlayer->GetQuestStatus(QUEST_FORCE_OF_NELT) == QUEST_STATUS_INCOMPLETE)
                         {
@@ -317,7 +337,7 @@ struct MANGOS_DLL_DECL mob_dragonmaw_peonAI : public ScriptedAI
         {
             if (m_uiPoisonTimer <= uiDiff)
             {
-                if (Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, m_uiPlayerGUID))
+                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID))
                 {
                     if (pPlayer->GetQuestStatus(QUEST_SLOW_DEATH) == QUEST_STATUS_INCOMPLETE)
                         pPlayer->KilledMonsterCredit(NPC_DRAGONMAW_KILL_CREDIT, m_creature->GetGUID());
@@ -746,7 +766,7 @@ bool QuestAccept_npc_wilda(Player* pPlayer, Creature* pCreature, const Quest* pQ
         pCreature->setFaction(FACTION_EARTHEN);
 
         if (npc_wildaAI* pEscortAI = dynamic_cast<npc_wildaAI*>(pCreature->AI()))
-            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
     }
     return true;
 }
@@ -908,7 +928,7 @@ struct MANGOS_DLL_DECL mob_torlothAI : public ScriptedAI
 
         if (TorlothAnim[m_uiAnimationCount].uiCreature == LORD_ILLIDAN)
         {
-            pCreature = ((Creature*)Unit::GetUnit(*m_creature, m_uiLordIllidanGUID));
+            pCreature = m_creature->GetMap()->GetCreature(m_uiLordIllidanGUID);
 
             if (!pCreature)
             {
@@ -931,16 +951,16 @@ struct MANGOS_DLL_DECL mob_torlothAI : public ScriptedAI
                 m_creature->SetStandState(UNIT_STAND_STATE_STAND);
                 break;
             case 5:
-                if (Unit* pTarget = Unit::GetUnit((*m_creature), m_uiPlayerGUID))
+                if (Player* pTarget = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID))
                 {
                     m_creature->AddThreat(pTarget);
                     m_creature->SetFacingToObject(pTarget);
-                    m_creature->HandleEmoteCommand(EMOTE_ONESHOT_POINT);
+                    m_creature->HandleEmote(EMOTE_ONESHOT_POINT);
                 }
-                 break;
+                break;
             case 6:
             {
-                if (Unit* pTarget = Unit::GetUnit((*m_creature), m_uiPlayerGUID))
+                if (Player* pTarget = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID))
                 {
                     SetCombatMovement(true);
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -961,7 +981,7 @@ struct MANGOS_DLL_DECL mob_torlothAI : public ScriptedAI
         {
             pPlayer->GroupEventHappens(QUEST_BATTLE_OF_THE_CRIMSON_WATCH, m_creature);
         
-            if (Creature* pLordIllidan = ((Creature*)Unit::GetUnit(*m_creature, m_uiLordIllidanGUID)))
+            if (Creature* pLordIllidan = m_creature->GetMap()->GetCreature(m_uiLordIllidanGUID))
             {
                 DoScriptText(SAY_EVENT_COMPLETED, pLordIllidan, pPlayer);
                 pLordIllidan->AI()->EnterEvadeMode();
@@ -1120,7 +1140,7 @@ struct MANGOS_DLL_DECL npc_lord_illidan_stormrageAI : public Scripted_NoMovement
         }
         else
         {
-            if (Unit* pTarget = Unit::GetUnit((*m_creature), m_uiPlayerGUID))
+            if (Player* pTarget = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID))
             {
                 float fLocX, fLocY, fLocZ;
                 pTarget->GetPosition(fLocX, fLocY, fLocZ);
@@ -1140,7 +1160,7 @@ struct MANGOS_DLL_DECL npc_lord_illidan_stormrageAI : public Scripted_NoMovement
 
     void CheckEventFail()
     {
-        Player* pPlayer = ((Player*)Unit::GetUnit((*m_creature), m_uiPlayerGUID));
+        Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID);
 
         if (!pPlayer)
             return;

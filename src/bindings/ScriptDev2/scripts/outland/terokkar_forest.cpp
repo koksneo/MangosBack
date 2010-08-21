@@ -335,7 +335,7 @@ bool QuestAccept_npc_akuno(Player* pPlayer, Creature* pCreature, const Quest* pQ
             pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
 
             DoScriptText(SAY_AKU_START, pCreature);
-            pEscortAI->Start(true, false, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
         }
     }
     return true;
@@ -441,7 +441,7 @@ bool GossipSelect_npc_floon(Player* pPlayer, Creature* pCreature, uint32 uiSende
         pPlayer->CLOSE_GOSSIP_MENU();
         pCreature->setFaction(FACTION_HOSTILE_FL);
         DoScriptText(SAY_FLOON_ATTACK, pCreature, pPlayer);
-        ((npc_floonAI*)pCreature->AI())->AttackStart(pPlayer);
+        pCreature->AI()->AttackStart(pPlayer);
     }
     return true;
 }
@@ -587,7 +587,8 @@ bool QuestAccept_npc_skywing(Player* pPlayer, Creature* pCreature, const Quest* 
         {
             DoScriptText(EMOTE_QUEST_START,pCreature,pPlayer);
             pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_PASSIVE);
-            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest, true);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest, true);
+            
             ((npc_skywingAI*)pCreature->AI())->LuangaGUID = 0;
         }
     }
@@ -842,7 +843,7 @@ bool QuestAccept_npc_letoll(Player* pPlayer, Creature* pCreature, const Quest* p
             DoScriptText(SAY_LE_START, pCreature);
             pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_PASSIVE);
 
-            pEscortAI->Start(false, false, pPlayer->GetGUID(), pQuest, true);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest, true);
         }
     }
 
@@ -893,7 +894,7 @@ struct MANGOS_DLL_DECL npc_mana_bomb_exp_triggerAI : public ScriptedAI
 
         m_bIsActivated = true;
 
-        pPlayer->KilledMonsterCredit(NPC_MANA_BOMB_KILL_TRIGGER, 0);
+        pPlayer->KilledMonsterCredit(NPC_MANA_BOMB_KILL_TRIGGER);
 
         pManaBomb = pGo;
     }
@@ -1125,7 +1126,7 @@ bool QuestAccept_npc_isla_starmane(Player* pPlayer, Creature* pCreature, const Q
     {
         if (npc_isla_starmaneAI* pEscortAI = dynamic_cast<npc_isla_starmaneAI*>(pCreature->AI()))
         {
-            pEscortAI->Start(true, false, pPlayer->GetGUID(), pQuest, true);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest, true);
             if (GameObject* pCage = GetClosestGameObjectWithEntry(pCreature, GO_CAGE, INTERACTION_DISTANCE))
             {
                 pCage->SetGoState(GO_STATE_ACTIVE);

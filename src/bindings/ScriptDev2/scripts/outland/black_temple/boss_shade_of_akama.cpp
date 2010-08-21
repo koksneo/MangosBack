@@ -309,7 +309,7 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
             // left spawns
                 if (Creature* pDefender = m_creature->SummonCreature(NPC_ASH_DEFENDER, 498.652740f, 461.728119f, LOC_LOW_Z, 0.0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
                 {
-                    if (Unit* pAkama = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_AKAMA_SHADE)))
+                    if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_AKAMA_SHADE)))
                         pDefender->AI()->AttackStart(pAkama);
                 }
                 for(uint8 i = 0; i < 4; ++i)
@@ -349,7 +349,7 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
             if (m_uiDeathCount >= 6)
             {
-                if (Unit* pAkama = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_AKAMA_SHADE)))
+                if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_AKAMA_SHADE)))
                 {
                     if (pAkama && pAkama->isAlive())
                     {
@@ -371,7 +371,7 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         {
             if (m_uiReduceHealthTimer < uiDiff)
             {
-                if (Unit* pAkama = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_AKAMA_SHADE)))
+                if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_AKAMA_SHADE)))
                 {
                     if (pAkama->isAlive())
                     {
@@ -501,7 +501,7 @@ struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
                 ++m_uiWayPointId;
                 break;
             case 1:
-                if (Unit* pShade = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_SHADEOFAKAMA)))
+                if (Creature* pShade = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_SHADEOFAKAMA)))
                 {
                     DoCastSpellIfCan(pShade, SPELL_AKAMA_SOUL_RETRIEVE);
                     m_uiEndingTalkCount = 0;
@@ -562,7 +562,7 @@ struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
         {
             if (m_uiCheckTimer < uiDiff)
             {
-                if (Unit* pShade = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_SHADEOFAKAMA)))
+                if (Creature* pShade = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_SHADEOFAKAMA)))
                 {
                     if (!pShade->isAlive())
                     {
@@ -616,7 +616,7 @@ struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
                 switch(m_uiEndingTalkCount)
                 {
                     case 0:
-                        m_creature->HandleEmoteCommand(EMOTE_ONESHOT_ROAR);
+                        m_creature->HandleEmote(EMOTE_ONESHOT_ROAR);
                         ++m_uiEndingTalkCount;
                         m_uiSoulRetrieveTimer = 2000;
                         m_uiSummonBrokenTimer = 1;
@@ -633,14 +633,15 @@ struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
 
                             for(std::list<uint64>::iterator itr = m_lBrokenGUIDList.begin(); itr != m_lBrokenGUIDList.end(); ++itr)
                             {
-                                if (Unit* pUnit = Unit::GetUnit(*m_creature, *itr))
+                                if (Creature* pBroken = m_creature->GetMap()->GetCreature(*itr))
                                 {
                                     if (!bYelled)
                                     {
-                                        DoScriptText(SAY_BROKEN_FREE_01, pUnit);
+                                        DoScriptText(SAY_BROKEN_FREE_01, pBroken);
                                         bYelled = true;
                                     }
-                                    pUnit->HandleEmoteCommand(EMOTE_ONESHOT_KNEEL);
+
+                                    pBroken->HandleEmote(EMOTE_ONESHOT_KNEEL);
                                 }
                             }
                         }
@@ -653,8 +654,8 @@ struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
                             for(std::list<uint64>::iterator itr = m_lBrokenGUIDList.begin(); itr != m_lBrokenGUIDList.end(); ++itr)
                             {
                                 // This is the incorrect spell, but can't seem to find the right one.
-                                if (Unit* pUnit = Unit::GetUnit(*m_creature, *itr))
-                                    pUnit->CastSpell(pUnit, 39656, true);
+                                if (Creature* pBroken = m_creature->GetMap()->GetCreature(*itr))
+                                    pBroken->CastSpell(pBroken, 39656, true);
                             }
                         }
                         ++m_uiEndingTalkCount;
@@ -665,8 +666,8 @@ struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
                         {
                             for(std::list<uint64>::iterator itr = m_lBrokenGUIDList.begin(); itr != m_lBrokenGUIDList.end(); ++itr)
                             {
-                                if (Unit* pUnit = Unit::GetUnit((*m_creature), *itr))
-                                    DoScriptText(SAY_BROKEN_FREE_02, pUnit);
+                                if (Creature* pBroken = m_creature->GetMap()->GetCreature(*itr))
+                                    DoScriptText(SAY_BROKEN_FREE_02, pBroken);
                             }
                         }
                         m_uiSoulRetrieveTimer = 0;
@@ -688,7 +689,7 @@ struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
 
         if (m_uiDestructivePoisonTimer < uiDiff)
         {
-            if (Unit* pShade = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_SHADEOFAKAMA)))
+            if (Creature* pShade = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_SHADEOFAKAMA)))
             {
                 if (pShade->isAlive())
                     DoCastSpellIfCan(pShade, SPELL_DESTRUCTIVE_POISON);
@@ -838,7 +839,7 @@ struct MANGOS_DLL_DECL mob_ashtongue_sorcererAI : public ScriptedAI
 
         if (m_uiCheckTimer < uiDiff)
         {
-            Unit* pShade = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_SHADEOFAKAMA));
+            Creature* pShade = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_SHADEOFAKAMA));
 
             if (pShade && pShade->isAlive() && m_creature->isAlive())
             {

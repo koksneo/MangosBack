@@ -1507,6 +1507,14 @@
 						RelativePath="..\scripts\kalimdor\onyxias_lair\boss_onyxia.cpp"
 						>
 					</File>
+					<File
+						RelativePath="..\scripts\kalimdor\onyxias_lair\instance_onyxias_lair.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\kalimdor\onyxias_lair\onyxias_lair.h"
+						>
+					</File>
 				</Filter>
 				<Filter
 					Name="ragefire_chasm"
@@ -1977,6 +1985,26 @@
 					</File>
 					<File
 						RelativePath="..\scripts\northrend\obsidian_sanctum\obsidian_sanctum.h"
+						>
+					</File>
+				</Filter>
+				<Filter
+					Name="ruby_sanctum"
+					>
+					<File
+						RelativePath="..\scripts\northrend\ruby_sanctum\boss_halion.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\ruby_sanctum\boss_saviana.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\ruby_sanctum\boss_baltharus.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\ruby_sanctum\boss_zarithian.cpp"
 						>
 					</File>
 				</Filter>

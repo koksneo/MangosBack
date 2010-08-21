@@ -43,6 +43,17 @@ enum
     TAXI_PATH_ID            = 534
 };
 
+struct MANGOS_DLL_DECL npc_tarethaAI : public npc_escortAI
+{
+    npc_tarethaAI(Creature* pCreature);
+
+    ScriptedInstance* m_pInstance;
+
+    void WaypointReached(uint32 i);
+
+    void Reset() {}
+};
+
 /*######
 ## npc_brazen
 ######*/
@@ -80,7 +91,7 @@ bool GossipHello_npc_erozion(Player* pPlayer, Creature* pCreature)
     if (pCreature->isQuestGiver())
         pPlayer->PrepareQuestMenu(pCreature->GetGUID());
 
-    ScriptedInstance* pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+    ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
 
     if (pInstance && pInstance->GetData(TYPE_BARREL_DIVERSION) != DONE && !pPlayer->HasItemCount(ITEM_ENTRY_BOMBS,1))
         pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, "I need a pack of Incendiary Bombs.", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
@@ -285,7 +296,7 @@ struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 SetRun(false);
                 break;
             case 60:
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_EXCLAMATION);
+                m_creature->HandleEmote(EMOTE_ONESHOT_EXCLAMATION);
                 //make horsie run off
                 SetEscortPaused(true);
                 m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_GOSSIP);
@@ -329,7 +340,7 @@ struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
             case 94:
                 if (uint64 TarethaGUID = m_pInstance->GetData64(DATA_TARETHA))
                 {
-                    if (Unit* Taretha = Unit::GetUnit((*m_creature), TarethaGUID))
+                    if (Creature* Taretha = m_creature->GetMap()->GetCreature(TarethaGUID))
                         DoScriptText(SAY_TA_ESCAPED, Taretha, m_creature);
                 }
                 break;
@@ -354,7 +365,10 @@ struct MANGOS_DLL_DECL npc_thrall_old_hillsbradAI : public npc_escortAI
                 if (Creature* pTaretha = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_TARETHA)))
                 {
                     if (Player* pPlayer = GetPlayerForEscort())
-                        ((npc_escortAI*)(pTaretha->AI()))->Start(false, true, pPlayer->GetGUID());
+                    {
+                        if (npc_tarethaAI* pTarethaAI = dynamic_cast<npc_tarethaAI*>(pTaretha->AI()))
+                            pTarethaAI->Start(true, pPlayer->GetGUID());
+                    }
                 }
 
                 //kill credit creature for quest
@@ -505,7 +519,7 @@ bool GossipHello_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature)
         pPlayer->SendPreparedQuest(pCreature->GetGUID());
     }
 
-    ScriptedInstance* pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+    ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
 
     if (pInstance)
     {
@@ -532,7 +546,7 @@ bool GossipHello_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    ScriptedInstance* pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+    ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
 
     switch(uiAction)
     {
@@ -543,8 +557,8 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature,
 
             DoScriptText(SAY_TH_START_EVENT_PART1, pCreature);
 
-            if (npc_thrall_old_hillsbradAI* pEscortAI = dynamic_cast<npc_thrall_old_hillsbradAI*>(pCreature->AI()))
-                pEscortAI->Start(true, true, pPlayer->GetGUID());
+            if (npc_thrall_old_hillsbradAI* pThrallAI = dynamic_cast<npc_thrall_old_hillsbradAI*>(pCreature->AI()))
+                pThrallAI->Start(true, pPlayer->GetGUID());
 
             break;
 
@@ -560,13 +574,15 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature,
 
             DoScriptText(SAY_TH_START_EVENT_PART2, pCreature);
 
-            ((npc_thrall_old_hillsbradAI*)pCreature->AI())->StartWP();
+            if (npc_thrall_old_hillsbradAI* pThrallAI = dynamic_cast<npc_thrall_old_hillsbradAI*>(pCreature->AI()))
+                pThrallAI->StartWP();
             break;
 
         case GOSSIP_ACTION_INFO_DEF+3:
             pPlayer->CLOSE_GOSSIP_MENU();
             pInstance->SetData(TYPE_THRALL_PART3,IN_PROGRESS);
-            ((npc_thrall_old_hillsbradAI*)pCreature->AI())->StartWP();
+            if (npc_thrall_old_hillsbradAI* pThrallAI = dynamic_cast<npc_thrall_old_hillsbradAI*>(pCreature->AI()))
+                pThrallAI->StartWP();
             break;
     }
     return true;
@@ -581,31 +597,24 @@ bool GossipSelect_npc_thrall_old_hillsbrad(Player* pPlayer, Creature* pCreature,
 #define GOSSIP_ID_EPOCH2        9613                        //Yes, friends. This man was no wizard of
 #define GOSSIP_ITEM_EPOCH2      "We'll get you out. Taretha. Don't worry. I doubt the wizard would wander too far away."
 
-struct MANGOS_DLL_DECL npc_tarethaAI : public npc_escortAI
+npc_tarethaAI::npc_tarethaAI(Creature* pCreature) : npc_escortAI(pCreature)
 {
-    npc_tarethaAI(Creature* pCreature) : npc_escortAI(pCreature)
+    m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+    Reset();
+}
+
+void npc_tarethaAI::WaypointReached(uint32 i)
+{
+    switch(i)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
-        Reset();
+        case 6:
+            DoScriptText(SAY_TA_FREE, m_creature);
+            break;
+        case 7:
+            m_creature->HandleEmote(EMOTE_ONESHOT_CHEER);
+            break;
     }
-
-    ScriptedInstance* m_pInstance;
-
-    void WaypointReached(uint32 i)
-    {
-        switch(i)
-        {
-            case 6:
-                DoScriptText(SAY_TA_FREE, m_creature);
-                break;
-            case 7:
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_CHEER);
-                break;
-        }
-    }
-
-    void Reset() {}
-};
+}
 
 CreatureAI* GetAI_npc_taretha(Creature* pCreature)
 {
@@ -614,7 +623,7 @@ CreatureAI* GetAI_npc_taretha(Creature* pCreature)
 
 bool GossipHello_npc_taretha(Player* pPlayer, Creature* pCreature)
 {
-    ScriptedInstance* pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+    ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
 
     if (pInstance && pInstance->GetData(TYPE_THRALL_PART3) == DONE && pInstance->GetData(TYPE_THRALL_PART4) == NOT_STARTED)
     {
@@ -626,7 +635,7 @@ bool GossipHello_npc_taretha(Player* pPlayer, Creature* pCreature)
 
 bool GossipSelect_npc_taretha(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
 {
-    ScriptedInstance* pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
+    ScriptedInstance* pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
 
     if (uiAction == GOSSIP_ACTION_INFO_DEF+1)
     {
@@ -644,9 +653,11 @@ bool GossipSelect_npc_taretha(Player* pPlayer, Creature* pCreature, uint32 uiSen
 
             if (uint64 ThrallGUID = pInstance->GetData64(DATA_THRALL))
             {
-                Creature* Thrall = ((Creature*)Unit::GetUnit((*pCreature), ThrallGUID));
-                if (Thrall)
-                    ((npc_thrall_old_hillsbradAI*)Thrall->AI())->StartWP();
+                if (Creature* pThrall = pCreature->GetMap()->GetCreature(ThrallGUID))
+                {
+                    if (npc_thrall_old_hillsbradAI* pThrallAI = dynamic_cast<npc_thrall_old_hillsbradAI*>(pThrall->AI()))
+                        pThrallAI->StartWP();
+                }
             }
         }
     }

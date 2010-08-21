@@ -799,7 +799,7 @@ bool QuestAccept_npc_apothecary_hanes(Player* pPlayer, Creature* pCreature, cons
 
         if (npc_apothecary_hanesAI* pEscortAI = dynamic_cast<npc_apothecary_hanesAI*>(pCreature->AI()))
         {
-            pEscortAI->Start(true, true, pPlayer->GetGUID(), pQuest);
+            pEscortAI->Start(true, pPlayer->GetGUID(), pQuest);
             pCreature->setFaction(FACTION_ESCORT_H_NEUTRAL_ACTIVE);
             DoScriptText(SAY_ESCORT_STARTED, pCreature);
         }

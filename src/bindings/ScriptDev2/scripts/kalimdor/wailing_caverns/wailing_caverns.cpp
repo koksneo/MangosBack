@@ -413,7 +413,7 @@ bool GossipSelect_npc_disciple_of_naralex(Player* pPlayer, Creature* pCreature, 
     {
         if (npc_disciple_of_naralexAI* pEscortAI = dynamic_cast<npc_disciple_of_naralexAI*>(pCreature->AI()))
         {   
-            pEscortAI->Start(true,false,pPlayer->GetGUID());
+            pEscortAI->Start(false,pPlayer->GetGUID());
             pCreature->setFaction(FACTION_ESCORT_N_ACTIVE);
             DoScriptText(YELL_AFTER_GOSSIP,pCreature);
         }

@@ -101,7 +101,7 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 
         for(uint8 i = 0; i < MAX_ADVISORS; ++i)
         {
-            if (Creature* pAdvisor = (Creature*)Unit::GetUnit(*m_creature, m_auiAdvisorsGUID[i]))
+            if (Creature* pAdvisor = m_creature->GetMap()->GetCreature(m_auiAdvisorsGUID[i]))
             {
                 if (pAdvisor->getVictim())
                     pAdvisor->AI()->EnterEvadeMode();
@@ -168,8 +168,11 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
 
         DoScriptText(SAY_AGGRO, m_creature);
 
-        m_pInstance->SetData64(DATA_KARATHRESS_STARTER, pWho->GetGUID());
-        m_pInstance->SetData(TYPE_KARATHRESS_EVENT, IN_PROGRESS);
+        if (Player* pPlayer = pWho->GetCharmerOrOwnerPlayerOrPlayerItself())
+        {
+            m_pInstance->SetData64(DATA_KARATHRESS_STARTER, pPlayer->GetGUID());
+            m_pInstance->SetData(TYPE_KARATHRESS_EVENT, IN_PROGRESS);
+        }
     }
 
     void KilledUnit(Unit* pVictim)
@@ -206,7 +209,7 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
             //check if the event is started
             if (m_pInstance && m_pInstance->GetData(TYPE_KARATHRESS_EVENT) == IN_PROGRESS)
             {
-                if (Unit* pTarget = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_KARATHRESS_STARTER)))
+                if (Player* pTarget = m_creature->GetMap()->GetPlayer(m_pInstance->GetData64(DATA_KARATHRESS_STARTER)))
                 {
                     AttackStart(pTarget);
                     GetAdvisors();
@@ -258,7 +261,7 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
         {
             for(uint8 i = 0; i < MAX_ADVISORS; ++i)
             {
-                if (Unit* pAdvisor = Unit::GetUnit(*m_creature, m_auiAdvisorsGUID[i]))
+                if (Creature* pAdvisor = m_creature->GetMap()->GetCreature(m_auiAdvisorsGUID[i]))
                 {
                     //stack max three times (one for each alive)
                     if (pAdvisor->isAlive())
@@ -314,7 +317,8 @@ struct MANGOS_DLL_DECL Advisor_Base_AI : public ScriptedAI
         if (m_pInstance->GetData(TYPE_KARATHRESS_EVENT) == NOT_STARTED)
             m_pInstance->SetData(TYPE_KARATHRESS_EVENT, IN_PROGRESS);
 
-        m_pInstance->SetData64(DATA_KARATHRESS_STARTER, pWho->GetGUID());
+        if (Player* pPlayer = pWho->GetCharmerOrOwnerPlayerOrPlayerItself())
+            m_pInstance->SetData64(DATA_KARATHRESS_STARTER, pPlayer->GetGUID());
     }
 
     void JustDied(Unit* pVictim)
@@ -322,8 +326,11 @@ struct MANGOS_DLL_DECL Advisor_Base_AI : public ScriptedAI
         if (!m_pInstance)
             return;
 
-        if (Creature* pKarathress = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_KARATHRESS)))
-            ((boss_fathomlord_karathressAI*)pKarathress->AI())->EventAdvisorDeath(m_uiAdvisor);
+        if (Creature* pKarathress = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_KARATHRESS)))
+        {
+            if (boss_fathomlord_karathressAI* pKaraAI = dynamic_cast<boss_fathomlord_karathressAI*>(pKarathress->AI()))
+                pKaraAI->EventAdvisorDeath(m_uiAdvisor);
+        }
     }
 };
 
@@ -393,7 +400,7 @@ struct MANGOS_DLL_DECL boss_fathomguard_sharkkisAI : public Advisor_Base_AI
             //check if the event is started
             if (m_pInstance && m_pInstance->GetData(TYPE_KARATHRESS_EVENT) == IN_PROGRESS)
             {
-                if (Unit* pTarget = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_KARATHRESS_STARTER)))
+                if (Player* pTarget = m_creature->GetMap()->GetPlayer(m_pInstance->GetData64(DATA_KARATHRESS_STARTER)))
                     AttackStart(pTarget);
             }
             return;
@@ -480,7 +487,7 @@ struct MANGOS_DLL_DECL boss_fathomguard_tidalvessAI : public Advisor_Base_AI
             //check if the event is started
             if (m_pInstance && m_pInstance->GetData(TYPE_KARATHRESS_EVENT) == IN_PROGRESS)
             {
-                if (Unit* pTarget = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_KARATHRESS_STARTER)))
+                if (Player* pTarget = m_creature->GetMap()->GetPlayer(m_pInstance->GetData64(DATA_KARATHRESS_STARTER)))
                     AttackStart(pTarget);
             }
             return;
@@ -551,7 +558,7 @@ struct MANGOS_DLL_DECL boss_fathomguard_caribdisAI : public Advisor_Base_AI
             //check if the event is started
             if (m_pInstance && m_pInstance->GetData(TYPE_KARATHRESS_EVENT) == IN_PROGRESS)
             {
-                if (Unit* pTarget = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_KARATHRESS_STARTER)))
+                if (Player* pTarget = m_creature->GetMap()->GetPlayer(m_pInstance->GetData64(DATA_KARATHRESS_STARTER)))
                     AttackStart(pTarget);
             }
             return;
@@ -589,9 +596,9 @@ struct MANGOS_DLL_DECL boss_fathomguard_caribdisAI : public Advisor_Base_AI
             {
                 switch(urand(0, 3))
                 {
-                    case 0: pUnit = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_KARATHRESS)); break;
-                    case 1: pUnit = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_SHARKKIS)); break;
-                    case 2: pUnit = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_TIDALVESS)); break;
+                    case 0: pUnit = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_KARATHRESS)); break;
+                    case 1: pUnit = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_SHARKKIS)); break;
+                    case 2: pUnit = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_TIDALVESS)); break;
                     case 3: pUnit = m_creature; break;
                 }
             }

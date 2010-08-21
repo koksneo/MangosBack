@@ -229,7 +229,7 @@ struct MANGOS_DLL_DECL npc_shenthulAI : public ScriptedAI
         {
             if (Reset_Timer < diff)
             {
-                if (Player* pPlayer = (Player*)Unit::GetUnit((*m_creature),playerGUID))
+                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(playerGUID))
                 {
                     if (pPlayer->GetTypeId() == TYPEID_PLAYER && pPlayer->GetQuestStatus(QUEST_SHATTERED_SALUTE) == QUEST_STATUS_INCOMPLETE)
                         pPlayer->FailQuest(QUEST_SHATTERED_SALUTE);
@@ -242,7 +242,7 @@ struct MANGOS_DLL_DECL npc_shenthulAI : public ScriptedAI
         {
             if (Salute_Timer < diff)
             {
-                m_creature->HandleEmoteCommand(EMOTE_ONESHOT_SALUTE);
+                m_creature->HandleEmote(EMOTE_ONESHOT_SALUTE);
                 CanEmote = true;
                 Reset_Timer = 60000;
             } else Salute_Timer -= diff;
@@ -264,8 +264,11 @@ bool QuestAccept_npc_shenthul(Player* pPlayer, Creature* pCreature, const Quest*
 {
     if (pQuest->GetQuestId() == QUEST_SHATTERED_SALUTE)
     {
-        ((npc_shenthulAI*)pCreature->AI())->CanTalk = true;
-        ((npc_shenthulAI*)pCreature->AI())->playerGUID = pPlayer->GetGUID();
+        if (npc_shenthulAI* pShenAI = dynamic_cast<npc_shenthulAI*>(pCreature->AI()))
+        {
+            pShenAI->CanTalk = true;
+            pShenAI->playerGUID = pPlayer->GetGUID();
+        }
     }
     return true;
 }

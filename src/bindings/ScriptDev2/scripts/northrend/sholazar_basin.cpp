@@ -227,7 +227,7 @@ bool GossipSelect_npc_injured_oracle(Player* pPlayer, Creature* pCreature, uint3
         if (npc_injured_oracleAI* pEscortAI = dynamic_cast<npc_injured_oracleAI*>(pCreature->AI()))
         {
             pCreature->RemoveAllAuras();
-            pEscortAI->Start(true, false, pPlayer->GetGUID());
+            pEscortAI->Start(false, pPlayer->GetGUID());
             pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_ACTIVE);
             DoScriptText(SAY_ESCORT_START, pCreature);
             // dunno exactly what should this spell do

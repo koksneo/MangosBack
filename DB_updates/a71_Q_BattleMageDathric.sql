@@ -10,7 +10,7 @@ INSERT INTO event_scripts VALUES
 
 DELETE FROM db_script_string WHERE entry=2000007001;
 INSERT INTO db_script_string (entry,content_default) VALUES
-(2000007001,'I don\'t know what I was thinking, going out without my sword. I would\'ve put it on if I\'d seen it here');
+(2000007001,'I don\'t know what I was thinking, going out without my sword. I would\'ve put it on if I\'d seen it here...');
 
 UPDATE creature_template SET AIName='EventAI' WHERE entry=19549;
 

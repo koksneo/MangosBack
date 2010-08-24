@@ -2033,6 +2033,10 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     case 48025:                             // Headless Horseman's Mount
                         Spell::SelectMountByAreaAndSkill(target, 51621, 48024, 51617, 48023, 0);
                         return;
+                    case 50141:                             // Blood Oath
+                        if (Unit* caster = GetCaster())
+                            caster->CastSpell(caster, 50001, true, NULL, this);
+                        return;
                     case 62061:                             // Festive Holiday Mount
                         if (target->HasAuraType(SPELL_AURA_MOUNTED))
                             // Reindeer Transformation

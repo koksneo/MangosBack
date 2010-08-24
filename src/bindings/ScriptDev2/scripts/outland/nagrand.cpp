@@ -679,6 +679,32 @@ CreatureAI* GetAI_npc_creditmarker_visit_with_ancestors(Creature* pCreature)
     return new npc_creditmarker_visit_with_ancestorsAI(pCreature);
 }
 
+/*#####
+## go_corkis_prison
+#####*/
+
+enum
+{
+    QUEST_HELP 		= 9923,
+    NPC_CORKI 		= 18369,
+    SPELL_DESPAWN_SELF	= 43014,
+    SAY_THANKS_1 	= -1999851
+};
+
+bool GOHello_go_corkis_prison(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestStatus(QUEST_HELP) == QUEST_STATUS_INCOMPLETE)
+    {
+        if(Creature *pCorki = GetClosestCreatureWithEntry(pPlayer, NPC_CORKI, INTERACTION_DISTANCE))
+        {
+            pPlayer->KilledMonsterCredit(NPC_CORKI, pCorki->GetGUID());
+            DoScriptText(SAY_THANKS_1, pCorki);
+            pCorki->CastSpell(pCorki, SPELL_DESPAWN_SELF, false);
+        }
+    }
+    return false;
+};
+
 /*######
 ## AddSC
 ######*/
@@ -732,5 +758,10 @@ void AddSC_nagrand()
     newscript = new Script;
     newscript->Name = "npc_creditmarker_visit_with_ancestors";
     newscript->GetAI = &GetAI_npc_creditmarker_visit_with_ancestors;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "go_corkis_prison";
+    newscript->pGOHello = &GOHello_go_corkis_prison;
     newscript->RegisterSelf();
 }

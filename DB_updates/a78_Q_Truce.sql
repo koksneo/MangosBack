@@ -20,4 +20,8 @@ INSERT INTO gossip_scripts (id, delay, command, datalong, datalong2, dataint) VA
 
 DELETE FROM spell_scripts WHERE id=50001;
 INSERT INTO spell_scripts VALUES
-(50001,3,0,0,19544,15,0,0x02,2000007002,0,0,0,0);
+(50001,0,0,1,0,0,0,0x01,2000007013,0,0,0,0);
+
+DELETE FROM db_script_string WHERE entry=2000007013;
+INSERT INTO db_script_string (entry,content_default) VALUES
+(2000007013,'AYYYIEEE!!');

@@ -692,7 +692,7 @@ struct MANGOS_DLL_DECL mob_shield_generator_channelAI : public ScriptedAI
     {
         if(m_pInstance)
         {
-            Creature* vashj = ((Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_LADYVASHJ)));
+            Creature* vashj = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_LADYVASHJ));
             if( vashj && !vashj->HasAura(SPELL_MAGIC_BARRIER))
                 m_creature->CastSpell(vashj,SPELL_MAGIC_BARRIER,true);
         }
@@ -718,7 +718,8 @@ bool ItemUse_item_tainted_core(Player* pPlayer, Item* pItem, SpellCastTargets co
 
     if (pVashjAI && pVashjAI->m_uiPhase == 2)
     {
-        Unit* target = Unit::GetUnit((*pPlayer), (pPlayer)->GetSelection());
+        Unit* target = pPlayer->GetMap()->GetUnit((pPlayer)->GetSelection());
+        
         if (!target || target->GetTypeId()!=TYPEID_PLAYER)
         {
             if (sctTargets.getGOTarget() && sctTargets.getGOTarget()->GetTypeId()==TYPEID_GAMEOBJECT)

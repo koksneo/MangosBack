@@ -217,7 +217,7 @@ struct MANGOS_DLL_DECL npc_corbett_schneiderAI : public npc_escortAI
             switch(Point)
             {
                 case 0: 
-                    if (Creature* pRema = (Creature*)Unit::GetUnit((*m_creature),RemaGUID))
+                    if (Creature* pRema = m_creature->GetMap()->GetCreature(RemaGUID))
                     {
                         switch(subevent)
                         {
@@ -243,7 +243,7 @@ struct MANGOS_DLL_DECL npc_corbett_schneiderAI : public npc_escortAI
                         }
                     break;
                 case 14:
-                    if (Creature* pHarlan = (Creature*)Unit::GetUnit((*m_creature),HarlanGUID))
+                    if (Creature* pHarlan = m_creature->GetMap()->GetCreature(HarlanGUID))
                     {
                         switch(subevent)
                         {
@@ -274,7 +274,7 @@ struct MANGOS_DLL_DECL npc_corbett_schneiderAI : public npc_escortAI
                     }
                     break;
                 case 20:
-                    if (Creature* pElaine = (Creature*)Unit::GetUnit((*m_creature),ElaineGUID))
+                    if (Creature* pElaine = m_creature->GetMap()->GetCreature(ElaineGUID))
                     {
                         switch(subevent)
                         {

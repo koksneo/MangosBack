@@ -223,7 +223,7 @@ struct MANGOS_DLL_DECL boss_krikthirAI : public ScriptedAI
             if(m_pInstance)
             {            
                 if(m_uiPhase == 3)
-                    if(Unit* pMiniBoss = Unit::GetUnit(*m_creature, m_uiMiniBossGUID[2]))
+                    if(Creature* pMiniBoss = m_creature->GetMap()->GetCreature(m_uiMiniBossGUID[2]))
                         if(!pMiniBoss->isAlive())
                         {
                             m_uiMindFlyTimer = urand(10000,15000);
@@ -237,7 +237,7 @@ struct MANGOS_DLL_DECL boss_krikthirAI : public ScriptedAI
                         }
 
                 if(m_uiPhase == 2)
-                    if(Unit* pMiniBoss = Unit::GetUnit(*m_creature, m_uiMiniBossGUID[1]))
+                    if(Creature* pMiniBoss = m_creature->GetMap()->GetCreature(m_uiMiniBossGUID[1]))
                         if(!pMiniBoss->isAlive())  
                         {
                             DoScriptText(SAY_SEND_GROUP_2, m_creature);
@@ -246,7 +246,7 @@ struct MANGOS_DLL_DECL boss_krikthirAI : public ScriptedAI
                         }
 
                 if(m_uiPhase == 1)
-                    if(Unit* pMiniBoss = Unit::GetUnit(*m_creature, m_uiMiniBossGUID[0]))
+                    if(Creature* pMiniBoss = m_creature->GetMap()->GetCreature(m_uiMiniBossGUID[0]))
                         if(!pMiniBoss->isAlive())          
                         {
                             DoScriptText(SAY_SEND_GROUP_1, m_creature);

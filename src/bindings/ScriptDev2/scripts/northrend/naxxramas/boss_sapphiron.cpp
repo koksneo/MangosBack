@@ -124,7 +124,7 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
          ThreatList const& tList = m_creature->getThreatManager().getThreatList();
          for (ThreatList::const_iterator i = tList.begin();i != tList.end(); ++i)
          {
-             Unit* pUnit = Unit::GetUnit(*m_creature, (*i)->getUnitGuid());
+             Player* pUnit = m_creature->GetMap()->GetPlayer((*i)->getUnitGuid());
              if (pUnit && pUnit->GetTypeId() == TYPEID_PLAYER &&
                  pUnit->isAlive() && !pUnit->HasAura(SPELL_ICEBOLT))
                  lPotentialTargets.push_back(pUnit);
@@ -147,7 +147,7 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
          ThreatList const& tList = m_creature->getThreatManager().getThreatList();
          for (ThreatList::const_iterator i = tList.begin();i != tList.end(); ++i)
          {
-             Unit* pUnit = Unit::GetUnit(*m_creature, (*i)->getUnitGuid());
+             Player* pUnit = m_creature->GetMap()->GetPlayer((*i)->getUnitGuid());
              if (pUnit && pUnit->HasAura(SPELL_ICEBOLT))
                  lBlockList.push_back(pUnit);
          }
@@ -216,7 +216,7 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
             m_pInstance->SetData(TYPE_SAPPHIRON, FAIL);
 
         DoCastSpellIfCan(m_creature, SPELL_DEACTIVATE_BLIZZARD, CAST_TRIGGERED);
-        Creature* pWingBuffet = (Creature*)Unit::GetUnit(*m_creature, m_uiWingBuffetGUID);
+        Creature* pWingBuffet = m_creature->GetMap()->GetCreature(m_uiWingBuffetGUID);
         if (pWingBuffet && pWingBuffet->isAlive())
             pWingBuffet->ForcedDespawn();
     }
@@ -343,7 +343,7 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
                     if (m_iIceboltCount >= (m_bIsRegularMode ? 2 : 3))
                     {
                         DoScriptText(EMOTE_BREATH, m_creature);
-                        Unit* pWingBuffet = Unit::GetUnit(*m_creature, m_uiWingBuffetGUID);
+                        Creature* pWingBuffet = m_creature->GetMap()->GetCreature(m_uiWingBuffetGUID);
                         if (pWingBuffet && pWingBuffet->isAlive())
                             DoCastSpellIfCan(pWingBuffet, SPELL_FROSTBREATH_VISUAL, CAST_TRIGGERED);
                         m_uiPhase = PHASE_LANDING;
@@ -367,7 +367,7 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
                     // dmg form FrostBreath :/
                     m_bCastingFrostBreath = true;
                     DoCastSpellIfCan(m_creature, SPELL_FROSTBREATH, CAST_TRIGGERED);
-                    Creature* pWingBuffet = (Creature*)Unit::GetUnit(*m_creature, m_uiWingBuffetGUID);
+                    Creature* pWingBuffet = m_creature->GetMap()->GetCreature(m_uiWingBuffetGUID);
                     if (pWingBuffet && pWingBuffet->isAlive())
                         pWingBuffet->ForcedDespawn();
 

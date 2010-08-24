@@ -1207,7 +1207,7 @@ struct MANGOS_DLL_DECL npc_valkyr_battlemaidenAI : public ScriptedAI
             return;
  
         if (uiPointId == OWNER_POINT)
-            if (Unit *pPlayer = Unit::GetUnit(*m_creature, m_creature->GetCreatorGUID()) )
+            if (Player *pPlayer = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGUID()) )
                 DoCastSpellIfCan(pPlayer, SPELL_REVIVE);
     }
  

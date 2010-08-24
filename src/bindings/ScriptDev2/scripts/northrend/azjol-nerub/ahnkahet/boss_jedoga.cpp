@@ -138,7 +138,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
 
         if (m_pInstance)
         {
-            if (Unit* pController = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_JEDOGA_CONTROLLER)))
+            if (Creature* pController = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_JEDOGA_CONTROLLER)))
                 pController->RemoveAurasDueToSpell(SPELL_SACRIFICE_VISUAL);
         }
     }
@@ -236,7 +236,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
         {
             for (std::list<uint64>::iterator itr = List.begin(); itr != List.end(); ++itr)
             {
-                if (Creature* pSummon = (Creature*)Unit::GetUnit((*m_creature), *itr))
+                if (Creature* pSummon = m_creature->GetMap()->GetCreature(*itr))
                     pSummon->ForcedDespawn();
             }
             List.clear();
@@ -323,7 +323,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
                             if (!lInitiates.empty())
                                 for (std::list<uint64>::iterator itr = lInitiates.begin(); itr != lInitiates.end(); ++itr)
                                 {
-                                    if (Unit* pUnit = Unit::GetUnit(*m_creature, *itr))
+                                    if (Unit* pUnit = m_creature->GetMap()->GetUnit(*itr))
                                         pUnit->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE | UNIT_FLAG_NOT_SELECTABLE);
                                 }
                             subevent = 0;
@@ -348,7 +348,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
                     return;
                 }
 
-                Unit* pController = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_JEDOGA_CONTROLLER));
+                Creature* pController = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_JEDOGA_CONTROLLER));
                 if (!pController)
                 {
                     // this should not happen!
@@ -380,7 +380,7 @@ struct MANGOS_DLL_DECL boss_jedogaAI : public ScriptedAI
                         {
                             std::list<uint64>::iterator itr = lVolunteers.begin();
                             advance(itr, (rand()% (lVolunteers.size())));
-                            if (Unit* pVolunteer = Unit::GetUnit(*m_creature, *itr))
+                            if (Creature* pVolunteer = m_creature->GetMap()->GetCreature(*itr))
                             {
                                 pVolunteer->RemoveAurasDueToSpell(SPELL_VOLUNTEER_SPHERE);
                                 float x, y, z;
@@ -493,12 +493,12 @@ struct MANGOS_DLL_DECL mob_jedoga_addAI : public ScriptedAI
 
         if (uiPointId == 7)
         {
-            if (Unit* pController = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_JEDOGA_CONTROLLER)))
+            if (Creature* pController = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_JEDOGA_CONTROLLER)))
                 {
                     m_creature->SetFacingToObject(pController);
                     m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);
                     DoScriptText(SAY_VOLUNTEER_SACRIFICED, m_creature);
-                    if (Unit* pJedoga = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_JEDOGA_SHADOWSEEKER)))
+                    if (Creature* pJedoga = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_JEDOGA_SHADOWSEEKER)))
                     {
                         pJedoga->SetFacingToObject(m_creature);
                         pJedoga->CastSpell(m_creature, SPELL_SACRIFICE_BEAM, true);
@@ -507,7 +507,7 @@ struct MANGOS_DLL_DECL mob_jedoga_addAI : public ScriptedAI
         }
         else
         {
-            if (Unit* pJedoga = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_JEDOGA_SHADOWSEEKER)))
+            if (Creature* pJedoga = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_JEDOGA_SHADOWSEEKER)))
             {
                 m_creature->SetFacingToObject(pJedoga);
                 m_creature->SetStandState(UNIT_STAND_STATE_KNEEL);

@@ -145,7 +145,7 @@ enum
 
 bool ItemUse_item_jungle_punch_sample(Player* pPlayer, Item* pItem, const SpellCastTargets &pTargets)
 {
-    Unit* pTarget = Unit::GetUnit(*pPlayer, pPlayer->GetTargetGUID());
+    Unit* pTarget = pPlayer->GetMap()->GetUnit(pPlayer->GetTargetGUID());
     if (pTarget && pTarget->GetTypeId() == TYPEID_UNIT)
     {
         pPlayer->CastSpell(pTarget, SPELL_OFFER_JUNGLE_PUNCH, false);

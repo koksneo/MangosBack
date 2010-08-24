@@ -123,7 +123,7 @@ Player* GetClosestPlayer(Creature* m_creature, float fDistance)
 
     for(ThreatList::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
     {
-        Unit *pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+        Player *pUnit = m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid());
         if (!pUnit || !pUnit->isAlive())
             continue;
 
@@ -158,7 +158,7 @@ struct MANGOS_DLL_DECL npc_horsemen_tap_listAI : public ScriptedAI
         {
             for (uint8 i = 0; i < 4; ++i)
             {
-                if (Creature* pHorsemen = (Creature*)Unit::GetUnit(*m_creature, m_pInstance->GetData64(Horsemen[i])))
+                if (Creature* pHorsemen = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(Horsemen[i])))
                 {
                     if (pHorsemen->isAlive())
                         pHorsemen->AI()->EnterEvadeMode();
@@ -232,7 +232,7 @@ struct MANGOS_DLL_DECL boss_lady_blaumeuxAI : public ScriptedAI
             return;
 
         if (m_pInstance)
-            if (Unit* pTapList = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
+            if (Creature* pTapList = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
                 pTapList->AddThreat(pWho);
 
         ScriptedAI::AttackedBy(pWho);
@@ -263,7 +263,7 @@ struct MANGOS_DLL_DECL boss_lady_blaumeuxAI : public ScriptedAI
         {
             if (m_uiCheckoutTapList <= uiDiff)
             {
-                if (Unit* pTapList = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
+                if (Creature* pTapList = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
                     if (Unit* pVictim = pTapList->getVictim())
                         m_creature->AI()->AttackStart(pVictim);
                 m_uiCheckoutTapList = 2500;
@@ -368,7 +368,7 @@ struct MANGOS_DLL_DECL boss_rivendare_naxxAI : public ScriptedAI
             return;
 
         if (m_pInstance)
-            if (Unit* pTapList = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
+            if (Creature* pTapList = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
                 pTapList->AddThreat(pWho);
 
         ScriptedAI::AttackedBy(pWho);
@@ -415,7 +415,7 @@ struct MANGOS_DLL_DECL boss_rivendare_naxxAI : public ScriptedAI
         {
             if (m_uiCheckoutTapList <= uiDiff)
             {
-                if (Unit* pTapList = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
+                if (Creature* pTapList = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
                     if (Unit* pVictim = pTapList->getVictim())
                         m_creature->AI()->AttackStart(pVictim);
                 m_uiCheckoutTapList = 2500;
@@ -498,7 +498,7 @@ struct MANGOS_DLL_DECL boss_thane_korthazzAI : public ScriptedAI
             return;
 
         if (m_pInstance)
-            if (Unit* pTapList = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
+            if (Creature* pTapList = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
                 pTapList->AddThreat(pWho);
 
         ScriptedAI::AttackedBy(pWho);
@@ -546,7 +546,7 @@ struct MANGOS_DLL_DECL boss_thane_korthazzAI : public ScriptedAI
         {
             if (m_uiCheckoutTapList <= uiDiff)
             {
-                if (Unit* pTapList = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
+                if (Creature* pTapList = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
                     if (Unit* pVictim = pTapList->getVictim())
                         m_creature->AI()->AttackStart(pVictim);
                 m_uiCheckoutTapList = 2500;
@@ -633,7 +633,7 @@ struct MANGOS_DLL_DECL boss_sir_zeliekAI : public ScriptedAI
             return;
 
         if (m_pInstance)
-            if (Unit* pTapList = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
+            if (Creature* pTapList = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
                 pTapList->AddThreat(pWho);
 
         ScriptedAI::AttackedBy(pWho);
@@ -665,7 +665,7 @@ struct MANGOS_DLL_DECL boss_sir_zeliekAI : public ScriptedAI
         {
             if (m_uiCheckoutTapList <= uiDiff)
             {
-                if (Unit* pTapList = Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
+                if (Creature* pTapList = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_HORSEMEN_TAP_LIST)))
                     if (Unit* pVictim = pTapList->getVictim())
                         m_creature->AI()->AttackStart(pVictim);
                 m_uiCheckoutTapList = 2500;

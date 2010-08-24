@@ -272,7 +272,7 @@ struct MANGOS_DLL_DECL boss_kelesethAI : public ScriptedAI
         {
             for(std::list<uint64>::iterator itr = lAddsList.begin(); itr != lAddsList.end(); ++itr)
             {
-                if (Creature* pCrearture = (Creature*)Unit::GetUnit(*m_creature, *itr))
+                if (Creature* pCrearture = m_creature->GetMap()->GetCreature(*itr))
                     (pCrearture)->ForcedDespawn();
             }
             lAddsList.clear();

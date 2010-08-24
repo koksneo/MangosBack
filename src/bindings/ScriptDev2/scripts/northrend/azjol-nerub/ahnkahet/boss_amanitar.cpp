@@ -92,7 +92,7 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
             return;
         for (std::list<uint64>::iterator itr = lMushrooms.begin(); itr != lMushrooms.end(); ++itr)
         {
-            if (Creature* pMushroom = (Creature*)Unit::GetUnit(*m_creature, *itr))
+            if (Creature* pMushroom = m_creature->GetMap()->GetCreature(*itr))
                 pMushroom->ForcedDespawn();
         }
         lMushrooms.clear();
@@ -145,7 +145,7 @@ struct MANGOS_DLL_DECL boss_amanitarAI : public ScriptedAI
             {
                 next = itr;
                 ++next;
-                Creature* pMushroom = (Creature*)Unit::GetUnit(*m_creature, *itr);
+                Creature* pMushroom = m_creature->GetMap()->GetCreature(*itr);
                 // if dead and despawned
                 if(!pMushroom)
                 {

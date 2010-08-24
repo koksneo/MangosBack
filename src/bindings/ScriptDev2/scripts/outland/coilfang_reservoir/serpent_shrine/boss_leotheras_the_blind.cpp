@@ -116,7 +116,7 @@ struct MANGOS_DLL_DECL mob_inner_demonAI : public ScriptedAI
     }
     void JustDied(Unit *victim)
     {
-        Unit* pUnit = Unit::GetUnit((*m_creature),victimGUID);
+        Unit* pUnit = m_creature->GetMap()->GetUnit(victimGUID);
         if (pUnit && pUnit->HasAura(SPELL_INSIDIOUS_WHISPER))
             pUnit->RemoveAurasDueToSpell(SPELL_INSIDIOUS_WHISPER);
     }
@@ -143,7 +143,7 @@ struct MANGOS_DLL_DECL mob_inner_demonAI : public ScriptedAI
 
         if (m_creature->getVictim()->GetGUID() != victimGUID)
         {
-            Unit* owner = Unit::GetUnit((*m_creature),victimGUID);
+            Player* owner = m_creature->GetMap()->GetPlayer(victimGUID);
                 if (owner)
                     AttackStart(owner);
         }
@@ -259,7 +259,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                 // Greyheart Spellbinder is dead, we must respawn it
                 if(GreyheartSpellbinder[i])
                 {
-                    Creature* pSpellbinder = ((Creature*)Unit::GetUnit((*m_creature), GreyheartSpellbinder[i]));
+                    Creature* pSpellbinder = m_creature->GetMap()->GetCreature(GreyheartSpellbinder[i]);
                     if(pSpellbinder)
                     {
                         if(!pSpellbinder->isAlive())
@@ -327,12 +327,11 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             m_creature->LoadEquipment(m_creature->GetEquipmentId());
 
             if (m_pInstance && m_pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
-        {
-                Unit *victim = NULL;
-                victim = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+            {
+                Creature* victim = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
                 if(victim)
                     m_creature->getThreatManager().addThreat(victim,1.0f);
-        }
+            }
             
     }
         else if (channelers != 0 && !m_creature->HasAura(AURA_BANISH))
@@ -382,7 +381,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
             if (InnderDemon[i])
             {
                     //delete creature
-                    Unit* pUnit = Unit::GetUnit((*m_creature), InnderDemon[i]);
+                    Creature* pUnit = m_creature->GetMap()->GetCreature(InnderDemon[i]);
                     if (pUnit && pUnit->isAlive())
                     {
                         pUnit->DealDamage(pUnit, pUnit->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
@@ -400,10 +399,11 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         {
             if (InnderDemon[i] > 0 )
             {
-                    Unit* pUnit = Unit::GetUnit((*m_creature), InnderDemon[i]);
+                    Creature* pUnit = m_creature->GetMap()->GetCreature(InnderDemon[i]);
                     if (pUnit && pUnit->isAlive())
                     {
-                        Unit* pUnit_target = Unit::GetUnit((*pUnit), ((mob_inner_demonAI *)((Creature *)pUnit)->AI())->victimGUID);
+                        Player* pUnit_target = m_creature->GetMap()->GetPlayer(((mob_inner_demonAI *)((Creature *)pUnit)->AI())->victimGUID);
+                        
                         if( pUnit_target && pUnit_target->isAlive())
                         {
                             pUnit->CastSpell(pUnit_target, SPELL_CONSUMING_MADNESS, true);
@@ -460,19 +460,19 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
         //despawn copy
         if (Demon)
-                {
-            Unit *pUnit = Unit::GetUnit((*m_creature), Demon);
+        {
+            Creature* pUnit = m_creature->GetMap()->GetCreature(Demon);
             if (pUnit)
                 pUnit->DealDamage(pUnit, pUnit->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
         }
 
         if (m_pInstance)
-                    {
+        {
             if (GameObject* pGo = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(DATA_LEOTHERAS_GEN)))
                 pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
 
             m_pInstance->SetData(TYPE_LEOTHERAS_EVENT, SPECIAL);
-                    }
+        }
     }
 
     void Aggro(Unit *who)
@@ -596,7 +596,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                 std::vector<Unit *> TargetList; 
                 for (ThreatList::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                 {
-                    Unit *tempTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                    Player* tempTarget = m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid());
                     if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != m_creature->getVictim()->GetGUID() && TargetList.size()<5)
                         TargetList.push_back( tempTarget );
                 }    
@@ -805,7 +805,7 @@ struct MANGOS_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
         if (!m_creature->isInCombat() && !m_creature->GetCurrentSpell(CURRENT_CHANNELED_SPELL))
              if (leotherasGUID)
              {
-                Creature *leotheras = (Creature *)Unit::GetUnit(*m_creature, leotherasGUID);
+                Creature* leotheras = m_creature->GetMap()->GetCreature(leotherasGUID);
                 if (leotheras && leotheras->isAlive())
                 {
                     DoCast(leotheras, BANISH_BEAM);
@@ -827,8 +827,8 @@ struct MANGOS_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
 
             if (!m_creature->isInCombat() && m_pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
             {
-                Unit *victim = NULL;
-                victim = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                Player* victim = NULL;
+                victim = m_creature->GetMap()->GetPlayer(m_pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
                 if(victim)
                     AttackStart(victim);
             }
@@ -879,7 +879,7 @@ struct MANGOS_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
         if (AddedBanish)
             if (m_pInstance && leotherasGUID)
             {
-                Creature *leotheras = (Creature *)Unit::GetUnit(*m_creature, leotherasGUID);
+                Creature* leotheras = m_creature->GetMap()->GetCreature(leotherasGUID);
                 if(leotheras)
                     ((boss_leotheras_the_blindAI *)leotheras->AI())->channelers--;
             }

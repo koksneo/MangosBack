@@ -320,7 +320,7 @@ struct MANGOS_DLL_DECL instance_sunwell_plateau : public ScriptedInstance
         }*/
 
         // Put player back in Kalecgos(Dragon)'s threat list
-        Creature* Kalecgos = ((Creature*)Unit::GetUnit(*plr, Kalecgos_Dragon));
+        Creature* Kalecgos = plr->GetMap()->GetCreature(Kalecgos_Dragon);
         if (Kalecgos && Kalecgos->isAlive())
         {
             error_log("SD2: INST: Putting %s in Kalecgos' threatlist", plr->GetName());

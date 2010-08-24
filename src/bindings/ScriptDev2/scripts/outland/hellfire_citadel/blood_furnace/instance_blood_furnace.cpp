@@ -184,7 +184,7 @@ void instance_blood_furnace::SetData(uint32 uiType, uint32 uiData)
                         if (pBroggok && pBroggok->isAlive())
                         {
                             pBroggok->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                            if (Unit* pVictim = Unit::GetUnit(*pBroggok, m_uiBroggokTargetGUID))
+                            if (Player* pVictim = instance->GetPlayer(m_uiBroggokTargetGUID))
                                 pBroggok->AI()->AttackStart(pVictim);
                         }
                     }
@@ -200,7 +200,7 @@ void instance_blood_furnace::SetData(uint32 uiType, uint32 uiData)
                                 if (pFelOrc && pFelOrc->isAlive() && pFelOrc->GetDistance(pCellDoor) < 15.0f)
                                 {
                                     pFelOrc->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-                                    if (Unit* pVictim = Unit::GetUnit(*pFelOrc, m_uiBroggokTargetGUID))
+                                    if (Player* pVictim = instance->GetPlayer(m_uiBroggokTargetGUID))
                                     {
                                         pFelOrc->AI()->AttackStart(pVictim);
                                         // all players are immediatly put in combat when event begin

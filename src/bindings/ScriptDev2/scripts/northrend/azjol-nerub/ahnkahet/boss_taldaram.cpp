@@ -228,7 +228,7 @@ struct MANGOS_DLL_DECL mob_flame_sphereAI : public ScriptedAI
     void Reset() 
     {
         if (m_pInstance)
-            if (Creature* pTaladaram = (Creature*)Unit::GetUnit(*m_creature, m_pInstance->GetData64(NPC_TALADARAN)))
+            if (Creature* pTaladaram = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_TALADARAN)))
             {
                 float x, y, z;
                 float fDistance = 50.0f;

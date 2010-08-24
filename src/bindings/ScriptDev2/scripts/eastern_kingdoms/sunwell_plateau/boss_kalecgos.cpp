@@ -258,7 +258,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
         }
 
         //Mising VMAPS workarroud, ANTY BUG :D
-        if (Unit* pSpectral = Unit::GetUnit(*m_creature, m_uiNormalGUID))
+        if (Creature* pSpectral = m_creature->GetMap()->GetCreature(m_uiNormalGUID))
             if (m_creature->GetHealthPercent() > 1.0f)
                 if (!m_creature->IsInRange(pSpectral, 0.0f, 50.0f, true))
                 {
@@ -284,7 +284,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
         {
             if (m_pInstance && m_pInstance->GetData(DATA_SATHROVARR_EVENT) == SPECIAL)
             {
-                if (Unit* pSathrovarr = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_SATHROVARR)))
+                if (Creature* pSathrovarr = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_SATHROVARR)))
                 {
                     if (pSathrovarr->isAlive())
                         pSathrovarr->CastSpell(pSathrovarr, SPELL_CRAZED_RAGE, true);
@@ -394,7 +394,7 @@ struct MANGOS_DLL_DECL boss_kalecgosAI : public ScriptedAI
 
         if (m_uiSathrovarrTimer < uiDiff && !bSathrospawnd)
         {
-            if (Creature* pSath = ((Creature*)Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_SATHROVARR))))
+            if (Creature* pSath = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_SATHROVARR)))
             {
                 pSath->SetVisibility(VISIBILITY_ON);
                 pSath->setFaction(14);
@@ -491,7 +491,7 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
         for(std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
         {
-            Unit* pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+            Unit* pTarget = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());
             if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER)
             {
                 pTarget->InterruptNonMeleeSpells(true);
@@ -538,7 +538,7 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
         }
 
         if (!bBanished)
-            if (Unit* pSpectral = Unit::GetUnit(*m_creature, m_uiSpectralGUID))
+            if (Creature* pSpectral = m_creature->GetMap()->GetCreature(m_uiSpectralGUID))
                 if (m_creature->GetHealthPercent() > 1.0f)
                     if (!m_creature->IsInRange(pSpectral, 0.0f, 50.0f, true))
                     {
@@ -552,7 +552,7 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
         if(pWho && !pWho->IsInRange(m_creature, 0.0f, 50.0f, true))
         {
             m_creature->AddThreat(pWho, -100000.0f);
-            if(Unit* pKalec = Unit::GetUnit(*m_creature, m_uiKalecGUID))
+            if(Creature* pKalec = m_creature->GetMap()->GetCreature(m_uiKalecGUID))
             {
                 m_creature->AI()->AttackStart(pKalec);
                 m_creature->AddThreat(pKalec, 100000.0f);
@@ -564,7 +564,7 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
             }
         } 
 
-        if (Unit* pKalec = Unit::GetUnit(*m_creature, m_uiKalecGUID))
+        if (Creature* pKalec = m_creature->GetMap()->GetCreature(m_uiKalecGUID))
             if (!pKalec->isAlive())
             {
                 TeleportAllPlayersBack();
@@ -654,7 +654,7 @@ struct MANGOS_DLL_DECL boss_sathrovarrAI : public ScriptedAI
 
             for(std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                Unit* pTarget = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                Unit* pTarget = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());
                 if (pTarget && pTarget->GetTypeId() == TYPEID_PLAYER && m_creature->IsWithinDistInMap(pTarget, 40))              
                 {
                     if (pTarget->HasAura(SPELL_ARCANE_BUFFET))
@@ -745,7 +745,7 @@ struct MANGOS_DLL_DECL boss_kalecAI : public ScriptedAI
         }
 
         if (!bSathDied)
-            if (Unit* pSath = Unit::GetUnit(*m_creature, m_uiSathGUID))
+            if (Creature* pSath = m_creature->GetMap()->GetCreature(m_uiSathGUID))
                 if (pSath && !pSath->isAlive())
                 {
                     DoScriptText(SAY_GOOD_PLRWIN, m_creature);

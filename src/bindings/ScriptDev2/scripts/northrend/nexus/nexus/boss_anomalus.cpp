@@ -79,7 +79,7 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
         m_bChaoticRift = false;
         m_uiSparkTimer = 5000;
 
-        Creature* pRift = (Creature*)Unit::GetUnit(*m_creature, m_uiChaoticRiftGUID);
+        Creature* pRift = m_creature->GetMap()->GetCreature(m_uiChaoticRiftGUID);
         if (pRift && pRift->isAlive())
             pRift->ForcedDespawn();
 
@@ -101,7 +101,7 @@ struct MANGOS_DLL_DECL boss_anomalusAI : public ScriptedAI
     {
         DoScriptText(SAY_DEATH, m_creature);
 
-        Creature* pRift = (Creature*)Unit::GetUnit(*m_creature, m_uiChaoticRiftGUID);
+        Creature* pRift = m_creature->GetMap()->GetCreature(m_uiChaoticRiftGUID);
         if (pRift && pRift->isAlive())
             pRift->ForcedDespawn();
 

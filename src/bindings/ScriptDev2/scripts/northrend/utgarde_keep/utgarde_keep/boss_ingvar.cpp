@@ -110,7 +110,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
 
     void Reset()
     {
-        if (Creature* pAnnylide = (Creature*)Unit::GetUnit(*m_creature, m_uiAnnylideGUID))
+        if (Creature* pAnnylide = m_creature->GetMap()->GetCreature(m_uiAnnylideGUID))
             pAnnylide->ForcedDespawn();
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
@@ -187,7 +187,7 @@ struct MANGOS_DLL_DECL boss_ingvarAI : public ScriptedAI
         {
             if (m_uiEventTimer <= uiDiff)
             {
-                Creature* pAnnylide = (Creature*)Unit::GetUnit(*m_creature, m_uiAnnylideGUID);
+                Creature* pAnnylide = m_creature->GetMap()->GetCreature(m_uiAnnylideGUID);
                 switch(m_uiSubevent)
                 {
                     case 0:

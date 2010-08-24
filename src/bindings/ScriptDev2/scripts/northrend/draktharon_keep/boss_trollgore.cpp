@@ -112,7 +112,7 @@ struct MANGOS_DLL_DECL boss_trollgoreAI : public ScriptedAI
 
         if (m_uiSpawnTimer <= uiDiff)
         {
-            if (Unit* pUnit = Unit::GetUnit((*m_creature), m_uiSummonerGUID))
+            if (Creature* pUnit = m_creature->GetMap()->GetCreature(m_uiSummonerGUID))
             {
                 for (uint8 i = 0; i < (m_bIsRegularMode ? 2 : 3); ++i)
                 {

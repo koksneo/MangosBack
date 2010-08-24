@@ -70,7 +70,7 @@ struct MANGOS_DLL_DECL boss_jandicebarovAI : public ScriptedAI
                 m_creature->clearUnitState(UNIT_STAT_STUNNED);
                 m_creature->SetVisibility(VISIBILITY_ON);
                 if (!m_creature->getThreatManager().isThreatListEmpty())
-                    if (Unit* pVictim = Unit::GetUnit((*m_creature),m_creature->getThreatManager().getCurrentVictim()->getUnitGuid()))
+                    if (Unit* pVictim = m_creature->GetMap()->GetUnit(m_creature->getThreatManager().getCurrentVictim()->getUnitGuid()))
                         m_creature->getThreatManager().modifyThreatPercent(pVictim,-99);
 
              bInvisible = false;

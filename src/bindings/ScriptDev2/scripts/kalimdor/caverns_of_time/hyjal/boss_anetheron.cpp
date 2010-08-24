@@ -260,7 +260,7 @@ struct MANGOS_DLL_DECL mob_towering_infernalAI : public ScriptedAI
 
         if(Immolation_Timer < diff)
         {
-            if (Creature* Anetheron = (Creature*)Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_ANETHERON)))
+            if (Creature* Anetheron = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_ANETHERON)))
                 if (m_creature->IsWithinDistInMap(Anetheron, 10.0f) && Anetheron->isAlive() && Anetheron->HasAura(SPELL_VAMPIRIC_AURA))
                     DoCast(m_creature, SPELL_VAMPIRIC_AURA);
             Immolation_Timer = 1000;

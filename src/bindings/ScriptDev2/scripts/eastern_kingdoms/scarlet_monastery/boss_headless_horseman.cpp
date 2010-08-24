@@ -193,7 +193,7 @@ struct MANGOS_DLL_DECL npc_horsemans_headAI : public ScriptedAI
         if (!m_pInstance)
             return;
 
-        Creature* pHorseman = (Creature*)Unit::GetUnit((*m_creature),m_pInstance->GetData64(DATA_HEADLESS_HORSEMAN));
+        Creature* pHorseman = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_HEADLESS_HORSEMAN));
         if (!pHorseman)
             return;
 
@@ -368,7 +368,7 @@ struct MANGOS_DLL_DECL boss_headless_horsemanAI : public ScriptedAI
         if (!m_pInstance)
             return;
 
-        Creature* pHead = (Creature*)Unit::GetUnit((*m_creature),HeadGUID);
+        Creature* pHead = m_creature->GetMap()->GetCreature(HeadGUID);
         if (pEntered && !pHead)
         {
             error_log("Debug: Headless Horseman aggroed but no Head of Horseman found so abording!");
@@ -547,7 +547,7 @@ struct MANGOS_DLL_DECL mob_pulsing_pumpkinAI : public ScriptedAI
         if (!m_pInstance)
             return;
 
-        Creature* pHorseman = (Creature*)Unit::GetUnit((*m_creature),m_pInstance->GetData64(DATA_HEADLESS_HORSEMAN));
+        Creature* pHorseman = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_HEADLESS_HORSEMAN));
         if (!pHorseman)
             return;
 

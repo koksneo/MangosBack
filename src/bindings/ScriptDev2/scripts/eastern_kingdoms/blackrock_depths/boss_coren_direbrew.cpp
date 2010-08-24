@@ -103,20 +103,20 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
    
    void SaySay(uint64 guid, int32 text)
    {
-        Creature* pPointer = (Creature*)Unit::GetUnit(*m_creature, guid);
+        Creature* pPointer = m_creature->GetMap()->GetCreature(guid);
         if (pPointer && pPointer->isAlive())
             DoScriptText(text,pPointer,NULL);
    }
 
    void Despawn(uint64 guid)
    {
-       if (Creature* pPointer = (Creature*)Unit::GetUnit(*m_creature, guid))
+       if (Creature* pPointer = m_creature->GetMap()->GetCreature(guid))
             pPointer->ForcedDespawn();
    }
 
    void Assault(uint64 guid, uint32 faction, Unit* pTarget)
    {
-       Creature* pPointer = (Creature*)Unit::GetUnit(*m_creature, guid);
+       Creature* pPointer = m_creature->GetMap()->GetCreature(guid);
        if (pTarget && pPointer)
        {
            pPointer->setFaction(faction);
@@ -187,7 +187,7 @@ struct MANGOS_DLL_DECL boss_coren_direbrewAI : public npc_escortAI
         if (pWho->GetTypeId() != TYPEID_PLAYER)
             return;
 
-        Player* pPlayer = (Player*)Unit::GetUnit(*m_creature,pWho->GetGUID());
+        Player* pPlayer = m_creature->GetMap()->GetPlayer(pWho->GetGUID());
         if (!pPlayer)
             return;
 

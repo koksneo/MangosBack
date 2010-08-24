@@ -242,7 +242,7 @@ struct MANGOS_DLL_DECL npc_novos_summon_targetAI : public ScriptedAI
         if (!lSummonsList.empty())
         {
             for (std::list<uint64>::iterator itr = lSummonsList.begin(); itr != lSummonsList.end(); ++itr)
-                if (Creature* pSummon = (Creature*)Unit::GetUnit((*m_creature), *itr))
+                if (Creature* pSummon = m_creature->GetMap()->GetCreature(*itr))
                     pSummon->ForcedDespawn();
         }
         lSummonsList.clear();
@@ -255,7 +255,7 @@ struct MANGOS_DLL_DECL npc_novos_summon_targetAI : public ScriptedAI
 
         lSummonsList.push_back(pSummoned->GetGUID());
 
-        Creature* pNovos = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_NOVOS));
+        Creature* pNovos = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_NOVOS));
         if (!pNovos || !pNovos->isAlive() || !pNovos->getVictim())
             return;
 
@@ -266,7 +266,7 @@ struct MANGOS_DLL_DECL npc_novos_summon_targetAI : public ScriptedAI
         ThreatList::const_iterator itr = lThreatList.begin();
         advance(itr, (rand()% (lThreatList.size())));
 
-        if (Unit* pTarget = Unit::GetUnit((*m_creature),(*itr)->getUnitGuid()))
+        if (Player* pTarget = m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid()))
             if (pSummoned->AI() && pTarget->isInAccessablePlaceFor(pSummoned))
                 pSummoned->AI()->AttackStart(pTarget);
     }
@@ -295,7 +295,7 @@ struct MANGOS_DLL_DECL npc_novos_summon_targetAI : public ScriptedAI
                     }
                     else
                     {
-                        if (Creature* pNovos = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_NOVOS)))
+                        if (Creature* pNovos = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_NOVOS)))
                             DoScriptText(SAY_ADDS, pNovos);
                         DoCastSpellIfCan(m_creature, SPELL_SUMMON_CRISTAL_HANDLER);
                     }

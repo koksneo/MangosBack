@@ -134,7 +134,7 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
             if(pImage)
             {
                 m_uiImageGUID[m_uiImageCount][0] = pImage->GetGUID();
-                Unit *TargetedPlayer = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());  
+                Player *TargetedPlayer = m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid());  
                 if(TargetedPlayer && TargetedPlayer->GetTypeId() == TYPEID_PLAYER)
                 {
                     uint32 spell;
@@ -176,7 +176,7 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
         {
             for(uint8 i=0; i<5; ++i)
             {
-                Unit* pImage = Unit::GetUnit((*m_creature), m_uiImageGUID[i][0]);
+                Creature* pImage = m_creature->GetMap()->GetCreature(m_uiImageGUID[i][0]);
                 if(pImage && pImage->isAlive())
                     if(Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                         pImage->CastSpell(target, m_uiImageGUID[i][1], true);

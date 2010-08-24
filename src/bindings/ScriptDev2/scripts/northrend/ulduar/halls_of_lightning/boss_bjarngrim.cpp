@@ -137,7 +137,7 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
         {
-            if (Creature* pLieutenant = (Creature*)Unit::GetUnit(*m_creature, *itr))
+            if (Creature* pLieutenant = m_creature->GetMap()->GetCreature(*itr))
             {
                 if (!pLieutenant->isAlive())
                     pLieutenant->Respawn();
@@ -163,7 +163,7 @@ struct MANGOS_DLL_DECL boss_bjarngrimAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = lLieutenants.begin(); itr != lLieutenants.end(); ++itr)
         {
-            Creature* pLieutenant = (Creature*)Unit::GetUnit(*m_creature, *itr);
+            Creature* pLieutenant = m_creature->GetMap()->GetCreature(*itr);
             if (pLieutenant && pLieutenant->isAlive())
                 pLieutenant->AI()->AttackStart(pWho);           
         }
@@ -395,7 +395,7 @@ struct MANGOS_DLL_DECL mob_stormforged_lieutenantAI : public ScriptedAI
             // move follow Bjarngrim
             if (m_pInstance && m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
             {
-                if (Creature* pBjarngrim = (Creature*)Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_BJARNGRIM)))
+                if (Creature* pBjarngrim = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_BJARNGRIM)))
                 {
                     if (!bLieutenantLocked && pBjarngrim->AI())
                     {
@@ -423,7 +423,7 @@ struct MANGOS_DLL_DECL mob_stormforged_lieutenantAI : public ScriptedAI
         {
             if (m_pInstance)
             {
-                if (Creature* pBjarngrim = (Creature*)Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_BJARNGRIM)))
+                if (Creature* pBjarngrim = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_BJARNGRIM)))
                 {
                     if (pBjarngrim->isAlive())
                         DoCastSpellIfCan(pBjarngrim, m_bIsRegularMode ? SPELL_RENEW_STEEL_N : SPELL_RENEW_STEEL_H);

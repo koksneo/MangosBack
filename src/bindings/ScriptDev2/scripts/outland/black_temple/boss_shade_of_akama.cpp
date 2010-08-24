@@ -316,21 +316,21 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
                 {
                     if (Creature* pSpawn = m_creature->SummonCreature(m_auiRandSpawnEntry[i], 498.652740f, 461.728119f, LOC_LOW_Z,0.0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
                     {
-                        if (Unit* pAkama = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_AKAMA_SHADE)))
+                        if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_AKAMA_SHADE)))
                             pSpawn->AI()->AttackStart(pAkama);
                     }
                 }    
             // right spawns                
                 if (Creature* pDefender2 = m_creature->SummonCreature(NPC_ASH_DEFENDER, 498.505003f, 339.619324f, LOC_LOW_Z, 0.0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
                 {
-                    if (Unit* pAkama = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_AKAMA_SHADE)))
+                    if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_AKAMA_SHADE)))
                         pDefender2->AI()->AttackStart(pAkama);
                 }
                 for(uint8 i = 0; i < 4; ++i)
                 {
                     if (Creature* pSpawn2 = m_creature->SummonCreature(m_auiRandSpawnEntry[i], 498.505003f, 339.619324f, LOC_LOW_Z,0.0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
                     {
-                        if (Unit* pAkama = Unit::GetUnit(*m_creature, m_pInstance->GetData64(DATA_AKAMA_SHADE)))
+                        if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_AKAMA_SHADE)))
                             pSpawn2->AI()->AttackStart(pAkama);
                     }
                 }    

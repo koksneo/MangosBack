@@ -149,7 +149,7 @@ struct MANGOS_DLL_DECL mob_captive_mechagnomeAI : public ScriptedAI
     {
         if (bFreed)
         {
-            Player* pPlayer = (Player*)Unit::GetUnit((*m_creature),m_uiPlayerGUID);
+            Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID);
             if (!pPlayer)
             {
                 Reset();

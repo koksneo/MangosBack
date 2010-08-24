@@ -294,7 +294,7 @@ struct MANGOS_DLL_DECL mob_taste_testAI : public ScriptedAI
                 }
                 if (Phase == 2)
                 {
-                    if (Player* pPlayer = (Player*)Unit::GetUnit((*m_creature),m_uiPlayersGUID))
+                    if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayersGUID))
                         pPlayer->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetGUID());
                     Reset();
                     return;

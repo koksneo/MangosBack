@@ -140,7 +140,7 @@ struct MANGOS_DLL_DECL boss_gortokAI : public ScriptedAI
             m_creature->GetMotionMaster()->Clear();
             m_creature->GetMotionMaster()->MoveIdle();
 
-            Unit* pAdd = Unit::GetUnit(*m_creature, m_uiAddGUID[m_uiPhase]);
+            Creature* pAdd = m_creature->GetMap()->GetCreature(m_uiAddGUID[m_uiPhase]);
             if(pAdd && !pAdd->isAlive()) 
             {
                 if((m_bIsRegularMode && m_uiPhase == 1) || m_uiPhase == 3)

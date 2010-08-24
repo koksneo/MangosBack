@@ -368,7 +368,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
         std::list<uint64> manaPositive;
         for (ThreatList::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end(); ++itr)
         {
-            if (Unit* pTemp = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+            if (Unit* pTemp = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
             {
                 //player and has mana
                 if ((pTemp->GetTypeId() == TYPEID_PLAYER) && (pTemp->getPowerType() == POWER_MANA))
@@ -381,7 +381,7 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             std::list<uint64>::iterator m_uiPlayerGUID = manaPositive.begin();
             advance(m_uiPlayerGUID, (rand()%manaPositive.size()));
 
-            if (Unit* pTemp = Unit::GetUnit(*m_creature, *m_uiPlayerGUID))
+            if (Player* pTemp = m_creature->GetMap()->GetPlayer(*m_uiPlayerGUID))
                 return pTemp;
         }
         return NULL;

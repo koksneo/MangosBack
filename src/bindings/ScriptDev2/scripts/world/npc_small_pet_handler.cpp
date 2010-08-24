@@ -199,7 +199,7 @@ struct MANGOS_DLL_DECL npc_small_pet_handlerAI : public ScriptedAI
         // Check if pet is moving
         if (m_uiCheckTimer < uiDiff)
         {
-            if (Player* pPlayer = (Player*)Unit::GetUnit(*m_creature, m_uiPlayerGUID))
+            if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID))
             {
                 // Change speed if owner is mounted
                 if (pPlayer->IsMounted())

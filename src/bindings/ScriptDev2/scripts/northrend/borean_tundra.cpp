@@ -115,7 +115,7 @@ struct MANGOS_DLL_DECL mob_elderAI : public ScriptedAI
         if (type != POINT_MOTION_TYPE)
             return;
 
-        Player* pPlayer = (Player*)Unit::GetUnit((*m_creature),uiPlayerGUID);
+        Player* pPlayer = m_creature->GetMap()->GetPlayer(uiPlayerGUID);
 
         if (!pPlayer)
             return;
@@ -363,7 +363,7 @@ struct MANGOS_DLL_DECL mob_overseerAI : public ScriptedAI
         for (int i = 0; i < MAX_WEAVERS; ++i)
         {
             // if somehow overseer entered combat and than evaded before all weavers are dead and despawed (30sec from encounter)
-            if (Creature* pWeaver = (Creature*) Unit::GetUnit((*m_creature), WeaverGUID[i]))
+            if (Creature* pWeaver = m_creature->GetMap()->GetCreature(WeaverGUID[i]))
             {
                 if (!pWeaver->isAlive())
                 {
@@ -465,7 +465,7 @@ struct MANGOS_DLL_DECL mob_overseerAI : public ScriptedAI
                 if (WeaverGUID[i] == 0)
                     continue;
 
-                Creature* pWeaver = (Creature*) Unit::GetUnit((*m_creature),WeaverGUID[i]);
+                Creature* pWeaver = m_creature->GetMap()->GetCreature(WeaverGUID[i]);
                 // return weavers to orginal spawn point
                 if (pWeaver && pWeaver->isAlive())
                 {
@@ -740,7 +740,7 @@ struct MANGOS_DLL_DECL mob_arcane_prisonerAI : public ScriptedAI
             }
             else
             {
-                if (Player* pPlayer = (Player*)Unit::GetUnit((*m_creature), m_creature->GetCreatorGUID()))
+                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGUID()))
                 {
                     DoScriptText(SAY_SUCCEDED, m_creature, pPlayer);
                     if (pPlayer->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)

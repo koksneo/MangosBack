@@ -537,7 +537,7 @@ struct MANGOS_DLL_DECL npc_skywingAI : public npc_escortAI
                 break;
             case 87:
                 SetEscortPaused(true);
-                if (Unit* Luanga = Unit::GetUnit((*m_creature),LuangaGUID))
+                if (Creature* Luanga = m_creature->GetMap()->GetCreature(LuangaGUID))
                     m_creature->Attack(Luanga,true);
                 break;
 
@@ -560,7 +560,7 @@ struct MANGOS_DLL_DECL npc_skywingAI : public npc_escortAI
         // maybe somebone smarter than me will implement it somehow else
         // if Luanga was not spawned or is already dead there is no need to check fourther conditions
         if (LuangaAlive)
-            if (Creature* Luanga = (Creature*)Unit::GetUnit((*m_creature),LuangaGUID))
+            if (Creature* Luanga = m_creature->GetMap()->GetCreature(LuangaGUID))
                 if (Luanga->isDead())
                 {
                     m_creature->SetDisplayId(SKYWING_MORPHED);

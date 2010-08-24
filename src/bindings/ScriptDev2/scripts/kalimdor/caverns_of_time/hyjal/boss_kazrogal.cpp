@@ -123,7 +123,7 @@ struct MANGOS_DLL_DECL boss_kazrogalAI : public ScriptedAI
             std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
             for(std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                Unit *target = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());
                 if (target && target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() == POWER_MANA)
                 {
                     for(uint32 i=0; i < MAX_EFFECT_INDEX; ++i)
@@ -165,7 +165,8 @@ struct MANGOS_DLL_DECL boss_kazrogalAI : public ScriptedAI
             std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
             for(std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                Unit *target = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                Unit *target = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());
+
                 if (target && target->GetTypeId() == TYPEID_PLAYER && target->getPowerType() == POWER_MANA)
                     if(target->HasAura(SPELL_MARK))
                         if((target->GetPower(POWER_MANA)*100) / target->GetMaxPower(POWER_MANA) <= 1)

@@ -236,7 +236,7 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
             
             for (ThreatList::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end();++itr)
             {
-                if (Unit* pTemp = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid()))
+                if (Unit* pTemp = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
                 {
                     //player and has mana
                     if ((pTemp->GetTypeId() == TYPEID_PLAYER) && (pTemp->getPowerType() == POWER_MANA))

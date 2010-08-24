@@ -239,7 +239,7 @@ struct MANGOS_DLL_DECL boss_telestraAI : public ScriptedAI
                         {
                             for (ThreatList::const_iterator itr = tList.begin(); itr != tList.end(); ++itr)
                             {
-                                Unit* pUnit = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());
+                                Unit* pUnit = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());
                                 if (pUnit && pUnit->IsInRange(m_creature, 0.0f, 60.0f))
                                     pUnit->KnockBackFrom(m_creature, -20.0f, 20.0f);
                             }

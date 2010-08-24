@@ -289,7 +289,7 @@ struct MANGOS_DLL_DECL boss_volkhanAI : public ScriptedAI
                 // 100% sure that some kind of AoE effect should force them to die instead of iterating list
                 for (std::list<uint64>::iterator itr = m_lGolemGUIDList.begin(); itr != m_lGolemGUIDList.end(); ++itr)
                 {
-                    Creature* pGolem = (Creature*)Unit::GetUnit(*m_creature, *itr);
+                    Creature* pGolem = m_creature->GetMap()->GetCreature(*itr);
                     if (pGolem && pGolem->AI() && pGolem->isAlive() && pGolem->HasAura(SPELL_COOL_DOWN_AURA))
                         ((mob_molten_golemAI*)pGolem->AI())->bScheduledToShatter = true;
                 }

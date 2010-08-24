@@ -278,16 +278,16 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
         {
             for(uint8 i=0; i<3; ++i)
             {
-                Unit* pAdd = Unit::GetUnit(*m_creature, m_uiAddsGUID[i]);
+                Creature* pAdd = m_creature->GetMap()->GetCreature(m_uiAddsGUID[i]);
                 if(pAdd && pAdd->isAlive())
                 {
-                    Unit* pPlayer = Unit::GetUnit(*m_creature, m_uiPlayerGUID);
+                    Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID);
                     if(pPlayer)
                         m_creature->CastSpell(pPlayer, SPELL_KILL, false);
 
                     for(uint8 k=0; k<3; ++k)
                     {
-                        Unit* pAdd = Unit::GetUnit(*m_creature, m_uiAddsGUID[i]);
+                        Creature* pAdd = m_creature->GetMap()->GetCreature(m_uiAddsGUID[i]);
                         if(pAdd && pAdd->isAlive())
                         {
                             pAdd->SetVisibility(VISIBILITY_OFF);
@@ -315,7 +315,7 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
             std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
             for(std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                Unit *TargetedPlayer = Unit::GetUnit(*m_creature, (*itr)->getUnitGuid());  
+                Player *TargetedPlayer = m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid());  
                 if(TargetedPlayer && TargetedPlayer->isAlive())
                     m_creature->CastSpell(TargetedPlayer, SPELL_BOLT, true);
             }

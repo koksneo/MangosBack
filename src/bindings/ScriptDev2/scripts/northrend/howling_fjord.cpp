@@ -243,7 +243,7 @@ struct MANGOS_DLL_DECL npc_crowleg_danAI : public ScriptedAI
             {
                 // dunno exact text and emote
                 // DoSciptText();
-                if (Unit* pTarget = Unit::GetUnit((*m_creature),PlayerGUID))
+                if (Player* pTarget = m_creature->GetMap()->GetPlayer(PlayerGUID))
                 {
                     m_creature->setFaction(16);
                     m_creature->AI()->AttackStart(pTarget);
@@ -348,7 +348,7 @@ struct MANGOS_DLL_DECL npc_silvermoon_harryAI : public ScriptedAI
                 {
                     if ((*itr))
                     {
-                        if (Unit* pUnit = Unit::GetUnit((*m_creature), (*itr)->getUnitGuid()))
+                        if (Unit* pUnit = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
                         {
                             if (pUnit->GetTypeId() == TYPEID_PLAYER)
                                 lPlayersEventDone.push_back((*itr)->getUnitGuid());
@@ -528,7 +528,7 @@ struct MANGOS_DLL_DECL npc_olgaAI : public ScriptedAI
         {
             if (m_uiResetJackTimer <= uiDiff)
             {
-                Creature* pJack = (Creature*)Unit::GetUnit((*m_creature),JackAdamsGUID);
+                Creature* pJack = m_creature->GetMap()->GetCreature(JackAdamsGUID);
                 if (pJack && pJack->isAlive() && pJack->GetByteValue(UNIT_FIELD_BYTES_1,0) == UNIT_STAND_STATE_DEAD)
                     pJack->SetByteValue(UNIT_FIELD_BYTES_1,0,UNIT_STAND_STATE_STAND);
                 m_uiResetJackTimer = 30000;
@@ -540,7 +540,7 @@ struct MANGOS_DLL_DECL npc_olgaAI : public ScriptedAI
             if (m_uiEventTimer <= uiDiff)
             {
                 // if there is no Jack around or he is dead there is no point to continue
-                Creature* pJack = (Creature*)Unit::GetUnit((*m_creature),JackAdamsGUID);
+                Creature* pJack = m_creature->GetMap()->GetCreature(JackAdamsGUID);
                 if (!pJack || !pJack->isAlive())
                 {
                     m_creature->AI()->EnterEvadeMode();

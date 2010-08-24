@@ -125,7 +125,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = m_lCryptGuardList.begin(); itr != m_lCryptGuardList.end(); ++itr)
         {
-            Creature* pCryptGuard = ((Creature*)Unit::GetUnit((*m_creature), *itr));
+            Creature* pCryptGuard = m_creature->GetMap()->GetCreature(*itr);
             if (pCryptGuard && pCryptGuard->isAlive() && pWho->isInAccessablePlaceFor(pCryptGuard) && pCryptGuard->IsHostileTo(pWho) && pCryptGuard->AI())
             {
                 pCryptGuard->AddThreat(pWho,0.0f);
@@ -176,7 +176,7 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = m_lCryptGuardList.begin(); itr != m_lCryptGuardList.end(); ++itr)
         {
-            Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr);
+            Creature* pTemp = m_creature->GetMap()->GetCreature(*itr);
             if (pTemp && pTemp->isAlive())
                 pTemp->ForcedDespawn();
         }

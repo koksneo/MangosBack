@@ -90,7 +90,7 @@ struct MANGOS_DLL_DECL boss_black_stalkerAI : public ScriptedAI
         for (int i = 0; i < STRIDERS_NO; ++i)
         {
             // Despawn spawned Strider
-            if (Creature* pOldStrider = (Creature*)Unit::GetUnit((*m_creature),SporeStriderGUID[i]))
+            if (Creature* pOldStrider = m_creature->GetMap()->GetCreature(SporeStriderGUID[i]))
                 pOldStrider->ForcedDespawn();
         }
 
@@ -133,7 +133,7 @@ struct MANGOS_DLL_DECL boss_black_stalkerAI : public ScriptedAI
                 {
                     // there is high chance that "old striders" will be despawned
                     if (urand(0, 2) > 0)
-                        if (Creature* pOldStrider = (Creature*)Unit::GetUnit((*m_creature),SporeStriderGUID[i]))
+                        if (Creature* pOldStrider = m_creature->GetMap()->GetCreature(SporeStriderGUID[i]))
                             pOldStrider->ForcedDespawn();
 
                     // Spawn new striders

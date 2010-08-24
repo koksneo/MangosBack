@@ -97,7 +97,7 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
 
         for (std::list<uint64>::iterator itr = lZombies.begin(); itr != lZombies.end(); ++itr)
         {
-            Creature* pZombie = (Creature*)Unit::GetUnit(*m_creature, *itr);
+            Creature* pZombie = m_creature->GetMap()->GetCreature(*itr);
             if (pZombie && pZombie->isAlive())
                 pZombie->ForcedDespawn();
         }
@@ -172,7 +172,7 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
             DoScriptText(EMOTE_DECIMATE, m_creature);
             for (std::list<uint64>::iterator itr = lZombies.begin(); itr != lZombies.end(); ++itr)
             {
-                Creature* pZombie = (Creature*)Unit::GetUnit(*m_creature, *itr);
+                Creature* pZombie = m_creature->GetMap()->GetCreature(*itr);
                 if (pZombie && pZombie->isAlive())
                 {
                     pZombie->GetMotionMaster()->Clear();

@@ -153,7 +153,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
         // Hide triggers
         for (uint8 i = 0; i < 4; ++i)
         {
-            if (Creature* pKingSpirit = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(Kings[i][0])))
+            if (Creature* pKingSpirit = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(Kings[i][0])))
             {
                 pKingSpirit->InterruptNonMeleeSpells(false);
                 pKingSpirit->RemoveAllAuras();
@@ -229,7 +229,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
         {
             for (std::list<uint64>::iterator itr = Summons.begin(); itr != Summons.end(); ++itr)
             {
-                if (Creature* pSummoned = (Creature*)Unit::GetUnit((*m_creature), *itr))
+                if (Creature* pSummoned = m_creature->GetMap()->GetCreature(*itr))
                     pSummoned->ForcedDespawn();
             }
             Summons.clear();
@@ -241,7 +241,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
         if (m_uiCurrentKing <= 0)
             return;
 
-        if (Unit* pKingSpirit = Unit::GetUnit((*m_creature), m_pInstance->GetData64(Kings[m_uiCurrentKing - 1][0])))
+        if (Creature* pKingSpirit = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(Kings[m_uiCurrentKing - 1][0])))
         {
             pKingSpirit->InterruptSpell(CURRENT_CHANNELED_SPELL);
             pKingSpirit->CastSpell(pKingSpirit, SPELL_SPIRIT_DIES, false);
@@ -257,7 +257,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
         {
             if(m_uiPauseTimer <= uiDiff)
             {
-                if (Creature* pKingSpirit = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(Kings[m_uiCurrentKing][0])))
+                if (Creature* pKingSpirit = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(Kings[m_uiCurrentKing][0])))
                 {
                     switch(subphase)
                     {
@@ -359,7 +359,7 @@ struct MANGOS_DLL_DECL boss_ymironAI : public ScriptedAI
                 BurnKing();
                 DespawnAdds();
 
-                if (Creature* pKingSpirit = (Creature*)Unit::GetUnit((*m_creature), m_pInstance->GetData64(Kings[m_uiCurrentKing][0])))
+                if (Creature* pKingSpirit = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(Kings[m_uiCurrentKing][0])))
                 {
                     float x, y, z;
                     pKingSpirit->GetClosePoint(x, y, z, pKingSpirit->GetObjectBoundingRadius(), 2*INTERACTION_DISTANCE, pKingSpirit->GetAngle(m_creature));
@@ -395,7 +395,7 @@ struct MANGOS_DLL_DECL mob_ymiron_addAI : public ScriptedAI
 
         if (!m_pInstance)
             return;
-        if (Creature* pYmiron = (Creature*)Unit::GetUnit((*m_creature),m_pInstance->GetData64(DATA_YMIRON)))
+        if (Creature* pYmiron = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_YMIRON)))
             pYmiron->AI()->JustSummoned(m_creature);
     }
 

@@ -14,3 +14,6 @@ WHERE entry=29695;
 DELETE from spell_scripts WHERE id=61122;
 INSERT INTO spell_scripts (id,delay,command,datalong,datalong2)VALUES
 (61122,0,15,55038,0);
+
+UPDATE creature_loot_template SET ChanceOrQuestChance=100, groupid=2 WHERE item=40971;
+

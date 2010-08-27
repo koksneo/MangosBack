@@ -1142,6 +1142,41 @@ CreatureAI* GetAI_npc_isla_starmane(Creature* pCreature)
     return new npc_isla_starmaneAI(pCreature);
 }
 
+/*#####
+## go_veil_skith_cage
+#####*/
+
+enum
+{
+    QUEST_MISSING_FRIENDS     = 10852,
+    NPC_CAPTIVE_CHILD         = 22314,
+    SAY_THANKS_1                = -1000050,
+    SAY_THANKS_2                = -1000051,
+    SAY_THANKS_3                = -1000052,
+    SPELL_DESPAWN_SELF		=  43014
+};
+
+bool GOHello_veil_skith_cage(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestStatus(QUEST_MISSING_FRIENDS) == QUEST_STATUS_INCOMPLETE)
+    {
+     Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_CAPTIVE_CHILD, INTERACTION_DISTANCE);
+        if(pCreature)
+        {
+            pPlayer->KilledMonsterCredit(NPC_CAPTIVE_CHILD, pCreature->GetGUID());
+                switch(urand(0,2))
+                {
+                    case 0: DoScriptText(SAY_THANKS_1, pCreature); break;
+                    case 1: DoScriptText(SAY_THANKS_2, pCreature); break;
+                    default: DoScriptText(SAY_THANKS_3, pCreature); break;
+                }
+		
+            pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, false);
+        }
+    }
+    return false;
+};
+
 void AddSC_terokkar_forest()
 {
     Script *newscript;
@@ -1217,6 +1252,11 @@ void AddSC_terokkar_forest()
     newscript->Name = "npc_slim";
     newscript->pGossipHello =  &GossipHello_npc_slim;
     newscript->pGossipSelect = &GossipSelect_npc_slim;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "go_veil_skith_cage";
+    newscript->pGOHello = &GOHello_veil_skith_cage;
     newscript->RegisterSelf();
 
 }

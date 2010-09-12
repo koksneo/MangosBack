@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Nagrand
 SD%Complete: 90
-SDComment: Quest support: 9849, 9868, 9874, 9918, 9991, 10044, 10085, 10107, 10108, 10172, 10646. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
+SDComment: Quest support: 9849, 9868, 9874, 9918, 9991, 10044, 10085, 10107, 10108, 10172, 10646, 9923, 9948. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
 SDCategory: Nagrand
 EndScriptData */
 
@@ -30,6 +30,8 @@ npc_greatmother_geyah
 npc_lantresor_of_the_blade
 npc_maghar_captive
 npc_creditmarker_visit_with_ancestors
+go_corkis_prison
+go_warmaul_prison
 EndContentData */
 
 #include "precompiled.h"
@@ -705,6 +707,40 @@ bool GOHello_go_corkis_prison(Player* pPlayer, GameObject* pGo)
     return false;
 };
 
+/*#####
+## go_warmaul_prison
+#####*/
+
+enum
+{
+    QUEST_FINDING_THE_SURVIVORS        = 9948,
+    NPC_MAGHAR_PRISONER                = 18428,
+    SAY_MAGHAR_THANKS_1                = -1000040,
+    SAY_MAGHAR_THANKS_2                = -1000041,
+    SAY_MAGHAR_THANKS_3                = -1000042,
+};
+
+bool GOHello_go_warmaul_prison(Player* pPlayer, GameObject* pGo) 
+{
+    if (pPlayer->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) == QUEST_STATUS_INCOMPLETE)
+    {
+     Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_MAGHAR_PRISONER, INTERACTION_DISTANCE);
+        if(pCreature)
+        {
+            pPlayer->CastedCreatureOrGO(NPC_MAGHAR_PRISONER, pCreature->GetGUID(), 32347);
+                switch(urand(0,2))
+                {
+                    case 0: DoScriptText(SAY_MAGHAR_THANKS_1, pCreature); break;
+                    case 1: DoScriptText(SAY_MAGHAR_THANKS_2, pCreature); break;
+                    default: DoScriptText(SAY_MAGHAR_THANKS_3, pCreature); break;
+                }
+		
+            pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, false);
+        }
+    }
+    return false;
+};
+
 /*######
 ## AddSC
 ######*/
@@ -763,5 +799,10 @@ void AddSC_nagrand()
     newscript = new Script;
     newscript->Name = "go_corkis_prison";
     newscript->pGOHello = &GOHello_go_corkis_prison;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "go_warmaul_prison";
+    newscript->pGOHello = &GOHello_go_warmaul_prison;
     newscript->RegisterSelf();
 }

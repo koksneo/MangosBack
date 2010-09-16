@@ -1035,7 +1035,7 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recv_data)
 */
 }
 
-void WorldSession::HandleSetActionBarToggles(WorldPacket& recv_data)
+void WorldSession::HandleSetActionBarTogglesOpcode(WorldPacket& recv_data)
 {
     uint8 ActionBar;
 
@@ -1287,19 +1287,22 @@ void WorldSession::HandleFarSightOpcode( WorldPacket & recv_data )
     DEBUG_LOG("WORLD: CMSG_FAR_SIGHT");
     //recv_data.hexlike();
 
-    uint8 unk;
-    recv_data >> unk;
+    uint8 op;
+    recv_data >> op;
 
-    switch(unk)
+    WorldObject* obj = _player->GetMap()->GetWorldObject(_player->GetFarSightGuid());
+    if (!obj)
+        return;
+
+    switch(op)
     {
         case 0:
-            //WorldPacket data(SMSG_CLEAR_FAR_SIGHT_IMMEDIATE, 0)
-            //SendPacket(&data);
-            //_player->SetUInt64Value(PLAYER_FARSIGHT, 0);
             DEBUG_LOG("Removed FarSight from %s", _player->GetObjectGuid().GetString().c_str());
+            _player->GetCamera().ResetView(false);
             break;
         case 1:
             DEBUG_LOG("Added FarSight %s to %s", _player->GetFarSightGuid().GetString().c_str(), _player->GetObjectGuid().GetString().c_str());
+            _player->GetCamera().SetView(obj, false);
             break;
     }
 }
@@ -1393,6 +1396,14 @@ void WorldSession::HandleSetDungeonDifficultyOpcode( WorldPacket & recv_data )
     {
         if (pGroup->IsLeader(_player->GetObjectGuid()))
         {
+            //do not let set dungeon difficulty if any one in this group in dungeon
+            Group::MemberSlotList g_members = pGroup->GetMemberSlots();
+            for (Group::member_citerator itr = g_members.begin(); itr != g_members.end(); itr++)
+            {
+                Player *gm_member = sObjectMgr.GetPlayer(itr->guid);
+                if (gm_member && gm_member->GetMap() && gm_member->GetMap()->IsDungeon())
+                    return;
+            }
             // the difficulty is set even if the instances can't be reset
             //_player->SendDungeonDifficulty(true);
             pGroup->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, _player);
@@ -1437,6 +1448,14 @@ void WorldSession::HandleSetRaidDifficultyOpcode( WorldPacket & recv_data )
     {
         if (pGroup->IsLeader(_player->GetObjectGuid()))
         {
+            //do not let set dungeon difficulty if any one in this group in dungeon
+            Group::MemberSlotList g_members = pGroup->GetMemberSlots();
+            for (Group::member_citerator itr = g_members.begin(); itr != g_members.end(); itr++)
+            {
+                Player *gm_member = sObjectMgr.GetPlayer(itr->guid);
+                if (gm_member && gm_member->GetMap() && gm_member->GetMap()->IsDungeon())
+                    return;
+            }
             // the difficulty is set even if the instances can't be reset
             //_player->SendDungeonDifficulty(true);
             pGroup->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, _player);
@@ -1504,7 +1523,7 @@ void WorldSession::HandleSetTaxiBenchmarkOpcode( WorldPacket & recv_data )
     DEBUG_LOG("Client used \"/timetest %d\" command", mode);
 }
 
-void WorldSession::HandleQueryInspectAchievements( WorldPacket & recv_data )
+void WorldSession::HandleQueryInspectAchievementsOpcode( WorldPacket & recv_data )
 {
     ObjectGuid guid;
 
@@ -1514,7 +1533,7 @@ void WorldSession::HandleQueryInspectAchievements( WorldPacket & recv_data )
         player->GetAchievementMgr().SendRespondInspectAchievements(_player);
 }
 
-void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recv_data*/)
+void WorldSession::HandleWorldStateUITimerUpdateOpcode(WorldPacket& /*recv_data*/)
 {
     // empty opcode
     DEBUG_LOG("WORLD: CMSG_WORLD_STATE_UI_TIMER_UPDATE");
@@ -1524,7 +1543,7 @@ void WorldSession::HandleWorldStateUITimerUpdate(WorldPacket& /*recv_data*/)
     SendPacket(&data);
 }
 
-void WorldSession::HandleReadyForAccountDataTimes(WorldPacket& /*recv_data*/)
+void WorldSession::HandleReadyForAccountDataTimesOpcode(WorldPacket& /*recv_data*/)
 {
     // empty opcode
     DEBUG_LOG("WORLD: CMSG_READY_FOR_ACCOUNT_DATA_TIMES");

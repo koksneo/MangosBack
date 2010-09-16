@@ -2693,9 +2693,6 @@ void Spell::prepare(SpellCastTargets const* targets, Aura* triggeredByAura)
 
         // will show cast bar
         SendSpellStart();
-
-        if (m_caster->GetTypeId() == TYPEID_PLAYER)
-           ((Player*)m_caster)->AddGlobalCooldown(m_spellInfo,this);
     }
     // execute triggered without cast time explicitly in call point
     else if(m_timer == 0)
@@ -2753,10 +2750,6 @@ void Spell::cancel()
     }
 
     finish(false);
-
-    if (m_caster->GetTypeId() == TYPEID_PLAYER)
-       ((Player*)m_caster)->RemoveGlobalCooldown(m_spellInfo);
-
     m_caster->RemoveDynObject(m_spellInfo->Id);
     m_caster->RemoveGameObject(m_spellInfo->Id, true);
 }
@@ -4286,8 +4279,7 @@ SpellCastResult Spell::CheckCast(bool strict)
 {
     // check cooldowns to prevent cheating (ignore passive spells, that client side visual only)
     if (m_caster->GetTypeId()==TYPEID_PLAYER && !(m_spellInfo->Attributes & SPELL_ATTR_PASSIVE) &&
-        ((Player*)m_caster)->HasSpellCooldown(m_spellInfo->Id) ||
-         (m_caster->GetTypeId()==TYPEID_PLAYER && strict && !m_IsTriggeredSpell && ((Player*)m_caster)->HasGlobalCooldown(m_spellInfo)))
+        ((Player*)m_caster)->HasSpellCooldown(m_spellInfo->Id))
     {
         if(m_triggeredByAuraSpell)
             return SPELL_FAILED_DONT_REPORT;

@@ -124,7 +124,7 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
          ThreatList const& tList = m_creature->getThreatManager().getThreatList();
          for (ThreatList::const_iterator i = tList.begin();i != tList.end(); ++i)
          {
-             Player* pUnit = m_creature->GetMap()->GetPlayer((*i)->getUnitGuid());
+             Unit* pUnit = m_creature->GetMap()->GetUnit((*i)->getUnitGuid());
              if (pUnit && pUnit->GetTypeId() == TYPEID_PLAYER &&
                  pUnit->isAlive() && !pUnit->HasAura(SPELL_ICEBOLT))
                  lPotentialTargets.push_back(pUnit);
@@ -147,7 +147,7 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
          ThreatList const& tList = m_creature->getThreatManager().getThreatList();
          for (ThreatList::const_iterator i = tList.begin();i != tList.end(); ++i)
          {
-             Player* pUnit = m_creature->GetMap()->GetPlayer((*i)->getUnitGuid());
+             Unit* pUnit = m_creature->GetMap()->GetUnit((*i)->getUnitGuid());
              if (pUnit && pUnit->HasAura(SPELL_ICEBOLT))
                  lBlockList.push_back(pUnit);
          }

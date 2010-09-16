@@ -315,9 +315,9 @@ struct MANGOS_DLL_DECL boss_svalaAI : public ScriptedAI
             std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
             for(std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
             {
-                Player *TargetedPlayer = m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid());  
-                if(TargetedPlayer && TargetedPlayer->isAlive())
-                    m_creature->CastSpell(TargetedPlayer, SPELL_BOLT, true);
+                if (Player *pTargetedPlayer = m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid()))
+                    if (pTargetedPlayer->isAlive())
+                        DoCastSpellIfCan(pTargetedPlayer, SPELL_BOLT, CAST_TRIGGERED);
             }
             m_uiCallFlamesTimer = urand(15000,25000);
         }else m_uiCallFlamesTimer -= uiDiff;

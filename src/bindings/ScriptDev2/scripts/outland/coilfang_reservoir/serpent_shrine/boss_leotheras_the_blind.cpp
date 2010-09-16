@@ -328,9 +328,9 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
 
             if (m_pInstance && m_pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
             {
-                Creature* victim = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
-                if(victim)
-                    m_creature->getThreatManager().addThreat(victim,1.0f);
+                Unit* pVictim = m_creature->GetMap()->GetUnit(m_pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
+                if(pVictim)
+                    m_creature->AddThreat(pVictim);
             }
             
     }
@@ -399,17 +399,14 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
         {
             if (InnderDemon[i] > 0 )
             {
-                    Creature* pUnit = m_creature->GetMap()->GetCreature(InnderDemon[i]);
-                    if (pUnit && pUnit->isAlive())
-                    {
-                        Player* pUnit_target = m_creature->GetMap()->GetPlayer(((mob_inner_demonAI *)((Creature *)pUnit)->AI())->victimGUID);
-                        
-                        if( pUnit_target && pUnit_target->isAlive())
-                        {
-                            pUnit->CastSpell(pUnit_target, SPELL_CONSUMING_MADNESS, true);
-                            m_creature->getThreatManager().modifyThreatPercent(pUnit_target, -100);
-                        }
-                    }
+                if (Creature* pInnderDemon = m_creature->GetMap()->GetCreature(InnderDemon[i]))
+                    if (pInnderDemon->isAlive())
+                        if (Unit* pTarget = m_creature->GetMap()->GetPlayer(((mob_inner_demonAI *)((Creature *)pInnderDemon)->AI())->victimGUID))
+                            if (pTarget->isAlive())
+                            {
+                                pInnderDemon->CastSpell(pTarget, SPELL_CONSUMING_MADNESS, true);
+                                m_creature->AddThreat(pTarget, -100.0f);
+                            }
             }
         }
 }
@@ -596,7 +593,7 @@ struct MANGOS_DLL_DECL boss_leotheras_the_blindAI : public ScriptedAI
                 std::vector<Unit *> TargetList; 
                 for (ThreatList::const_iterator itr = threatlist.begin(); itr != threatlist.end(); ++itr)
                 {
-                    Player* tempTarget = m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid());
+                    Unit* tempTarget = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());
                     if (tempTarget && tempTarget->GetTypeId() == TYPEID_PLAYER && tempTarget->GetGUID() != m_creature->getVictim()->GetGUID() && TargetList.size()<5)
                         TargetList.push_back( tempTarget );
                 }    
@@ -826,12 +823,8 @@ struct MANGOS_DLL_DECL mob_greyheart_spellbinderAI : public ScriptedAI
                 leotherasGUID = m_pInstance->GetData64(DATA_LEOTHERAS);
 
             if (!m_creature->isInCombat() && m_pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER))
-            {
-                Player* victim = NULL;
-                victim = m_creature->GetMap()->GetPlayer(m_pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER));
-                if(victim)
-                    AttackStart(victim);
-            }
+                if (Unit* pVictim = m_creature->GetMap()->GetUnit(m_pInstance->GetData64(DATA_LEOTHERAS_EVENT_STARTER)))
+                    AttackStart(pVictim);
         }
         
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())

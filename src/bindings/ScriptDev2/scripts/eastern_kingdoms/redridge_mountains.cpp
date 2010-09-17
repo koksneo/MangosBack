@@ -72,7 +72,7 @@ struct MANGOS_DLL_DECL npc_corporal_keeshan_escortAI : public npc_escortAI
         }
     }
     
-	void WaypointReached(uint32 uiWP)
+    void WaypointReached(uint32 uiWP)
     {
         switch (uiWP)
         {
@@ -129,8 +129,8 @@ bool QuestAccept_npc_corporal_keeshan(Player* pPlayer, Creature* pCreature, cons
             pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
         }
     }
-    return true;  
 
+    return true;
 }
 
 void AddSC_redridge_mountains()

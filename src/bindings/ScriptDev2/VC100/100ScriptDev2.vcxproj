@@ -278,6 +278,9 @@
     <ClCompile Include="..\scripts\eastern_kingdoms\blackwing_lair\instance_blackwing_lair.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\deadmines\deadmines.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\deadmines\instance_deadmines.cpp" />
+    <ClCompile Include="..\scripts\eastern_kingdoms\gnomeregan\boss_thermaplugg.cpp" />
+    <ClCompile Include="..\scripts\eastern_kingdoms\gnomeregan\gnomeregan.cpp" />
+    <ClCompile Include="..\scripts\eastern_kingdoms\gnomeregan\instance_gnomeregan.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\karazhan\boss_curator.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\karazhan\boss_maiden_of_virtue.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\karazhan\boss_midnight.cpp" />
@@ -612,7 +615,6 @@
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\boss_morogrim_tidewalker.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\boss_the_lurker_below.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\instance_serpent_shrine.cpp" />
-    <ClCompile Include="..\scripts\outland\coilfang_reservoir\slave_pens\boss_rokmar.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\steam_vault\boss_hydromancer_thespia.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\steam_vault\boss_mekgineer_steamrigger.cpp" />
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\steam_vault\boss_warlord_kalithresh.cpp" />
@@ -688,6 +690,7 @@
     <ClInclude Include="..\scripts\eastern_kingdoms\blackrock_depths\blackrock_depths.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\blackrock_spire\blackrock_spire.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\deadmines\deadmines.h" />
+    <ClInclude Include="..\scripts\eastern_kingdoms\gnomeregan\gnomeregan.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\karazhan\karazhan.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\magisters_terrace\magisters_terrace.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\molten_core\molten_core.h" />

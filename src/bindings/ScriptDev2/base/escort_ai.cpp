@@ -283,10 +283,10 @@ void npc_escortAI::UpdateAI(const uint32 uiDiff)
 
             if (!HasEscortState(STATE_ESCORT_PAUSED))
             {
-                m_creature->GetMotionMaster()->MovePoint(CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
-                debug_log("SD2: EscortAI start waypoint %u (%f, %f, %f).", CurrentWP->id, CurrentWP->x, CurrentWP->y, CurrentWP->z);
+                m_creature->GetMotionMaster()->MovePoint(CurrentWP->uiId, CurrentWP->fX, CurrentWP->fY, CurrentWP->fZ);
+                debug_log("SD2: EscortAI start waypoint %u (%f, %f, %f).", CurrentWP->uiId, CurrentWP->fX, CurrentWP->fY, CurrentWP->fZ);
 
-                WaypointStart(CurrentWP->id);
+                WaypointStart(CurrentWP->uiId);
 
                 m_uiWPWaitTimer = 0;
             }
@@ -300,7 +300,7 @@ void npc_escortAI::UpdateAI(const uint32 uiDiff)
     {
         if (m_uiPlayerCheckTimer < uiDiff)
         {
-            if (!IsPlayerOrGroupInRange())
+            if (!HasEscortState(STATE_ESCORT_PAUSED) && !IsPlayerOrGroupInRange())
             {
                 debug_log("SD2: EscortAI failed because player/group was to far away or not found");
 
@@ -363,18 +363,18 @@ void npc_escortAI::MovementInform(uint32 uiMoveType, uint32 uiPointId)
     else
     {
         //Make sure that we are still on the right waypoint
-        if (CurrentWP->id != uiPointId)
+        if (CurrentWP->uiId != uiPointId)
         {
-            error_log("SD2: EscortAI reached waypoint out of order %u, expected %u.", uiPointId, CurrentWP->id);
+            error_log("SD2: EscortAI reached waypoint out of order %u, expected %u.", uiPointId, CurrentWP->uiId);
             return;
         }
 
-        debug_log("SD2: EscortAI waypoint %u reached.", CurrentWP->id);
+        debug_log("SD2: EscortAI waypoint %u reached.", CurrentWP->uiId);
 
         //Call WP function
-        WaypointReached(CurrentWP->id);
+        WaypointReached(CurrentWP->uiId);
 
-        m_uiWPWaitTimer = CurrentWP->WaitTimeMs + 1;
+        m_uiWPWaitTimer = CurrentWP->uiWaitTime + 1;
 
         ++CurrentWP;
     }
@@ -401,6 +401,32 @@ void npc_escortAI::FillPointMovementListForCreature()
         Escort_Waypoint pPoint(itr->uiPointId, itr->fX, itr->fY, itr->fZ, itr->uiWaitTime);
         WaypointList.push_back(pPoint);
     }
+}
+
+void npc_escortAI::SetCurrentWaypoint(uint32 uiPointId)
+{
+    if (!(HasEscortState(STATE_ESCORT_PAUSED)))             // only when paused
+        return;
+
+    if (uiPointId >= WaypointList.size())                   // too high number
+        return;
+
+    if (uiPointId == CurrentWP->uiId)                       // already here
+        return;
+
+    CurrentWP = WaypointList.begin();                       // set to begin (can't -- backwards in itr list)
+
+    while(uiPointId != CurrentWP->uiId)
+    {
+        ++CurrentWP;
+
+        if (CurrentWP == WaypointList.end())
+            break;
+    }
+
+    m_uiWPWaitTimer = 1;
+
+    debug_log("SD2: EscortAI current waypoint set to id %u", CurrentWP->uiId);
 }
 
 void npc_escortAI::SetRun(bool bRun)

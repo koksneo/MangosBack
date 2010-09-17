@@ -5,25 +5,27 @@
 #ifndef DEF_GUNDRAK_H
 #define DEF_GUNDRAK_H
 /* Encounters
- * Slad'ran          = 1
+ * Slad'ran          = 0
+ * Moorabi           = 1
  * Drakkari Colossus = 2
- * Moorabi           = 3
- * Gal'darah         = 4
- * Eck the Ferocious = 5
+ * Gal'darah         = 3
+ * Eck the Ferocious = 4
 */
 enum
 {
     MAX_ENCOUNTER          = 5,
 
-    TYPE_SLADRAN           = 1,
+    TYPE_SLADRAN           = 0,
+    TYPE_MOORABI           = 1,
     TYPE_COLOSSUS          = 2,
-    TYPE_MOORABI           = 3,
-    TYPE_GALDARAH          = 4,
-    TYPE_ECK               = 5,
+    TYPE_GALDARAH          = 3,
+    TYPE_ECK               = 4,
 
     NPC_SLADRAN            = 29304,
     NPC_MOORABI            = 29307,
     NPC_COLOSSUS           = 29305,
+    NPC_ELEMENTAL          = 29573,
+    NPC_LIVIN_MOJO         = 29830,
     NPC_GALDARAH           = 29306,
     NPC_ECK                = 29932,
 
@@ -40,8 +42,50 @@ enum
     GO_SNAKE_KEY           = 192564,
     GO_TROLL_KEY           = 192567,
     GO_MAMMOTH_KEY         = 192565,
+    GO_RHINO_KEY           = 192566,
 
-    GO_BRIDGE              = 193188
+    GO_BRIDGE              = 193188,
+    GO_COLLISION           = 192633
+};
+
+class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
+{
+    public:
+        instance_gundrak(Map* pMap);
+        ~instance_gundrak() {}
+
+        void Initialize();
+
+        void OnCreatureCreate(Creature* pCreature);
+        void OnObjectCreate(GameObject* pGo);
+
+        void SetData(uint32 uiType, uint32 uiData);
+        uint32 GetData(uint32 uiType);
+        uint64 GetData64(uint32 uiData);
+
+        const char* Save() { return strInstData.c_str(); }
+        void Load(const char* chrIn);
+
+    protected:
+        uint32 m_auiEncounter[MAX_ENCOUNTER];
+        std::string strInstData;
+
+        uint64 m_uiEckDoorGUID;
+        uint64 m_uiEckUnderwaterDoorGUID;
+        uint64 m_uiGaldarahDoorGUID;
+        uint64 m_uiExitDoorLeftGUID;
+        uint64 m_uiExitDoorRightGUID;
+        uint64 m_uiSnakeKeyGUID;
+        uint64 m_uiMammothKeyGUID;
+        uint64 m_uiTrollKeyGUID;
+        uint64 m_uiAltarOfSladranGUID;
+        uint64 m_uiAltarOfMoorabiGUID;
+        uint64 m_uiAltarOfColossusGUID;
+        uint64 m_uiBridgeGUID;
+
+        uint64 m_uiSladranGUID;
+        uint64 m_uiElementalGUID;
+        uint64 m_uiColossusGUID;
 };
 
 #endif

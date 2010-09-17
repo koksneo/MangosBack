@@ -501,6 +501,15 @@
     <ClCompile Include="..\scripts\eastern_kingdoms\deadmines\instance_deadmines.cpp">
       <Filter>scripts\eastern_kingdoms\deadmines</Filter>
     </ClCompile>
+    <ClCompile Include="..\scripts\eastern_kingdoms\gnomeregan\boss_thermaplugg.cpp">
+      <Filter>scripts\eastern_kingdoms\gnomeregan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\scripts\eastern_kingdoms\gnomeregan\gnomeregan.cpp">
+      <Filter>scripts\eastern_kingdoms\gnomeregan</Filter>
+    </ClCompile>
+    <ClCompile Include="..\scripts\eastern_kingdoms\gnomeregan\instance_gnomeregan.cpp">
+      <Filter>scripts\eastern_kingdoms\gnomeregan</Filter>
+    </ClCompile>
     <ClCompile Include="..\scripts\eastern_kingdoms\karazhan\boss_curator.cpp">
       <Filter>scripts\eastern_kingdoms\karazhan</Filter>
     </ClCompile>
@@ -1437,9 +1446,6 @@
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\serpent_shrine\instance_serpent_shrine.cpp">
       <Filter>scripts\outland\coilfang_reservoir\serpent_shrine</Filter>
     </ClCompile>
-    <ClCompile Include="..\scripts\outland\coilfang_reservoir\slave_pens\boss_rokmar.cpp">
-      <Filter>scripts\outland\coilfang_reservoir\slave_pens</Filter>
-    </ClCompile>
     <ClCompile Include="..\scripts\outland\coilfang_reservoir\steam_vault\boss_hydromancer_thespia.cpp">
       <Filter>scripts\outland\coilfang_reservoir\steam_vault</Filter>
     </ClCompile>
@@ -1644,6 +1650,9 @@
     <ClInclude Include="..\scripts\eastern_kingdoms\deadmines\deadmines.h">
       <Filter>scripts\eastern_kingdoms\deadmines</Filter>
     </ClInclude>
+    <ClInclude Include="..\scripts\eastern_kingdoms\gnomeregan\gnomeregan.h">
+      <Filter>scripts\eastern_kingdoms\gnomeregan</Filter>
+    </ClInclude>
     <ClInclude Include="..\scripts\eastern_kingdoms\karazhan\karazhan.h">
       <Filter>scripts\eastern_kingdoms\karazhan</Filter>
     </ClInclude>
@@ -1814,5 +1823,8 @@
     </ClInclude>
     <ClInclude Include="..\config.h" />
     <ClInclude Include="..\ScriptMgr.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\revision.h" />
   </ItemGroup>
 </Project>

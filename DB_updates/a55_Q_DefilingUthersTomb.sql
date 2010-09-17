@@ -19,7 +19,7 @@ INSERT INTO event_scripts VALUES
 (10561,12,0,17233,30,0x04,0,2000000202,0,0,0,0,0),
 (10561,17,0,17233,30,0x04,0,2000000203,0,0,0,0,0);
 
-DELETE FROM db_script_string WHERE entry IN (2000000200,2000000201,2000000203);
+DELETE FROM db_script_string WHERE entry IN (2000000200,2000000201,2000000202,2000000203);
 INSERT INTO db_script_string (entry,content_default) VALUES
 (2000000200,'Why do you do this? Did I somehow wrong you in life?'),
 (2000000201,'Ah, I see it now in your mind. This is the work of one of my former students... Mehlar Dawnblade. It is sad to know that his heart has turned so dark.'),

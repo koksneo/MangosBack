@@ -266,7 +266,7 @@ struct MANGOS_DLL_DECL npc_novos_summon_targetAI : public ScriptedAI
         ThreatList::const_iterator itr = lThreatList.begin();
         advance(itr, (rand()% (lThreatList.size())));
 
-        if (Player* pTarget = m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid()))
+        if (Unit* pTarget = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
             if (pSummoned->AI() && pTarget->isInAccessablePlaceFor(pSummoned))
                 pSummoned->AI()->AttackStart(pTarget);
     }

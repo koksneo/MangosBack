@@ -234,9 +234,9 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
         {
             if(m_uiEncapsulateAOETimer < diff)
             {
-                if(Creature* target = m_creature->GetMap()->GetCreature(m_uiEncapsulateGUID))
+                if(Unit* pTarget = m_creature->GetMap()->GetUnit(m_uiEncapsulateGUID))
                 {
-                    target->CastSpell(target, SPELL_ENCAPSULATE_AOE, true);
+                    pTarget->CastSpell(pTarget, SPELL_ENCAPSULATE_AOE, true);
                     ++m_uiEncapsulateCount;
                 }
                 m_uiEncapsulateAOETimer = 1000;
@@ -363,8 +363,8 @@ struct MANGOS_DLL_DECL boss_felmystAI : public ScriptedAI
             {
                 if(m_uiBreathCount < 5)
                 {
-                    if(Player* Victim = m_creature->GetMap()->GetPlayer(m_uiVictimGUID))
-                        m_creature->SummonCreature(MOB_VAPOR, Victim->GetPositionX(), Victim->GetPositionY(), Victim->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 20000);
+                    if(Unit* pVictim = m_creature->GetMap()->GetUnit(m_uiVictimGUID))
+                        m_creature->SummonCreature(MOB_VAPOR, pVictim->GetPositionX(), pVictim->GetPositionY(), pVictim->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN, 20000);
                     m_uiDemonicVaporTimer = 2000;
                     ++m_uiBreathCount;
                 }

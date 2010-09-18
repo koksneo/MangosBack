@@ -710,7 +710,7 @@ Unit* instance_naxxramas::SelectRandomTargetOnSide(bool bRight, const WorldObjec
 
     std::list<uint64>::iterator itrGUID = lTargets.begin();
     advance(itrGUID, (rand()%lTargets.size()) );
-    if (Player* pTarget = instance->GetPlayer(*itrGUID))
+    if (Unit* pTarget = instance->GetUnit(*itrGUID))
         return pTarget;
 
     return NULL;

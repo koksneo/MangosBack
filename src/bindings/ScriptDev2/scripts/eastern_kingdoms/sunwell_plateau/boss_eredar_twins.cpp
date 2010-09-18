@@ -216,8 +216,8 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
 
         if(m_uiConfCount = 10)
         {
-            if(Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiConfTargetGUID))
-                pPlayer->RemoveAurasDueToSpell(AURA_CONF,0);
+            if(Unit* pTarget = m_creature->GetMap()->GetUnit(m_uiConfTargetGUID))
+                pTarget->RemoveAurasDueToSpell(AURA_CONF,0);
             ++m_uiConfCount;
         }
 
@@ -225,15 +225,15 @@ struct MANGOS_DLL_DECL boss_alythessAI : public ScriptedAI
         {
             if(m_uiConfTimer < diff)
             {
-                if(Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiConfTargetGUID))
+                if (Unit* pTarget = m_creature->GetMap()->GetUnit(m_uiConfTargetGUID))
                 {
-                    pPlayer->CastSpell(pPlayer, SPELL_CONFLAGRATION_DEV, true);
+                    pTarget->CastSpell(pTarget, SPELL_CONFLAGRATION_DEV, true);
 
                     std::list<HostileReference *> t_list = m_creature->getThreatManager().getThreatList();
                     for(std::list<HostileReference *>::iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
                     {
                         Unit *BurnedPlayer = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());
-                        if (BurnedPlayer && BurnedPlayer->GetTypeId() == TYPEID_PLAYER && BurnedPlayer->IsWithinDistInMap(pPlayer, 8))
+                        if (BurnedPlayer && BurnedPlayer->GetTypeId() == TYPEID_PLAYER && BurnedPlayer->IsWithinDistInMap(pTarget, 8))
                         {
                             BurnedPlayer->CastSpell(BurnedPlayer, SPELL_CONFLAGRATION_DEV, true);
                         }

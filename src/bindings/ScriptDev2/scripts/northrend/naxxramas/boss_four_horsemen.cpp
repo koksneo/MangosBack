@@ -123,7 +123,7 @@ Player* GetClosestPlayer(Creature* m_creature, float fDistance)
 
     for(ThreatList::const_iterator itr = t_list.begin(); itr!= t_list.end(); ++itr)
     {
-        Player *pUnit = m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid());
+        Unit *pUnit = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());
         if (!pUnit || !pUnit->isAlive())
             continue;
 

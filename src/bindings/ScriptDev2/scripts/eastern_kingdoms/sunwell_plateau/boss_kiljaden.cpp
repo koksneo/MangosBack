@@ -431,9 +431,9 @@ struct MANGOS_DLL_DECL boss_kiljadenAI : public Scripted_NoMovementAI
             if(m_uiFireBloomCount < 10)
                 for(uint8 i=0; i<5; ++i)
                 {
-                    if(Creature* FireTarget = m_creature->GetMap()->GetCreature(m_uiFireBloomTarget[i]))
-                        if(FireTarget->isAlive())
-                            FireTarget->CastSpell(FireTarget, SPELL_FIREBLOOM_EFF, true);
+                    if(Unit* pFireTarget = m_creature->GetMap()->GetUnit(m_uiFireBloomTarget[i]))
+                        if(pFireTarget->isAlive())
+                            pFireTarget->CastSpell(pFireTarget, SPELL_FIREBLOOM_EFF, true);
                 }
             ++m_uiFireBloomCount;
             m_uiFireBloomCheck = 2000;

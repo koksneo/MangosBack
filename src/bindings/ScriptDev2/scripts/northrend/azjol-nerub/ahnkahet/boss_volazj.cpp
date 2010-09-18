@@ -134,11 +134,15 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
             if(pImage)
             {
                 m_uiImageGUID[m_uiImageCount][0] = pImage->GetGUID();
-                Player *TargetedPlayer = m_creature->GetMap()->GetPlayer((*itr)->getUnitGuid());  
-                if(TargetedPlayer && TargetedPlayer->GetTypeId() == TYPEID_PLAYER)
+                Unit *pTempPlayer = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid());  
+                if (pTempPlayer->GetTypeId() != TYPEID_PLAYER)
+                    continue;
+
+                Player* pTargetedPlayer = (Player*)pTempPlayer;
+                if(pTargetedPlayer && pTargetedPlayer->GetTypeId() == TYPEID_PLAYER)
                 {
                     uint32 spell;
-                    switch(TargetedPlayer->getClass())
+                    switch(pTargetedPlayer->getClass())
                     {
                         case CLASS_PRIEST:  spell = SPELL_PRIEST; break;
                         case CLASS_PALADIN: spell = SPELL_PALADIN; break;
@@ -152,8 +156,8 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
                     }
                     
                     m_uiImageGUID[m_uiImageCount][1] = spell;
-                    pImage->SetDisplayId(TargetedPlayer->GetDisplayId());
-                    pImage->AI()->AttackStart(TargetedPlayer);
+                    pImage->SetDisplayId(pTargetedPlayer->GetDisplayId());
+                    pImage->AI()->AttackStart(pTargetedPlayer);
                 }
             }
             ++m_uiImageCount;
@@ -179,7 +183,7 @@ struct MANGOS_DLL_DECL boss_volazjAI : public ScriptedAI
                 Creature* pImage = m_creature->GetMap()->GetCreature(m_uiImageGUID[i][0]);
                 if(pImage && pImage->isAlive())
                     if(Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
-                        pImage->CastSpell(target, m_uiImageGUID[i][1], true);
+                        pImage->CastSpell(target, uint32(m_uiImageGUID[i][1]), true);
             }
             m_uiImageCastTimer = 8000;
         }else m_uiImageCastTimer -= uiDiff;

@@ -151,7 +151,7 @@ struct MANGOS_DLL_DECL npc_abbot_to_escortAI : public npc_escortAI
                         case 0: SetEscortPaused(true); break;
                         case 1:
                             m_creature->SetFacingToObject(pPlayer);
-                            DoScriptText(SAY_HIGH_ABBOT_BEGINING,m_creature);
+                            DoScriptText(SAY_HIGH_ABBOT_BEGINING, m_creature);
                             break;
                         case 2: SetEscortPaused(false); break;
                         
@@ -163,27 +163,25 @@ struct MANGOS_DLL_DECL npc_abbot_to_escortAI : public npc_escortAI
                     {
                         case 0: SetEscortPaused(true); break;
                         case 1: m_creature->SetFacingToObject(pPlayer);
-                            DoScriptText(SAY_HIGH_ABBOT_CLIFF_1,m_creature,pPlayer); break;
-                        case 2: DoScriptText(SAY_HIGH_ABBOT_CLIFF_2,m_creature,pPlayer); break;
-                        case 3: DoScriptText(SAY_HIGH_ABBOT_CLIFF_3,m_creature,pPlayer); break;
-                        case 4: DoScriptText(SAY_HIGH_ABBOT_CLIFF_4,m_creature,pPlayer); break;
+                            DoScriptText(SAY_HIGH_ABBOT_CLIFF_1, m_creature, pPlayer); break;
+                        case 2: DoScriptText(SAY_HIGH_ABBOT_CLIFF_2, m_creature, pPlayer); break;
+                        case 3: DoScriptText(SAY_HIGH_ABBOT_CLIFF_3 ,m_creature, pPlayer); break;
+                        case 4: DoScriptText(SAY_HIGH_ABBOT_CLIFF_4, m_creature, pPlayer); break;
                         case 5: 
-                            DoScriptText(SAY_HIGH_ABBOT_CLIFF_5,m_creature,pPlayer);
-                            // pPlayer->CastSpell(pPlayer,SPELL_KILL_ABBOT_CREDIT,true);
+                            DoScriptText(SAY_HIGH_ABBOT_CLIFF_5, m_creature, pPlayer);
+                            // pPlayer->CastSpell(pPlayer, SPELL_KILL_ABBOT_CREDIT, true);
                             // Hack - SPELL_KILL_ABBOT_CREDIT is not working
-                            pPlayer->KilledMonsterCredit(27444,m_creature->GetGUID());
+                            pPlayer->KilledMonsterCredit(27444, m_creature->GetGUID());
                             // DoCast(m_creature,SPELL_ABBOT_RIDE_VEHICLE,true);
                             // Hack - SPELL_ABBOT_RIDE_VEHICLE is not working
-                            m_creature->KnockBackFrom(pPlayer,2.0f,2.0f);
+                            m_creature->KnockBackFrom(pPlayer, 12.0f, 12.0f);
                             break;
                         case 6: m_creature->ForcedDespawn();
                         default: break;
                     }
                     break;
-
                 default: break;
             }
-
             ++subevent;
             m_uiEvent_Timer = 5000;
         }else m_uiEvent_Timer -= uiDiff;
@@ -222,18 +220,17 @@ bool GossipSelect_npc_abbot_landgren(Player* pPlayer, Creature* pCreature, uint3
 
         // DoCast(pCreature,SPELL_SUMMON_ABBOT_FORCED_CAST,true);
         // Hack - SPELL_SUMMON_ABBOT_FORCED_CAST is not supported
-        if (Creature* pAbbot = pPlayer->SummonCreature(NPC_ABBOT,Abbot[0],Abbot[1],Abbot[2],Abbot[3],TEMPSUMMON_CORPSE_DESPAWN,0))
+        if (Creature* pAbbot = pPlayer->SummonCreature(NPC_ABBOT, Abbot[0], Abbot[1], Abbot[2], Abbot[3], TEMPSUMMON_CORPSE_DESPAWN, 0))
         {
             if (npc_abbot_to_escortAI* pEscortAI = dynamic_cast<npc_abbot_to_escortAI*>(pAbbot->AI()))
             {
-                pEscortAI->Start(true,pPlayer->GetGUID());
+                pEscortAI->Start(false, pPlayer->GetGUID());
                 pEscortAI->SetEscortPaused(true);
                 // Don't know why crashing server : / so temp removed
                 //pAbbot->SetVisibility(VISIBILITY_OFF);
             }
         }
     }
-
     return true;
 }
 CreatureAI* GetAI_npc_abbot_to_escort(Creature* pCreature)

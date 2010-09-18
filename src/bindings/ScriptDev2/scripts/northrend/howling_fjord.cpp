@@ -807,6 +807,91 @@ bool QuestAccept_npc_apothecary_hanes(Player* pPlayer, Creature* pCreature, cons
     return true;
 }
 
+/*#####
+## go_dragonflayer_cage
+#####*/
+
+enum
+{
+    QUEST_PRISONERS_OF_WYRMSKULL      = 11255,
+    NPC_VALGARDE_PRISONER_PRIEST      = 24086,
+    NPC_VALGARDE_PRISONER_MAGE        = 24088,
+    NPC_VALGARDE_PRISONER_WARRIOR     = 24089,
+    NPC_VALGARDE_PRISONER_PALADIN     = 24090,
+    NPC_VALGARDE_PRIEST               = 24099,
+    NPC_VALGARDE_MAGE                 = 24096,
+    NPC_VALGARDE_WARRIOR              = 24097,
+    NPC_VALGARDE_PALADIN              = 24103,
+
+    SPELL_GBOM                        = 43940,
+    SPELL_STAMINA                     = 39231,
+    SPELL_SHOUT                       = 25101,
+    SPELL_VALGARDE_PRISONER_CREDIT    = 43094,
+
+    PRISONER_TEXT_ID_1                = -1700001,
+    PRISONER_TEXT_ID_2                = -1700002,
+    PRISONER_TEXT_ID_3                = -1700003
+};
+
+bool GOHello_go_dragonflayer_cage(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestStatus(QUEST_PRISONERS_OF_WYRMSKULL) == QUEST_STATUS_INCOMPLETE)
+    {
+        Creature *pPrisoner = GetClosestCreatureWithEntry(pPlayer, NPC_VALGARDE_PRISONER_PRIEST, INTERACTION_DISTANCE);
+        if(!pPrisoner)
+            pPrisoner = GetClosestCreatureWithEntry(pPlayer, NPC_VALGARDE_PRISONER_MAGE, INTERACTION_DISTANCE);
+        if(!pPrisoner)
+            pPrisoner = GetClosestCreatureWithEntry(pPlayer, NPC_VALGARDE_PRISONER_WARRIOR, INTERACTION_DISTANCE);
+        if(!pPrisoner)
+            pPrisoner = GetClosestCreatureWithEntry(pPlayer, NPC_VALGARDE_PRISONER_PALADIN, INTERACTION_DISTANCE);
+        if(pPrisoner)
+        {
+            pPrisoner->setFaction(pPlayer->getFaction());
+            
+            switch(urand(0,2))
+            {
+                case 0:DoScriptText(PRISONER_TEXT_ID_1,pPrisoner);break;
+                case 1:DoScriptText(PRISONER_TEXT_ID_2,pPrisoner);break;
+                case 2:DoScriptText(PRISONER_TEXT_ID_3,pPrisoner);break;
+
+            }
+            
+            uint32 uiType = pPrisoner->GetEntry();
+            pPlayer->CastSpell(pPlayer,SPELL_VALGARDE_PRISONER_CREDIT,false);
+            switch(uiType)
+            {
+                case NPC_VALGARDE_PRISONER_WARRIOR:
+                {
+                    pPlayer->CastSpell(pPlayer, SPELL_SHOUT, true);
+                    pPrisoner->UpdateEntry(NPC_VALGARDE_WARRIOR);
+                    break;
+                }
+                case NPC_VALGARDE_PRISONER_PALADIN:
+                {
+                    pPlayer->CastSpell(pPlayer, SPELL_GBOM, true);
+                    pPrisoner->UpdateEntry(NPC_VALGARDE_PALADIN);
+                    break;
+                }
+                 case NPC_VALGARDE_PRISONER_MAGE:
+                {
+                    pPrisoner->UpdateEntry(NPC_VALGARDE_MAGE);
+                    break;
+                }
+                case NPC_VALGARDE_PRISONER_PRIEST:
+                {
+                    pPlayer->CastSpell(pPlayer, SPELL_STAMINA, true);
+                    pPrisoner->UpdateEntry(NPC_VALGARDE_PRIEST);
+                    break;
+                }
+            }
+            pPrisoner->SetStandState(UNIT_STAND_STATE_STAND);
+            pPrisoner->ForcedDespawn(2*MINUTE*IN_MILLISECONDS); //despawn after 2 minutes
+            pPrisoner->GetMotionMaster()->MoveFollow(pPlayer, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+        }
+    }
+    return false;
+};
+
 void AddSC_howling_fjord()
 {
     Script* newscript;
@@ -865,5 +950,10 @@ void AddSC_howling_fjord()
     newscript->Name = "npc_apothecary_hanes";
     newscript->GetAI = &GetAI_npc_apothecary_hanes;
     newscript->pQuestAccept = &QuestAccept_npc_apothecary_hanes;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "go_dragonflayer_cage";
+    newscript->pGOHello = &GOHello_go_dragonflayer_cage;
     newscript->RegisterSelf();
 }

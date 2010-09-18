@@ -186,12 +186,12 @@ struct MANGOS_DLL_DECL npc_abbot_to_escortAI : public npc_escortAI
             m_uiEvent_Timer = 5000;
         }else m_uiEvent_Timer -= uiDiff;
     }
-
 };
 
 /*######
 ## npc_abbot_landgren
 ######*/
+
 #define GOSSIP_ITEM_ABBOT_1     "Your eminence, may I have a word in private?"
 #define GOSSIP_ITEM_ABBOT_2     "I am ready, your grace. <kiss the ring>"
 float Abbot[] = {2827.27f, -447.32f, 119.62f, 1.68f};

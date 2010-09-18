@@ -2,8 +2,8 @@
 UPDATE quest_template SET startscript = 11878 WHERE entry = 11878;  
 -- Khu'nok Will Know (cast spell Call Mammoth Orphan)  
 DELETE FROM quest_start_scripts WHERE id = 11878;  
-INSERT INTO quest_start_scripts VALUES  
-(11878,0,15,46232,0,0,0,0,0,0);  
+INSERT INTO quest_start_scripts (id, delay, command, datalong) VALUES  
+(11878,0,15,46232);  
    
 -- Call Mammoth Orphan  
 DELETE FROM spell_target_position WHERE id = 46233;  

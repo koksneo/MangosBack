@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Nagrand
 SD%Complete: 90
-SDComment: Quest support: 9849, 9868, 9874, 9918, 9991, 10044, 10085, 10107, 10108, 10172, 10646, 9923, 9948. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
+SDComment: Quest support: 9849, 9868, 9874, 9918, 9991, 10044, 10085, 10107, 10108, 10172, 10646, 9923, 9924, 9955, 9948. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
 SDCategory: Nagrand
 EndScriptData */
 
@@ -687,24 +687,63 @@ CreatureAI* GetAI_npc_creditmarker_visit_with_ancestors(Creature* pCreature)
 
 enum
 {
-    QUEST_HELP 		= 9923,
-    NPC_CORKI 		= 18369,
-    SPELL_DESPAWN_SELF	= 43014,
-    SAY_THANKS_1 	= -1999851
+	QUEST_HELP						 = 9923,
+	QUEST_CORKIS_GONE				 = 9924,
+	QUEST_CHOWAR					 = 9955,
+
+	GO_CORKIS_PRISON_1               = 182349,
+	GO_CORKIS_PRISON_2               = 182350,
+    GO_CORKIS_PRISON_3               = 182521,
+    
+    NPC_CORKI						 = 18369,
+    NPC_CORKI_GONE					 = 20812,
+    NPC_CORKI_CHOWAR				 = 18445,
+    NPC_CORKI_EVENT					 = 18444,
+    
+    SPELL_DESPAWN_SELF				 = 43014,
+    
+    SAY_THANKS_1					 = -1999851,
+    SAY_THANKS_2					 = -1999891
+
 };
 
 bool GOHello_go_corkis_prison(Player* pPlayer, GameObject* pGo)
 {
-    if (pPlayer->GetQuestStatus(QUEST_HELP) == QUEST_STATUS_INCOMPLETE)
-    {
-        if(Creature *pCorki = GetClosestCreatureWithEntry(pPlayer, NPC_CORKI, INTERACTION_DISTANCE))
-        {
-            pPlayer->KilledMonsterCredit(NPC_CORKI, pCorki->GetGUID());
-            DoScriptText(SAY_THANKS_1, pCorki);
-            pCorki->CastSpell(pCorki, SPELL_DESPAWN_SELF, false);
-        }
-    }
-    return false;
+	uint64 uiCorkiEntry;
+     
+	if (pPlayer->GetQuestStatus(QUEST_HELP) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_CORKIS_GONE) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_CHOWAR) == QUEST_STATUS_INCOMPLETE)
+	{
+	switch (pGo->GetEntry())
+	{
+	case GO_CORKIS_PRISON_1: uiCorkiEntry=NPC_CORKI;
+		break;
+	case GO_CORKIS_PRISON_2: uiCorkiEntry=NPC_CORKI_GONE;
+		break;
+	case GO_CORKIS_PRISON_3: uiCorkiEntry=NPC_CORKI_CHOWAR;
+		break;
+	}
+
+	if(Creature *pCorki = GetClosestCreatureWithEntry(pPlayer, uiCorkiEntry, INTERACTION_DISTANCE))
+	{
+		switch (uiCorkiEntry)
+		{
+		case NPC_CORKI:
+			pPlayer->KilledMonsterCredit(NPC_CORKI, pCorki->GetGUID());
+			DoScriptText(SAY_THANKS_1, pCorki);
+			break;
+		case NPC_CORKI_GONE:
+			pPlayer->KilledMonsterCredit(NPC_CORKI_GONE, pCorki->GetGUID());
+			DoScriptText(SAY_THANKS_2, pCorki);
+			break;
+		case NPC_CORKI_CHOWAR:
+			pPlayer->KilledMonsterCredit(NPC_CORKI_EVENT, pCorki->GetGUID());
+			break;
+		}
+		pCorki->CastSpell(pCorki, SPELL_DESPAWN_SELF, false);
+   
+	}
+}
+return false;
 };
 
 /*#####
@@ -978,4 +1017,5 @@ void AddSC_nagrand()
     newscript->GetAI = &GetAI_npc_kurenai_captive;
     newscript->pQuestAccept = &QuestAccept_npc_kurenai_captive;
     newscript->RegisterSelf();
+
 }

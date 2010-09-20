@@ -171,20 +171,20 @@ INSERT INTO creature_loot_template (`entry`,`item`,`chanceorquestchance`,`groupi
 (23872,38280,0.0,2,1,1,6,469), -- Direbrew's Dire Brew (alliance)
 (23872,38281,0.0,3,1,1,6,67), -- Direbrew's Dire Brew (horde)
 -- level 70 trinkets
-(23872,38288,0.0,4,1,1,0,0), -- Direbrew Hops
-(23872,38289,0.0,4,1,1,0,0), -- Coren's Lucky Coin
-(23872,38290,0.0,4,1,1,0,0), -- Dark Iron Smoking Pipe
-(23872,38287,0.0,4,1,1,0,0), -- Empty Mug of Direbrew
-(23872,37128,0.0,4,1,1,0,0), -- Balebrew Charm
-(23872,37127,0.0,4,1,1,0,0); -- Brightbrew Charm
-/*
+# (23872,38288,0.0,4,1,1,0,0), -- Direbrew Hops
+# (23872,38289,0.0,4,1,1,0,0), -- Coren's Lucky Coin
+# (23872,38290,0.0,4,1,1,0,0), -- Dark Iron Smoking Pipe
+# (23872,38287,0.0,4,1,1,0,0), -- Empty Mug of Direbrew
+# (23872,37128,0.0,4,1,1,0,0), -- Balebrew Charm
+# (23872,37127,0.0,4,1,1,0,0); -- Brightbrew Charm
+
 -- level 80 trinkets availeble since 3.2.0
-(23872,49118,0.0,4,1,1,0,0), -- Bubbling Brightbrew Charm
-(23872,49116,0.0,4,1,1,0,0), -- Bitter Balebrew Charm
+# (23872,49118,0.0,4,1,1,0,0), -- Bubbling Brightbrew Charm
+# (23872,49116,0.0,4,1,1,0,0), -- Bitter Balebrew Charm
 (23872,49074,0.0,4,1,1,0,0), -- Coren's Chromium Coaster
 (23872,49076,0.0,4,1,1,0,0), -- Mithril Pocketwatch
 (23872,49080,0.0,4,1,1,0,0), -- Brawler's Souvenir
-(23872,49078,0.0,4,1,1,0,0), -- Ancient Pickled Egg*/
+(23872,49078,0.0,4,1,1,0,0); -- Ancient Pickled Egg
 
 ################## gameobjects ###############################
 

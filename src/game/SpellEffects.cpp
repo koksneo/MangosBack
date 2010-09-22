@@ -1306,6 +1306,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     break;
                 }
                 case 45692:                                 // Use Tuskarr Torch (for Quest: Burn in Effigy)
+                case 46171;                                 // Scuttle Wrecked Flying Machine (FOR Quest: Emergency Protocol: Section 8.2, Paragraph D)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;

@@ -4692,7 +4692,7 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
 
                 break;
             }
-           case SCRIPT_COMMAND_SEND_MAIL:
+           /*case SCRIPT_COMMAND_SEND_MAIL:
            {
                if (!sObjectMgr.GetMailTemplate(tmp.datalong))
                {
@@ -4716,7 +4716,7 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
                }
 
                break;
-           }
+           }*/
         }
 
         if (scripts.find(tmp.id) == scripts.end())

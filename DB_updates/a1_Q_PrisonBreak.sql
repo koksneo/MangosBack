@@ -27,3 +27,12 @@ UPDATE creature_template SET
 `minmana` = 7500,
 `maxmana` = 7700
 WHERE entry IN (25320,25318);
+
+-- Q Prison Break - Arcane Prisoners (Alliance & Horde)
+UPDATE creature_template SET ScriptName = 'mob_arcane_prisoner' WHERE entry IN (25320,25318);
+
+-- Q: Prison Break 
+DELETE FROM script_texts WHERE entry IN (-1999803,-1999802);
+INSERT INTO script_texts (`entry`,`content_default`,`comment`) VALUES
+(-1999803,'Thank you, $R. I shall not forget your kindness!','Arcane Prisoner - Succeded'),
+(-1999802,'It is.... too late for me....','Arcane Prisoner - Succeded');

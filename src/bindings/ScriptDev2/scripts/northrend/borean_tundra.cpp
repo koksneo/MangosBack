@@ -705,9 +705,8 @@ enum PrisonBreak
 
 struct MANGOS_DLL_DECL mob_arcane_prisonerAI : public ScriptedAI
 {
-    mob_arcane_prisonerAI(Creature* pCreature) : ScriptedAI(pCreature){ Reset();}
+    mob_arcane_prisonerAI(Creature* pCreature) : ScriptedAI(pCreature){Reset();}
     
-    bool bSucceded;
     bool bEventDone;
     uint32 m_uiEventTimer;
 
@@ -715,10 +714,6 @@ struct MANGOS_DLL_DECL mob_arcane_prisonerAI : public ScriptedAI
     {
         // small amount of time is needed to let npc fall on the ground
         m_uiEventTimer = 1000;
-        if (urand(0, 1) == 1)
-            bSucceded = true;
-        else bSucceded = false;
-
         bEventDone = false;
     }
 
@@ -726,14 +721,15 @@ struct MANGOS_DLL_DECL mob_arcane_prisonerAI : public ScriptedAI
     {
         if (!bEventDone && m_uiEventTimer <= uiDiff)
         {
+            bEventDone = true;
             // update server with position of NPC after it fall on the ground
             // this will prevent to spawn eventual corpse in the air (cosmetic effect)
             float x,y,z;
             m_creature->GetPosition(x, y, z);
-            z = m_creature->GetMap()->GetHeight(x, y, MAX_HEIGHT,false);
+            z = m_creature->GetMap()->GetHeight(x, y, MAX_HEIGHT, false);
             m_creature->Relocate(x, y, z+2);
 
-            if (!bSucceded)
+            if (urand(0, 2) < 2)
             {
                 DoScriptText(SAY_FAILED, m_creature, NULL);
                 m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
@@ -744,12 +740,13 @@ struct MANGOS_DLL_DECL mob_arcane_prisonerAI : public ScriptedAI
                 {
                     DoScriptText(SAY_SUCCEDED, m_creature, pPlayer);
                     if (pPlayer->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
-                        DoCast(pPlayer, SPELL_PRISON_BREAK_CREDIT, true);
+                        DoCastSpellIfCan(pPlayer, SPELL_PRISON_BREAK_CREDIT, CAST_TRIGGERED);
                 }
-                DoCast(m_creature, SPELL_HEARTSTONE_VISUAL, false);
+                DoCastSpellIfCan(m_creature, SPELL_HEARTSTONE_VISUAL);
             }
-            bEventDone = true;
-        }else m_uiEventTimer -= uiDiff;
+        }
+        else
+            m_uiEventTimer -= uiDiff;
     }
 };
 

@@ -1309,10 +1309,17 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
                     //Spawn
                     m_caster->CastSpell(m_caster, spellId, true);
-                    //Arcane Prisoner Kill Credit
-                    unitTarget->CastSpell(m_caster, 45456, true);
+                    //Arcane Prisoner Kill Credit (we cannot assign credit because prisoner can be freed in death state)
+                    // unitTarget->CastSpell(m_caster, 45456, true);
 
                     break;
+                }
+                case 45451:                                 // Heartstone Visual - despawn after "teleporting"
+                {
+                    if(m_caster->GetTypeId() == TYPEID_UNIT)
+                        ((Creature*)m_caster)->ForcedDespawn();
+                    
+                    return;
                 }
                 case 45692:                                 // Use Tuskarr Torch (for Quest: Burn in Effigy)
                 {
@@ -1551,6 +1558,14 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     else
                         m_caster->CastSpell(m_caster, 51345, true);
 
+                    return;
+                }
+                case 51369:                                 // Tickbird Signal to Fall
+                {
+                    if (!unitTarget)
+                        return;
+
+                    unitTarget->DealDamage(unitTarget, unitTarget->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                     return;
                 }
                 case 51582:                                 // Rocket Boots Engaged (Rocket Boots Xtreme and Rocket Boots Xtreme Lite)

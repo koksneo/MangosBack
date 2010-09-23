@@ -13,9 +13,9 @@ INSERT INTO creature VALUES
 
 DELETE FROM creature_ai_scripts WHERE creature_id IN (25847,25846,25845);
 INSERT INTO creature_ai_scripts VALUES
-(2584701,25847,8,0,100,0,46171,-1,0,0,33,25847,6,0,0,0,0,0,0,0,0,0,'Northwest Crash - Quest Credit'),
-(2584601,25846,8,0,100,0,46171,-1,0,0,33,25846,6,0,0,0,0,0,0,0,0,0,'South Crash - Quest Credit'),
-(2584501,25845,8,0,100,0,46171,-1,0,0,33,25845,6,0,0,0,0,0,0,0,0,0,'East Crash - Quest Credit');
+(2584701,25847,8,0,100,1,46171,-1,0,0,33,25847,6,0,0,0,0,0,0,0,0,0,'Northwest Crash - Quest Credit'),
+(2584601,25846,8,0,100,1,46171,-1,0,0,33,25846,6,0,0,0,0,0,0,0,0,0,'South Crash - Quest Credit'),
+(2584501,25845,8,0,100,1,46171,-1,0,0,33,25845,6,0,0,0,0,0,0,0,0,0,'East Crash - Quest Credit');
 
 DELETE FROM spell_script_target WHERE entry=46171;
 INSERT INTO spell_script_target VALUES

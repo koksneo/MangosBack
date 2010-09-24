@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Borean_Tundra
 SD%Complete: 100
-SDComment: Quest support: 11708, 11692, 11961. Taxi vendors. 11570
+SDComment: Quest support: 11708, 11692, 11961, 11876. Taxi vendors. 11570
 SDCategory: Borean Tundra
 EndScriptData */
 
@@ -30,6 +30,7 @@ mob_overseer
 npc_surristrasz
 npc_tiare
 npc_lurgglbr
+go_mammoth_trap
 EndContentData */
 
 #include "precompiled.h"
@@ -898,6 +899,32 @@ CreatureAI* GetAI_npc_lurgglbr(Creature* pCreature)
 {
     return new npc_lurgglbrAI(pCreature);
 }
+
+/*#####
+## go_mammoth_trap
+#####*/
+
+enum
+{
+    QUEST_HELP_THOSE_THAT    =  11876,
+    NPC_TRAPPED_MAMMOTH      =  25850,
+    SPELL_DESPAWN_SELF       =  43014
+};
+
+bool GOHello_go_mammoth_trap(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestStatus(QUEST_HELP_THOSE_THAT) == QUEST_STATUS_INCOMPLETE)
+    {
+        Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_TRAPPED_MAMMOTH, INTERACTION_DISTANCE);
+        if(pCreature)
+        {
+            pPlayer->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH, pCreature->GetGUID());
+            pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, false);
+        }
+    }
+    return false;
+};
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -961,5 +988,10 @@ void AddSC_borean_tundra()
     newscript->Name = "npc_lurgglbr";
     newscript->GetAI = &GetAI_npc_lurgglbr;
     newscript->pQuestAccept = &QuestAccept_npc_lurgglbr;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_mammoth_trap";
+    newscript->pGOHello = &GOHello_go_mammoth_trap;
     newscript->RegisterSelf();
 }

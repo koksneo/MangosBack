@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Borean_Tundra
 SD%Complete: 100
-SDComment: Quest support: 11708, 11692, 11961, 11876. Taxi vendors. 11570
+SDComment: Quest support: 11708, 11692, 11961, 11876, 11590. Taxi vendors. 11570
 SDCategory: Borean Tundra
 EndScriptData */
 
@@ -31,11 +31,13 @@ npc_surristrasz
 npc_tiare
 npc_lurgglbr
 go_mammoth_trap
+npc_beryl_sorcerer
 EndContentData */
 
 #include "precompiled.h"
 #include "ObjectMgr.h"
 #include "escort_ai.h"
+#include "follower_ai.h"
 
 /*######
 ## mob_elder
@@ -925,6 +927,88 @@ bool GOHello_go_mammoth_trap(Player* pPlayer, GameObject* pGo)
     return false;
 };
 
+/*######
+## npc_beryl_sorcerer
+######*/
+
+enum eBerylSorcerer
+{
+    NPC_CAPTURED_BERLY_SORCERER         = 25474,
+    NPC_LIBRARIAN_DONATHAN              = 25262,
+
+    SPELL_ARCANE_CHAINS                 = 45611,
+    SPELL_COSMETIC_CHAINS               = 54324,
+    SPELL_COSMETIC_ENSLAVE_CHAINS_SELF  = 45631
+};
+
+struct MANGOS_DLL_DECL npc_beryl_sorcererAI : public FollowerAI
+{
+    npc_beryl_sorcererAI(Creature* pCreature) : FollowerAI(pCreature) { 
+        Reset(); 
+        m_uiNormalFaction = pCreature->getFaction();
+    }
+
+    bool bEnslaved;
+    uint64 uiChainerGUID;
+    uint32 m_uiNormalFaction;
+
+    void Reset()
+    {
+         m_creature->setFaction(m_uiNormalFaction);
+         bEnslaved = false;
+    }
+    void EnterCombat(Unit* pWho)
+    {
+            AttackStart(pWho);
+    }
+    
+    void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+    {
+        if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && !bEnslaved)
+            {
+                EnterEvadeMode(); //We make sure that the npc is not attacking the player!
+                m_creature->setFaction(35);
+                uiChainerGUID = pCaster->GetGUID();
+                if(Player *pChainer = m_creature->GetMap()->GetPlayer(uiChainerGUID))
+                {
+                StartFollow(pChainer, 35, NULL);
+                m_creature->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER);
+                DoCast(m_creature, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
+               
+                bEnslaved = true;
+                }
+            }
+    }
+
+    void MoveInLineOfSight(Unit* pWho)
+    {
+            FollowerAI::MoveInLineOfSight(pWho);
+
+            if (pWho->GetEntry() == NPC_LIBRARIAN_DONATHAN && m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+            {
+                if(Player *pChainer = m_creature->GetMap()->GetPlayer(uiChainerGUID))
+                {
+                    pChainer->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER,m_creature->GetGUID());
+                    SetFollowComplete();
+                    m_creature->ForcedDespawn(1000);
+                }
+            }
+     }
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->getVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+    }
+
+};
+
+CreatureAI* GetAI_npc_beryl_sorcerer(Creature* pCreature)
+{
+    return new npc_beryl_sorcererAI(pCreature);
+}
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -993,5 +1077,10 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "go_mammoth_trap";
     newscript->pGOHello = &GOHello_go_mammoth_trap;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_beryl_sorcerer";
+    newscript->GetAI = &GetAI_npc_beryl_sorcerer;
     newscript->RegisterSelf();
 }

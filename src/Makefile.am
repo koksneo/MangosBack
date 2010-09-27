@@ -14,4 +14,10 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-SUBDIRS = ScriptDev2
+## Process this file with automake to produce Makefile.in
+
+## Sub-directories to parse
+SUBDIRS = tools framework shared realmd game bindings mangosd
+
+## Additional files to include when running 'make dist'
+#  Nothing yet.

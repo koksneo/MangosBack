@@ -6,6 +6,7 @@ UPDATE creature_template SET ScriptName='mob_erekem_guard' WHERE entry=29395;
 UPDATE creature_template SET ScriptName='boss_moragg' WHERE entry=29316;
 
 UPDATE creature_template SET ScriptName='boss_ichoron' WHERE entry=29313;
+UPDATE creature_template SET ScriptName='mob_ichor_globule' WHERE entry=29321;
 
 UPDATE creature_template SET ScriptName='boss_xevozz' WHERE entry=29266;
 UPDATE creature_template SET ScriptName='mob_ethereal_sphere' WHERE entry=29271;
@@ -24,7 +25,6 @@ UPDATE creature_template SET ScriptName='npc_violet_portal' WHERE entry=31011;
 UPDATE creature_template SET ScriptName='npc_door_seal_vh' WHERE entry=30896;
 
 
-UPDATE creature_template SET ScriptName='mob_ichor_globule' WHERE entry=29321;
 
 
 -- void sentry template (29364)
@@ -51,10 +51,6 @@ UPDATE creature_template SET flags_extra=flags_extra|128  WHERE entry IN (30857,
 DELETE FROM creature WHERE id=31011;
 
 DELETE FROM spell_script_target WHERE entry=59474;
-INSERT INTO spell_script_target VALUES
-(59474,1,29266);
-
-DELETE FROM entry=59474;
 INSERT INTO spell_script_target VALUES
 (59474,1,29266),
 (59474,1,31511);

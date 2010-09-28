@@ -6194,6 +6194,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     unitTarget->CastSpell(unitTarget, 54522, true);
                     break;
                 }
+                case 52479:                                 // Gift of the Harvester
+                {
+                    if (!unitTarget || !m_caster)
+                        return;
+
+                    // FIXME: chance is based on player's comments, the real chance may be stored somewhere in dbc
+                    m_caster->CastSpell(unitTarget, roll_chance_i(40) ? uint32(m_spellInfo->CalculateSimpleValue(eff_idx)) : 52505, true);
+                    return;
+                }
                 case 52694:                                 // Recall Eye of Acherus
                 {
                     if(!m_caster || m_caster->GetTypeId() != TYPEID_UNIT)

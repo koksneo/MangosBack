@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Ebon_Hold
 SD%Complete: 80
-SDComment: Quest support: 12848, 12733, 12739(and 12742 to 12750), 12727, 12801
+SDComment: Quest support: 12848, 12733, 12739(and 12742 to 12750), 12727, 12801, 12698
 SDCategory: Ebon Hold
 EndScriptData */
 
@@ -33,6 +33,7 @@ npc_highlord_darion_mograine
 npc_koltira_orbaz_tassarian_dawn_of_light
 mob_acherus_ghoul
 mob_warrior_of_the_frozen_wastes
+mob_scarlet_ghoul
 EndContentData */
 
 #include "precompiled.h"
@@ -3564,6 +3565,134 @@ CreatureAI* GetAI_mob_acherus_ghoul(Creature* pCreature)
     return new mob_acherus_ghoulAI(pCreature);
 };
 
+/*######
+## Scarlet Ghoul (The Gift That Keeps On Giving
+######*/
+
+enum
+{
+    SPELL_HARVESTER_PING_DUMMY  = 52514,
+    ENTRY_GOTHIK                = 28658,
+
+    SAY_SCARLET_GHOUL_SPAWN1    = -1609286,
+    SAY_SCARLET_GHOUL_SPAWN2    = -1609285,
+    SAY_SCARLET_GHOUL_SPAWN3    = -1609284,
+    SAY_SCARLET_GHOUL_SPAWN4    = -1609283,
+    SAY_SCARLET_GHOUL_SPAWN5    = -1609282,
+    SAY_SCARLET_GHOUL_SPAWN6    = -1609281,
+
+    SAY_SCARLET_GOTHIK1         = -1609280,
+    SAY_SCARLET_GOTHIK2         = -1609279,
+    SAY_SCARLET_GOTHIK3         = -1609278,
+    SAY_SCARLET_GOTHIK4         = -1609277,
+    SAY_SCARLET_GOTHIK5         = -1609276,
+};
+
+struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
+{
+    mob_scarlet_ghoulAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_bIsSpawned = false;
+        fDist = (float)urand(1, 5);
+        m_uiCreatorGUID = m_creature->GetCreatorGUID();
+        if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID) )
+            fAngle = m_creature->GetAngle(pOwner);
+
+        Reset();
+    }
+
+
+    Unit* pTarget;
+
+    uint64 m_uiCreatorGUID;
+    uint64 m_uiTargetGUID;
+    uint64 m_uiHarvesterGUID;
+
+    uint32 m_uiWaitForThrowTimer;
+
+    bool m_bWaitForThrow;
+    bool m_bIsSpawned;
+
+    float fAngle;
+    float fDist;
+
+    void Reset()
+    {
+        m_uiWaitForThrowTimer   = 3000;
+        m_bWaitForThrow         = false;
+        pTarget                 = NULL;
+        m_uiTargetGUID          = 0;
+        m_uiHarvesterGUID       = 0;
+    }
+
+    void MoveInLineOfSight(Unit *pWho)
+    {
+        if (!m_bWaitForThrow && pWho->GetEntry() == ENTRY_GOTHIK && m_creature->GetDistance(pWho) < 15.0f)
+        {
+            m_uiHarvesterGUID = pWho->GetGUID();
+
+            if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID) )
+            {
+                pOwner->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetGUID() );
+                // this will execute if m_creature survived Harvester's wrath
+                float x, y, z, o;
+                o = float(urand(53, 57))/10.0f;
+                pWho->GetNearPoint(pWho, x, y, z, pWho->GetObjectBoundingRadius(), 5.0f, o);
+                m_creature->GetMotionMaster()->MovePoint(0, x, y, z);
+                m_bWaitForThrow = true;
+            }
+        }
+    }
+
+    void AttackStart(Unit *pWho) { return; }
+
+    void UpdateAI(uint32 const uiDiff)
+    {
+        if (!m_bIsSpawned)
+        {
+            DoScriptText(SAY_SCARLET_GHOUL_SPAWN1 + urand(0, 5), m_creature);
+            m_bIsSpawned = true;
+        }
+
+        if (m_bWaitForThrow)
+        {
+            if (m_uiWaitForThrowTimer <= uiDiff)
+            {
+                if (Creature* pGothik = m_creature->GetMap()->GetCreature(m_uiHarvesterGUID) )
+                {
+                    if (pGothik->AI()->DoCastSpellIfCan(m_creature, roll_chance_i(50) ? 52519 : 52521) == CAST_OK)
+                        DoScriptText(SAY_SCARLET_GOTHIK1 + urand(0, 4), pGothik);
+
+                    m_uiWaitForThrowTimer = 5000;
+                    m_creature->KnockBackFrom(pGothik, 15.0, 5.0);
+                    m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
+                }
+                else m_bWaitForThrow = false;
+            }
+            else m_uiWaitForThrowTimer -= uiDiff;
+            return;
+        }
+
+        Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID);
+        if (!pOwner || !pOwner->IsInWorld())
+        {
+            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
+            return;
+        }
+
+        if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
+        {
+            m_creature->GetMotionMaster()->Clear();
+            m_creature->GetMotionMaster()->MoveFollow(pOwner, fDist, fAngle);
+        }
+    }
+};
+
+CreatureAI* GetAI_mob_scarlet_ghoul(Creature* pCreature)
+{
+    return new mob_scarlet_ghoulAI(pCreature);
+};
+
 void AddSC_ebon_hold()
 {
     Script* pNewScript;
@@ -3631,5 +3760,10 @@ void AddSC_ebon_hold()
     pNewScript = new Script;
     pNewScript->Name = "mob_warrior_of_the_frozen_wastes";
     pNewScript->GetAI = &GetAI_mob_warrior_of_the_frozen_wastes;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "mob_scarlet_ghoul";
+    pNewScript->GetAI = &GetAI_mob_scarlet_ghoul;
     pNewScript->RegisterSelf();
 }

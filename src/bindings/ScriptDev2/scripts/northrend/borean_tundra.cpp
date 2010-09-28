@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Borean_Tundra
 SD%Complete: 100
-SDComment: Quest support: 11708, 11692, 11961, 11876, 11590. Taxi vendors. 11570
+SDComment: Quest support: 11708, 11692, 11961, 11876, 11590, 11676. Taxi vendors. 11570
 SDCategory: Borean Tundra
 EndScriptData */
 
@@ -32,6 +32,7 @@ npc_tiare
 npc_lurgglbr
 go_mammoth_trap
 npc_beryl_sorcerer
+go_scourge_cage
 EndContentData */
 
 #include "precompiled.h"
@@ -1009,6 +1010,31 @@ CreatureAI* GetAI_npc_beryl_sorcerer(Creature* pCreature)
     return new npc_beryl_sorcererAI(pCreature);
 }
 
+/*#####
+## go_scourge_cage
+#####*/
+
+enum
+{
+    QUEST_MERCIFUL_FREEDOM      =  11676,
+    NPC_SCOURGE_PRISONER        =  25610,
+};
+
+bool GOHello_go_scourge_cage(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestStatus(QUEST_MERCIFUL_FREEDOM) == QUEST_STATUS_INCOMPLETE)
+    {
+        Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_SCOURGE_PRISONER, INTERACTION_DISTANCE);
+        if(pCreature)
+        {
+            pPlayer->KilledMonsterCredit(NPC_SCOURGE_PRISONER, pCreature->GetGUID());
+            pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, false);
+        }
+    }
+    return false;
+};
+
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -1082,5 +1108,10 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "npc_beryl_sorcerer";
     newscript->GetAI = &GetAI_npc_beryl_sorcerer;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_scourge_cage";
+    newscript->pGOHello = &GOHello_go_scourge_cage;
     newscript->RegisterSelf();
 }

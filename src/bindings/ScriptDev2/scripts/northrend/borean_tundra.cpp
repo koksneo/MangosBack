@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Borean_Tundra
 SD%Complete: 100
-SDComment: Quest support: 11708, 11692, 11961, 11876, 11590, 11676. Taxi vendors. 11570
+SDComment: Quest support: 11708, 11692, 11961, 11876, 11590, 11676, 11940, 11919. Taxi vendors. 11570
 SDCategory: Borean Tundra
 EndScriptData */
 
@@ -33,6 +33,7 @@ npc_lurgglbr
 go_mammoth_trap
 npc_beryl_sorcerer
 go_scourge_cage
+npc_nexus_drake
 EndContentData */
 
 #include "precompiled.h"
@@ -1034,6 +1035,111 @@ bool GOHello_go_scourge_cage(Player* pPlayer, GameObject* pGo)
     return false;
 };
 
+/*######
+## npc_nexus_drake_hatchling
+######*/
+
+enum
+{
+    SPELL_DRAKE_HARPOON             = 46607,
+    SPELL_RED_DRAGONBLOOD           = 46620,
+    SPELL_DRAKE_HATCHLING_SUBDUED   = 46691,
+    SPELL_SUBDUED                   = 46675,
+
+    NPC_RAELORASZ                   = 26117,
+    DRAKE_HUNT_KILL_CREDIT          = 26175,
+
+    QUEST_DRAKE_HUNT                = 11919,
+    QUEST_DRAKE_HUNT_D              = 11940
+
+};
+
+struct MANGOS_DLL_DECL npc_nexus_drakeAI : public FollowerAI
+{
+    npc_nexus_drakeAI(Creature* pCreature) : FollowerAI(pCreature) { Reset(); }
+    
+     uint64 uiHarpoonerGUID;
+     bool bWithRedDragonBlood;
+     bool bIsFollowing;
+
+     void Reset()
+     {
+         bWithRedDragonBlood = false;
+         bIsFollowing = false;
+     }
+
+     void EnterCombat(Unit* pWho)
+     {
+         AttackStart(pWho);
+     }
+     
+     void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+     {
+            if (pSpell->Id == SPELL_DRAKE_HARPOON && pCaster->GetTypeId() == TYPEID_PLAYER)
+            {
+                uiHarpoonerGUID = pCaster->GetGUID();
+                DoCast(m_creature, SPELL_RED_DRAGONBLOOD, true);
+            }
+            m_creature->Attack(pCaster,true);
+            bWithRedDragonBlood = true;
+     }
+
+     void MoveInLineOfSight(Unit *pWho)
+     {
+         FollowerAI::MoveInLineOfSight(pWho);
+
+
+         if (pWho->GetEntry() == NPC_RAELORASZ && m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+         {
+           if (Player *pHarpooner = m_creature->GetMap()->GetPlayer(uiHarpoonerGUID))
+                 {
+                    
+                     pHarpooner->KilledMonsterCredit(DRAKE_HUNT_KILL_CREDIT,m_creature->GetGUID());
+                     pHarpooner->RemoveAurasByCasterSpell(SPELL_DRAKE_HATCHLING_SUBDUED,uiHarpoonerGUID);
+                     SetFollowComplete();
+                     uiHarpoonerGUID = 0;
+                     m_creature->ForcedDespawn(1000);
+                 }
+              
+          }
+      }
+     
+     void UpdateAI(const uint32 uidiff)
+        {
+            if (bWithRedDragonBlood && uiHarpoonerGUID && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD))
+            {
+                if (Player *pHarpooner = m_creature->GetMap()->GetPlayer(uiHarpoonerGUID))
+                {
+                    EnterEvadeMode();
+                    StartFollow(pHarpooner, 35, NULL);
+
+                    DoCast(m_creature, SPELL_SUBDUED, true);
+                    pHarpooner->CastSpell(pHarpooner, SPELL_DRAKE_HATCHLING_SUBDUED, true);
+
+                    m_creature->AttackStop();
+                    bIsFollowing = true;
+                    bWithRedDragonBlood = false;
+                }
+            }
+            if(bIsFollowing && !m_creature->HasAura(SPELL_SUBDUED))
+            {
+                m_creature->ForcedDespawn(1000);
+            }
+
+            if (!m_creature->getVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+};
+
+
+
+CreatureAI* GetAI_npc_nexus_drake(Creature* pCreature)
+{
+    return new npc_nexus_drakeAI(pCreature);
+}
+
 
 void AddSC_borean_tundra()
 {
@@ -1113,5 +1219,10 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "go_scourge_cage";
     newscript->pGOHello = &GOHello_go_scourge_cage;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_nexus_drake";
+    newscript->GetAI = &GetAI_npc_nexus_drake;
     newscript->RegisterSelf();
 }

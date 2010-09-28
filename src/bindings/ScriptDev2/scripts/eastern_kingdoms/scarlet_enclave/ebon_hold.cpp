@@ -3601,11 +3601,7 @@ struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
         Reset();
     }
 
-
-    Unit* pTarget;
-
     uint64 m_uiCreatorGUID;
-    uint64 m_uiTargetGUID;
     uint64 m_uiHarvesterGUID;
 
     uint32 m_uiWaitForThrowTimer;

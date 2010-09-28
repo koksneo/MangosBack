@@ -1020,6 +1020,11 @@ void Pet::UpdateAttackPowerAndDamage(bool ranged)
                 frost = 0;
             SetBonusDamage( int32(frost * 0.4f));
         }
+        // gargoyles benefit from DK's AP: $AP*0.333 for Gargoyle Strike AP coefficient
+        else if (owner->getClass() == CLASS_DEATH_KNIGHT && GetEntry() == 27829)
+        {
+            bonusAP = owner->GetTotalAttackPowerValue(BASE_ATTACK) * 0.333f;
+        }
     }
 
     SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, val + bonusAP);

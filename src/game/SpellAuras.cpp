@@ -4650,6 +4650,22 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
                 m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 14 / 100);
             break;
         }
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            Unit* pCaster = GetCaster();
+
+            if (apply)
+            {
+                // Summon Gargoyle
+                if (GetId() == 49206)
+                {
+                    if (pCaster)
+                        if (Pet *pGargoyle = pCaster->FindGuardianWithEntry(GetSpellProto()->EffectMiscValue[EFFECT_INDEX_0]) )
+                            if (pGargoyle->getVictim() != target)
+                                pGargoyle->AI()->AttackStart(target);
+                }
+            }
+        }
     }
 
     m_isPeriodic = apply;

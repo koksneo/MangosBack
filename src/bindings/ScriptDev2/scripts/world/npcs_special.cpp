@@ -46,6 +46,7 @@ npc_tabard_vendor        50%    allow recovering quest related tabards, achievem
 npc_locksmith            75%    list of keys needs to be confirmed
 mob_winter_reveler      100%    responce on /kiss emote. don't know if it has any other function?
 npc_experience_eliminator		NPC to stop gaining experience
+mob_ebon_gargoyle       100%    guardian pet summoned by Death Knights (Summon Gargoyle)
 EndContentData */
 
 
@@ -2029,6 +2030,137 @@ bool GossipSelect_npc_experience_eliminator(Player* pPlayer, Creature* pCreature
     return true;
 }
 
+/*######
+## Ebon Gargoyle(27829)
+######*/
+
+#define SPELL_GARGOYLE_STRIKE 51963
+#define GARGOYLE_STRIKE_RANGE 40.0f
+
+struct MANGOS_DLL_DECL mob_ebon_gargoyleAI : public ScriptedAI
+{
+    mob_ebon_gargoyleAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        // "gargoyle flies into the area"
+        pCreature->NearTeleportTo(m_creature->GetPositionX()+5.0f, m_creature->GetPositionY()+5.0f, m_creature->GetPositionZ()+15.0f, m_creature->GetOrientation(), false);
+        m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX()-5.0f, m_creature->GetPositionY()-5.0f, m_creature->GetPositionZ()-14.0f);
+
+        m_bIsReady = false;
+        m_uiCreatorGUID = m_creature->GetCreatorGUID();
+
+        Reset();
+    }
+
+    Unit* pTarget;
+    uint64 m_uiTargetGUID;
+    uint64 m_uiCreatorGUID;
+    uint32 m_uiStrikeTimer;
+    bool m_bIsReady;
+
+    void Reset()
+    {
+        pTarget         = NULL;
+        m_uiTargetGUID  = 0;
+        m_uiStrikeTimer = 0;
+    }
+
+    void MoveInLineOfSight(Unit *pWho)
+    {
+        if (!m_bIsReady)
+            return;
+
+        ScriptedAI::MoveInLineOfSight(pWho);
+    }
+
+    void MovementInform(uint32 uiMoveType, uint32 uiPointId)
+    {
+        if (uiMoveType != POINT_MOTION_TYPE)
+            return;
+
+        if (uiPointId == 0)
+        {
+            m_bIsReady = true;
+            m_creature->GetMotionMaster()->Clear();
+        }
+    }
+
+    void AttackStart(Unit *pWho)
+    {
+        if (pWho)
+            m_uiTargetGUID = pWho->GetGUID();
+
+        if (!m_bIsReady)
+            return;
+
+        ScriptedAI::AttackStart(pWho);
+    }
+
+    void UpdateAI(uint32 const uiDiff)
+    {
+        if (!m_bIsReady)
+            return;
+
+        Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID);
+        if (!pOwner || !pOwner->IsInWorld())
+        {
+            m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
+            return;
+        }
+
+        // check if current target still exists and is atatckable
+        if (!m_creature->getVictim() )
+        {
+            pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGUID);
+
+            if (!pTarget || !m_creature->CanInitiateAttack() || !pTarget->isTargetableForAttack() ||
+            !m_creature->IsHostileTo(pTarget) || !pTarget->isInAccessablePlaceFor(m_creature))
+            {
+                // we have no target, so look for the new one
+                if (Unit *pTmp = m_creature->SelectRandomUnfriendlyTarget(0, GARGOYLE_STRIKE_RANGE) )
+                    m_uiTargetGUID = pTmp->GetGUID();
+
+                pTarget = m_creature->GetMap()->GetUnit(m_uiTargetGUID);
+
+                // now check again. if no target found then there is nothing to attack - start following the owner
+                if (!pTarget || !m_creature->CanInitiateAttack() || !pTarget->isTargetableForAttack() ||
+                !m_creature->IsHostileTo(pTarget) || !pTarget->isInAccessablePlaceFor(m_creature))
+                {
+                    if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != FOLLOW_MOTION_TYPE)
+                    {
+                        m_creature->InterruptNonMeleeSpells(false);
+                        m_creature->GetMotionMaster()->Clear();
+                        m_creature->GetMotionMaster()->MoveFollow(pOwner, PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                        SetCombatMovement(true);
+                        Reset();
+                    }
+                    return;
+                }
+            }
+            if (pTarget)
+            {
+                // ok, we found new target
+                SetCombatMovement(false);
+                m_creature->AI()->AttackStart(pTarget);
+            }
+        }
+
+        // Gargoyle Strike
+        if (m_uiStrikeTimer <= uiDiff)
+        {
+            if (DoCastSpellIfCan(pTarget, SPELL_GARGOYLE_STRIKE) == CAST_OK)
+                m_uiStrikeTimer = 2000;
+            else
+                SetCombatMovement(true);
+        }
+        else m_uiStrikeTimer -= uiDiff;
+    }
+};
+ 
+CreatureAI* GetAI_mob_ebon_gargoyle(Creature* pCreature)
+{
+    return new mob_ebon_gargoyleAI (pCreature);
+}
+
 void AddSC_npcs_special()
 {
     Script* newscript;
@@ -2139,5 +2271,10 @@ void AddSC_npcs_special()
     newscript->Name = "npc_experience_eliminator";
     newscript->pGossipHello = &GossipHello_npc_experience_eliminator;
     newscript->pGossipSelect = &GossipSelect_npc_experience_eliminator;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_ebon_gargoyle";
+    newscript->GetAI = &GetAI_mob_ebon_gargoyle;
     newscript->RegisterSelf();
 }

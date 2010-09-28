@@ -1808,6 +1808,38 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 
             FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_DEST_CENTER, targetB);
 
+            //Dawn of Light - don't hit death knights
+            if (m_spellInfo->Id == 53644)
+            {
+                if (!targetUnitMap.empty() )
+                {
+                    for (UnitList::const_iterator iter = targetUnitMap.begin(); iter != targetUnitMap.end(); ++iter)
+                    {
+                        if ((*iter)->GetTypeId() == TYPEID_PLAYER)
+                        {
+                            targetUnitMap.erase(iter);
+                            targetUnitMap.sort();
+                            iter = targetUnitMap.begin();
+                        }
+                        else
+                        {
+                            switch ((*iter)->GetEntry() )
+                            {
+                                case 29173:     // Darion Mograine
+                                case 29199:     // Koltira Deathweaver
+                                case 29204:     // Orbaz Bloodbane
+                                case 29200:     // Thassarian
+                                    targetUnitMap.erase(iter);
+                                    targetUnitMap.sort();
+                                    iter = targetUnitMap.begin();
+                                default:
+                                    break;
+                            }
+                        }
+                    }
+                }
+            }
+
             // exclude caster
             targetUnitMap.remove(m_caster);
             break;
@@ -4460,6 +4492,11 @@ SpellCastResult Spell::CheckCast(bool strict)
                 if (target->HasAura(61987))                 // Avenging Wrath Marker
                     return SPELL_FAILED_CASTER_AURASTATE;
             }
+
+            // Dawn of Light - don't allow forcecast by players
+            if (m_spellInfo->Id == 53644)
+                if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                    return SPELL_FAILED_DONT_REPORT;
         }
 
         // check pet presents

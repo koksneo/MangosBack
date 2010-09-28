@@ -486,6 +486,13 @@ Unit *caster, Item* castItem) : Aura(spellproto, eff, currentBasePoints, holder,
                 m_modifier.m_auraname = SPELL_AURA_NONE;
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
+            // Might of Mograine - target Mograine and players only
+            // FIXME: spellVisual is still visible (the flags)
+            if (spellproto->Id == 53642)
+                if (target->GetTypeId() != TYPEID_PLAYER)
+                    if (target->GetEntry() != 29173)
+                        m_modifier.m_auraname = SPELL_AURA_NONE;
+
             m_areaAuraType = AREA_AURA_FRIEND;
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:

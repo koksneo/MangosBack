@@ -4617,8 +4617,13 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
         if (duration > 0)
             spawnCreature->SetDuration(duration);
 
+        // Risen Ghoul and Army of the Dead Ghoul
+        if (spawnCreature->GetEntry() == 26125 || spawnCreature->GetEntry() == 24207)
+            spawnCreature->setPowerType(POWER_ENERGY);
+        else
+            spawnCreature->setPowerType(POWER_MANA);
+
         spawnCreature->SetOwnerGUID(m_caster->GetGUID());
-        spawnCreature->setPowerType(POWER_MANA);
         spawnCreature->SetUInt32Value(UNIT_NPC_FLAGS, spawnCreature->GetCreatureInfo()->npcflag);
         spawnCreature->setFaction(forceFaction ? forceFaction : m_caster->getFaction());
         spawnCreature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);

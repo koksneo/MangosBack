@@ -1798,6 +1798,26 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
         }
         case TARGET_ALL_ENEMY_IN_AREA:
             FillAreaTargets(targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_DEST_CENTER, SPELL_TARGETS_AOE_DAMAGE);
+
+            // Ghoul Taunt (Army of the Dead) - exclude Player and WorldBoss targets
+            if (m_spellInfo->Id == 43263)
+            {
+                if (!targetUnitMap.empty() )
+                {
+                    for (UnitList::iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end();)
+                    {
+                        Creature *pTmp = (Creature*)(*itr);
+                        if ( ((*itr) && (*itr)->GetTypeId() == TYPEID_PLAYER) || (pTmp && pTmp->isWorldBoss()) )
+                        {
+                            targetUnitMap.erase(itr);
+                            targetUnitMap.sort();
+                            itr = targetUnitMap.begin();
+                            continue;
+                        }
+                        itr++;
+                    }
+                }
+            }
             break;
         case TARGET_AREAEFFECT_INSTANT:
         {

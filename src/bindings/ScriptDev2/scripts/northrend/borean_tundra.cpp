@@ -1148,12 +1148,12 @@ CreatureAI* GetAI_npc_nexus_drake(Creature* pCreature)
 
 enum
 {
-    QUEST_HEART_OF_THE_STORM = 12998,
-	SPELL_STORMS_FURY        = 56485,
-	NPC_OVERSEER_NARVIR      = 30299,
-    DESPAWN_TIMER            = 30000,
-	SAY_NARVIR1              = -1532116,
-	SAY_NARVIR2              = -1532117
+    QUEST_HEART_OF_THE_STORM    = 12998,
+    SPELL_STORMS_FURY           = 56485,
+    NPC_OVERSEER_NARVIR         = 30299,
+    DESPAWN_TIMER               = 30000,
+    SAY_NARVIR1                 = -1532116,
+    SAY_NARVIR2                 = -1532117
 };
 
 bool GOHello_go_heart_of_the_storm(Player* pPlayer, GameObject* pGo)

@@ -362,7 +362,6 @@ class MANGOS_DLL_SPEC Aura
         void HandleModTargetArmorPct(bool Apply, bool Real);
         void HandleAuraModAllCritChance(bool Apply, bool Real);
         void HandleAuraLinked(bool Apply, bool Real);
-        void HandleAllowOnlyAbility(bool Apply, bool Real);
         void HandleAuraOpenStable(bool apply, bool Real);
 
         virtual ~Aura();
@@ -420,8 +419,6 @@ class MANGOS_DLL_SPEC Aura
         void ApplyModifier(bool apply, bool Real = false);
 
         void UpdateAura(uint32 diff) { SetInUse(true); Update(diff); SetInUse(false); }
-        void _AddAura();
-        bool _RemoveAura();
 
         void SetRemoveMode(AuraRemoveMode mode) { m_removeMode = mode; }
 

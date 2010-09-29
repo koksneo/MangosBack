@@ -405,7 +405,7 @@ void TradeData::SetAccepted(bool state, bool crosssend /*= false*/)
 
 UpdateMask Player::updateVisualBits;
 
-Player::Player (WorldSession *session): Unit(), m_achievementMgr(this), m_reputationMgr(this), m_mover(this), m_camera(this)
+Player::Player (WorldSession *session): Unit(), m_mover(this), m_camera(this), m_achievementMgr(this), m_reputationMgr(this)
 {
     m_transport = 0;
 
@@ -2336,8 +2336,7 @@ GameObject* Player::GetGameObjectIfCanInteractWith(ObjectGuid guid, uint32 gameo
 
 bool Player::IsUnderWater() const
 {
-    return IsInWater() &&
-        GetPositionZ() < (GetBaseMap()->GetWaterLevel(GetPositionX(),GetPositionY())-2);
+    return GetBaseMap()->IsUnderWater(GetPositionX(), GetPositionY(), GetPositionZ()+2);
 }
 
 void Player::SetInWater(bool apply)
@@ -18371,8 +18370,8 @@ void Player::HandleStealthedUnitsDetection()
 {
     std::list<Unit*> stealthedUnits;
 
-    MaNGOS::AnyStealthedCheck u_check;
-    MaNGOS::UnitListSearcher<MaNGOS::AnyStealthedCheck > searcher(this,stealthedUnits, u_check);
+    MaNGOS::AnyStealthedCheck u_check(this);
+    MaNGOS::UnitListSearcher<MaNGOS::AnyStealthedCheck > searcher(stealthedUnits, u_check);
     Cell::VisitAllObjects(this, searcher, MAX_PLAYER_STEALTH_DETECT_RANGE);
 
     WorldObject const* viewPoint = GetCamera().GetBody();
@@ -19201,47 +19200,7 @@ void Player::UpdatePotionCooldown(Spell* spell)
     m_lastPotionId = 0;
 }
 
-bool Player::HasGlobalCooldown(SpellEntry const* spellInfo) const
-{
-    GlobalCooldowns::const_iterator itr = m_globalCooldowns.find(spellInfo->StartRecoveryCategory);
-    return itr != m_globalCooldowns.end() && itr->second > getMSTime();
-}
-
-uint32 Player::GetGlobalCooldownDelay(SpellEntry const* spellInfo) const
-{
-    GlobalCooldowns::const_iterator itr = m_globalCooldowns.find(spellInfo->StartRecoveryCategory);
-    if (itr == m_globalCooldowns.end())
-        return 0;
-    uint32 t = getMSTime();
-    return itr->second > t ? itr->second - t : 0;
-}
-
-void Player::AddGlobalCooldown(SpellEntry const* spellInfo)
-{
-    int32 gcd = spellInfo->StartRecoveryTime;
-    if (gcd)
-    {
-        // gcd modifier auras
-        ApplySpellMod(spellInfo->Id, SPELLMOD_CASTING_TIME_OLD, gcd);
-        // apply haste rating
-        gcd = int32(float(gcd) * GetFloatValue(UNIT_MOD_CAST_SPEED));
-        if (gcd < 0)
-            gcd = 0;
-        // substract player latency from total time
-        int32 latency = GetSession()->GetLatency();
-        if (latency < gcd)
-            gcd -= latency;
-        else
-        {
-            sLog.outError("Player::AddGlobalCooldown: Player %s (guid: %u, account %u) has latency of %u ms that invalidates GCD check for spell %u (%u ms)",
-                GetName(), GetGUIDLow(), GetSession()->GetAccountId(), latency, spellInfo->Id, gcd);
-            gcd = 0;
-        }
-    }
-    m_globalCooldowns[spellInfo->StartRecoveryCategory] = gcd + getMSTime();
-}
-
-                                                           //slot to be excluded while counting
+                                                            //slot to be excluded while counting
 bool Player::EnchantmentFitsRequirements(uint32 enchantmentcondition, int8 slot)
 {
     if(!enchantmentcondition)
@@ -21241,10 +21200,27 @@ void Player::ConvertRune(uint8 index, RuneType newType)
     GetSession()->SendPacket(&data);
 }
 
-void Player::ResyncRunes(uint8 count)
+bool Player::ActivateRunes(RuneType type, uint32 count)
 {
-    WorldPacket data(SMSG_RESYNC_RUNES, count * 2);
-    for(uint32 i = 0; i < count; ++i)
+    bool modify = false;
+    for(uint32 j = 0; count > 0 && j < MAX_RUNES; ++j)
+    {
+        if (GetRuneCooldown(j) && GetCurrentRune(j) == type)
+        {
+            SetRuneCooldown(j, 0);
+            --count;
+            modify = true;
+        }
+    }
+
+    return modify;
+}
+
+void Player::ResyncRunes()
+{
+    WorldPacket data(SMSG_RESYNC_RUNES, 4 + MAX_RUNES * 2);
+    data << uint32(MAX_RUNES);
+    for(uint32 i = 0; i < MAX_RUNES; ++i)
     {
         data << uint8(GetCurrentRune(i));                   // rune type
         data << uint8(255 - ((GetRuneCooldown(i) / REGEN_TIME_FULL) * 51));     // passed cooldown time (0-255)
@@ -21579,7 +21555,7 @@ void Player::HandleFall(MovementInfo const& movementInfo)
             uint32 damage = (uint32)(damageperc * GetMaxHealth()*sWorld.getConfig(CONFIG_FLOAT_RATE_DAMAGE_FALL));
 
             float height = movementInfo.GetPos()->z;
-            UpdateGroundPositionZ(movementInfo.GetPos()->x, movementInfo.GetPos()->y, height);
+            UpdateAllowedPositionZ(movementInfo.GetPos()->x, movementInfo.GetPos()->y, height);
 
             if (damage > 0)
             {

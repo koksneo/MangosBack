@@ -1527,6 +1527,10 @@ bool SpellMgr::IsSpellProcEventCanTriggeredBy(SpellProcEventEntry const * spellP
     // Check for extra req (if none) and hit/crit
     if (procEvent_procEx == PROC_EX_NONE)
     {
+        // Don't allow proc from periodic heal if no extra requirement is defined
+        if (EventProcFlag & (PROC_FLAG_ON_DO_PERIODIC | PROC_FLAG_ON_TAKE_PERIODIC) && (procExtra & PROC_EX_PERIODIC_POSITIVE))
+            return false;
+
         // No extra req, so can trigger for (damage/healing present) and hit/crit
         if(procExtra & (PROC_EX_NORMAL_HIT|PROC_EX_CRITICAL_HIT))
             return true;
@@ -1853,6 +1857,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if( (spellInfo_1->SpellIconID == 456 && spellInfo_2->SpellIconID == 2006) ||
                     (spellInfo_2->SpellIconID == 456 && spellInfo_1->SpellIconID == 2006) )
                     return false;
+
+                // Taste of Blood and Sudden Death
+                if( (spellInfo_1->Id == 52437 && spellInfo_2->Id == 60503) ||
+                    (spellInfo_2->Id == 52437 && spellInfo_1->Id == 60503) )
+                    return false;
             }
             break;
         case SPELLFAMILY_PRIEST:
@@ -2029,6 +2038,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Blood Presence and Blood Presence (triggered)
                 if (spellInfo_1->SpellIconID == 2636 && spellInfo_2->SpellIconID == 2636)
                     return false;
+
+                // Crypt Fever and Ebon Plague
+                if((spellInfo_1->SpellIconID == 264 && spellInfo_2->SpellIconID == 1933) ||
+                   (spellInfo_2->SpellIconID == 264 && spellInfo_1->SpellIconID == 1933))
+                    return true;
             }
             break;
         default:

@@ -65,6 +65,9 @@ float baseMoveSpeed[MAX_MOVE_TYPE] =
     3.14f                                                   // MOVE_PITCH_RATE
 };
 
+////////////////////////////////////////////////////////////
+// Methods of class MovementInfo
+
 void MovementInfo::Read(ByteBuffer &data)
 {
     data >> moveFlags;
@@ -154,6 +157,28 @@ void MovementInfo::Write(ByteBuffer &data) const
         data << u_unk1;
     }
 }
+
+////////////////////////////////////////////////////////////
+// Methods of class GlobalCooldownMgr
+
+bool GlobalCooldownMgr::HasGlobalCooldown(SpellEntry const* spellInfo) const
+{
+    GlobalCooldownList::const_iterator itr = m_GlobalCooldowns.find(spellInfo->StartRecoveryCategory);
+    return itr != m_GlobalCooldowns.end() && itr->second.duration && getMSTimeDiff(itr->second.cast_time, getMSTime()) < itr->second.duration;
+}
+
+void GlobalCooldownMgr::AddGlobalCooldown(SpellEntry const* spellInfo, uint32 gcd)
+{
+    m_GlobalCooldowns[spellInfo->StartRecoveryCategory] = GlobalCooldown(gcd, getMSTime());
+}
+
+void GlobalCooldownMgr::CancelGlobalCooldown(SpellEntry const* spellInfo)
+{
+    m_GlobalCooldowns[spellInfo->StartRecoveryCategory].duration = 0;
+}
+
+////////////////////////////////////////////////////////////
+// Methods of class Unit
 
 Unit::Unit()
 : WorldObject(), i_motionMaster(this), m_ThreatManager(this), m_HostileRefManager(this)
@@ -491,10 +516,10 @@ void Unit::DealDamageMods(Unit *pVictim, uint32 &damage, uint32* absorb)
 
     //You don't lose health from damage taken from another player while in a sanctuary
     //You still see it in the combat log though
-    if(pVictim != this && GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
+    if (pVictim != this && IsCharmerOrOwnerPlayerOrPlayerItself() && pVictim->IsCharmerOrOwnerPlayerOrPlayerItself())
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
-        if(area && ((area->flags & AREA_FLAG_SANCTUARY) || area->mapid == 609))       //sanctuary
+        if (area && ((area->flags & AREA_FLAG_SANCTUARY) || area->mapid == 609))       //sanctuary
         {
             if(absorb)
                 *absorb += damage;
@@ -1312,7 +1337,7 @@ void Unit::DealSpellDamage(SpellNonMeleeDamage *damageInfo, bool durabilityLoss)
 
     //You don't lose health from damage taken from another player while in a sanctuary
     //You still see it in the combat log though
-    if(pVictim != this && GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
+    if (pVictim != this && IsCharmerOrOwnerPlayerOrPlayerItself() && pVictim->IsCharmerOrOwnerPlayerOrPlayerItself())
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
         if(area && ((area->flags & AREA_FLAG_SANCTUARY) || area->mapid == 609))       // sanctuary
@@ -1616,7 +1641,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
 
     //You don't lose health from damage taken from another player while in a sanctuary
     //You still see it in the combat log though
-    if(pVictim != this && GetTypeId() == TYPEID_PLAYER && pVictim->GetTypeId() == TYPEID_PLAYER)
+    if (pVictim != this && IsCharmerOrOwnerPlayerOrPlayerItself() && pVictim->IsCharmerOrOwnerPlayerOrPlayerItself())
     {
         const AreaTableEntry *area = GetAreaEntryByAreaID(pVictim->GetAreaId());
         if(area && ((area->flags & AREA_FLAG_SANCTUARY) || area->mapid == 609))       // sanctuary
@@ -1626,7 +1651,7 @@ void Unit::DealMeleeDamage(CalcDamageInfo *damageInfo, bool durabilityLoss)
     // Hmmmm dont like this emotes client must by self do all animations
     if (damageInfo->HitInfo&HITINFO_CRITICALHIT)
         pVictim->HandleEmoteCommand(EMOTE_ONESHOT_WOUNDCRITICAL);
-    if(damageInfo->blocked_amount && damageInfo->TargetState!=VICTIMSTATE_BLOCKS)
+    if (damageInfo->blocked_amount && damageInfo->TargetState!=VICTIMSTATE_BLOCKS)
         pVictim->HandleEmoteCommand(EMOTE_ONESHOT_PARRYSHIELD);
 
     if(damageInfo->TargetState == VICTIMSTATE_PARRY)
@@ -2136,6 +2161,17 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
                     pCaster->DealDamage(caster, ab_damage, NULL, damagetype, schoolMask, 0, false);
                     continue;
                 }
+                // Will of Necropolis
+                if (spellProto->SpellIconID == 857)
+                {
+                    // Apply absorb only on damage below 35% hp
+                    int32 absorbableDamage = RemainingDamage + 0.35f * GetMaxHealth() - GetHealth();
+                    if (absorbableDamage > RemainingDamage)
+                        absorbableDamage = RemainingDamage;
+                    if (absorbableDamage > 0)
+                        RemainingDamage -= absorbableDamage * currentAbsorb / 100;
+                    continue;
+                }      
                 break;
             }
             default:
@@ -2398,7 +2434,6 @@ void Unit::CalculateHealAbsorb(const uint32 heal, uint32 *absorb)
     for(AuraList::const_iterator i = vHealAbsorb.begin(); i != vHealAbsorb.end() && RemainingHeal > 0; ++i)
     {
         Modifier* mod = (*i)->GetModifier();
-        SpellEntry const* spellProto = (*i)->GetSpellProto();
 
         // Max Amount can be absorbed by this aura
         int32  currentAbsorb = mod->m_amount;
@@ -4410,7 +4445,7 @@ void Unit::RemoveAuraHolderDueToSpellByDispel(uint32 spellId, int32 stackAmount,
     {
         if (Aura *dot = GetAura(SPELL_AURA_PERIODIC_DAMAGE, SPELLFAMILY_PRIEST, UI64LIT(0x0000040000000000), 0x00000000, casterGUID))
         {
-            if(Unit* caster = dot->GetCaster())
+            if (dot->GetCaster())
             {
                 // use clean value for initial damage
                 int32 bp0 = dot->GetSpellProto()->CalculateSimpleValue(EFFECT_INDEX_1);
@@ -4717,8 +4752,6 @@ void Unit::RemoveSingleAuraFromSpellAuraHolder(SpellAuraHolder *holder, SpellEff
 
 void Unit::RemoveAura(Aura *Aur, AuraRemoveMode mode)
 {
-    SpellEntry const* AurSpellInfo = Aur->GetSpellProto();
-
     // remove from list before mods removing (prevent cyclic calls, mods added before including to aura list - use reverse order)
     if (Aur->GetModifier()->m_auraname < TOTAL_AURAS)
     {
@@ -6114,7 +6147,7 @@ int32 Unit::SpellBonusWithCoeffs(SpellEntry const *spellProto, int32 total, int3
  */
 uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, uint32 pdamage, DamageEffectType damagetype, uint32 stack)
 {
-    if(!spellProto || !pVictim || damagetype==DIRECT_DAMAGE )
+    if(!spellProto || !pVictim || damagetype==DIRECT_DAMAGE || spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_DMG_MODS)
         return pdamage;
 
     // For totems get damage bonus from owner (statue isn't totem in fact)
@@ -6131,19 +6164,16 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
     if( GetTypeId() == TYPEID_UNIT && !((Creature*)this)->isPet() )
         DoneTotalMod *= ((Creature*)this)->GetSpellDamageMod(((Creature*)this)->GetCreatureInfo()->rank);
 
-    if (!(spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_DMG_PERCENT_MODS))
+    AuraList const& mModDamagePercentDone = GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
+    for(AuraList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
     {
-        AuraList const& mModDamagePercentDone = GetAurasByType(SPELL_AURA_MOD_DAMAGE_PERCENT_DONE);
-        for(AuraList::const_iterator i = mModDamagePercentDone.begin(); i != mModDamagePercentDone.end(); ++i)
+        if( ((*i)->GetModifier()->m_miscvalue & GetSpellSchoolMask(spellProto)) &&
+            (*i)->GetSpellProto()->EquippedItemClass == -1 &&
+                                                            // -1 == any item class (not wand then)
+            (*i)->GetSpellProto()->EquippedItemInventoryTypeMask == 0 )
+                                                            // 0 == any inventory type (not wand then)
         {
-            if( ((*i)->GetModifier()->m_miscvalue & GetSpellSchoolMask(spellProto)) &&
-                (*i)->GetSpellProto()->EquippedItemClass == -1 &&
-                                                                // -1 == any item class (not wand then)
-                (*i)->GetSpellProto()->EquippedItemInventoryTypeMask == 0 )
-                                                                // 0 == any inventory type (not wand then)
-            {
-                DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
-            }
+            DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f)/100.0f;
         }
     }
 
@@ -6386,6 +6416,21 @@ uint32 Unit::SpellDamageBonusDone(Unit *pVictim, SpellEntry const *spellProto, u
                     {
                         DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f) / 100.0f;
                         break;
+                    }
+                }
+
+                // Icy Touch
+                if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000000000002))
+                {
+                    // Improved Icy Touch
+                    Unit::AuraList const& dummyAuras = GetAurasByType(SPELL_AURA_DUMMY);
+                    for(Unit::AuraList::const_iterator i = dummyAuras.begin(); i != dummyAuras.end(); ++i)
+                    {
+                        if ((*i)->GetSpellProto()->SpellIconID == 2721)
+                        {
+                            DoneTotalMod *= ((*i)->GetModifier()->m_amount+100.0f) / 100.0f;
+                            break;
+                        }
                     }
                 }
             }
@@ -6673,25 +6718,26 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
             break;
         }
         case SPELL_DAMAGE_CLASS_MELEE:
-        {
-            // Ferocious Bite crit chance with Rend and Tear
-            if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID && (spellProto->SpellFamilyFlags & UI64LIT(0x800000)) && spellProto->SpellIconID == 1680)
+            // Rend and Tear crit chance with Ferocious Bite on bleeding target
+            if (spellProto->SpellFamilyName == SPELLFAMILY_DRUID)
             {
-                if (pVictim->HasAuraState(AURA_STATE_BLEEDING))
+                if(spellProto->SpellFamilyFlags & UI64LIT(0x0000000000800000))
                 {
-                    Unit::AuraList const& dummyAuras = GetAurasByType(SPELL_AURA_DUMMY);
-                    for (Unit::AuraList::const_iterator itr = dummyAuras.begin(); itr != dummyAuras.end(); ++itr)
+                    if(pVictim->HasAuraState(AURA_STATE_MECHANIC_BLEED))
                     {
-                        if ((*itr)->GetSpellProto()->SpellIconID == 2859 && (*itr)->GetEffIndex() == EFFECT_INDEX_1)
+                        Unit::AuraList const& aura = GetAurasByType(SPELL_AURA_DUMMY);
+                        for(Unit::AuraList::const_iterator itr = aura.begin(); itr != aura.end(); ++itr)
                         {
-                            crit_chance += (*itr)->GetModifier()->m_amount;
-                            break;
+                            if ((*itr)->GetSpellProto()->SpellIconID == 2859 && (*itr)->GetEffIndex() == 1)
+                            {
+                                crit_chance += (*itr)->GetModifier()->m_amount;
+                                break;
+                            }
                         }
                     }
                 }
             }
             // do not use break here
-        }
         case SPELL_DAMAGE_CLASS_RANGED:
         {
             if (pVictim)
@@ -7117,10 +7163,7 @@ bool Unit::IsDamageToThreatSpell(SpellEntry const * spellInfo) const
  */
 uint32 Unit::MeleeDamageBonusDone(Unit *pVictim, uint32 pdamage,WeaponAttackType attType, SpellEntry const *spellProto, DamageEffectType damagetype, uint32 stack)
 {
-    if (!pVictim)
-        return pdamage;
-
-    if (pdamage == 0)
+    if (!pVictim || pdamage == 0 || (spellProto && spellProto->AttributesEx6 & SPELL_ATTR_EX6_NO_DMG_MODS))
         return pdamage;
 
     // differentiate for weapon damage based spells
@@ -7551,8 +7594,11 @@ void Unit::Mount(uint32 mount, uint32 spellId)
             // Normal case (Unsummon only permanent pet)
             else if (Pet* pet = GetPet())
             {
-                if (pet->IsPermanentPetFor((Player*)this) && !((Player*)this)->InArena())
+                if (pet->IsPermanentPetFor((Player*)this) && !((Player*)this)->InArena() &&
+                    sWorld.getConfig(CONFIG_BOOL_PET_UNSUMMON_AT_MOUNT))
+                {
                     ((Player*)this)->UnsummonPetTemporaryIfAny();
+                }
                 else
                     pet->ApplyModeFlags(PET_MODE_DISABLE_ACTIONS,true);
             }
@@ -9729,7 +9775,6 @@ void Unit::ProcDamageAndSpellFor( bool isVictim, Unit * pTarget, uint32 procFlag
             continue;
 
         SpellProcEventEntry const *spellProcEvent = i->spellProcEvent;
-        SpellEntry const *spellInfo = triggeredByHolder->GetSpellProto();
         bool useCharges = triggeredByHolder->GetAuraCharges() > 0;
         bool procSuccess = true;
         bool anyAuraProc = false;
@@ -10163,7 +10208,7 @@ Unit* Unit::SelectRandomUnfriendlyTarget(Unit* except /*= NULL*/, float radius /
     std::list<Unit *> targets;
 
     MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, this, radius);
-    MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck> searcher(this, targets, u_check);
+    MaNGOS::UnitListSearcher<MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
     Cell::VisitAllObjects(this, searcher, radius);
 
     // remove current target
@@ -10201,7 +10246,7 @@ Unit* Unit::SelectRandomFriendlyTarget(Unit* except /*= NULL*/, float radius /*=
     std::list<Unit *> targets;
 
     MaNGOS::AnyFriendlyUnitInObjectRangeCheck u_check(this, radius);
-    MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(this, targets, u_check);
+    MaNGOS::UnitListSearcher<MaNGOS::AnyFriendlyUnitInObjectRangeCheck> searcher(targets, u_check);
 
     Cell::VisitAllObjects(this, searcher, radius);
     // remove current target
@@ -10590,7 +10635,7 @@ void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpee
             fz = fz2;
         }
 
-        UpdateGroundPositionZ(fx, fy, fz);
+        UpdateAllowedPositionZ(fx, fy, fz);
 
         //FIXME: this mostly hack, must exist some packet for proper creature move at client side
         //       with CreatureRelocation at server side

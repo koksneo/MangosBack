@@ -148,7 +148,6 @@ struct SpellCooldown
 };
 
 typedef std::map<uint32, SpellCooldown> SpellCooldowns;
-typedef UNORDERED_MAP<uint32 /*category*/, uint32 /*MSTime*/> GlobalCooldowns;
 
 enum TrainerSpellState
 {
@@ -1726,10 +1725,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void RemoveSpellCategoryCooldown(uint32 cat, bool update = false);
         void SendClearCooldown( uint32 spell_id, Unit* target );
 
-        GlobalCooldowns const& GetGlobalCooldownMap() const { return m_globalCooldowns; }
-        bool HasGlobalCooldown(SpellEntry const* spellInfo) const;
-        uint32 GetGlobalCooldownDelay(SpellEntry const* spellInfo) const;
-        void AddGlobalCooldown(SpellEntry const* spellInfo);
+        GlobalCooldownMgr& GetGlobalCooldownMgr() { return m_GlobalCooldownMgr; }
 
         void RemoveArenaSpellCooldowns();
         void RemoveAllSpellCooldown();
@@ -2390,7 +2386,8 @@ class MANGOS_DLL_SPEC Player : public Unit
         void SetCurrentRune(uint8 index, RuneType currentRune) { m_runes->runes[index].CurrentRune = currentRune; }
         void SetRuneCooldown(uint8 index, uint16 cooldown) { m_runes->runes[index].Cooldown = cooldown; m_runes->SetRuneState(index, (cooldown == 0) ? true : false); }
         void ConvertRune(uint8 index, RuneType newType);
-        void ResyncRunes(uint8 count);
+        bool ActivateRunes(RuneType type, uint32 count);
+        void ResyncRunes();
         void AddRunePower(uint8 index);
         void InitRunes();
 
@@ -2536,8 +2533,9 @@ class MANGOS_DLL_SPEC Player : public Unit
         PlayerSpellMap m_spells;
         PlayerTalentMap m_talents[MAX_TALENT_SPEC_COUNT];
         SpellCooldowns m_spellCooldowns;
-        GlobalCooldowns m_globalCooldowns;
         uint32 m_lastPotionId;                              // last used health/mana potion in combat, that block next potion use
+
+        GlobalCooldownMgr m_GlobalCooldownMgr;
 
         uint8 m_activeSpec;
         uint8 m_specsCount;

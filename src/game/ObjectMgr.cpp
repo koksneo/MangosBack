@@ -1557,11 +1557,11 @@ void ObjectMgr::RemoveGameobjectFromGrid(uint32 guid, GameObjectData const* data
 void ObjectMgr::LoadCreatureRespawnTimes()
 {
     // remove outdated data
-    WorldDatabase.DirectExecute("DELETE FROM creature_respawn WHERE respawntime <= UNIX_TIMESTAMP(NOW())");
+    CharacterDatabase.DirectExecute("DELETE FROM creature_respawn WHERE respawntime <= UNIX_TIMESTAMP(NOW())");
 
     uint32 count = 0;
 
-    QueryResult *result = WorldDatabase.Query("SELECT guid,respawntime,instance FROM creature_respawn");
+    QueryResult *result = CharacterDatabase.Query("SELECT guid, respawntime, instance FROM creature_respawn");
 
     if(!result)
     {
@@ -1599,11 +1599,11 @@ void ObjectMgr::LoadCreatureRespawnTimes()
 void ObjectMgr::LoadGameobjectRespawnTimes()
 {
     // remove outdated data
-    WorldDatabase.DirectExecute("DELETE FROM gameobject_respawn WHERE respawntime <= UNIX_TIMESTAMP(NOW())");
+    CharacterDatabase.DirectExecute("DELETE FROM gameobject_respawn WHERE respawntime <= UNIX_TIMESTAMP(NOW())");
 
     uint32 count = 0;
 
-    QueryResult *result = WorldDatabase.Query("SELECT guid,respawntime,instance FROM gameobject_respawn");
+    QueryResult *result = CharacterDatabase.Query("SELECT guid, respawntime, instance FROM gameobject_respawn");
 
     if(!result)
     {
@@ -4442,6 +4442,11 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
                     sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_TALK for script id %u, but search radius is too small (datalong3 = %u).", tablename, tmp.talk.creatureEntry, tmp.id, tmp.talk.searchRadius);
                     continue;
                 }
+                if (!GetLanguageDescByID(tmp.talk.language))
+                {
+                    sLog.outErrorDb("Table `%s` has datalong4 = %u in SCRIPT_COMMAND_TALK for script id %u, but this language does not exist.", tablename, tmp.talk.language, tmp.id);
+                    continue;
+                }
                 if (tmp.talk.textId[0] == 0)
                 {
                     sLog.outErrorDb("Table `%s` has invalid talk text id (dataint = %i) in SCRIPT_COMMAND_TALK for script id %u", tablename, tmp.talk.textId, tmp.id);
@@ -4460,7 +4465,6 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
                 // if(!GetMangosStringLocale(tmp.dataint)) will checked after db_script_string loading
                 break;
             }
-
             case SCRIPT_COMMAND_EMOTE:
             {
                 if (!sEmotesStore.LookupEntry(tmp.emote.emoteId))
@@ -4470,7 +4474,6 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
                 }
                 break;
             }
-
             case SCRIPT_COMMAND_TELEPORT_TO:
             {
                 if (!sMapStore.LookupEntry(tmp.teleportTo.mapId))
@@ -4486,95 +4489,16 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
                 }
                 break;
             }
-
-            case SCRIPT_COMMAND_KILL_CREDIT:
-            {
-                if (!GetCreatureTemplate(tmp.killCredit.creatureEntry))
-                {
-                    sLog.outErrorDb("Table `%s` has invalid creature (Entry: %u) in SCRIPT_COMMAND_KILL_CREDIT for script id %u", tablename, tmp.killCredit.creatureEntry, tmp.id);
-                    continue;
-                }
-                break;
-            }
-
-            case SCRIPT_COMMAND_TEMP_SUMMON_CREATURE:
-            {
-                if (!MaNGOS::IsValidMapCoord(tmp.x, tmp.y, tmp.z, tmp.o))
-                {
-                    sLog.outErrorDb("Table `%s` has invalid coordinates (X: %f Y: %f) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id %u", tablename, tmp.x, tmp.y, tmp.id);
-                    continue;
-                }
-
-                if (!GetCreatureTemplate(tmp.summonCreature.creatureEntry))
-                {
-                    sLog.outErrorDb("Table `%s` has invalid creature (Entry: %u) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id %u", tablename, tmp.summonCreature.creatureEntry, tmp.id);
-                    continue;
-                }
-                break;
-            }
-
-            case SCRIPT_COMMAND_RESPAWN_GAMEOBJECT:
-            {
-                GameObjectData const* data = GetGOData(tmp.GetGOGuid());
-                if(!data)
-                {
-                    sLog.outErrorDb("Table `%s` has invalid gameobject (GUID: %u) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id %u", tablename, tmp.GetGOGuid(), tmp.id);
-                    continue;
-                }
-
-                GameObjectInfo const* info = GetGameObjectInfo(data->id);
-                if(!info)
-                {
-                    sLog.outErrorDb("Table `%s` has gameobject with invalid entry (GUID: %u Entry: %u) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id %u", tablename, tmp.GetGOGuid(), data->id, tmp.id);
-                    continue;
-                }
-
-                if( info->type==GAMEOBJECT_TYPE_FISHINGNODE ||
-                    info->type==GAMEOBJECT_TYPE_FISHINGHOLE ||
-                    info->type==GAMEOBJECT_TYPE_DOOR        ||
-                    info->type==GAMEOBJECT_TYPE_BUTTON      ||
-                    info->type==GAMEOBJECT_TYPE_TRAP )
-                {
-                    sLog.outErrorDb("Table `%s` have gameobject type (%u) unsupported by command SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id %u", tablename, info->id, tmp.id);
-                    continue;
-                }
-                break;
-            }
-            case SCRIPT_COMMAND_OPEN_DOOR:
-            case SCRIPT_COMMAND_CLOSE_DOOR:
-            {
-                GameObjectData const* data = GetGOData(tmp.GetGOGuid());
-                if(!data)
-                {
-                    sLog.outErrorDb("Table `%s` has invalid gameobject (GUID: %u) in %s for script id %u", tablename, tmp.GetGOGuid(), (tmp.command == SCRIPT_COMMAND_OPEN_DOOR ? "SCRIPT_COMMAND_OPEN_DOOR" : "SCRIPT_COMMAND_CLOSE_DOOR"), tmp.id);
-                    continue;
-                }
-
-                GameObjectInfo const* info = GetGameObjectInfo(data->id);
-                if(!info)
-                {
-                    sLog.outErrorDb("Table `%s` has gameobject with invalid entry (GUID: %u Entry: %u) in %s for script id %u", tablename, tmp.GetGOGuid(), data->id, (tmp.command == SCRIPT_COMMAND_OPEN_DOOR ? "SCRIPT_COMMAND_OPEN_DOOR" : "SCRIPT_COMMAND_CLOSE_DOOR"), tmp.id);
-                    continue;
-                }
-
-                if( info->type!=GAMEOBJECT_TYPE_DOOR)
-                {
-                    sLog.outErrorDb("Table `%s` has gameobject type (%u) non supported by command %s for script id %u", tablename, info->id, (tmp.command == SCRIPT_COMMAND_OPEN_DOOR ? "SCRIPT_COMMAND_OPEN_DOOR" : "SCRIPT_COMMAND_CLOSE_DOOR"), tmp.id);
-                    continue;
-                }
-
-                break;
-            }
             case SCRIPT_COMMAND_QUEST_EXPLORED:
             {
                 Quest const* quest = GetQuestTemplate(tmp.questExplored.questId);
-                if(!quest)
+                if (!quest)
                 {
                     sLog.outErrorDb("Table `%s` has invalid quest (ID: %u) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u", tablename, tmp.questExplored.questId, tmp.id);
                     continue;
                 }
 
-                if(!quest->HasFlag(QUEST_MANGOS_FLAGS_EXPLORATION_OR_EVENT))
+                if (!quest->HasFlag(QUEST_MANGOS_FLAGS_EXPLORATION_OR_EVENT))
                 {
                     sLog.outErrorDb("Table `%s` has quest (ID: %u) in SCRIPT_COMMAND_QUEST_EXPLORED in `datalong` for script id %u, but quest not have flag QUEST_MANGOS_FLAGS_EXPLORATION_OR_EVENT in quest flags. Script command or quest flags wrong. Quest modified to require objective.", tablename, tmp.questExplored.questId, tmp.id);
 
@@ -4607,7 +4531,82 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
 
                 break;
             }
+            case SCRIPT_COMMAND_KILL_CREDIT:
+            {
+                if (!GetCreatureTemplate(tmp.killCredit.creatureEntry))
+                {
+                    sLog.outErrorDb("Table `%s` has invalid creature (Entry: %u) in SCRIPT_COMMAND_KILL_CREDIT for script id %u", tablename, tmp.killCredit.creatureEntry, tmp.id);
+                    continue;
+                }
+                break;
+            }
+            case SCRIPT_COMMAND_RESPAWN_GAMEOBJECT:
+            {
+                GameObjectData const* data = GetGOData(tmp.GetGOGuid());
+                if (!data)
+                {
+                    sLog.outErrorDb("Table `%s` has invalid gameobject (GUID: %u) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id %u", tablename, tmp.GetGOGuid(), tmp.id);
+                    continue;
+                }
 
+                GameObjectInfo const* info = GetGameObjectInfo(data->id);
+                if (!info)
+                {
+                    sLog.outErrorDb("Table `%s` has gameobject with invalid entry (GUID: %u Entry: %u) in SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id %u", tablename, tmp.GetGOGuid(), data->id, tmp.id);
+                    continue;
+                }
+
+                if (info->type==GAMEOBJECT_TYPE_FISHINGNODE ||
+                    info->type==GAMEOBJECT_TYPE_FISHINGHOLE ||
+                    info->type==GAMEOBJECT_TYPE_DOOR        ||
+                    info->type==GAMEOBJECT_TYPE_BUTTON      ||
+                    info->type==GAMEOBJECT_TYPE_TRAP)
+                {
+                    sLog.outErrorDb("Table `%s` have gameobject type (%u) unsupported by command SCRIPT_COMMAND_RESPAWN_GAMEOBJECT for script id %u", tablename, info->id, tmp.id);
+                    continue;
+                }
+                break;
+            }
+            case SCRIPT_COMMAND_TEMP_SUMMON_CREATURE:
+            {
+                if (!MaNGOS::IsValidMapCoord(tmp.x, tmp.y, tmp.z, tmp.o))
+                {
+                    sLog.outErrorDb("Table `%s` has invalid coordinates (X: %f Y: %f) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id %u", tablename, tmp.x, tmp.y, tmp.id);
+                    continue;
+                }
+
+                if (!GetCreatureTemplate(tmp.summonCreature.creatureEntry))
+                {
+                    sLog.outErrorDb("Table `%s` has invalid creature (Entry: %u) in SCRIPT_COMMAND_TEMP_SUMMON_CREATURE for script id %u", tablename, tmp.summonCreature.creatureEntry, tmp.id);
+                    continue;
+                }
+                break;
+            }
+            case SCRIPT_COMMAND_OPEN_DOOR:
+            case SCRIPT_COMMAND_CLOSE_DOOR:
+            {
+                GameObjectData const* data = GetGOData(tmp.GetGOGuid());
+                if (!data)
+                {
+                    sLog.outErrorDb("Table `%s` has invalid gameobject (GUID: %u) in %s for script id %u", tablename, tmp.GetGOGuid(), (tmp.command == SCRIPT_COMMAND_OPEN_DOOR ? "SCRIPT_COMMAND_OPEN_DOOR" : "SCRIPT_COMMAND_CLOSE_DOOR"), tmp.id);
+                    continue;
+                }
+
+                GameObjectInfo const* info = GetGameObjectInfo(data->id);
+                if (!info)
+                {
+                    sLog.outErrorDb("Table `%s` has gameobject with invalid entry (GUID: %u Entry: %u) in %s for script id %u", tablename, tmp.GetGOGuid(), data->id, (tmp.command == SCRIPT_COMMAND_OPEN_DOOR ? "SCRIPT_COMMAND_OPEN_DOOR" : "SCRIPT_COMMAND_CLOSE_DOOR"), tmp.id);
+                    continue;
+                }
+
+                if (info->type!=GAMEOBJECT_TYPE_DOOR)
+                {
+                    sLog.outErrorDb("Table `%s` has gameobject type (%u) non supported by command %s for script id %u", tablename, info->id, (tmp.command == SCRIPT_COMMAND_OPEN_DOOR ? "SCRIPT_COMMAND_OPEN_DOOR" : "SCRIPT_COMMAND_CLOSE_DOOR"), tmp.id);
+                    continue;
+                }
+
+                break;
+            }
             case SCRIPT_COMMAND_REMOVE_AURA:
             {
                 if (!sSpellStore.LookupEntry(tmp.removeAura.spellId))
@@ -4692,31 +4691,121 @@ void ObjectMgr::LoadScripts(ScriptMapMap& scripts, char const* tablename)
 
                 break;
             }
-           /*case SCRIPT_COMMAND_SEND_MAIL:
-           {
-               if (!sObjectMgr.GetMailTemplate(tmp.datalong))
-               {
-                   sLog.outErrorDb("Table `%s` column datalong(mail_id) is not valid (mail_id: %u) for record id %u",
-                        tablename, tmp.datalong, tmp.id);
+            case SCRIPT_COMMAND_SET_ACTIVEOBJECT:
+            {
+                if (tmp.activeObject.creatureEntry && !GetCreatureTemplate(tmp.activeObject.creatureEntry))
+                {
+                    sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_SET_ACTIVEOBJECT for script id %u, but this creature_template does not exist.", tablename, tmp.activeObject.creatureEntry, tmp.id);
                     continue;
-               }
-                
-               if( tmp.datalong2 != 3 && tmp.datalong2 != 4)
-               {
-                    sLog.outErrorDb("Table '%s' Invalid value datalong2 in record id %u (only 3 or 4)",
-                        tablename, tmp.id);
+                }
+                if (tmp.activeObject.creatureEntry && !tmp.activeObject.searchRadius)
+                {
+                    sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_SET_ACTIVEOBJECT for script id %u, but search radius is too small (datalong3 = %u).", tablename, tmp.activeObject.creatureEntry, tmp.id, tmp.activeObject.searchRadius);
                     continue;
-               }
-                
-               if (!tmp.datalong3)
-               {
-                    sLog.outErrorDb("Table '%s' empty value datalong3 in record id %u (only 3 or 4)",
-                        tablename, tmp.id);
-                    continue;
-               }
+                }
 
-               break;
-           }*/
+                break;
+            }
+            case SCRIPT_COMMAND_SET_FACTION:
+            {
+                if (tmp.faction.factionId && !sFactionStore.LookupEntry(tmp.faction.factionId))
+                {
+                    sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_SET_FACTION for script id %u, but this faction does not exist.", tablename, tmp.faction.factionId, tmp.id);
+                    continue;
+                }
+
+                if (tmp.faction.creatureEntry && !GetCreatureTemplate(tmp.faction.creatureEntry))
+                {
+                    sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_SET_FACTION for script id %u, but this creature_template does not exist.", tablename, tmp.faction.creatureEntry, tmp.id);
+                    continue;
+                }
+                if (tmp.faction.creatureEntry && !tmp.faction.searchRadius)
+                {
+                    sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_SET_FACTION for script id %u, but search radius is too small (datalong3 = %u).", tablename, tmp.faction.creatureEntry, tmp.id, tmp.faction.searchRadius);
+                    continue;
+                }
+
+                break;
+            }
+            case SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL:
+            {
+                if (tmp.morph.flags & 0x01)
+                {
+                    if (tmp.morph.creatureOrModelEntry && !sCreatureDisplayInfoStore.LookupEntry(tmp.morph.creatureOrModelEntry))
+                    {
+                        sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL for script id %u, but this model does not exist.", tablename, tmp.morph.creatureOrModelEntry, tmp.id);
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (tmp.morph.creatureOrModelEntry && !GetCreatureTemplate(tmp.morph.creatureOrModelEntry))
+                    {
+                        sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL for script id %u, but this creature_template does not exist.", tablename, tmp.morph.creatureOrModelEntry, tmp.id);
+                        continue;
+                    }
+                }
+
+                if (tmp.morph.creatureEntry && !GetCreatureTemplate(tmp.morph.creatureEntry))
+                {
+                    sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL for script id %u, but this creature_template does not exist.", tablename, tmp.morph.creatureEntry, tmp.id);
+                    continue;
+                }
+                if (tmp.morph.creatureEntry && !tmp.morph.searchRadius)
+                {
+                    sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL for script id %u, but search radius is too small (datalong3 = %u).", tablename, tmp.morph.creatureEntry, tmp.id, tmp.morph.searchRadius);
+                    continue;
+                }
+
+                break;
+            }
+            case SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL:
+            {
+                if (tmp.mount.flags & 0x01)
+                {
+                    if (tmp.mount.creatureOrModelEntry && !sCreatureDisplayInfoStore.LookupEntry(tmp.mount.creatureOrModelEntry))
+                    {
+                        sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL for script id %u, but this model does not exist.", tablename, tmp.mount.creatureOrModelEntry, tmp.id);
+                        continue;
+                    }
+                }
+                else
+                {
+                    if (tmp.mount.creatureOrModelEntry && !GetCreatureTemplate(tmp.mount.creatureOrModelEntry))
+                    {
+                        sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL for script id %u, but this creature_template does not exist.", tablename, tmp.mount.creatureOrModelEntry, tmp.id);
+                        continue;
+                    }
+                }
+
+                if (tmp.mount.creatureEntry && !GetCreatureTemplate(tmp.mount.creatureEntry))
+                {
+                    sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL for script id %u, but this creature_template does not exist.", tablename, tmp.mount.creatureEntry, tmp.id);
+                    continue;
+                }
+                if (tmp.mount.creatureEntry && !tmp.mount.searchRadius)
+                {
+                    sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL for script id %u, but search radius is too small (datalong3 = %u).", tablename, tmp.mount.creatureEntry, tmp.id, tmp.mount.searchRadius);
+                    continue;
+                }
+
+                break;
+            }
+            case SCRIPT_COMMAND_SET_RUN:
+            {
+                if (tmp.run.creatureEntry && !GetCreatureTemplate(tmp.run.creatureEntry))
+                {
+                    sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_SET_RUN for script id %u, but this creature_template does not exist.", tablename, tmp.run.creatureEntry, tmp.id);
+                    continue;
+                }
+                if (tmp.run.creatureEntry && !tmp.run.searchRadius)
+                {
+                    sLog.outErrorDb("Table `%s` has datalong2 = %u in SCRIPT_COMMAND_SET_RUN for script id %u, but search radius is too small (datalong3 = %u).", tablename, tmp.run.creatureEntry, tmp.id, tmp.run.searchRadius);
+                    continue;
+                }
+
+                break;
+            }
         }
 
         if (scripts.find(tmp.id) == scripts.end())
@@ -7259,9 +7348,9 @@ void ObjectMgr::LoadWeatherZoneChances()
 void ObjectMgr::SaveCreatureRespawnTime(uint32 loguid, uint32 instance, time_t t)
 {
     mCreatureRespawnTimes[MAKE_PAIR64(loguid,instance)] = t;
-    WorldDatabase.PExecute("DELETE FROM creature_respawn WHERE guid = '%u' AND instance = '%u'", loguid, instance);
+    CharacterDatabase.PExecute("DELETE FROM creature_respawn WHERE guid = '%u' AND instance = '%u'", loguid, instance);
     if(t)
-        WorldDatabase.PExecute("INSERT INTO creature_respawn VALUES ( '%u', '" UI64FMTD "', '%u' )", loguid, uint64(t), instance);
+        CharacterDatabase.PExecute("INSERT INTO creature_respawn VALUES ( '%u', '" UI64FMTD "', '%u' )", loguid, uint64(t), instance);
 }
 
 void ObjectMgr::DeleteCreatureData(uint32 guid)
@@ -7277,9 +7366,9 @@ void ObjectMgr::DeleteCreatureData(uint32 guid)
 void ObjectMgr::SaveGORespawnTime(uint32 loguid, uint32 instance, time_t t)
 {
     mGORespawnTimes[MAKE_PAIR64(loguid,instance)] = t;
-    WorldDatabase.PExecute("DELETE FROM gameobject_respawn WHERE guid = '%u' AND instance = '%u'", loguid, instance);
+    CharacterDatabase.PExecute("DELETE FROM gameobject_respawn WHERE guid = '%u' AND instance = '%u'", loguid, instance);
     if(t)
-        WorldDatabase.PExecute("INSERT INTO gameobject_respawn VALUES ( '%u', '" UI64FMTD "', '%u' )", loguid, uint64(t), instance);
+        CharacterDatabase.PExecute("INSERT INTO gameobject_respawn VALUES ( '%u', '" UI64FMTD "', '%u' )", loguid, uint64(t), instance);
 }
 
 void ObjectMgr::DeleteRespawnTimeForInstance(uint32 instance)
@@ -7304,8 +7393,8 @@ void ObjectMgr::DeleteRespawnTimeForInstance(uint32 instance)
             mCreatureRespawnTimes.erase(itr);
     }
 
-    WorldDatabase.PExecute("DELETE FROM creature_respawn WHERE instance = '%u'", instance);
-    WorldDatabase.PExecute("DELETE FROM gameobject_respawn WHERE instance = '%u'", instance);
+    CharacterDatabase.PExecute("DELETE FROM creature_respawn WHERE instance = '%u'", instance);
+    CharacterDatabase.PExecute("DELETE FROM gameobject_respawn WHERE instance = '%u'", instance);
 }
 
 void ObjectMgr::DeleteGOData(uint32 guid)
@@ -8078,6 +8167,12 @@ bool PlayerCondition::Meets(Player const * player) const
             }
             return false;
         }
+        case CONDITION_QUEST_NONE:
+        {
+            if (!player->IsCurrentQuest(value1) && !player->GetQuestRewardStatus(value1))
+                return true;
+            return false;
+        }
         default:
             return false;
     }
@@ -8189,6 +8284,7 @@ bool PlayerCondition::IsValid(ConditionType condition, uint32 value1, uint32 val
         case CONDITION_QUESTREWARDED:
         case CONDITION_QUESTTAKEN:
         case CONDITION_QUESTAVAILABLE:
+        case CONDITION_QUEST_NONE:
         {
             Quest const *Quest = sObjectMgr.GetQuestTemplate(value1);
             if (!Quest)

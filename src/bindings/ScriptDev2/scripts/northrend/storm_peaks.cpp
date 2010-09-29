@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Storm_Peaks
 SD%Complete: 100
-SDComment: Vendor Support (31247). Quest support: 12970, 12684, 12843
+SDComment: Vendor Support (31247). Quest support: 12970, 12684, 12843, 12998.
 SDCategory: Storm Peaks
 EndScriptData */
 
@@ -28,6 +28,8 @@ mob_lightning_forge_credit
 npc_loklira_the_crone
 npc_roxi_ramrocket
 npc_frostborn_scout
+go_heart_of_the_storm
+npc_overseer_narvir
 EndContentData */
 
 #include "precompiled.h"
@@ -489,6 +491,95 @@ bool GOHello_go_rusty_cage(Player* pPlayer, GameObject* pGo)
     return false;
 };
 
+/*#####
+## go_heart_of_the_storm
+#####*/
+
+enum
+{
+    QUEST_HEART_OF_THE_STORM    = 12998,
+    SPELL_STORMS_FURY           = 56485,
+    NPC_OVERSEER_NARVIR         = 30299,
+    DESPAWN_TIMER               = 30000,
+    SAY_NARVIR1                 = -1532116,
+    SAY_NARVIR2                 = -1532117
+};
+
+bool GOHello_go_heart_of_the_storm(Player* pPlayer, GameObject* pGo)
+{
+    Creature* pNarvir = GetClosestCreatureWithEntry(pPlayer, NPC_OVERSEER_NARVIR, 25.0f);
+    if (pNarvir)
+        return true;
+
+    if (pPlayer->GetQuestStatus(QUEST_HEART_OF_THE_STORM) == QUEST_STATUS_INCOMPLETE)
+    {
+        if (Creature* pNarvir = pPlayer->SummonCreature(NPC_OVERSEER_NARVIR, 7315.48f, -711.069f, 791.611f, 4.65591f, TEMPSUMMON_TIMED_DESPAWN, DESPAWN_TIMER) )
+		
+        {
+            pNarvir->CastSpell(pPlayer, SPELL_STORMS_FURY, false);
+			pGo->DestroyForPlayer(pPlayer, false);
+            pPlayer->KilledMonsterCredit(NPC_OVERSEER_NARVIR, pNarvir->GetGUID() );
+        }
+    }
+    return true;
+};
+
+struct MANGOS_DLL_DECL npc_overseer_narvir : public ScriptedAI
+{
+    npc_overseer_narvir(Creature*pCreature) : ScriptedAI(pCreature) { Reset();}
+
+    bool MovementStarted;
+    uint32 uiTimer;
+    uint32 uiPhase;
+
+
+    void Reset () 
+    {
+    uiTimer = 1000;
+    uiPhase = 0;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (uiTimer<= uiDiff)
+        {
+
+            switch(uiPhase)
+            {
+            case 0: m_creature->GetMotionMaster()->MovePoint(1, 7314.01f, -727.78f, 791.611f);
+                  uiTimer = 3000;
+                  uiPhase++;
+                  break;
+            case 1: DoScriptText(SAY_NARVIR1, m_creature);
+                uiTimer = 6000;
+                uiPhase++;
+                break;
+            case 2: DoScriptText(SAY_NARVIR2, m_creature);
+                uiTimer = 4000;
+                uiPhase++;
+                break;
+            case 3: m_creature->ForcedDespawn(1000);
+                uiTimer = 0;
+                uiPhase++;
+                break;
+            }
+        }
+        else uiTimer -= uiDiff;
+    }
+
+    void MovementInform(uint32 type, uint32 id)
+    {
+        if (type != POINT_MOTION_TYPE || !MovementStarted) 
+            return;
+    }
+};
+
+CreatureAI* GetAI_npc_overseer_narvir(Creature* pCreature)
+{
+    return new npc_overseer_narvir (pCreature);
+}
+
+
 void AddSC_storm_peaks()
 {
     Script* newscript;
@@ -533,5 +624,15 @@ void AddSC_storm_peaks()
     newscript->Name = "npc_roxi_ramrocket";
     newscript->pGossipHello = &GossipHello_npc_roxi_ramrocket;
     newscript->pGossipSelect = &GossipSelect_npc_roxi_ramrocket;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_heart_of_the_storm";
+    newscript->pGOHello = &GOHello_go_heart_of_the_storm;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "npc_overseer_narvir";
+    newscript->GetAI = &GetAI_npc_overseer_narvir;
     newscript->RegisterSelf();
 }

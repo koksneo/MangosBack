@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Borean_Tundra
 SD%Complete: 100
-SDComment: Quest support: 11708, 11692, 11961, 11876, 11590, 11676, 11940, 11919. Taxi vendors. 11570
+SDComment: Quest support: 11708, 11692, 11961, 11876, 11590, 11676, 11940, 11919, 12998. Taxi vendors. 11570
 SDCategory: Borean Tundra
 EndScriptData */
 
@@ -34,6 +34,8 @@ go_mammoth_trap
 npc_beryl_sorcerer
 go_scourge_cage
 npc_nexus_drake
+go_heart_of_the_storm
+npc_overseer_narvir
 EndContentData */
 
 #include "precompiled.h"
@@ -1140,6 +1142,94 @@ CreatureAI* GetAI_npc_nexus_drake(Creature* pCreature)
     return new npc_nexus_drakeAI(pCreature);
 }
 
+/*#####
+## go_heart_of_the_storm
+#####*/
+
+enum
+{
+    QUEST_HEART_OF_THE_STORM = 12998,
+	SPELL_STORMS_FURY        = 56485,
+	NPC_OVERSEER_NARVIR      = 30299,
+    DESPAWN_TIMER            = 30000,
+	SAY_NARVIR1              = -1532116,
+	SAY_NARVIR2              = -1532117
+};
+
+bool GOHello_go_heart_of_the_storm(Player* pPlayer, GameObject* pGo)
+{
+    Creature* pNarvir = GetClosestCreatureWithEntry(pPlayer, NPC_OVERSEER_NARVIR, 25.0f);
+    if (pNarvir)
+        return true;
+
+    if (pPlayer->GetQuestStatus(QUEST_HEART_OF_THE_STORM) == QUEST_STATUS_INCOMPLETE)
+    {
+        if (Creature* pNarvir = pPlayer->SummonCreature(NPC_OVERSEER_NARVIR, 7315.48f, -711.069f, 791.611f, 4.65591f, TEMPSUMMON_TIMED_DESPAWN, DESPAWN_TIMER) )
+		
+        {
+            pNarvir->CastSpell(pPlayer, SPELL_STORMS_FURY, false);
+			pGo->DestroyForPlayer(pPlayer, false);
+            pPlayer->KilledMonsterCredit(NPC_OVERSEER_NARVIR, pNarvir->GetGUID() );
+        }
+    }
+    return true;
+};
+
+struct MANGOS_DLL_DECL npc_overseer_narvir : public ScriptedAI
+{
+    npc_overseer_narvir(Creature*pCreature) : ScriptedAI(pCreature) { Reset();}
+
+    bool MovementStarted;
+    uint32 uiTimer;
+    uint32 uiPhase;
+
+
+    void Reset () 
+    {
+    uiTimer = 1000;
+    uiPhase = 0;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (uiTimer<= uiDiff)
+        {
+
+            switch(uiPhase)
+            {
+            case 0: m_creature->GetMotionMaster()->MovePoint(1, 7314.01f, -727.78f, 791.611f);
+                  uiTimer = 3000;
+                  uiPhase++;
+                  break;
+            case 1: DoScriptText(SAY_NARVIR1, m_creature);
+                uiTimer = 6000;
+                uiPhase++;
+                break;
+            case 2: DoScriptText(SAY_NARVIR2, m_creature);
+                uiTimer = 4000;
+                uiPhase++;
+                break;
+            case 3: m_creature->ForcedDespawn(1000);
+                uiTimer = 0;
+                uiPhase++;
+                break;
+            }
+        }
+        else uiTimer -= uiDiff;
+    }
+
+    void MovementInform(uint32 type, uint32 id)
+    {
+        if (type != POINT_MOTION_TYPE || !MovementStarted) 
+            return;
+    }
+};
+
+CreatureAI* GetAI_npc_overseer_narvir(Creature* pCreature)
+{
+    return new npc_overseer_narvir (pCreature);
+}
+
 
 void AddSC_borean_tundra()
 {
@@ -1224,5 +1314,15 @@ void AddSC_borean_tundra()
     newscript = new Script;
     newscript->Name = "npc_nexus_drake";
     newscript->GetAI = &GetAI_npc_nexus_drake;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_heart_of_the_storm";
+    newscript->pGOHello = &GOHello_go_heart_of_the_storm;
+    newscript->RegisterSelf();
+    
+    newscript = new Script;
+    newscript->Name = "npc_overseer_narvir";
+    newscript->GetAI = &GetAI_npc_overseer_narvir;
     newscript->RegisterSelf();
 }

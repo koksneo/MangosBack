@@ -363,6 +363,12 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damage = unitTarget->GetMaxHealth() / 2;
                         break;
                     }
+                    // Gargoyle Strike
+                    case 51963:
+                    {
+                        damage += m_caster->GetTotalAttackPowerValue(BASE_ATTACK);
+                        break;
+                    }
                     // Tympanic Tantrum
                     case 62775:
                     {
@@ -1322,6 +1328,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     return;
                 }
                 case 45692:                                 // Use Tuskarr Torch (for Quest: Burn in Effigy)
+                case 46171:                                 // Scuttle Wrecked Flying Machine (FOR Quest: Emergency Protocol: Section 8.2, Paragraph D)
                 {
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
@@ -2658,6 +2665,31 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
 
                 // consume diseases
                 unitTarget->RemoveAurasWithDispelType(DISPEL_DISEASE, m_caster->GetGUID());
+            }
+			// Corpse Explosion. Execute for Effect1 only
+            else if (m_spellInfo->SpellIconID == 1737 && eff_idx == EFFECT_INDEX_1)
+            {
+                if (!unitTarget)
+                    return;
+
+                // casting on a ghoul-pet makes it explode! :D
+                // target validation is done in Spell:SetTargetMap
+                if (unitTarget->GetEntry() == 26125 && unitTarget->isAlive() )
+                {
+                    int32 bp0 = int32(unitTarget->GetMaxHealth() * 0.25); // AoE dmg
+                    int32 bp1 = int32(unitTarget->GetHealth() );          // self damage
+                    unitTarget->InterruptNonMeleeSpells(false);
+                    unitTarget->CastCustomSpell(unitTarget, 47496, &bp0, &bp1, 0, false);
+                }
+                else
+                {
+                    int32 damage = m_spellInfo->CalculateSimpleValue(SpellEffectIndex(EFFECT_INDEX_0));
+                    uint32 spell = m_spellInfo->CalculateSimpleValue(EFFECT_INDEX_1);
+
+
+                    m_caster->CastSpell(unitTarget, 51270, true);   // change modelId (is this generic spell for this kind of spells?)
+                    m_caster->CastCustomSpell(unitTarget, spell, &damage, NULL, NULL, true);
+                }
             }
             break;
         }
@@ -4682,8 +4714,13 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
         if (duration > 0)
             spawnCreature->SetDuration(duration);
 
+        // Risen Ghoul and Army of the Dead Ghoul
+        if (spawnCreature->GetEntry() == 26125 || spawnCreature->GetEntry() == 24207)
+            spawnCreature->setPowerType(POWER_ENERGY);
+        else
+            spawnCreature->setPowerType(POWER_MANA);
+
         spawnCreature->SetOwnerGUID(m_caster->GetGUID());
-        spawnCreature->setPowerType(POWER_MANA);
         spawnCreature->SetUInt32Value(UNIT_NPC_FLAGS, spawnCreature->GetCreatureInfo()->npcflag);
         spawnCreature->setFaction(forceFaction ? forceFaction : m_caster->getFaction());
         spawnCreature->SetUInt32Value(UNIT_FIELD_FLAGS, 0);
@@ -6264,6 +6301,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     unitTarget->CastSpell(unitTarget, 54522, true);
                     break;
+                }
+                case 52479:                                 // Gift of the Harvester
+                {
+                    if (!unitTarget || !m_caster)
+                        return;
+
+                    // FIXME: chance is based on player's comments, the real chance may be stored somewhere in dbc
+                    m_caster->CastSpell(unitTarget, roll_chance_i(40) ? uint32(m_spellInfo->CalculateSimpleValue(eff_idx)) : 52505, true);
+                    return;
                 }
                 case 52694:                                 // Recall Eye of Acherus
                 {

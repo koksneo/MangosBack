@@ -6,7 +6,7 @@ UPDATE creature_template SET AIName='EventAI' WHERE entry=18428;
 
 DELETE FROM creature_ai_scripts WHERE creature_id=18428;
 INSERT INTO creature_ai_scripts VALUES
-(1842801,18428,10,0,100,1,1,10,25000,45000,1,-184281,-184282,-184283,0,0,0,0,0,0,0,0,'Mag\'har Prisoner - Say');
+(1842801,18428,10,0,100,1,1,5,15000,15000,1,-184281,-184282,-184283,0,0,0,0,0,0,0,0,'Mag\'har Prisoner - Say');
 
 DELETE FROM creature_ai_texts WHERE entry IN (-184281,-184282,-184283);
 INSERT INTO creature_ai_texts (entry,content_default,type,comment) VALUES

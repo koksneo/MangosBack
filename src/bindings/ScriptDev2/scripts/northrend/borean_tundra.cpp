@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Borean_Tundra
 SD%Complete: 100
-SDComment: Quest support: 11708, 11692, 11961. Taxi vendors. 11570
+SDComment: Quest support: 11708, 11692, 11961, 11876, 11590, 11676, 11940, 11919. Taxi vendors. 11570
 SDCategory: Borean Tundra
 EndScriptData */
 
@@ -30,11 +30,16 @@ mob_overseer
 npc_surristrasz
 npc_tiare
 npc_lurgglbr
+go_mammoth_trap
+npc_beryl_sorcerer
+go_scourge_cage
+npc_nexus_drake
 EndContentData */
 
 #include "precompiled.h"
 #include "ObjectMgr.h"
 #include "escort_ai.h"
+#include "follower_ai.h"
 
 /*######
 ## mob_elder
@@ -895,6 +900,244 @@ CreatureAI* GetAI_npc_lurgglbr(Creature* pCreature)
 {
     return new npc_lurgglbrAI(pCreature);
 }
+
+/*#####
+## go_mammoth_trap
+#####*/
+
+enum
+{
+    QUEST_HELP_THOSE_THAT    =  11876,
+    NPC_TRAPPED_MAMMOTH      =  25850,
+    SPELL_DESPAWN_SELF       =  43014
+};
+
+bool GOHello_go_mammoth_trap(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestStatus(QUEST_HELP_THOSE_THAT) == QUEST_STATUS_INCOMPLETE)
+    {
+        Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_TRAPPED_MAMMOTH, INTERACTION_DISTANCE);
+        if(pCreature)
+        {
+            pPlayer->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH, pCreature->GetGUID());
+            pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, false);
+        }
+    }
+    return false;
+};
+
+/*######
+## npc_beryl_sorcerer
+######*/
+
+enum eBerylSorcerer
+{
+    NPC_CAPTURED_BERLY_SORCERER         = 25474,
+    NPC_LIBRARIAN_DONATHAN              = 25262,
+
+    SPELL_ARCANE_CHAINS                 = 45611,
+    SPELL_COSMETIC_CHAINS               = 54324,
+    SPELL_COSMETIC_ENSLAVE_CHAINS_SELF  = 45631
+};
+
+struct MANGOS_DLL_DECL npc_beryl_sorcererAI : public FollowerAI
+{
+    npc_beryl_sorcererAI(Creature* pCreature) : FollowerAI(pCreature) { 
+        Reset(); 
+        m_uiNormalFaction = pCreature->getFaction();
+    }
+
+    bool bEnslaved;
+    uint64 uiChainerGUID;
+    uint32 m_uiNormalFaction;
+
+    void Reset()
+    {
+         m_creature->setFaction(m_uiNormalFaction);
+         bEnslaved = false;
+    }
+    void EnterCombat(Unit* pWho)
+    {
+            AttackStart(pWho);
+    }
+    
+    void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+    {
+        if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && !bEnslaved)
+            {
+                EnterEvadeMode(); //We make sure that the npc is not attacking the player!
+                m_creature->setFaction(35);
+                uiChainerGUID = pCaster->GetGUID();
+                if(Player *pChainer = m_creature->GetMap()->GetPlayer(uiChainerGUID))
+                {
+                StartFollow(pChainer, 35, NULL);
+                m_creature->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER);
+                DoCast(m_creature, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
+               
+                bEnslaved = true;
+                }
+            }
+    }
+
+    void MoveInLineOfSight(Unit* pWho)
+    {
+            FollowerAI::MoveInLineOfSight(pWho);
+
+            if (pWho->GetEntry() == NPC_LIBRARIAN_DONATHAN && m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+            {
+                if(Player *pChainer = m_creature->GetMap()->GetPlayer(uiChainerGUID))
+                {
+                    pChainer->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER,m_creature->GetGUID());
+                    SetFollowComplete();
+                    m_creature->ForcedDespawn(1000);
+                }
+            }
+     }
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->getVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+    }
+
+};
+
+CreatureAI* GetAI_npc_beryl_sorcerer(Creature* pCreature)
+{
+    return new npc_beryl_sorcererAI(pCreature);
+}
+
+/*#####
+## go_scourge_cage
+#####*/
+
+enum
+{
+    QUEST_MERCIFUL_FREEDOM      =  11676,
+    NPC_SCOURGE_PRISONER        =  25610,
+};
+
+bool GOHello_go_scourge_cage(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestStatus(QUEST_MERCIFUL_FREEDOM) == QUEST_STATUS_INCOMPLETE)
+    {
+        Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_SCOURGE_PRISONER, INTERACTION_DISTANCE);
+        if(pCreature)
+        {
+            pPlayer->KilledMonsterCredit(NPC_SCOURGE_PRISONER, pCreature->GetGUID());
+            pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, false);
+        }
+    }
+    return false;
+};
+
+/*######
+## npc_nexus_drake_hatchling
+######*/
+
+enum
+{
+    SPELL_DRAKE_HARPOON             = 46607,
+    SPELL_RED_DRAGONBLOOD           = 46620,
+    SPELL_DRAKE_HATCHLING_SUBDUED   = 46691,
+    SPELL_SUBDUED                   = 46675,
+
+    NPC_RAELORASZ                   = 26117,
+    DRAKE_HUNT_KILL_CREDIT          = 26175,
+
+    QUEST_DRAKE_HUNT                = 11919,
+    QUEST_DRAKE_HUNT_D              = 11940
+
+};
+
+struct MANGOS_DLL_DECL npc_nexus_drakeAI : public FollowerAI
+{
+    npc_nexus_drakeAI(Creature* pCreature) : FollowerAI(pCreature) { Reset(); }
+    
+     uint64 uiHarpoonerGUID;
+     bool bWithRedDragonBlood;
+     bool bIsFollowing;
+
+     void Reset()
+     {
+         bWithRedDragonBlood = false;
+         bIsFollowing = false;
+     }
+
+     void EnterCombat(Unit* pWho)
+     {
+         AttackStart(pWho);
+     }
+     
+     void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+     {
+            if (pSpell->Id == SPELL_DRAKE_HARPOON && pCaster->GetTypeId() == TYPEID_PLAYER)
+            {
+                uiHarpoonerGUID = pCaster->GetGUID();
+                DoCast(m_creature, SPELL_RED_DRAGONBLOOD, true);
+            }
+            m_creature->Attack(pCaster,true);
+            bWithRedDragonBlood = true;
+     }
+
+     void MoveInLineOfSight(Unit *pWho)
+     {
+         FollowerAI::MoveInLineOfSight(pWho);
+
+
+         if (pWho->GetEntry() == NPC_RAELORASZ && m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+         {
+           if (Player *pHarpooner = m_creature->GetMap()->GetPlayer(uiHarpoonerGUID))
+                 {
+                    
+                     pHarpooner->KilledMonsterCredit(DRAKE_HUNT_KILL_CREDIT,m_creature->GetGUID());
+                     pHarpooner->RemoveAurasByCasterSpell(SPELL_DRAKE_HATCHLING_SUBDUED,uiHarpoonerGUID);
+                     SetFollowComplete();
+                     uiHarpoonerGUID = 0;
+                     m_creature->ForcedDespawn(1000);
+                 }
+              
+          }
+      }
+     
+     void UpdateAI(const uint32 uidiff)
+        {
+            if (bWithRedDragonBlood && uiHarpoonerGUID && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD))
+            {
+                if (Player *pHarpooner = m_creature->GetMap()->GetPlayer(uiHarpoonerGUID))
+                {
+                    EnterEvadeMode();
+                    StartFollow(pHarpooner, 35, NULL);
+
+                    DoCast(m_creature, SPELL_SUBDUED, true);
+                    pHarpooner->CastSpell(pHarpooner, SPELL_DRAKE_HATCHLING_SUBDUED, true);
+
+                    m_creature->AttackStop();
+                    bIsFollowing = true;
+                    bWithRedDragonBlood = false;
+                }
+            }
+            if(bIsFollowing && !m_creature->HasAura(SPELL_SUBDUED))
+            {
+                m_creature->ForcedDespawn(1000);
+            }
+
+            if (!m_creature->getVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+};
+
+
+
+CreatureAI* GetAI_npc_nexus_drake(Creature* pCreature)
+{
+    return new npc_nexus_drakeAI(pCreature);
+}
+
+
 void AddSC_borean_tundra()
 {
     Script *newscript;
@@ -958,5 +1201,25 @@ void AddSC_borean_tundra()
     newscript->Name = "npc_lurgglbr";
     newscript->GetAI = &GetAI_npc_lurgglbr;
     newscript->pQuestAccept = &QuestAccept_npc_lurgglbr;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_mammoth_trap";
+    newscript->pGOHello = &GOHello_go_mammoth_trap;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_beryl_sorcerer";
+    newscript->GetAI = &GetAI_npc_beryl_sorcerer;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_scourge_cage";
+    newscript->pGOHello = &GOHello_go_scourge_cage;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_nexus_drake";
+    newscript->GetAI = &GetAI_npc_nexus_drake;
     newscript->RegisterSelf();
 }

@@ -7,7 +7,7 @@ UPDATE creature_template SET gossip_menu_id=entry, ScriptName='' WHERE entry=237
 -- Missing text for gossip menu
 DELETE FROM gossip_menu WHERE entry=23704;
 INSERT INTO gossip_menu (entry,text_id) VALUES
-(23704,0);
+(23704,1);
 
 DELETE FROM gossip_menu_option WHERE menu_id=23704;
 INSERT INTO gossip_menu_option (menu_id,id,option_icon,option_text,option_id,npc_option_npcflag,action_menu_id,action_script_id,cond_1,cond_1_val_1,cond_1_val_2) VALUES

@@ -486,6 +486,13 @@ Unit *caster, Item* castItem) : Aura(spellproto, eff, currentBasePoints, holder,
                 m_modifier.m_auraname = SPELL_AURA_NONE;
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_FRIEND:
+            // Might of Mograine - target Mograine and players only
+            // FIXME: spellVisual is still visible (the flags)
+            if (spellproto->Id == 53642)
+                if (target->GetTypeId() != TYPEID_PLAYER)
+                    if (target->GetEntry() != 29173)
+                        m_modifier.m_auraname = SPELL_AURA_NONE;
+
             m_areaAuraType = AREA_AURA_FRIEND;
             break;
         case SPELL_EFFECT_APPLY_AREA_AURA_ENEMY:
@@ -4781,6 +4788,22 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
             if (apply && !loading && caster)
                 m_modifier.m_amount += int32(caster->GetTotalAttackPowerValue(RANGED_ATTACK) * 14 / 100);
             break;
+        }
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            Unit* pCaster = GetCaster();
+
+            if (apply)
+            {
+                // Summon Gargoyle
+                if (GetId() == 49206)
+                {
+                    if (pCaster)
+                        if (Pet *pGargoyle = pCaster->FindGuardianWithEntry(GetSpellProto()->EffectMiscValue[EFFECT_INDEX_0]) )
+                            if (pGargoyle->getVictim() != target)
+                                pGargoyle->AI()->AttackStart(target);
+                }
+            }
         }
     }
 

@@ -1549,6 +1549,12 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 unMaxTargets = 2;
             break;
         }
+        case SPELLFAMILY_DEATHKNIGHT:
+        {
+            if (m_spellInfo->SpellIconID == 1737)     // Corpse Explosion
+                unMaxTargets = 1;
+            break;
+        }
         default:
             break;
     }
@@ -1871,6 +1877,53 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             else if (m_spellInfo->Effect[effIndex] == SPELL_EFFECT_SUMMON)
             {
                 targetUnitMap.push_back(m_caster);
+                break;
+            }
+
+            //Corpse Explosion
+            if (m_spellInfo->SpellFamilyName == SPELLFAMILY_DEATHKNIGHT && m_spellInfo->SpellIconID == 1737)
+            {
+                // check range = 30.0yd first, then radius = 10.0yd
+                float range = GetSpellMaxRange(sSpellRangeStore.LookupEntry(m_spellInfo->rangeIndex));
+                Unit *unitTarget = NULL;
+
+                targetUnitMap.remove(m_caster);
+                unitTarget = m_targets.getUnitTarget();
+
+                if (unitTarget)
+                {
+                    // Cast on corpses...
+                    if ((unitTarget->getDeathState() == CORPSE && !unitTarget->IsTaxiFlying() && !((Creature*)unitTarget)->isDeadByDefault() &&
+                        (unitTarget->GetDisplayId() == unitTarget->GetNativeDisplayId()) && m_caster->IsWithinDistInMap(unitTarget, range) &&
+                        (unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) == 0) ||
+                        // ...or own Risen Ghoul pet - self explode effect
+                        (unitTarget->GetEntry() == 26125 && unitTarget->GetCreatorGUID() == m_caster->GetGUID()) )
+                    {
+                        targetUnitMap.push_back(unitTarget);
+                        break;
+                    }
+                }
+
+                // target is not valid, search for a corpse in 10yd radius
+                {
+                    MaNGOS::ExplodeCorpseObjectCheck u_check(m_caster, radius);
+                    MaNGOS::UnitListSearcher<MaNGOS::ExplodeCorpseObjectCheck> searcher(m_caster, targetUnitMap, u_check);
+                    Cell::VisitAllObjects(m_caster, searcher, radius);
+                }
+
+                if (targetUnitMap.empty() )
+                {
+                    // no valid targets, clear cooldown at fail
+                    if (m_caster->GetTypeId() == TYPEID_PLAYER)
+                        ((Player*)m_caster)->RemoveSpellCooldown(m_spellInfo->Id, true);
+                    SendCastResult(SPELL_FAILED_NO_VALID_TARGETS);
+                    finish(false);
+                    break;
+                }
+
+                // OK, we have all possible targets, let's sort them by distance from m_caster and keep the closest one
+                targetUnitMap.sort(TargetDistanceOrder(m_caster) );
+                targetUnitMap.resize(unMaxTargets);
                 break;
             }
 

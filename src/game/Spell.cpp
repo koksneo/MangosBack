@@ -1849,7 +1849,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             {
                 if (!targetUnitMap.empty() )
                 {
-                    for (UnitList::const_iterator iter = targetUnitMap.begin(); iter != targetUnitMap.end(); ++iter)
+                    for (UnitList::iterator iter = targetUnitMap.begin(); iter != targetUnitMap.end(); ++iter)
                     {
                         if ((*iter)->GetTypeId() == TYPEID_PLAYER)
                         {
@@ -1913,11 +1913,11 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                         break;
                     }
                 }
-
+                
                 // target is not valid, search for a corpse in 10yd radius
                 {
                     MaNGOS::ExplodeCorpseObjectCheck u_check(m_caster, radius);
-                    MaNGOS::UnitListSearcher<MaNGOS::ExplodeCorpseObjectCheck> searcher(m_caster, targetUnitMap, u_check);
+                    MaNGOS::UnitListSearcher<MaNGOS::ExplodeCorpseObjectCheck> searcher(targetUnitMap, u_check);
                     Cell::VisitAllObjects(m_caster, searcher, radius);
                 }
 

@@ -1177,8 +1177,7 @@ struct MANGOS_DLL_DECL npc_eye_of_acherusAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE && uiPointId == 0)
             return;
 
-            char * text = "The Eye of Acherus is in your control";
-            m_creature->MonsterTextEmote(text, m_creature->GetGUID(), true);
+            m_creature->MonsterTextEmote("The Eye of Acherus is in your control", m_creature->GetGUID(), true);
             m_creature->CastSpell(m_creature, 51890, true);
     }
 
@@ -3648,8 +3647,6 @@ struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
     {
         m_uiWaitForThrowTimer   = 3000;
         m_bWaitForThrow         = false;
-        pTarget                 = NULL;
-        m_uiTargetGUID          = 0;
         m_uiHarvesterGUID       = 0;
     }
 

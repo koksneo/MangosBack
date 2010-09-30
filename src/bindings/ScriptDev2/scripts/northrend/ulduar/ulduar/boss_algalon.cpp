@@ -15,17 +15,10 @@
  */
 
 /* ScriptData
-SDName: Molten_Core
-SD%Complete:
+SDName: boss_algalon
+SD%Complete: 0%
 SDComment:
-SDCategory: Molten Core
+SDCategory: Ulduar
 EndScriptData */
 
-/* ContentData
-EndContentData */
-
 #include "precompiled.h"
-
-void AddSC_molten_core()
-{
-}

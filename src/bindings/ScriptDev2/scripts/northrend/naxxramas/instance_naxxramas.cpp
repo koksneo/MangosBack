@@ -307,7 +307,7 @@ void instance_naxxramas::ActivateAreaFissures(ChamberArea AreaNo)
         float radius = 4.0f;
         Player* pPlayer = NULL;
         MaNGOS::AnyPlayerInObjectRangeCheck p_check(pFissure, radius);
-        MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck>  checker(pFissure, pPlayer , p_check);
+        MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck>  checker(pPlayer , p_check);
         Cell::VisitAllObjects(pFissure, checker, radius);
 
         if (pPlayer)

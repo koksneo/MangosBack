@@ -213,7 +213,6 @@
     <ClCompile Include="..\base\escort_ai.cpp" />
     <ClCompile Include="..\base\follower_ai.cpp" />
     <ClCompile Include="..\base\guard_ai.cpp" />
-    <ClCompile Include="..\base\simple_ai.cpp" />
     <ClCompile Include="..\scripts\battlegrounds\battleground.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\alterac_mountains.cpp" />
     <ClCompile Include="..\scripts\eastern_kingdoms\arathi_highlands.cpp" />
@@ -538,7 +537,22 @@
     <ClCompile Include="..\scripts\northrend\ulduar\halls_of_stone\boss_sjonnir.cpp" />
     <ClCompile Include="..\scripts\northrend\ulduar\halls_of_stone\halls_of_stone.cpp" />
     <ClCompile Include="..\scripts\northrend\ulduar\halls_of_stone\instance_halls_of_stone.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\assembly_of_iron.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_algalon.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_auriaya.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_flame_leviathan.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_freya.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_general_vezax.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_hodir.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_ignis.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_kologarn.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_mimiron.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_razorscale.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_thorim.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_xt_002.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\boss_yogg_saron.cpp" />
     <ClCompile Include="..\scripts\northrend\ulduar\ulduar\instance_ulduar.cpp" />
+    <ClCompile Include="..\scripts\northrend\ulduar\ulduar\ulduar.cpp" />
     <ClCompile Include="..\scripts\northrend\utgarde_keep\utgarde_keep\boss_ingvar.cpp" />
     <ClCompile Include="..\scripts\northrend\utgarde_keep\utgarde_keep\boss_keleseth.cpp" />
     <ClCompile Include="..\scripts\northrend\utgarde_keep\utgarde_keep\boss_skarvald_and_dalronn.cpp" />
@@ -561,7 +575,7 @@
     <ClCompile Include="..\scripts\northrend\icecrown_citadel\icecrown_citadel\boss_festergut.cpp" />
     <ClCompile Include="..\scripts\northrend\icecrown_citadel\icecrown_citadel\boss_lady_deathwhisper.cpp" />
     <ClCompile Include="..\scripts\northrend\icecrown_citadel\icecrown_citadel\boss_lord_marrowgar.cpp" />
-    <ClCompile Include="..\scripts\northrend\icecrown_citadel\icecrown_citadel\boss_proffesor_putricide.cpp" />
+    <ClCompile Include="..\scripts\northrend\icecrown_citadel\icecrown_citadel\boss_professor_putricide.cpp" />
     <ClCompile Include="..\scripts\northrend\icecrown_citadel\icecrown_citadel\boss_rotface.cpp" />
     <ClCompile Include="..\scripts\northrend\icecrown_citadel\icecrown_citadel\boss_sindragosa.cpp" />
     <ClCompile Include="..\scripts\northrend\icecrown_citadel\icecrown_citadel\boss_the_lich_king.cpp" />
@@ -575,6 +589,7 @@
     <ClCompile Include="..\scripts\northrend\icecrown_citadel\frozen_halls\halls_of_reflection\boss_marwyn.cpp" />
     <ClCompile Include="..\scripts\northrend\icecrown_citadel\frozen_halls\forge_of_souls\boss_bronjahm.cpp" />
     <ClCompile Include="..\scripts\northrend\icecrown_citadel\frozen_halls\forge_of_souls\boss_devourer_of_souls.cpp" />
+    <ClCompile Include="..\scripts\northrend\icecrown_citadel\frozen_halls\forge_of_souls\instance_forge_of_souls.cpp" />
     <ClCompile Include="..\scripts\outland\blades_edge_mountains.cpp" />
     <ClCompile Include="..\scripts\outland\boss_doomlord_kazzak.cpp" />
     <ClCompile Include="..\scripts\outland\boss_doomwalker.cpp" />
@@ -686,7 +701,6 @@
     <ClInclude Include="..\base\escort_ai.h" />
     <ClInclude Include="..\base\follower_ai.h" />
     <ClInclude Include="..\base\guard_ai.h" />
-    <ClInclude Include="..\base\simple_ai.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\blackrock_depths\blackrock_depths.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\blackrock_spire\blackrock_spire.h" />
     <ClInclude Include="..\scripts\eastern_kingdoms\deadmines\deadmines.h" />
@@ -719,6 +733,7 @@
     <ClInclude Include="..\scripts\northrend\azjol-nerub\azjol-nerub\azjol-nerub.h" />
     <ClInclude Include="..\scripts\northrend\crusaders_coliseum\trial_of_the_crusader\trial_of_the_crusader.h" />
     <ClInclude Include="..\scripts\northrend\gundrak\gundrak.h" />
+    <ClInclude Include="..\scripts\northrend\icecrown_citadel\frozen_halls\forge_of_souls\forge_of_souls.h" />
     <ClInclude Include="..\scripts\northrend\draktharon_keep\instance_draktharon_keep.h" />
     <ClInclude Include="..\scripts\northrend\naxxramas\naxxramas.h" />
     <ClInclude Include="..\scripts\northrend\nexus\nexus\nexus.h" />

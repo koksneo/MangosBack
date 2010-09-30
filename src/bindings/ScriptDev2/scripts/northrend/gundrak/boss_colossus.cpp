@@ -81,7 +81,7 @@ struct MANGOS_DLL_DECL boss_colossusAI : public ScriptedAI
         if (m_pInstance)
             m_pInstance->SetData(TYPE_COLOSSUS, DONE);
     }
-    
+
     void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
     {
         if (pSpell->Id == SPELL_MERGE)
@@ -100,7 +100,6 @@ struct MANGOS_DLL_DECL boss_colossusAI : public ScriptedAI
 
     void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
     {
-        
         if (!m_bFirstEmerge && m_creature->GetHealthPercent() < 50.0f)
         {
             m_bFirstEmerge = true;
@@ -130,7 +129,7 @@ struct MANGOS_DLL_DECL boss_colossusAI : public ScriptedAI
         }
         else
             m_uiMightyBlowTimer -= uiDiff;
-        
+
         DoMeleeAttackIfReady();
     }
 };

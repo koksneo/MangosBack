@@ -15,10 +15,10 @@
  */
 
 /* ScriptData
-SDName: boss_proffesor_putricide
+SDName: boss_kologarn
 SD%Complete: 0%
 SDComment:
-SDCategory: Icecrown Citadel
+SDCategory: Ulduar
 EndScriptData */
 
 #include "precompiled.h"

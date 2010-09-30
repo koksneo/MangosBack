@@ -15,17 +15,10 @@
  */
 
 /* ScriptData
-SDName: Molten_Core
-SD%Complete:
+SDName: boss_professor_putricide
+SD%Complete: 0%
 SDComment:
-SDCategory: Molten Core
+SDCategory: Icecrown Citadel
 EndScriptData */
 
-/* ContentData
-EndContentData */
-
 #include "precompiled.h"
-
-void AddSC_molten_core()
-{
-}

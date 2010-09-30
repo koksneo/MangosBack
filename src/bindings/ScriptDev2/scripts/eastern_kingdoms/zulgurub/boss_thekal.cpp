@@ -115,6 +115,30 @@ struct MANGOS_DLL_DECL boss_thekalAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
+        if (!PhaseTwo && MortalCleave_Timer < diff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_MORTALCLEAVE);
+            MortalCleave_Timer = urand(15000, 20000);
+        }else MortalCleave_Timer -= diff;
+
+        if (!PhaseTwo && Silence_Timer < diff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_SILENCE);
+            Silence_Timer = urand(20000, 25000);
+        }else Silence_Timer -= diff;
+
+        if (!PhaseTwo && !WasDead && m_creature->GetHealthPercent() < 5.0f)
+        {
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
+            m_creature->AttackStop();
+
+            if (m_pInstance)
+                m_pInstance->SetData(TYPE_THEKAL, SPECIAL);
+
+            WasDead = true;
+        }
+
         //Check_Timer for the death of LorKhan and Zath.
         if (!WasDead && Check_Timer < diff)
         {
@@ -148,32 +172,12 @@ struct MANGOS_DLL_DECL boss_thekalAI : public ScriptedAI
                     }
                 }
             }
-            Check_Timer = 5000;
-        }else Check_Timer -= diff;
-
-        if (!PhaseTwo && MortalCleave_Timer < diff)
-        {
-            DoCastSpellIfCan(m_creature->getVictim(),SPELL_MORTALCLEAVE);
-            MortalCleave_Timer = urand(15000, 20000);
-        }else MortalCleave_Timer -= diff;
-
-        if (!PhaseTwo && Silence_Timer < diff)
-        {
-            DoCastSpellIfCan(m_creature->getVictim(),SPELL_SILENCE);
-            Silence_Timer = urand(20000, 25000);
-        }else Silence_Timer -= diff;
-
-        if (!PhaseTwo && !WasDead && m_creature->GetHealthPercent() < 5.0f)
-        {
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-            m_creature->SetStandState(UNIT_STAND_STATE_SLEEP);
-            m_creature->AttackStop();
-
-            if (m_pInstance)
-                m_pInstance->SetData(TYPE_THEKAL, SPECIAL);
-
-            WasDead = true;
-        }
+            Check_Timer = 10000;
+        } else if (m_pInstance) {
+            { 
+            if (m_pInstance->GetData(TYPE_ZATH) == SPECIAL || m_pInstance->GetData(TYPE_THEKAL) == SPECIAL) Check_Timer -= diff; 
+            } 
+        } 
 
         //Thekal will transform to Tiger if he died and was not resurrected after 10 seconds.
         if (!PhaseTwo && WasDead)
@@ -186,11 +190,22 @@ struct MANGOS_DLL_DECL boss_thekalAI : public ScriptedAI
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 m_creature->SetHealth(int(m_creature->GetMaxHealth()*1.0));
                 const CreatureInfo *cinfo = m_creature->GetCreatureInfo();
-                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 40)));
-                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 40)));
+                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, (cinfo->mindmg +((cinfo->mindmg/100) * 5)));
+                m_creature->SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, (cinfo->maxdmg +((cinfo->maxdmg/100) * 5)));
                 m_creature->UpdateDamagePhysical(BASE_ATTACK);
-                DoResetThreat();
+                DoResetThreat();         
+                // Kill Zath if exist after tiger form
+                if (Unit *pLorKhan = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_LORKHAN)))
+                {
+                    pLorKhan->DealDamage(m_creature,pLorKhan->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                }
+                //  Kill Zath  if exist after tiger form
+                if (Unit *pZath = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_ZATH)))
+                {
+                    pZath->DealDamage(m_creature,pZath->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+                }
                 PhaseTwo = true;
+
             }else Resurrect_Timer -= diff;
         }
 
@@ -357,8 +372,12 @@ struct MANGOS_DLL_DECL mob_zealot_lorkhanAI : public ScriptedAI
                 }
             }
 
-            Check_Timer = 5000;
-        }else Check_Timer -= diff;
+            Check_Timer = 10000;
+        } else if (m_pInstance) {
+            { 
+            if (m_pInstance->GetData(TYPE_ZATH) == SPECIAL || m_pInstance->GetData(TYPE_THEKAL) == SPECIAL) Check_Timer -= diff; 
+            } 
+        } 
 
         if (m_creature->GetHealthPercent() < 5.0f)
         {
@@ -489,8 +508,12 @@ struct MANGOS_DLL_DECL mob_zealot_zathAI : public ScriptedAI
                 }
             }
 
-            Check_Timer = 5000;
-        }else Check_Timer -= diff;
+            Check_Timer = 10000;
+        } else if (m_pInstance) {
+            { 
+            if (m_pInstance->GetData(TYPE_ZATH) == SPECIAL || m_pInstance->GetData(TYPE_THEKAL) == SPECIAL) Check_Timer -= diff; 
+            } 
+        } 
 
         if (m_creature->GetHealthPercent() <= 5.0f)
         {

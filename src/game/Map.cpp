@@ -3255,11 +3255,7 @@ void Map::ScriptsProcess()
 
                 break;
             }
-            default:
-                sLog.outError("Unknown SCRIPT_COMMAND_ %u called for script id %u.",step.script->command, step.script->id);
-                break;
-        }
-            /*case SCRIPT_COMMAND_SEND_MAIL:
+            case SCRIPT_COMMAND_SEND_MAIL:
             {
                 if (!target && !source)
                 {
@@ -3278,7 +3274,7 @@ void Map::ScriptsProcess()
                 if(!pReceiver)
                     break;
 
-                if(MailTemplate const *mail_template = sObjectMgr.GetMailTemplate(step.script->datalong))
+                if(MailTemplate const *mail_template = sObjectMgr.GetMailTemplate(step.script->sendMail.mail_id))
                 {
                     MailDraft draft(mail_template->title, mail_template->text);
 
@@ -3317,25 +3313,28 @@ void Map::ScriptsProcess()
                             draft.AddItem(cItem5);
                         }
 
-                    switch(step.script->datalong2)
+                    switch(step.script->sendMail.type)
                     {
                         case 3: // creature
-                            draft.SendMailTo(pReceiver, MailSender(MAIL_CREATURE, step.script->datalong3));
+                            draft.SendMailTo(pReceiver, MailSender(MAIL_CREATURE, step.script->sendMail.guidOrEntry));
                             break;
                         case 4: // object
-                            draft.SendMailTo(pReceiver, MailSender(MAIL_GAMEOBJECT, step.script->datalong3));
+                            draft.SendMailTo(pReceiver, MailSender(MAIL_GAMEOBJECT, step.script->sendMail.guidOrEntry));
                             break;
                         default:
                             break;
                     }
                 }else{
-                    sLog.outError("SCRIPT_COMMAND_SEND_MAIL (script id %u) can't find mail_template (mail_id: %u) ", step.script->id, step.script->datalong);
+                    sLog.outError("SCRIPT_COMMAND_SEND_MAIL (script id %u) can't find mail_template (mail_id: %u) ", step.script->id, step.script->sendMail.mail_id);
                     break;
                 }
 
                 break;
-            }*/
-
+            }
+            default:
+                sLog.outError("Unknown SCRIPT_COMMAND_ %u called for script id %u.",step.script->command, step.script->id);
+                break;
+        }
         m_scriptSchedule.erase(iter);
         sWorld.DecreaseScheduledScriptCount();
 

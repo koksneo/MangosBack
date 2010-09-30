@@ -84,6 +84,25 @@ pkgdata_DATA = \
 	10365_01_mangos_creature_ai_scripts.sql \
 	10381_01_mangos_creature_model_race.sql \
 	10400_01_mangos_mangos_string.sql \
+	10409_01_mangos_spell_chain.sql \
+	10409_02_mangos_spell_proc_event.sql \
+	10410_01_mangos_spell_chain.sql \
+	10411_01_mangos_spell_proc_event.sql \
+	10416_01_mangos_spell_proc_event.sql \
+	10419_01_mangos_spell_chain.sql \
+	10422_01_mangos_spell_proc_event.sql \
+	10423_01_mangos_spell_chain.sql \
+	10427_01_mangos_spell_proc_event.sql \
+	10430_01_mangos_spell_chain.sql \
+	10454_01_mangos_spell_proc_event.sql \
+	10457_01_mangos_spell_proc_event.sql \
+	10500_01_mangos_scripts.sql \
+	10503_01_characters_creature_respawn.sql \
+	10503_02_characters_gameobject_respawn.sql \
+	10503_03_mangos_creature_respawn.sql \
+	10503_04_mangos_gameobject_respawn.sql \
+	10537_01_mangos_command.sql \
+	10551_01_mangos_spell_proc_event.sql \
 	README
 
 ## Additional files to include when running 'make dist'
@@ -148,4 +167,23 @@ EXTRA_DIST = \
 	10365_01_mangos_creature_ai_scripts.sql \
 	10381_01_mangos_creature_model_race.sql \
 	10400_01_mangos_mangos_string.sql \
+	10409_01_mangos_spell_chain.sql \
+	10409_02_mangos_spell_proc_event.sql \
+	10410_01_mangos_spell_chain.sql \
+	10411_01_mangos_spell_proc_event.sql \
+	10416_01_mangos_spell_proc_event.sql \
+	10419_01_mangos_spell_chain.sql \
+	10422_01_mangos_spell_proc_event.sql \
+	10423_01_mangos_spell_chain.sql \
+	10427_01_mangos_spell_proc_event.sql \
+	10430_01_mangos_spell_chain.sql \
+	10454_01_mangos_spell_proc_event.sql \
+	10457_01_mangos_spell_proc_event.sql \
+	10500_01_mangos_scripts.sql \
+	10503_01_characters_creature_respawn.sql \
+	10503_02_characters_gameobject_respawn.sql \
+	10503_03_mangos_creature_respawn.sql \
+	10503_04_mangos_gameobject_respawn.sql \
+	10537_01_mangos_command.sql \
+	10551_01_mangos_spell_proc_event.sql \
 	README

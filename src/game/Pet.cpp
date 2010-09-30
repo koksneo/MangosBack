@@ -16,13 +16,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Common.h"
+#include "Pet.h"
 #include "Database/DatabaseEnv.h"
 #include "Log.h"
 #include "WorldPacket.h"
 #include "ObjectMgr.h"
 #include "SpellMgr.h"
-#include "Pet.h"
 #include "Formulas.h"
 #include "SpellAuras.h"
 #include "CreatureAI.h"
@@ -38,8 +37,10 @@ char const* petTypeSuffix[MAX_PET_TYPE] =
 };
 
 Pet::Pet(PetType type) :
-Creature(CREATURE_SUBTYPE_PET), m_removed(false), m_petType(type), m_happinessTimer(7500), m_duration(0), m_resetTalentsCost(0),
-m_bonusdamage(0), m_resetTalentsTime(0), m_usedTalentCount(0), m_auraUpdateMask(0), m_loading(false),
+Creature(CREATURE_SUBTYPE_PET),
+m_resetTalentsCost(0), m_resetTalentsTime(0), m_usedTalentCount(0),
+m_removed(false), m_happinessTimer(7500), m_petType(type), m_duration(0),
+m_bonusdamage(0), m_auraUpdateMask(0), m_loading(false),
 m_declinedname(NULL), m_petModeFlags(PET_MODE_DEFAULT)
 {
     m_name = "Pet";
@@ -163,7 +164,7 @@ bool Pet::LoadPetFromDB( Player* owner, uint32 petentry, uint32 petnumber, bool 
     }
 
     float px, py, pz;
-    owner->GetClosePoint(px, py, pz, GetObjectBoundingRadius(), PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+    owner->GetClosePoint(px, py, pz, GetObjectBoundingRadius(), PET_FOLLOW_DIST, PET_FOLLOW_ANGLE, this);
 
     Relocate(px, py, pz, owner->GetOrientation());
 
@@ -490,9 +491,9 @@ void Pet::Update(uint32 diff)
     {
         case CORPSE:
         {
-            if( m_deathTimer <= diff )
+            if (m_corpseDecayTimer <= diff)
             {
-                ASSERT(getPetType()!=SUMMON_PET && "Must be already removed.");
+                MANGOS_ASSERT(getPetType()!=SUMMON_PET && "Must be already removed.");
                 Remove(PET_SAVE_NOT_IN_SLOT);               //hunters' pets never get removed because of death, NEVER!
                 return;
             }
@@ -797,7 +798,7 @@ bool Pet::CreateBaseAtCreature(Creature* creature)
 bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
 {
     CreatureInfo const *cinfo = GetCreatureInfo();
-    ASSERT(cinfo);
+    MANGOS_ASSERT(cinfo);
 
     if(!owner)
     {
@@ -851,6 +852,8 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
         createResistance[SPELL_SCHOOL_ARCANE] = cinfo->resistance6;
     }
 
+    float attack_bonus = 0.0f;
+
     switch(getPetType())
     {
         case SUMMON_PET:
@@ -874,10 +877,25 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
                     case CLASS_MAGE:
                     {
                                                             //40% damage bonus of mage's frost damage
-                        float val = owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FROST) * 0.4f;
-                        if(val < 0)
-                            val = 0;
-                        SetBonusDamage( int32(val));
+                        SetBonusDamage(int32(owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_FROST) * 0.4f));
+                        break;
+                    }
+                    case CLASS_PRIEST:
+                    {
+                                                            //30% damage bonus of priest's shadow damage
+                        attack_bonus = owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_SHADOW) * 0.3f;
+                        break;
+                    }
+                    case CLASS_SHAMAN:
+                    {
+                        if (cinfo->Entry == 29264)
+                        {
+                            // 60% with Glyph of Feral Spirit or 30% without glyph
+                            float ap_gain = owner->HasAura(63271) ? 0.6f : 0.3f;
+                            uint32 attack_speed = cinfo->baseattacktime / 1000;
+                            // AP -> Damage conversion
+                            attack_bonus = owner->GetTotalAttackPowerValue(BASE_ATTACK) * ap_gain * attack_speed / 14;
+                        }
                         break;
                     }
                     default:
@@ -885,8 +903,8 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
                 }
             }
 
-            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)) );
-            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)) );
+            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)) + attack_bonus);
+            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)) + attack_bonus);
 
             //SetModifierValue(UNIT_MOD_ATTACK_POWER, BASE_VALUE, float(cinfo->attackpower));
 
@@ -959,6 +977,26 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
             break;
         }
         case GUARDIAN_PET:
+            if(owner->GetTypeId() == TYPEID_PLAYER)
+            {
+                switch(cinfo->Entry)
+                {
+                    case 1964:
+                    {
+                                                            //15% damage bonus of druid's nature damage
+                        attack_bonus = owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_NATURE) * 0.15f;
+                        break;
+                    }
+                    case 27829:
+                    {
+                                                            //40% damage bonus of dk's attack power
+                        SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK)*0.4f));
+                        break;
+                    }
+                    default:
+                        break;
+                }
+            }
             SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, 0);
             SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, 1000);
 
@@ -968,9 +1006,9 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
             // FIXME: this is wrong formula, possible each guardian pet have own damage formula
             //these formula may not be correct; however, it is designed to be close to what it should be
             //this makes dps 0.5 of pets level
-            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)));
+            SetBaseWeaponDamage(BASE_ATTACK, MINDAMAGE, float(petlevel - (petlevel / 4)) + attack_bonus);
             //damage range is then petlevel / 2
-            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)));
+            SetBaseWeaponDamage(BASE_ATTACK, MAXDAMAGE, float(petlevel + (petlevel / 4)) + attack_bonus);
             break;
         default:
             sLog.outError("Pet have incorrect type (%u) for levelup.", getPetType());
@@ -1143,7 +1181,7 @@ void Pet::_SaveSpells()
 void Pet::_LoadAuras(uint32 timediff)
 {
     RemoveAllAuras();
-    
+
     QueryResult *result = CharacterDatabase.PQuery("SELECT caster_guid,item_guid,spell,stackcount,remaincharges,basepoints0,basepoints1,basepoints2,maxduration0,maxduration1,maxduration2,remaintime0,remaintime1,remaintime2,effIndexMask FROM pet_aura WHERE guid = '%u'",m_charmInfo->GetPetNumber());
 
     if(result)
@@ -1211,7 +1249,7 @@ void Pet::_LoadAuras(uint32 timediff)
                 aura->SetLoadedState(damage[i], maxduration[i], remaintime[i]);
                 holder->AddAura(aura, SpellEffectIndex(i));
             }
-            
+
             if (!holder->IsEmptyHolder())
             {
                 holder->SetLoadedState(caster_guid, ObjectGuid(HIGHGUID_ITEM, item_lowguid), stackcount, remaincharges);
@@ -1587,9 +1625,6 @@ bool Pet::resetTalents(bool no_cost)
 
     Player *player = (Player *)owner;
 
-    uint32 level = getLevel();
-    uint32 talentPointsForLevel = GetMaxTalentPointsForLevel(level);
-
     if (m_usedTalentCount == 0)
     {
         UpdateFreeTalentPoints(false);                      // for fix if need counter
@@ -1873,6 +1908,10 @@ bool Pet::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, uint3
     if(getPetType() == MINI_PET)                            // always non-attackable
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
 
+    // Bloodworms
+    if (GetEntry() == 28017)
+        CastSpell(this, 50453, true);
+
     return true;
 }
 
@@ -1917,6 +1956,10 @@ void Pet::CastPetAuras(bool current)
         else
             CastPetAura(pa);
     }
+
+    // Feral Spirit
+    if (GetEntry() == 29264)
+        CastSpell(this, 58877, true);
 }
 
 void Pet::CastPetAura(PetAura const* aura)
@@ -1968,6 +2011,12 @@ void Pet::SynchronizeLevelWithOwner()
                 GivePetLevel(owner->getLevel());
                 SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, sObjectMgr.GetXPForPetLevel(owner->getLevel()));
                 SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, GetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP)-1);
+            }
+            else if(getLevel() < owner->getLevel() - 5) 
+            { 
+                GivePetLevel(owner->getLevel() - 5); 
+                SetUInt32Value(UNIT_FIELD_PETNEXTLEVELEXP, sObjectMgr.GetXPForPetLevel(owner->getLevel() - 5)); 
+                SetUInt32Value(UNIT_FIELD_PETEXPERIENCE, sObjectMgr.GetXPForPetLevel(owner->getLevel() - 5)); 
             }
             break;
         default:

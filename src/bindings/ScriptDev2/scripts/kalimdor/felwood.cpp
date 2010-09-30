@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Felwood
 SD%Complete: 95
-SDComment: Quest support: related to 4101/4102 (To obtain Cenarion Beacon), 4506, 7603 (Summon Pollo Grande)
+SDComment: Quest support: related to 4101/4102 (To obtain Cenarion Beacon), 4506, 7603, 7603 (Summon Pollo Grande)
 SDCategory: Felwood
 EndScriptData */
 
@@ -25,6 +25,7 @@ EndScriptData */
 npc_kitten
 npcs_riverbreeze_and_silversky
 npc_niby_the_almighty
+npc_kroshius
 EndContentData */
 
 #include "precompiled.h"
@@ -221,6 +222,7 @@ bool GossipSelect_npcs_riverbreeze_and_silversky(Player* pPlayer, Creature* pCre
 /*######
 ## npc_niby_the_almighty (summons el pollo grande)
 ######*/
+
 enum
 {
     QUEST_KROSHIUS     = 7603,
@@ -305,6 +307,7 @@ struct MANGOS_DLL_DECL npc_niby_the_almightyAI : public ScriptedAI
                         m_creature->GetMotionMaster()->MoveTargetedHome();
                         m_creature->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_QUESTGIVER);
                         m_bEventStarted = false;
+                        break;
                 }
                 ++m_uiSpeech;
             }
@@ -331,31 +334,173 @@ bool ChooseReward_npc_niby_the_almighty(Player* pPlayer, Creature* pCreature, co
     return true;
 }
 
+/*######
+## npc_kroshius
+######*/
+
+enum
+{
+    NPC_KROSHIUS            = 14467,
+    SPELL_KNOCKBACK         = 10101,
+    SAY_KROSHIUS_REVIVE     = -1000589,
+    EVENT_KROSHIUS_REVIVE   = 8328,
+    FACTION_HOSTILE         = 16,
+};
+
+struct MANGOS_DLL_DECL npc_kroshiusAI : public ScriptedAI
+{
+    npc_kroshiusAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_uiPhase = 0;
+        Reset();
+    }
+
+    uint64 m_uiPlayerGUID;
+    uint32 m_uiKnockBackTimer;
+    uint32 m_uiPhaseTimer;
+
+    uint8 m_uiPhase;
+
+    void Reset()
+    {
+        m_uiKnockBackTimer = urand(5000, 8000);
+        m_uiPlayerGUID = 0;
+
+        if (!m_uiPhase)
+        {
+            m_creature->setFaction(m_creature->GetCreatureInfo()->faction_A);
+            // TODO: Workaround? till better solution
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+            m_creature->SetStandState(UNIT_STAND_STATE_DEAD);
+        }
+    }
+
+    void DoRevive(Player* pSource)
+    {
+        if (m_uiPhase)
+            return;
+
+        m_uiPhase = 1;
+        m_uiPhaseTimer = 2500;
+        m_uiPlayerGUID = pSource->GetGUID();
+
+        // TODO: A visual Flame Circle around the mob still missing
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        m_uiPhase = 0;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_uiPhase)
+            return;
+
+        if (m_uiPhase < 4)
+        {
+            if (m_uiPhaseTimer < uiDiff)
+            {
+                switch (m_uiPhase)
+                {
+                    case 1:                                         // Revived
+                        m_creature->SetStandState(UNIT_STAND_STATE_STAND);
+                        m_uiPhaseTimer = 1000;
+                        break;
+                    case 2:
+                        DoScriptText(SAY_KROSHIUS_REVIVE, m_creature);
+                        m_uiPhaseTimer = 3500;
+                        break;
+                    case 3:                                         // Attack
+                        m_creature->setFaction(FACTION_HOSTILE);
+                        // TODO workaround will better idea
+                        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+                        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PASSIVE);
+                        if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_uiPlayerGUID))
+                        {
+                            if (m_creature->IsWithinDistInMap(pPlayer, 30.0f))
+                                AttackStart(pPlayer);
+                        }
+                        break;
+                }
+                m_uiPhase++;
+            }
+            else
+                m_uiPhaseTimer -= uiDiff;
+        }
+        else
+        {
+            if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+                return;
+
+            if (m_uiKnockBackTimer < uiDiff)
+            {
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_KNOCKBACK);
+                m_uiKnockBackTimer = urand(9000, 12000);
+            }
+            else
+                m_uiKnockBackTimer -= uiDiff;
+
+            DoMeleeAttackIfReady();
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_kroshius(Creature* pCreature)
+{
+    return new npc_kroshiusAI(pCreature);
+}
+
+bool ProcessEventId_npc_kroshius(uint32 uiEventId, Object* pSource, Object* pTarget, bool bIsStart)
+{
+    if (uiEventId == EVENT_KROSHIUS_REVIVE)
+    {
+        if (pSource->GetTypeId() == TYPEID_PLAYER)
+        {
+            if (Creature* pKroshius = GetClosestCreatureWithEntry((Player*)pSource, NPC_KROSHIUS, 20.0f))
+            {
+                if (npc_kroshiusAI* pKroshiusAI = dynamic_cast<npc_kroshiusAI*>(pKroshius->AI()))
+                    pKroshiusAI->DoRevive((Player*)pSource);
+            }
+        }
+
+        return true;
+    }
+    return false;
+}
+
 void AddSC_felwood()
 {
-    Script* newscript;
+    Script* pNewScript;
 
-    newscript = new Script;
-    newscript->Name = "npc_kitten";
-    newscript->GetAI = &GetAI_npc_kitten;
-    newscript->pEffectDummyCreature = &EffectDummyCreature_npc_kitten;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_kitten";
+    pNewScript->GetAI = &GetAI_npc_kitten;
+    pNewScript->pEffectDummyCreature = &EffectDummyCreature_npc_kitten;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_corrupt_saber";
-    newscript->pGossipHello = &GossipHello_npc_corrupt_saber;
-    newscript->pGossipSelect = &GossipSelect_npc_corrupt_saber;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_corrupt_saber";
+    pNewScript->pGossipHello = &GossipHello_npc_corrupt_saber;
+    pNewScript->pGossipSelect = &GossipSelect_npc_corrupt_saber;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npcs_riverbreeze_and_silversky";
-    newscript->pGossipHello = &GossipHello_npcs_riverbreeze_and_silversky;
-    newscript->pGossipSelect = &GossipSelect_npcs_riverbreeze_and_silversky;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npcs_riverbreeze_and_silversky";
+    pNewScript->pGossipHello = &GossipHello_npcs_riverbreeze_and_silversky;
+    pNewScript->pGossipSelect = &GossipSelect_npcs_riverbreeze_and_silversky;
+    pNewScript->RegisterSelf();
 
-    newscript = new Script;
-    newscript->Name = "npc_niby_the_almighty";
-    newscript->GetAI = &GetAI_npc_niby_the_almighty;
-    newscript->pChooseReward = &ChooseReward_npc_niby_the_almighty;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "npc_niby_the_almighty";
+    pNewScript->GetAI = &GetAI_npc_niby_the_almighty;
+    pNewScript->pChooseReward = &ChooseReward_npc_niby_the_almighty;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_kroshius";
+    pNewScript->GetAI = &GetAI_npc_kroshius;
+    pNewScript->pProcessEventId = &ProcessEventId_npc_kroshius;
+    pNewScript->RegisterSelf();
 }

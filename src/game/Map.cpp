@@ -16,6 +16,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+#include "Map.h"
 #include "MapManager.h"
 #include "Player.h"
 #include "Vehicle.h"
@@ -24,7 +25,6 @@
 #include "GridStates.h"
 #include "CellImpl.h"
 #include "InstanceData.h"
-#include "Map.h"
 #include "Mail.h"
 #include "GridNotifiersImpl.h"
 #include "Transports.h"
@@ -332,7 +332,7 @@ bool Map::EnsureGridLoaded(const Cell &cell)
     EnsureGridCreated(GridPair(cell.GridX(), cell.GridY()));
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
 
-    ASSERT(grid != NULL);
+    MANGOS_ASSERT(grid != NULL);
     if( !isGridObjectDataLoaded(cell.GridX(), cell.GridY()) )
     {
         ObjectGridLoader loader(*grid, this, cell);
@@ -382,7 +382,7 @@ template<class T>
 void
 Map::Add(T *obj)
 {
-    ASSERT(obj);
+    MANGOS_ASSERT(obj);
 
     CellPair p = MaNGOS::ComputeCellPair(obj->GetPositionX(), obj->GetPositionY());
     if(p.x_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP || p.y_coord >= TOTAL_NUMBER_OF_CELLS_PER_MAP )
@@ -400,7 +400,7 @@ Map::Add(T *obj)
         EnsureGridCreated(GridPair(cell.GridX(), cell.GridY()));
 
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-    ASSERT( grid != NULL );
+    MANGOS_ASSERT( grid != NULL );
 
     AddToGrid(obj,grid,cell);
     obj->AddToWorld();
@@ -634,7 +634,7 @@ void Map::Update(const uint32 &t_diff)
             NGridType *grid = i->getSource();
             GridInfo *info = i->getSource()->getGridInfoRef();
             ++i;                                                // The update might delete the map and we need the next map before the iterator gets invalid
-            ASSERT(grid->GetGridState() >= 0 && grid->GetGridState() < MAX_GRID_STATE);
+            MANGOS_ASSERT(grid->GetGridState() >= 0 && grid->GetGridState() < MAX_GRID_STATE);
             sMapMgr.UpdateGridState(grid->GetGridState(), *this, *grid, *info, grid->getX(), grid->getY(), t_diff);
         }
     }
@@ -681,7 +681,7 @@ void Map::Remove(Player *player, bool remove)
 
     DEBUG_FILTER_LOG(LOG_FILTER_PLAYER_MOVES, "Remove player %s from grid[%u,%u]", player->GetName(), cell.GridX(), cell.GridY());
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-    ASSERT(grid != NULL);
+    MANGOS_ASSERT(grid != NULL);
 
     RemoveFromGrid(player,grid,cell);
 
@@ -710,7 +710,7 @@ Map::Remove(T *obj, bool remove)
 
     DEBUG_LOG("Remove object (GUID: %u TypeId:%u) from grid[%u,%u]", obj->GetGUIDLow(), obj->GetTypeId(), cell.data.Part.grid_x, cell.data.Part.grid_y);
     NGridType *grid = getNGrid(cell.GridX(), cell.GridY());
-    ASSERT( grid != NULL );
+    MANGOS_ASSERT( grid != NULL );
 
     if(obj->isActiveObject())
         RemoveFromActive(obj);
@@ -736,7 +736,7 @@ Map::Remove(T *obj, bool remove)
 void
 Map::PlayerRelocation(Player *player, float x, float y, float z, float orientation)
 {
-    ASSERT(player);
+    MANGOS_ASSERT(player);
 
     CellPair old_val = MaNGOS::ComputeCellPair(player->GetPositionX(), player->GetPositionY());
     CellPair new_val = MaNGOS::ComputeCellPair(x, y);
@@ -783,7 +783,7 @@ Map::PlayerRelocation(Player *player, float x, float y, float z, float orientati
 void
 Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang)
 {
-    ASSERT(CheckGridIntegrity(creature,false));
+    MANGOS_ASSERT(CheckGridIntegrity(creature,false));
 
     Cell old_cell = creature->GetCurrentCell();
 
@@ -823,7 +823,7 @@ Map::CreatureRelocation(Creature *creature, float x, float y, float z, float ang
     }
 
     creature->GetViewPoint().Call_UpdateVisibilityForOwner();
-    ASSERT(CheckGridIntegrity(creature,true));
+    MANGOS_ASSERT(CheckGridIntegrity(creature,true));
 }
 
 bool Map::CreatureCellRelocation(Creature *c, Cell new_cell)
@@ -916,7 +916,7 @@ bool Map::CreatureRespawnRelocation(Creature *c)
 bool Map::UnloadGrid(const uint32 &x, const uint32 &y, bool pForce)
 {
     NGridType *grid = getNGrid(x, y);
-    ASSERT( grid != NULL);
+    MANGOS_ASSERT( grid != NULL);
 
     {
         if(!pForce && ActiveObjectsNearGrid(x, y) )
@@ -1016,12 +1016,13 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps, float maxSearchD
 {
     // find raw .map surface under Z coordinates
     float mapHeight;
-    if(GridMap *gmap = const_cast<Map*>(this)->GetGrid(x, y))
+    float z2 = z + 2.f;
+    if (GridMap *gmap = const_cast<Map*>(this)->GetGrid(x, y))
     {
         float _mapheight = gmap->getHeight(x,y);
 
         // look from a bit higher pos to find the floor, ignore under surface case
-        if(z + 2.0f > _mapheight)
+        if (z2 > _mapheight)
             mapHeight = _mapheight;
         else
             mapHeight = VMAP_INVALID_HEIGHT_VALUE;
@@ -1030,13 +1031,19 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps, float maxSearchD
         mapHeight = VMAP_INVALID_HEIGHT_VALUE;
 
     float vmapHeight;
-    if(pUseVmaps)
+    if (pUseVmaps)
     {
         VMAP::IVMapManager* vmgr = VMAP::VMapFactory::createOrGetVMapManager();
-        if(vmgr->isHeightCalcEnabled())
+        if (vmgr->isHeightCalcEnabled())
         {
+            // if mapHeight has been found search vmap height at least until mapHeight point
+            // this prevent case when original Z "too high above ground and vmap height search fail"
+            // this will not affect most normal cases (no map in instance, or stay at ground at continent)
+            if (mapHeight > INVALID_HEIGHT && z2 - mapHeight > maxSearchDist)
+                maxSearchDist = z2 - mapHeight + 1.0f;      // 1.0 make sure that we not fail for case when map height near but above for vamp height
+
             // look from a bit higher pos to find the floor
-            vmapHeight = vmgr->getHeight(GetId(), x, y, z + 2.0f, maxSearchDist);
+            vmapHeight = vmgr->getHeight(GetId(), x, y, z2, maxSearchDist);
         }
         else
             vmapHeight = VMAP_INVALID_HEIGHT_VALUE;
@@ -1047,15 +1054,15 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps, float maxSearchD
     // mapHeight set for any above raw ground Z or <= INVALID_HEIGHT
     // vmapheight set for any under Z value or <= INVALID_HEIGHT
 
-    if( vmapHeight > INVALID_HEIGHT )
+    if (vmapHeight > INVALID_HEIGHT)
     {
-        if( mapHeight > INVALID_HEIGHT )
+        if (mapHeight > INVALID_HEIGHT)
         {
             // we have mapheight and vmapheight and must select more appropriate
 
             // we are already under the surface or vmap height above map heigt
             // or if the distance of the vmap height is less the land height distance
-            if( z < mapHeight || vmapHeight > mapHeight || fabs(mapHeight-z) > fabs(vmapHeight-z) )
+            if (z < mapHeight || vmapHeight > mapHeight || fabs(mapHeight-z) > fabs(vmapHeight-z))
                 return vmapHeight;
             else
                 return mapHeight;                           // better use .map surface height
@@ -1064,15 +1071,8 @@ float Map::GetHeight(float x, float y, float z, bool pUseVmaps, float maxSearchD
         else
             return vmapHeight;                              // we have only vmapHeight (if have)
     }
-    else
-    {
-        if(!pUseVmaps)
-            return mapHeight;                               // explicitly use map data (if have)
-        else if(mapHeight > INVALID_HEIGHT && (z < mapHeight + 2 || z == MAX_HEIGHT))
-            return mapHeight;                               // explicitly use map data if original z < mapHeight but map found (z+2 > mapHeight)
-        else
-            return VMAP_INVALID_HEIGHT_VALUE;               // we not have any height
-    }
+
+    return mapHeight;
 }
 
 inline bool IsOutdoorWMO(uint32 mogpFlags, int32 adtId, int32 rootId, int32 groupId,
@@ -1234,14 +1234,6 @@ GridMapLiquidStatus Map::getLiquidStatus(float x, float y, float z, uint8 ReqLiq
     return result;
 }
 
-float Map::GetWaterLevel(float x, float y ) const
-{
-    if(GridMap* gmap = const_cast<Map*>(this)->GetGrid(x, y))
-        return gmap->getLiquidLevel(x, y);
-    else
-        return 0;
-}
-
 uint32 Map::GetAreaIdByAreaFlag(uint16 areaflag,uint32 map_id)
 {
     AreaTableEntry const *entry = GetAreaEntryByAreaFlagAndMap(areaflag,map_id);
@@ -1294,6 +1286,57 @@ bool Map::IsUnderWater(float x, float y, float z) const
             return true;
     }
     return false;
+}
+
+/**
+ * Function find higher form water or ground height for current floor
+ *
+ * @param x, y, z    Coordinates original point at floor level
+ *
+ * @param pGround    optional arg for retrun calculated by function work ground height, it let avoid in caller code recalculate height for point if it need
+ *
+ * @param swim       z coordinate can be calculated for select above/at or under z coordinate (for fly or swim/walking by bottom)
+ *                   in last cases for in water returned under water height for avoid client set swimming unit as saty at water.
+ *
+ * @return           calculated z coordinate
+ */
+float Map::GetWaterOrGroundLevel(float x, float y, float z, float* pGround /*= NULL*/, bool swim /*= false*/) const
+{
+    if (const_cast<Map*>(this)->GetGrid(x, y))
+    {
+        // we need ground level (including grid height version) for proper return water level in point
+        float ground_z = GetHeight(x, y, z, true, DEFAULT_WATER_SEARCH);
+        if (pGround)
+            *pGround = ground_z;
+
+        GridMapLiquidData liquid_status;
+
+        GridMapLiquidStatus res = getLiquidStatus(x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status);
+        return res ? ( swim ? liquid_status.level - 2.0f : liquid_status.level) : ground_z;
+    }
+
+    return VMAP_INVALID_HEIGHT_VALUE;
+}
+
+float Map::GetWaterLevel(float x, float y, float z, float* pGround /*= NULL*/) const
+{
+    if (const_cast<Map*>(this)->GetGrid(x, y))
+    {
+        // we need ground level (including grid height version) for proper return water level in point
+        float ground_z = GetHeight(x, y, z, true, DEFAULT_WATER_SEARCH);
+        if (pGround)
+            *pGround = ground_z;
+
+        GridMapLiquidData liquid_status;
+
+        GridMapLiquidStatus res = getLiquidStatus(x, y, ground_z, MAP_ALL_LIQUIDS, &liquid_status);
+        if (!res)
+            return VMAP_INVALID_HEIGHT_VALUE;
+
+        return liquid_status.level;
+    }
+
+    return VMAP_INVALID_HEIGHT_VALUE;
 }
 
 bool Map::CheckGridIntegrity(Creature* c, bool moved) const
@@ -1430,14 +1473,14 @@ inline void Map::setNGrid(NGridType *grid, uint32 x, uint32 y)
     if(x >= MAX_NUMBER_OF_GRIDS || y >= MAX_NUMBER_OF_GRIDS)
     {
         sLog.outError("map::setNGrid() Invalid grid coordinates found: %d, %d!",x,y);
-        ASSERT(false);
+        MANGOS_ASSERT(false);
     }
     i_grids[x][y] = grid;
 }
 
 void Map::AddObjectToRemoveList(WorldObject *obj)
 {
-    ASSERT(obj->GetMapId()==GetId() && obj->GetInstanceId()==GetInstanceId());
+    MANGOS_ASSERT(obj->GetMapId()==GetId() && obj->GetInstanceId()==GetInstanceId());
 
     obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
 
@@ -1502,8 +1545,8 @@ void Map::SendToPlayers(WorldPacket const* data) const
 
 bool Map::ActiveObjectsNearGrid(uint32 x, uint32 y) const
 {
-    ASSERT(x < MAX_NUMBER_OF_GRIDS);
-    ASSERT(y < MAX_NUMBER_OF_GRIDS);
+    MANGOS_ASSERT(x < MAX_NUMBER_OF_GRIDS);
+    MANGOS_ASSERT(y < MAX_NUMBER_OF_GRIDS);
 
     CellPair cell_min(x*MAX_NUMBER_OF_CELLS, y*MAX_NUMBER_OF_CELLS);
     CellPair cell_max(cell_min.x_coord + MAX_NUMBER_OF_CELLS, cell_min.y_coord+MAX_NUMBER_OF_CELLS);
@@ -1656,7 +1699,7 @@ bool InstanceMap::CanEnter(Player *player)
     if(player->GetMapRef().getTarget() == this)
     {
         sLog.outError("InstanceMap::CanEnter - player %s(%u) already in map %d,%d,%d!", player->GetName(), player->GetGUIDLow(), GetId(), GetInstanceId(), GetSpawnMode());
-        ASSERT(false);
+        MANGOS_ASSERT(false);
         return false;
     }
 
@@ -1712,7 +1755,7 @@ bool InstanceMap::Add(Player *player)
                         GetInstanceSave()->GetMapId(), GetInstanceSave()->GetInstanceId(),
                         GetInstanceSave()->GetDifficulty(), GetInstanceSave()->GetPlayerCount(),
                         GetInstanceSave()->GetGroupCount(), GetInstanceSave()->CanReset());
-                    ASSERT(false);
+                    MANGOS_ASSERT(false);
                 }
             }
             else
@@ -1736,7 +1779,7 @@ bool InstanceMap::Add(Player *player)
                                 pGroup->GetId(),
                                 groupBind->save->GetMapId(), groupBind->save->GetInstanceId(), groupBind->save->GetDifficulty(),
                                 groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount(), groupBind->save->CanReset());
-                        ASSERT(false);
+                        MANGOS_ASSERT(false);
                     }
                     // bind to the group or keep using the group save
                     if (!groupBind)
@@ -1762,7 +1805,7 @@ bool InstanceMap::Add(Player *player)
                                 sLog.outError("GroupBind save players: %d, group count: %d", groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount());
                             else
                                 sLog.outError("GroupBind save NULL");
-                            ASSERT(false);
+                            MANGOS_ASSERT(false);
                         }
                         // if the group/leader is permanently bound to the instance
                         // players also become permanently bound when they enter
@@ -1782,7 +1825,7 @@ bool InstanceMap::Add(Player *player)
                         player->BindToInstance(GetInstanceSave(), false);
                     else
                         // cannot jump to a different instance without resetting it
-                        ASSERT(playerBind->save == GetInstanceSave());
+                        MANGOS_ASSERT(playerBind->save == GetInstanceSave());
                 }
             }
         }
@@ -2002,7 +2045,7 @@ bool BattleGroundMap::CanEnter(Player * player)
     if(player->GetMapRef().getTarget() == this)
     {
         sLog.outError("BGMap::CanEnter - player %u already in map!", player->GetGUIDLow());
-        ASSERT(false);
+        MANGOS_ASSERT(false);
         return false;
     }
 
@@ -2224,26 +2267,26 @@ void Map::ScriptsProcess()
                 // flag_buddy_as_target             0x04
 
                 // If target is player (and not already the source) but should be the source
-                if (target && target->GetTypeId() == TYPEID_PLAYER && step.script->data_flags & 0x01)
+                if (target && target->GetTypeId() == TYPEID_PLAYER && step.script->talk.flags & 0x01)
                 {
                     if (source->GetTypeId() != TYPEID_PLAYER)
                         pSource = (WorldObject*)target;
                 }
 
                 // If step has a buddy entry defined, search for it.
-                if (step.script->datalong2)
+                if (step.script->talk.creatureEntry)
                 {
-                    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*pSource, step.script->datalong2, true, step.script->datalong3);
-                    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pSource, pBuddy, u_check);
+                    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*pSource, step.script->talk.creatureEntry, true, step.script->talk.searchRadius);
+                    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pBuddy, u_check);
 
-                    Cell::VisitGridObjects(pSource, searcher, step.script->datalong3);
+                    Cell::VisitGridObjects(pSource, searcher, step.script->talk.searchRadius);
                 }
 
                 // If buddy found, then use it
                 if (pBuddy)
                 {
                     // pBuddy can be target of talk
-                    if (step.script->data_flags & 0x04)
+                    if (step.script->talk.flags & 0x04)
                     {
                         target = (Object*)pBuddy;
                     }
@@ -2251,49 +2294,64 @@ void Map::ScriptsProcess()
                     {
                         // If not target of talk, then set pBuddy as source
                         // Useless when source is already flagged to be player, and should maybe produce error.
-                        if (!(step.script->data_flags & 0x01))
+                        if (!(step.script->talk.flags & 0x01))
                             pSource = (WorldObject*)pBuddy;
                     }
                 }
 
                 // If we should talk to the original source instead of target
-                if (step.script->data_flags & 0x02)
+                if (step.script->talk.flags & 0x02)
                     target = source;
 
                 uint64 unit_target = target ? target->GetGUID() : 0;
+                int32 textId = step.script->talk.textId[0];
 
-                switch(step.script->datalong)
+                // May have text for random
+                if (step.script->talk.textId[1])
+                {
+                    int i = 2;
+                    for(; i < MAX_TEXT_ID; ++i)
+                    {
+                        if (!step.script->talk.textId[i])
+                            break;
+                    }
+
+                    // Use one random
+                    textId = step.script->talk.textId[rand() % i];
+                }
+
+                switch(step.script->talk.chatType)
                 {
                     case CHAT_TYPE_SAY:
-                        pSource->MonsterSay(step.script->dataint, LANG_UNIVERSAL, unit_target);
+                        pSource->MonsterSay(textId, step.script->talk.language, unit_target);
                         break;
                     case CHAT_TYPE_YELL:
-                        pSource->MonsterYell(step.script->dataint, LANG_UNIVERSAL, unit_target);
+                        pSource->MonsterYell(textId, step.script->talk.language, unit_target);
                         break;
                     case CHAT_TYPE_TEXT_EMOTE:
-                        pSource->MonsterTextEmote(step.script->dataint, unit_target);
+                        pSource->MonsterTextEmote(textId, unit_target);
                         break;
                     case CHAT_TYPE_BOSS_EMOTE:
-                        pSource->MonsterTextEmote(step.script->dataint, unit_target, true);
+                        pSource->MonsterTextEmote(textId, unit_target, true);
                         break;
                     case CHAT_TYPE_WHISPER:
                         if (!unit_target || !IS_PLAYER_GUID(unit_target))
                         {
-                            sLog.outError("SCRIPT_COMMAND_TALK (script id %u) attempt to whisper (%u) 0-guid or non-player, skipping.", step.script->id, step.script->datalong);
+                            sLog.outError("SCRIPT_COMMAND_TALK (script id %u) attempt to whisper (%u) 0-guid or non-player, skipping.", step.script->id, step.script->talk.chatType);
                             break;
                         }
-                        pSource->MonsterWhisper(step.script->dataint, unit_target);
+                        pSource->MonsterWhisper(textId, unit_target);
                         break;
                     case CHAT_TYPE_BOSS_WHISPER:
                         if (!unit_target || !IS_PLAYER_GUID(unit_target))
                         {
-                            sLog.outError("SCRIPT_COMMAND_TALK (script id %u) attempt to whisper (%u) 0-guid or non-player, skipping.", step.script->id, step.script->datalong);
+                            sLog.outError("SCRIPT_COMMAND_TALK (script id %u) attempt to whisper (%u) 0-guid or non-player, skipping.", step.script->id, step.script->talk.chatType);
                             break;
                         }
-                        pSource->MonsterWhisper(step.script->dataint, unit_target, true);
+                        pSource->MonsterWhisper(textId, unit_target, true);
                         break;
                     case CHAT_TYPE_ZONE_YELL:
-                        pSource->MonsterYellToZone(step.script->dataint, LANG_UNIVERSAL, unit_target);
+                        pSource->MonsterYellToZone(textId, step.script->talk.language, unit_target);
                         break;
                     default:
                         break;                              // must be already checked at load
@@ -2313,7 +2371,7 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                ((Creature *)source)->HandleEmote(step.script->datalong);
+                ((Creature*)source)->HandleEmote(step.script->emote.emoteId);
                 break;
             case SCRIPT_COMMAND_FIELD_SET:
                 if (!source)
@@ -2322,14 +2380,14 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                if (step.script->datalong <= OBJECT_FIELD_ENTRY || step.script->datalong >= source->GetValuesCount())
+                if (step.script->setField.fieldId <= OBJECT_FIELD_ENTRY || step.script->setField.fieldId >= source->GetValuesCount())
                 {
                     sLog.outError("SCRIPT_COMMAND_FIELD_SET (script id %u) call for wrong field %u (max count: %u) in object (TypeId: %u).",
-                        step.script->id, step.script->datalong, source->GetValuesCount(), source->GetTypeId());
+                        step.script->id, step.script->setField.fieldId, source->GetValuesCount(), source->GetTypeId());
                     break;
                 }
 
-                source->SetUInt32Value(step.script->datalong, step.script->datalong2);
+                source->SetUInt32Value(step.script->setField.fieldId, step.script->setField.fieldValue);
                 break;
             case SCRIPT_COMMAND_MOVE_TO:
                 if (!source)
@@ -2344,7 +2402,7 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                ((Unit*)source)->MonsterMoveWithSpeed(step.script->x, step.script->y, step.script->z, step.script->datalong2 );
+                ((Unit*)source)->MonsterMoveWithSpeed(step.script->x, step.script->y, step.script->z, step.script->moveTo.travelTime);
                 break;
             case SCRIPT_COMMAND_FLAG_SET:
                 if (!source)
@@ -2352,14 +2410,14 @@ void Map::ScriptsProcess()
                     sLog.outError("SCRIPT_COMMAND_FLAG_SET (script id %u) call for NULL object.", step.script->id);
                     break;
                 }
-                if (step.script->datalong <= OBJECT_FIELD_ENTRY || step.script->datalong >= source->GetValuesCount())
+                if (step.script->setFlag.fieldId <= OBJECT_FIELD_ENTRY || step.script->setFlag.fieldId >= source->GetValuesCount())
                 {
                     sLog.outError("SCRIPT_COMMAND_FLAG_SET (script id %u) call for wrong field %u (max count: %u) in object (TypeId: %u).",
-                        step.script->id, step.script->datalong, source->GetValuesCount(), source->GetTypeId());
+                        step.script->id, step.script->setFlag.fieldId, source->GetValuesCount(), source->GetTypeId());
                     break;
                 }
 
-                source->SetFlag(step.script->datalong, step.script->datalong2);
+                source->SetFlag(step.script->setFlag.fieldId, step.script->setFlag.fieldValue);
                 break;
             case SCRIPT_COMMAND_FLAG_REMOVE:
                 if (!source)
@@ -2367,14 +2425,14 @@ void Map::ScriptsProcess()
                     sLog.outError("SCRIPT_COMMAND_FLAG_REMOVE (script id %u) call for NULL object.", step.script->id);
                     break;
                 }
-                if (step.script->datalong <= OBJECT_FIELD_ENTRY || step.script->datalong >= source->GetValuesCount())
+                if (step.script->removeFlag.fieldId <= OBJECT_FIELD_ENTRY || step.script->removeFlag.fieldId >= source->GetValuesCount())
                 {
                     sLog.outError("SCRIPT_COMMAND_FLAG_REMOVE (script id %u) call for wrong field %u (max count: %u) in object (TypeId: %u).",
-                        step.script->id, step.script->datalong, source->GetValuesCount(), source->GetTypeId());
+                        step.script->id, step.script->removeFlag.fieldId, source->GetValuesCount(), source->GetTypeId());
                     break;
                 }
 
-                source->RemoveFlag(step.script->datalong, step.script->datalong2);
+                source->RemoveFlag(step.script->removeFlag.fieldId, step.script->removeFlag.fieldValue);
                 break;
             case SCRIPT_COMMAND_TELEPORT_TO:
             {
@@ -2394,226 +2452,7 @@ void Map::ScriptsProcess()
 
                 Player* pSource = target && target->GetTypeId() == TYPEID_PLAYER ? (Player*)target : (Player*)source;
 
-                pSource->TeleportTo(step.script->datalong, step.script->x, step.script->y, step.script->z, step.script->o);
-                break;
-            }
-            case SCRIPT_COMMAND_KILL_CREDIT:
-            {
-                // accept player in any one from target/source arg
-                if (!target && !source)
-                {
-                    sLog.outError("SCRIPT_COMMAND_KILL_CREDIT (script id %u) call for NULL object.", step.script->id);
-                    break;
-                }
-
-                // must be only Player
-                if ((!target || target->GetTypeId() != TYPEID_PLAYER) && (!source || source->GetTypeId() != TYPEID_PLAYER))
-                {
-                    sLog.outError("SCRIPT_COMMAND_KILL_CREDIT (script id %u) call for non-player (TypeIdSource: %u)(TypeIdTarget: %u), skipping.", step.script->id, source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
-                    break;
-                }
-
-                Player* pSource = target && target->GetTypeId() == TYPEID_PLAYER ? (Player*)target : (Player*)source;
-
-                if (step.script->datalong2)
-                {
-                    pSource->RewardPlayerAndGroupAtEvent(step.script->datalong, pSource);
-                }
-                else
-                {
-                    pSource->KilledMonsterCredit(step.script->datalong);
-                }
-
-                break;
-            }
-            case SCRIPT_COMMAND_TEMP_SUMMON_CREATURE:
-            {
-                if (!step.script->datalong)                 // creature not specified
-                {
-                    sLog.outError("SCRIPT_COMMAND_TEMP_SUMMON_CREATURE (script id %u) call for NULL creature.", step.script->id);
-                    break;
-                }
-
-                if (!source)
-                {
-                    sLog.outError("SCRIPT_COMMAND_TEMP_SUMMON_CREATURE (script id %u) call for NULL world object.", step.script->id);
-                    break;
-                }
-
-                if (!source->isType(TYPEMASK_WORLDOBJECT))
-                {
-                    sLog.outError("SCRIPT_COMMAND_TEMP_SUMMON_CREATURE (script id %u) call for non-WorldObject (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
-                    break;
-                }
-
-                WorldObject* summoner = (WorldObject*)source;
-
-                float x = step.script->x;
-                float y = step.script->y;
-                float z = step.script->z;
-                float o = step.script->o;
-
-                Creature* pCreature = summoner->SummonCreature(step.script->datalong, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, step.script->datalong2);
-                if (!pCreature)
-                {
-                    sLog.outError("SCRIPT_COMMAND_TEMP_SUMMON (script id %u) failed for creature (entry: %u).", step.script->id, step.script->datalong);
-                    break;
-                }
-
-                break;
-            }
-            case SCRIPT_COMMAND_RESPAWN_GAMEOBJECT:
-            {
-                if (!step.script->datalong)                 // gameobject not specified
-                {
-                    sLog.outError("SCRIPT_COMMAND_RESPAWN_GAMEOBJECT (script id %u) call for NULL gameobject.", step.script->id);
-                    break;
-                }
-
-                if (!source)
-                {
-                    sLog.outError("SCRIPT_COMMAND_RESPAWN_GAMEOBJECT (script id %u) call for NULL world object.", step.script->id);
-                    break;
-                }
-
-                if (!source->isType(TYPEMASK_WORLDOBJECT))
-                {
-                    sLog.outError("SCRIPT_COMMAND_RESPAWN_GAMEOBJECT (script id %u) call for non-WorldObject (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
-                    break;
-                }
-
-                WorldObject* summoner = (WorldObject*)source;
-
-                GameObject *go = NULL;
-                int32 time_to_despawn = step.script->datalong2<5 ? 5 : (int32)step.script->datalong2;
-
-                MaNGOS::GameObjectWithDbGUIDCheck go_check(*summoner,step.script->datalong);
-                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(summoner, go, go_check);
-                Cell::VisitGridObjects(summoner, checker, GetVisibilityDistance());
-
-                if (!go)
-                {
-                    sLog.outError("SCRIPT_COMMAND_RESPAWN_GAMEOBJECT (script id %u) failed for gameobject(guid: %u).", step.script->id, step.script->datalong);
-                    break;
-                }
-
-                if (go->GetGoType()==GAMEOBJECT_TYPE_FISHINGNODE ||
-                    go->GetGoType()==GAMEOBJECT_TYPE_DOOR        ||
-                    go->GetGoType()==GAMEOBJECT_TYPE_BUTTON      ||
-                    go->GetGoType()==GAMEOBJECT_TYPE_TRAP)
-                {
-                    sLog.outError("SCRIPT_COMMAND_RESPAWN_GAMEOBJECT (script id %u) can not be used with gameobject of type %u (guid: %u).", step.script->id, uint32(go->GetGoType()), step.script->datalong);
-                    break;
-                }
-
-                if (go->isSpawned())
-                    break;                                  //gameobject already spawned
-
-                go->SetLootState(GO_READY);
-                go->SetRespawnTime(time_to_despawn);        //despawn object in ? seconds
-
-                go->GetMap()->Add(go);
-                break;
-            }
-            case SCRIPT_COMMAND_OPEN_DOOR:
-            {
-                if (!step.script->datalong)                 // door not specified
-                {
-                    sLog.outError("SCRIPT_COMMAND_OPEN_DOOR (script id %u) call for NULL door.", step.script->id);
-                    break;
-                }
-
-                if (!source)
-                {
-                    sLog.outError("SCRIPT_COMMAND_OPEN_DOOR (script id %u) call for NULL unit.", step.script->id);
-                    break;
-                }
-
-                if (!source->isType(TYPEMASK_UNIT))         // must be any Unit (creature or player)
-                {
-                    sLog.outError("SCRIPT_COMMAND_OPEN_DOOR (script id %u) call for non-unit (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
-                    break;
-                }
-
-                Unit* caster = (Unit*)source;
-
-                GameObject *door = NULL;
-                int32 time_to_close = step.script->datalong2 < 15 ? 15 : (int32)step.script->datalong2;
-
-                MaNGOS::GameObjectWithDbGUIDCheck go_check(*caster, step.script->datalong);
-                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(caster, door, go_check);
-                Cell::VisitGridObjects(caster, checker, GetVisibilityDistance());
-
-                if (!door)
-                {
-                    sLog.outError("SCRIPT_COMMAND_OPEN_DOOR (script id %u) failed for gameobject(guid: %u).", step.script->id, step.script->datalong);
-                    break;
-                }
-
-                if (door->GetGoType() != GAMEOBJECT_TYPE_DOOR)
-                {
-                    sLog.outError("SCRIPT_COMMAND_OPEN_DOOR (script id %u) failed for non-door(GoType: %u).", step.script->id, door->GetGoType());
-                    break;
-                }
-
-                if (door->GetGoState() != GO_STATE_READY)
-                    break;                                  //door already  open
-
-                door->UseDoorOrButton(time_to_close);
-
-                if (target && target->isType(TYPEMASK_GAMEOBJECT) && ((GameObject*)target)->GetGoType()==GAMEOBJECT_TYPE_BUTTON)
-                    ((GameObject*)target)->UseDoorOrButton(time_to_close);
-
-                break;
-            }
-            case SCRIPT_COMMAND_CLOSE_DOOR:
-            {
-                if (!step.script->datalong)                 // guid for door not specified
-                {
-                    sLog.outError("SCRIPT_COMMAND_CLOSE_DOOR (script id %u) call for NULL door.", step.script->id);
-                    break;
-                }
-
-                if (!source)
-                {
-                    sLog.outError("SCRIPT_COMMAND_CLOSE_DOOR (script id %u) call for NULL unit.", step.script->id);
-                    break;
-                }
-
-                if (!source->isType(TYPEMASK_UNIT))         // must be any Unit (creature or player)
-                {
-                    sLog.outError("SCRIPT_COMMAND_CLOSE_DOOR (script id %u) call for non-unit (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
-                    break;
-                }
-
-                Unit* caster = (Unit*)source;
-
-                GameObject *door = NULL;
-                int32 time_to_open = step.script->datalong2 < 15 ? 15 : (int32)step.script->datalong2;
-
-                MaNGOS::GameObjectWithDbGUIDCheck go_check(*caster, step.script->datalong);
-                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(caster, door, go_check);
-                Cell::VisitGridObjects(caster, checker, GetVisibilityDistance());
-
-                if (!door)
-                {
-                    sLog.outError("SCRIPT_COMMAND_CLOSE_DOOR (script id %u) failed for gameobject(guid: %u).", step.script->id, step.script->datalong);
-                    break;
-                }
-                if (door->GetGoType() != GAMEOBJECT_TYPE_DOOR)
-                {
-                    sLog.outError("SCRIPT_COMMAND_CLOSE_DOOR (script id %u) failed for non-door(GoType: %u).", step.script->id, door->GetGoType());
-                    break;
-                }
-
-                if (door->GetGoState() == GO_STATE_READY)
-                    break;                                  //door already closed
-
-                door->UseDoorOrButton(time_to_open);
-
-                if (target && target->isType(TYPEMASK_GAMEOBJECT) && ((GameObject*)target)->GetGoType()==GAMEOBJECT_TYPE_BUTTON)
-                    ((GameObject*)target)->UseDoorOrButton(time_to_open);
-
+                pSource->TeleportTo(step.script->teleportTo.mapId, step.script->x, step.script->y, step.script->z, step.script->o);
                 break;
             }
             case SCRIPT_COMMAND_QUEST_EXPLORED:
@@ -2665,10 +2504,229 @@ void Map::ScriptsProcess()
 
                 // quest id and flags checked at script loading
                 if ((worldObject->GetTypeId() != TYPEID_UNIT || ((Unit*)worldObject)->isAlive()) &&
-                    (step.script->datalong2 == 0 || worldObject->IsWithinDistInMap(player, float(step.script->datalong2))))
-                    player->AreaExploredOrEventHappens(step.script->datalong);
+                    (step.script->questExplored.distance == 0 || worldObject->IsWithinDistInMap(player, float(step.script->questExplored.distance))))
+                    player->AreaExploredOrEventHappens(step.script->questExplored.questId);
                 else
-                    player->FailQuest(step.script->datalong);
+                    player->FailQuest(step.script->questExplored.questId);
+
+                break;
+            }
+            case SCRIPT_COMMAND_KILL_CREDIT:
+            {
+                // accept player in any one from target/source arg
+                if (!target && !source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_KILL_CREDIT (script id %u) call for NULL object.", step.script->id);
+                    break;
+                }
+
+                // must be only Player
+                if ((!target || target->GetTypeId() != TYPEID_PLAYER) && (!source || source->GetTypeId() != TYPEID_PLAYER))
+                {
+                    sLog.outError("SCRIPT_COMMAND_KILL_CREDIT (script id %u) call for non-player (TypeIdSource: %u)(TypeIdTarget: %u), skipping.", step.script->id, source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
+                    break;
+                }
+
+                Player* pSource = target && target->GetTypeId() == TYPEID_PLAYER ? (Player*)target : (Player*)source;
+
+                if (step.script->killCredit.isGroupCredit)
+                {
+                    pSource->RewardPlayerAndGroupAtEvent(step.script->killCredit.creatureEntry, pSource);
+                }
+                else
+                {
+                    pSource->KilledMonsterCredit(step.script->killCredit.creatureEntry);
+                }
+
+                break;
+            }
+            case SCRIPT_COMMAND_RESPAWN_GAMEOBJECT:
+            {
+                if (!step.script->respawnGo.goGuid)         // gameobject not specified
+                {
+                    sLog.outError("SCRIPT_COMMAND_RESPAWN_GAMEOBJECT (script id %u) call for NULL gameobject.", step.script->id);
+                    break;
+                }
+
+                if (!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_RESPAWN_GAMEOBJECT (script id %u) call for NULL world object.", step.script->id);
+                    break;
+                }
+
+                if (!source->isType(TYPEMASK_WORLDOBJECT))
+                {
+                    sLog.outError("SCRIPT_COMMAND_RESPAWN_GAMEOBJECT (script id %u) call for non-WorldObject (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
+                    break;
+                }
+
+                WorldObject* summoner = (WorldObject*)source;
+
+                GameObject *go = NULL;
+                int32 time_to_despawn = step.script->respawnGo.despawnDelay < 5 ? 5 : step.script->respawnGo.despawnDelay;
+
+                MaNGOS::GameObjectWithDbGUIDCheck go_check(*summoner, step.script->respawnGo.goGuid);
+                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(go, go_check);
+                Cell::VisitGridObjects(summoner, checker, GetVisibilityDistance());
+
+                if (!go)
+                {
+                    sLog.outError("SCRIPT_COMMAND_RESPAWN_GAMEOBJECT (script id %u) failed for gameobject(guid: %u).", step.script->id, step.script->respawnGo.goGuid);
+                    break;
+                }
+
+                if (go->GetGoType()==GAMEOBJECT_TYPE_FISHINGNODE ||
+                    go->GetGoType()==GAMEOBJECT_TYPE_DOOR        ||
+                    go->GetGoType()==GAMEOBJECT_TYPE_BUTTON      ||
+                    go->GetGoType()==GAMEOBJECT_TYPE_TRAP)
+                {
+                    sLog.outError("SCRIPT_COMMAND_RESPAWN_GAMEOBJECT (script id %u) can not be used with gameobject of type %u (guid: %u).", step.script->id, uint32(go->GetGoType()), step.script->respawnGo.goGuid);
+                    break;
+                }
+
+                if (go->isSpawned())
+                    break;                                  //gameobject already spawned
+
+                go->SetLootState(GO_READY);
+                go->SetRespawnTime(time_to_despawn);        //despawn object in ? seconds
+
+                go->GetMap()->Add(go);
+                break;
+            }
+            case SCRIPT_COMMAND_TEMP_SUMMON_CREATURE:
+            {
+                if (!step.script->summonCreature.creatureEntry)
+                {
+                    sLog.outError("SCRIPT_COMMAND_TEMP_SUMMON_CREATURE (script id %u) call for NULL creature.", step.script->id);
+                    break;
+                }
+
+                if (!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_TEMP_SUMMON_CREATURE (script id %u) call for NULL world object.", step.script->id);
+                    break;
+                }
+
+                if (!source->isType(TYPEMASK_WORLDOBJECT))
+                {
+                    sLog.outError("SCRIPT_COMMAND_TEMP_SUMMON_CREATURE (script id %u) call for non-WorldObject (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
+                    break;
+                }
+
+                WorldObject* summoner = (WorldObject*)source;
+
+                float x = step.script->x;
+                float y = step.script->y;
+                float z = step.script->z;
+                float o = step.script->o;
+
+                Creature* pCreature = summoner->SummonCreature(step.script->summonCreature.creatureEntry, x, y, z, o, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, step.script->summonCreature.despawnDelay, (step.script->summonCreature.flags & 0x01) ? true: false);
+                if (!pCreature)
+                {
+                    sLog.outError("SCRIPT_COMMAND_TEMP_SUMMON (script id %u) failed for creature (entry: %u).", step.script->id, step.script->summonCreature.creatureEntry);
+                    break;
+                }
+
+                break;
+            }
+            case SCRIPT_COMMAND_OPEN_DOOR:
+            {
+                if (!step.script->openDoor.goGuid)          // door not specified
+                {
+                    sLog.outError("SCRIPT_COMMAND_OPEN_DOOR (script id %u) call for NULL door.", step.script->id);
+                    break;
+                }
+
+                if (!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_OPEN_DOOR (script id %u) call for NULL unit.", step.script->id);
+                    break;
+                }
+
+                if (!source->isType(TYPEMASK_UNIT))         // must be any Unit (creature or player)
+                {
+                    sLog.outError("SCRIPT_COMMAND_OPEN_DOOR (script id %u) call for non-unit (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
+                    break;
+                }
+
+                Unit* caster = (Unit*)source;
+
+                GameObject *door = NULL;
+                int32 time_to_close = step.script->openDoor.resetDelay < 15 ? 15 : step.script->openDoor.resetDelay;
+
+                MaNGOS::GameObjectWithDbGUIDCheck go_check(*caster, step.script->openDoor.goGuid);
+                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(door, go_check);
+                Cell::VisitGridObjects(caster, checker, GetVisibilityDistance());
+
+                if (!door)
+                {
+                    sLog.outError("SCRIPT_COMMAND_OPEN_DOOR (script id %u) failed for gameobject(guid: %u).", step.script->id, step.script->openDoor.goGuid);
+                    break;
+                }
+
+                if (door->GetGoType() != GAMEOBJECT_TYPE_DOOR)
+                {
+                    sLog.outError("SCRIPT_COMMAND_OPEN_DOOR (script id %u) failed for non-door(GoType: %u).", step.script->id, door->GetGoType());
+                    break;
+                }
+
+                if (door->GetGoState() != GO_STATE_READY)
+                    break;                                  //door already  open
+
+                door->UseDoorOrButton(time_to_close);
+
+                if (target && target->isType(TYPEMASK_GAMEOBJECT) && ((GameObject*)target)->GetGoType()==GAMEOBJECT_TYPE_BUTTON)
+                    ((GameObject*)target)->UseDoorOrButton(time_to_close);
+
+                break;
+            }
+            case SCRIPT_COMMAND_CLOSE_DOOR:
+            {
+                if (!step.script->closeDoor.goGuid)         // guid for door not specified
+                {
+                    sLog.outError("SCRIPT_COMMAND_CLOSE_DOOR (script id %u) call for NULL door.", step.script->id);
+                    break;
+                }
+
+                if (!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_CLOSE_DOOR (script id %u) call for NULL unit.", step.script->id);
+                    break;
+                }
+
+                if (!source->isType(TYPEMASK_UNIT))         // must be any Unit (creature or player)
+                {
+                    sLog.outError("SCRIPT_COMMAND_CLOSE_DOOR (script id %u) call for non-unit (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
+                    break;
+                }
+
+                Unit* caster = (Unit*)source;
+
+                GameObject *door = NULL;
+                int32 time_to_open = step.script->closeDoor.resetDelay < 15 ? 15 : step.script->closeDoor.resetDelay;
+
+                MaNGOS::GameObjectWithDbGUIDCheck go_check(*caster, step.script->closeDoor.goGuid);
+                MaNGOS::GameObjectSearcher<MaNGOS::GameObjectWithDbGUIDCheck> checker(door, go_check);
+                Cell::VisitGridObjects(caster, checker, GetVisibilityDistance());
+
+                if (!door)
+                {
+                    sLog.outError("SCRIPT_COMMAND_CLOSE_DOOR (script id %u) failed for gameobject(guid: %u).", step.script->id, step.script->closeDoor.goGuid);
+                    break;
+                }
+                if (door->GetGoType() != GAMEOBJECT_TYPE_DOOR)
+                {
+                    sLog.outError("SCRIPT_COMMAND_CLOSE_DOOR (script id %u) failed for non-door(GoType: %u).", step.script->id, door->GetGoType());
+                    break;
+                }
+
+                if (door->GetGoState() == GO_STATE_READY)
+                    break;                                  //door already closed
+
+                door->UseDoorOrButton(time_to_open);
+
+                if (target && target->isType(TYPEMASK_GAMEOBJECT) && ((GameObject*)target)->GetGoType()==GAMEOBJECT_TYPE_BUTTON)
+                    ((GameObject*)target)->UseDoorOrButton(time_to_open);
 
                 break;
             }
@@ -2707,21 +2765,21 @@ void Map::ScriptsProcess()
             }
             case SCRIPT_COMMAND_REMOVE_AURA:
             {
-                Object* cmdTarget = step.script->datalong2 ? source : target;
+                Object* cmdTarget = step.script->removeAura.isSourceTarget ? source : target;
 
                 if (!cmdTarget)
                 {
-                    sLog.outError("SCRIPT_COMMAND_REMOVE_AURA (script id %u) call for NULL %s.", step.script->id, step.script->datalong2 ? "source" : "target");
+                    sLog.outError("SCRIPT_COMMAND_REMOVE_AURA (script id %u) call for NULL %s.", step.script->id, step.script->removeAura.isSourceTarget ? "source" : "target");
                     break;
                 }
 
                 if (!cmdTarget->isType(TYPEMASK_UNIT))
                 {
-                    sLog.outError("SCRIPT_COMMAND_REMOVE_AURA (script id %u) %s isn't unit (TypeId: %u), skipping.", step.script->id, step.script->datalong2 ? "source" : "target",cmdTarget->GetTypeId());
+                    sLog.outError("SCRIPT_COMMAND_REMOVE_AURA (script id %u) %s isn't unit (TypeId: %u), skipping.", step.script->id, step.script->removeAura.isSourceTarget ? "source" : "target",cmdTarget->GetTypeId());
                     break;
                 }
 
-                ((Unit*)cmdTarget)->RemoveAurasDueToSpell(step.script->datalong);
+                ((Unit*)cmdTarget)->RemoveAurasDueToSpell(step.script->removeAura.spellId);
                 break;
             }
             case SCRIPT_COMMAND_CAST_SPELL:
@@ -2732,40 +2790,40 @@ void Map::ScriptsProcess()
                     break;
                 }
 
-                Object* cmdTarget = step.script->datalong2 & 0x01 ? source : target;
+                Object* cmdTarget = step.script->castSpell.flags & 0x01 ? source : target;
 
                 if (!cmdTarget)
                 {
-                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL (script id %u) call for NULL %s.", step.script->id, step.script->datalong2 & 0x01 ? "source" : "target");
+                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL (script id %u) call for NULL %s.", step.script->id, step.script->castSpell.flags & 0x01 ? "source" : "target");
                     break;
                 }
 
                 if (!cmdTarget->isType(TYPEMASK_UNIT))
                 {
-                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL (script id %u) %s isn't unit (TypeId: %u), skipping.", step.script->id, step.script->datalong2 & 0x01 ? "source" : "target",cmdTarget->GetTypeId());
+                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL (script id %u) %s isn't unit (TypeId: %u), skipping.", step.script->id, step.script->castSpell.flags & 0x01 ? "source" : "target", cmdTarget->GetTypeId());
                     break;
                 }
 
                 Unit* spellTarget = (Unit*)cmdTarget;
 
-                Object* cmdSource = step.script->datalong2 & 0x02 ? target : source;
+                Object* cmdSource = step.script->castSpell.flags & 0x02 ? target : source;
 
                 if (!cmdSource)
                 {
-                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL (script id %u) call for NULL %s.", step.script->id, step.script->datalong2 & 0x02 ? "target" : "source");
+                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL (script id %u) call for NULL %s.", step.script->id, step.script->castSpell.flags & 0x02 ? "target" : "source");
                     break;
                 }
 
                 if (!cmdSource->isType(TYPEMASK_UNIT))
                 {
-                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL (script id %u) %s isn't unit (TypeId: %u), skipping.", step.script->id, step.script->datalong2 & 0x02 ? "target" : "source", cmdSource->GetTypeId());
+                    sLog.outError("SCRIPT_COMMAND_CAST_SPELL (script id %u) %s isn't unit (TypeId: %u), skipping.", step.script->id, step.script->castSpell.flags & 0x02 ? "target" : "source", cmdSource->GetTypeId());
                     break;
                 }
 
                 Unit* spellSource = (Unit*)cmdSource;
 
                 //TODO: when GO cast implemented, code below must be updated accordingly to also allow GO spell cast
-                spellSource->CastSpell(spellTarget,step.script->datalong,false);
+                spellSource->CastSpell(spellTarget, step.script->castSpell.spellId, false);
 
                 break;
             }
@@ -2788,7 +2846,7 @@ void Map::ScriptsProcess()
                 // bitmask: 0/1=anyone/target, 0/2=with distance dependent
                 Player* pTarget = NULL;
 
-                if (step.script->datalong2 & 1)
+                if (step.script->playSound.flags & 1)
                 {
                     if (!target)
                     {
@@ -2806,10 +2864,10 @@ void Map::ScriptsProcess()
                 }
 
                 // bitmask: 0/1=anyone/target, 0/2=with distance dependent
-                if (step.script->datalong2 & 2)
-                    pSource->PlayDistanceSound(step.script->datalong, pTarget);
+                if (step.script->playSound.flags & 2)
+                    pSource->PlayDistanceSound(step.script->playSound.soundId, pTarget);
                 else
-                    pSource->PlayDirectSound(step.script->datalong, pTarget);
+                    pSource->PlayDirectSound(step.script->playSound.soundId, pTarget);
 
                 break;
             }
@@ -2830,8 +2888,8 @@ void Map::ScriptsProcess()
 
                 Player* pReceiver = target && target->GetTypeId() == TYPEID_PLAYER ? (Player*)target : (Player*)source;
 
-                if (Item* pItem = pReceiver->StoreNewItemInInventorySlot(step.script->datalong, step.script->datalong2))
-                    pReceiver->SendNewItem(pItem, step.script->datalong2, true, false);
+                if (Item* pItem = pReceiver->StoreNewItemInInventorySlot(step.script->createItem.itemEntry, step.script->createItem.amount))
+                    pReceiver->SendNewItem(pItem, step.script->createItem.amount, true, false);
 
                 break;
             }
@@ -2852,7 +2910,7 @@ void Map::ScriptsProcess()
 
                 Creature* pCreature = target && target->GetTypeId() == TYPEID_UNIT ? (Creature*)target : (Creature*)source;
 
-                pCreature->ForcedDespawn(step.script->datalong);
+                pCreature->ForcedDespawn(step.script->despawn.despawnDelay);
 
                 break;
             }
@@ -2873,7 +2931,327 @@ void Map::ScriptsProcess()
 
                 Player* pReceiver = target && target->GetTypeId() == TYPEID_PLAYER ? (Player*)target : (Player*)source;
 
-                pReceiver->SendMovieStart(step.script->datalong);
+                pReceiver->SendMovieStart(step.script->playMovie.movieId);
+
+                break;
+            }
+            case SCRIPT_COMMAND_MOVEMENT:
+            {
+                if (!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_MOVEMENT (script id %u) call for NULL source.", step.script->id);
+                    break;
+                }
+
+                if (!source->isType(TYPEMASK_WORLDOBJECT))
+                {
+                    sLog.outError("SCRIPT_COMMAND_MOVEMENT (script id %u) call for unsupported non-worldobject (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
+                    break;
+                }
+
+                WorldObject* pSource = (WorldObject*)source;
+                Creature* pMover = NULL;
+
+                if (!step.script->movement.creatureEntry)   // No buddy defined, so try use source (or target where source is player)
+                {
+                    if (pSource->GetTypeId() != TYPEID_UNIT)
+                    {
+                        // we can't move source being non-creature, so see if target is creature
+                        if (target && target->GetTypeId() == TYPEID_UNIT)
+                            pMover = (Creature*)target;
+                    }
+                    else if (pSource->GetTypeId() == TYPEID_UNIT)
+                        pMover = (Creature*)pSource;
+                }
+                else                                        // If step has a buddy entry defined, search for it
+                {
+                    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*pSource, step.script->movement.creatureEntry, true, step.script->movement.searchRadius);
+                    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pMover, u_check);
+
+                    Cell::VisitGridObjects(pSource, searcher, step.script->movement.searchRadius);
+                }
+
+                if (!pMover)
+                {
+                    sLog.outError("SCRIPT_COMMAND_MOVEMENT (script id %u) call for non-creature (TypeIdSource: %u)(TypeIdTarget: %u), skipping.", step.script->id, source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
+                    break;
+                }
+
+                // Consider add additional checks for cases where creature should not change movementType
+                // (pet? in combat? already using same MMgen as script try to apply?)
+
+                switch(step.script->movement.movementType)
+                {
+                    case IDLE_MOTION_TYPE:
+                        pMover->GetMotionMaster()->MoveIdle();
+                        break;
+                    case RANDOM_MOTION_TYPE:
+                        pMover->GetMotionMaster()->MoveRandom();
+                        break;
+                    case WAYPOINT_MOTION_TYPE:
+                        pMover->GetMotionMaster()->MoveWaypoint();
+                        break;
+                }
+
+                break;
+            }
+            case SCRIPT_COMMAND_SET_ACTIVEOBJECT:
+            {
+                if (!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_SET_ACTIVEOBJECT (script id %u) call for NULL source.", step.script->id);
+                    break;
+                }
+
+                if (!source->isType(TYPEMASK_WORLDOBJECT))
+                {
+                    sLog.outError("SCRIPT_COMMAND_SET_ACTIVEOBJECT (script id %u) call for unsupported non-worldobject (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
+                    break;
+                }
+
+                WorldObject* pSource = (WorldObject*)source;
+                Creature* pOwner = NULL;
+
+                // No buddy defined, so try use source (or target if source is not creature)
+                if (!step.script->activeObject.creatureEntry)
+                {
+                    if (pSource->GetTypeId() != TYPEID_UNIT)
+                    {
+                        // we can't be non-creature, so see if target is creature
+                        if (target && target->GetTypeId() == TYPEID_UNIT)
+                            pOwner = (Creature*)target;
+                    }
+                    else if (pSource->GetTypeId() == TYPEID_UNIT)
+                        pOwner = (Creature*)pSource;
+                }
+                else                                        // If step has a buddy entry defined, search for it
+                {
+                    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*pSource, step.script->activeObject.creatureEntry, true, step.script->activeObject.searchRadius);
+                    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pOwner, u_check);
+
+                    Cell::VisitGridObjects(pSource, searcher, step.script->activeObject.searchRadius);
+                }
+
+                if (!pOwner)
+                {
+                    sLog.outError("SCRIPT_COMMAND_SET_ACTIVEOBJECT (script id %u) call for non-creature (TypeIdSource: %u)(TypeIdTarget: %u), skipping.", step.script->id, source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
+                    break;
+                }
+
+                pOwner->SetActiveObjectState(step.script->activeObject.activate);
+                break;
+            }
+            case SCRIPT_COMMAND_SET_FACTION:
+            {
+                if (!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_SET_FACTION (script id %u) call for NULL source.", step.script->id);
+                    break;
+                }
+
+                if (!source->isType(TYPEMASK_WORLDOBJECT))
+                {
+                    sLog.outError("SCRIPT_COMMAND_SET_FACTION (script id %u) call for unsupported non-worldobject (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
+                    break;
+                }
+
+                WorldObject* pSource = (WorldObject*)source;
+                Creature* pOwner = NULL;
+
+                // No buddy defined, so try use source (or target if source is not creature)
+                if (!step.script->faction.creatureEntry)
+                {
+                    if (pSource->GetTypeId() != TYPEID_UNIT)
+                    {
+                        // we can't be non-creature, so see if target is creature
+                        if (target && target->GetTypeId() == TYPEID_UNIT)
+                            pOwner = (Creature*)target;
+                    }
+                    else if (pSource->GetTypeId() == TYPEID_UNIT)
+                        pOwner = (Creature*)pSource;
+                }
+                else                                        // If step has a buddy entry defined, search for it
+                {
+                    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*pSource, step.script->faction.creatureEntry, true, step.script->faction.searchRadius);
+                    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pOwner, u_check);
+
+                    Cell::VisitGridObjects(pSource, searcher, step.script->faction.searchRadius);
+                }
+
+                if (!pOwner)
+                {
+                    sLog.outError("SCRIPT_COMMAND_SET_FACTION (script id %u) call for non-creature (TypeIdSource: %u)(TypeIdTarget: %u), skipping.", step.script->id, source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
+                    break;
+                }
+
+                if (step.script->faction.factionId)
+                    pOwner->setFaction(step.script->faction.factionId);
+                else
+                    pOwner->setFaction(pOwner->GetCreatureInfo()->faction_A);
+
+                break;
+            }
+            case SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL:
+            {
+                if (!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL (script id %u) call for NULL source.", step.script->id);
+                    break;
+                }
+
+                if (!source->isType(TYPEMASK_WORLDOBJECT))
+                {
+                    sLog.outError("SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL (script id %u) call for unsupported non-worldobject (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
+                    break;
+                }
+
+                WorldObject* pSource = (WorldObject*)source;
+                Creature* pOwner = NULL;
+
+                // No buddy defined, so try use source (or target if source is not creature)
+                if (!step.script->morph.creatureEntry)
+                {
+                    if (pSource->GetTypeId() != TYPEID_UNIT)
+                    {
+                        // we can't be non-creature, so see if target is creature
+                        if (target && target->GetTypeId() == TYPEID_UNIT)
+                            pOwner = (Creature*)target;
+                    }
+                    else if (pSource->GetTypeId() == TYPEID_UNIT)
+                        pOwner = (Creature*)pSource;
+                }
+                else                                        // If step has a buddy entry defined, search for it
+                {
+                    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*pSource, step.script->morph.creatureEntry, true, step.script->morph.searchRadius);
+                    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pOwner, u_check);
+
+                    Cell::VisitGridObjects(pSource, searcher, step.script->morph.searchRadius);
+                }
+
+                if (!pOwner)
+                {
+                    sLog.outError("SCRIPT_COMMAND_MORPH_TO_ENTRY_OR_MODEL (script id %u) call for non-creature (TypeIdSource: %u)(TypeIdTarget: %u), skipping.", step.script->id, source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
+                    break;
+                }
+
+                if (!step.script->morph.creatureOrModelEntry)
+                    pOwner->DeMorph();
+                else if (step.script->morph.flags & 0x01)
+                    pOwner->SetDisplayId(step.script->morph.creatureOrModelEntry);
+                else
+                {
+                    CreatureInfo const* ci = GetCreatureTemplateStore(step.script->morph.creatureOrModelEntry);
+                    uint32 display_id = Creature::ChooseDisplayId(ci);
+
+                    pOwner->SetDisplayId(display_id);
+                }
+
+                break;
+            }
+            case SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL:
+            {
+                if (!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL (script id %u) call for NULL source.", step.script->id);
+                    break;
+                }
+
+                if (!source->isType(TYPEMASK_WORLDOBJECT))
+                {
+                    sLog.outError("SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL (script id %u) call for unsupported non-worldobject (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
+                    break;
+                }
+
+                WorldObject* pSource = (WorldObject*)source;
+                Creature* pOwner = NULL;
+
+                // No buddy defined, so try use source (or target if source is not creature)
+                if (!step.script->mount.creatureEntry)
+                {
+                    if (pSource->GetTypeId() != TYPEID_UNIT)
+                    {
+                        // we can't be non-creature, so see if target is creature
+                        if (target && target->GetTypeId() == TYPEID_UNIT)
+                            pOwner = (Creature*)target;
+                    }
+                    else if (pSource->GetTypeId() == TYPEID_UNIT)
+                        pOwner = (Creature*)pSource;
+                }
+                else                                        // If step has a buddy entry defined, search for it
+                {
+                    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*pSource, step.script->mount.creatureEntry, true, step.script->mount.searchRadius);
+                    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pOwner, u_check);
+
+                    Cell::VisitGridObjects(pSource, searcher, step.script->mount.searchRadius);
+                }
+
+                if (!pOwner)
+                {
+                    sLog.outError("SCRIPT_COMMAND_MOUNT_TO_ENTRY_OR_MODEL (script id %u) call for non-creature (TypeIdSource: %u)(TypeIdTarget: %u), skipping.", step.script->id, source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
+                    break;
+                }
+
+                if (!step.script->mount.creatureOrModelEntry)
+                    pOwner->Unmount();
+                else if (step.script->mount.flags & 0x01)
+                    pOwner->Mount(step.script->mount.creatureOrModelEntry);
+                else
+                {
+                    CreatureInfo const* ci = GetCreatureTemplateStore(step.script->mount.creatureOrModelEntry);
+                    uint32 display_id = Creature::ChooseDisplayId(ci);
+
+                    pOwner->Mount(display_id);
+                }
+
+                break;
+            }
+            case SCRIPT_COMMAND_SET_RUN:
+            {
+                if (!source)
+                {
+                    sLog.outError("SCRIPT_COMMAND_SET_RUN (script id %u) call for NULL source.", step.script->id);
+                    break;
+                }
+
+                if (!source->isType(TYPEMASK_WORLDOBJECT))
+                {
+                    sLog.outError("SCRIPT_COMMAND_SET_RUN (script id %u) call for unsupported non-worldobject (TypeId: %u), skipping.", step.script->id, source->GetTypeId());
+                    break;
+                }
+
+                WorldObject* pSource = (WorldObject*)source;
+                Creature* pOwner = NULL;
+
+                // No buddy defined, so try use source (or target if source is not creature)
+                if (!step.script->run.creatureEntry)
+                {
+                    if (pSource->GetTypeId() != TYPEID_UNIT)
+                    {
+                        // we can't be non-creature, so see if target is creature
+                        if (target && target->GetTypeId() == TYPEID_UNIT)
+                            pOwner = (Creature*)target;
+                    }
+                    else if (pSource->GetTypeId() == TYPEID_UNIT)
+                        pOwner = (Creature*)pSource;
+                }
+                else                                        // If step has a buddy entry defined, search for it
+                {
+                    MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck u_check(*pSource, step.script->run.creatureEntry, true, step.script->run.searchRadius);
+                    MaNGOS::CreatureLastSearcher<MaNGOS::NearestCreatureEntryWithLiveStateInObjectRangeCheck> searcher(pOwner, u_check);
+
+                    Cell::VisitGridObjects(pSource, searcher, step.script->run.searchRadius);
+                }
+
+                if (!pOwner)
+                {
+                    sLog.outError("SCRIPT_COMMAND_SET_RUN (script id %u) call for non-creature (TypeIdSource: %u)(TypeIdTarget: %u), skipping.", step.script->id, source ? source->GetTypeId() : 0, target ? target->GetTypeId() : 0);
+                    break;
+                }
+
+                if (step.script->run.run)
+                    pOwner->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+                else
+                    pOwner->AddSplineFlag(SPLINEFLAG_WALKMODE);
 
                 break;
             }
@@ -2896,7 +3274,7 @@ void Map::ScriptsProcess()
                 if(!pReceiver)
                     break;
 
-                if(MailTemplate const *mail_template = sObjectMgr.GetMailTemplate(step.script->datalong))
+                if(MailTemplate const *mail_template = sObjectMgr.GetMailTemplate(step.script->sendMail.mail_id))
                 {
                     MailDraft draft(mail_template->title, mail_template->text);
 
@@ -2935,30 +3313,28 @@ void Map::ScriptsProcess()
                             draft.AddItem(cItem5);
                         }
 
-                    switch(step.script->datalong2)
+                    switch(step.script->sendMail.type)
                     {
                         case 3: // creature
-                            draft.SendMailTo(pReceiver, MailSender(MAIL_CREATURE, step.script->datalong3));
+                            draft.SendMailTo(pReceiver, MailSender(MAIL_CREATURE, step.script->sendMail.guidOrEntry));
                             break;
                         case 4: // object
-                            draft.SendMailTo(pReceiver, MailSender(MAIL_GAMEOBJECT, step.script->datalong3));
+                            draft.SendMailTo(pReceiver, MailSender(MAIL_GAMEOBJECT, step.script->sendMail.guidOrEntry));
                             break;
                         default:
                             break;
                     }
                 }else{
-                    sLog.outError("SCRIPT_COMMAND_SEND_MAIL (script id %u) can't find mail_template (mail_id: %u) ", step.script->id, step.script->datalong);
+                    sLog.outError("SCRIPT_COMMAND_SEND_MAIL (script id %u) can't find mail_template (mail_id: %u) ", step.script->id, step.script->sendMail.mail_id);
                     break;
                 }
 
                 break;
             }
-
             default:
                 sLog.outError("Unknown SCRIPT_COMMAND_ %u called for script id %u.",step.script->command, step.script->id);
                 break;
         }
-
         m_scriptSchedule.erase(iter);
         sWorld.DecreaseScheduledScriptCount();
 
@@ -3136,9 +3512,9 @@ uint32 Map::GenerateLocalLowGuid(HighGuid guidhigh)
         case HIGHGUID_VEHICLE:
             return m_VehicleGuids.Generate();
         default:
-            ASSERT(0);
+            MANGOS_ASSERT(0);
     }
 
-    ASSERT(0);
+    MANGOS_ASSERT(0);
     return 0;
 }

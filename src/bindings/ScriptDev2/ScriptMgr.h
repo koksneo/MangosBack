@@ -73,7 +73,7 @@ struct Script
 };
 
 //Generic scripting text function
-void DoScriptText(int32 textEntry, WorldObject* pSource, Unit* target = NULL);
+void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget = NULL);
 int GetCustomFix(int32 uId);
 
 #if COMPILER == COMPILER_GNU

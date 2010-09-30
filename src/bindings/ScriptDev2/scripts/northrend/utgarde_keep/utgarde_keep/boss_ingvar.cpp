@@ -33,6 +33,7 @@ enum
     SAY_KILL_FIRST              = -1574009,
     SAY_KILL_SECOND             = -1574010,
     SAY_RESSURECTING            = -1999782,
+    SAY_ANNHYLDE_REZ            = -1574023,
     EMOTE_ROAR                  = -1574022,
 
     NPC_ANNHYLDE                = 24068,

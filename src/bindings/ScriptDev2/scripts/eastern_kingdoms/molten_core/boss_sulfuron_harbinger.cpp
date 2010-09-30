@@ -59,6 +59,12 @@ struct MANGOS_DLL_DECL boss_sulfuronAI : public ScriptedAI
         Flamespear_Timer = 2000;
     }
 
+    void JustDied(Unit* pKiller)
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_SULFURON, DONE);
+    }
+
     void UpdateAI(const uint32 diff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())

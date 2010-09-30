@@ -385,10 +385,15 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     break;
                 case EVENT_T_FRIENDLY_MISSING_BUFF:
                 {
-                    SpellEntry const* pSpell = sSpellStore.LookupEntry(temp.spell_hit.spellId);
+                    SpellEntry const* pSpell = sSpellStore.LookupEntry(temp.friendly_buff.spellId);
                     if (!pSpell)
                     {
-                        sLog.outErrorDb("CreatureEventAI:  Creature %u has nonexistent SpellID(%u) defined in event %u.", temp.creature_id, temp.spell_hit.spellId, i);
+                        sLog.outErrorDb("CreatureEventAI:  Creature %u has nonexistent SpellID(%u) defined in event %u.", temp.creature_id, temp.friendly_buff.spellId, i);
+                        continue;
+                    }
+                    if (temp.friendly_buff.radius <= 0)
+                    {
+                        sLog.outErrorDb("CreatureEventAI:  Creature %u has wrong radius (%u) for EVENT_T_FRIENDLY_MISSING_BUFF defined in event %u.", temp.creature_id, temp.friendly_buff.radius, i);
                         continue;
                     }
                     if (temp.friendly_buff.repeatMax < temp.friendly_buff.repeatMin)
@@ -455,13 +460,20 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     break;
                 }
 
-                case EVENT_T_BUFFED:
-                case EVENT_T_TARGET_BUFFED:
+                case EVENT_T_AURA:
+                case EVENT_T_TARGET_AURA:
+                case EVENT_T_MISSING_AURA:
+                case EVENT_T_TARGET_MISSING_AURA:
                 {
                     SpellEntry const* pSpell = sSpellStore.LookupEntry(temp.buffed.spellId);
                     if (!pSpell)
                     {
-                        sLog.outErrorDb("CreatureEventAI:  Creature %u has nonexistent SpellID(%u) defined in event %u.", temp.creature_id, temp.spell_hit.spellId, i);
+                        sLog.outErrorDb("CreatureEventAI:  Creature %u has nonexistent SpellID(%u) defined in event %u.", temp.creature_id, temp.buffed.spellId, i);
+                        continue;
+                    }
+                    if (temp.buffed.amount < 1)
+                    {
+                        sLog.outErrorDb("CreatureEventAI:  Creature %u has wrong spell stack size (%u) defined in event %u.", temp.creature_id, temp.buffed.amount, i);
                         continue;
                     }
                     if (temp.buffed.repeatMax < temp.buffed.repeatMin)
@@ -778,7 +790,7 @@ void CreatureEventAIMgr::LoadCreatureEventAI_Scripts()
                     case ACTION_T_FLEE_FOR_ASSIST:          //No Params
                     case ACTION_T_DIE:                      //No Params
                     case ACTION_T_ZONE_COMBAT_PULSE:        //No Params
-                    case ACTION_T_FORCE_DESPAWN:            //No Params
+                    case ACTION_T_FORCE_DESPAWN:            //Delay
                     case ACTION_T_AUTO_ATTACK:              //AllowAttackState (0 = stop attack, anything else means continue attacking)
                     case ACTION_T_COMBAT_MOVEMENT:          //AllowCombatMovement (0 = stop combat based movement, anything else continue attacking)
                     case ACTION_T_RANGED_MOVEMENT:          //Distance, Angle

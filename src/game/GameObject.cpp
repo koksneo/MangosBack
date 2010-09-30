@@ -16,9 +16,8 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-#include "Common.h"
-#include "QuestDef.h"
 #include "GameObject.h"
+#include "QuestDef.h"
 #include "ObjectMgr.h"
 #include "PoolManager.h"
 #include "SpellMgr.h"
@@ -98,7 +97,7 @@ void GameObject::RemoveFromWorld()
 
 bool GameObject::Create(uint32 guidlow, uint32 name_id, Map *map, uint32 phaseMask, float x, float y, float z, float ang, float rotation0, float rotation1, float rotation2, float rotation3, uint32 animprogress, GOState go_state)
 {
-    ASSERT(map);
+    MANGOS_ASSERT(map);
     Relocate(x,y,z,ang);
     SetMap(map);
     SetPhaseMask(phaseMask,false);
@@ -293,7 +292,7 @@ void GameObject::Update(uint32 /*p_time*/)
                     if (owner && goInfo->trap.charges > 0)  // hunter trap
                     {
                         MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck u_check(this, owner, radius);
-                        MaNGOS::UnitSearcher<MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck> checker(this,ok, u_check);
+                        MaNGOS::UnitSearcher<MaNGOS::AnyUnfriendlyUnitInObjectRangeCheck> checker(ok, u_check);
                         Cell::VisitGridObjects(this,checker, radius);
                         if(!ok)
                             Cell::VisitWorldObjects(this,checker, radius);
@@ -305,7 +304,7 @@ void GameObject::Update(uint32 /*p_time*/)
                         // affect only players
                         Player* p_ok = NULL;
                         MaNGOS::AnyPlayerInObjectRangeCheck p_check(this, radius);
-                        MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck>  checker(this,p_ok, p_check);
+                        MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck>  checker(p_ok, p_check);
                         Cell::VisitWorldObjects(this,checker, radius);
                         ok = p_ok;
                     }
@@ -693,12 +692,17 @@ bool GameObject::isVisibleForInState(Player const* u, WorldObject const* viewPoi
             return false;
 
         // special invisibility cases
-        /* TODO: implement trap stealth, take look at spell 2836
-        if(GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && GetGOInfo()->trap.stealthed && u->IsHostileTo(GetOwner()))
+        if(GetGOInfo()->type == GAMEOBJECT_TYPE_TRAP && GetGOInfo()->trap.stealthed)
         {
-            if(check stuff here)
+            if(u->HasAura(2836) && u->isInFront(this, 15.0f))   // hack, maybe values are wrong
+                return true;
+
+            if (GetOwner() && u->IsFriendlyTo(GetOwner()))
+                return true;
+
+            if(m_lootState == GO_READY)
                 return false;
-        }*/
+        }
     }
 
     // check distance
@@ -730,7 +734,7 @@ bool GameObject::ActivateToQuest( Player *pTarget)const
                 //look for battlegroundAV for some objects which are only activated after mine gots captured by own team
                 if (GetEntry() == BG_AV_OBJECTID_MINE_N || GetEntry() == BG_AV_OBJECTID_MINE_S)
                     if (BattleGround *bg = pTarget->GetBattleGround())
-                        if (bg->GetTypeID() == BATTLEGROUND_AV && !(((BattleGroundAV*)bg)->PlayerCanDoMineQuest(GetEntry(),pTarget->GetTeam())))
+                        if (bg->GetTypeID(true) == BATTLEGROUND_AV && !(((BattleGroundAV*)bg)->PlayerCanDoMineQuest(GetEntry(),pTarget->GetTeam())))
                             return false;
                 return true;
             }
@@ -793,7 +797,7 @@ void GameObject::TriggeringLinkedGameObject( uint32 trapEntry, Unit* target)
     {
         // using original GO distance
         MaNGOS::NearestGameObjectEntryInObjectRangeCheck go_check(*target,trapEntry,range);
-        MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck> checker(this, trapGO,go_check);
+        MaNGOS::GameObjectLastSearcher<MaNGOS::NearestGameObjectEntryInObjectRangeCheck> checker(trapGO,go_check);
 
         Cell::VisitGridObjects(this, checker, range);
     }
@@ -808,8 +812,8 @@ GameObject* GameObject::LookupFishingHoleAround(float range)
 {
     GameObject* ok = NULL;
 
-    MaNGOS::NearestGameObjectFishingHole u_check(*this, range);
-    MaNGOS::GameObjectSearcher<MaNGOS::NearestGameObjectFishingHole> checker(this, ok, u_check);
+    MaNGOS::NearestGameObjectFishingHoleCheck u_check(*this, range);
+    MaNGOS::GameObjectSearcher<MaNGOS::NearestGameObjectFishingHoleCheck> checker(ok, u_check);
     Cell::VisitGridObjects(this,checker, range);
 
     return ok;
@@ -1364,15 +1368,15 @@ void GameObject::Use(Unit* user)
                     {
                         case 179785:                        // Silverwing Flag
                             // check if it's correct bg
-                            if(bg->GetTypeID() == BATTLEGROUND_WS)
+                            if(bg->GetTypeID(true) == BATTLEGROUND_WS)
                                 bg->EventPlayerClickedOnFlag(player, this);
                             break;
                         case 179786:                        // Warsong Flag
-                            if(bg->GetTypeID() == BATTLEGROUND_WS)
+                            if(bg->GetTypeID(true) == BATTLEGROUND_WS)
                                 bg->EventPlayerClickedOnFlag(player, this);
                             break;
                         case 184142:                        // Netherstorm Flag
-                            if(bg->GetTypeID() == BATTLEGROUND_EY)
+                            if(bg->GetTypeID(true) == BATTLEGROUND_EY)
                                 bg->EventPlayerClickedOnFlag(player, this);
                             break;
                     }

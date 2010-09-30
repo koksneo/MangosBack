@@ -449,7 +449,7 @@ const uint32 ItemQualityColors[MAX_ITEM_QUALITY] = {
 #define SPELL_ATTR_EX6_UNK26                      0x04000000            // 26 not set in 3.0.3
 #define SPELL_ATTR_EX6_UNK27                      0x08000000            // 27 not set in 3.0.3
 #define SPELL_ATTR_EX6_UNK28                      0x10000000            // 28 not set in 3.0.3
-#define SPELL_ATTR_EX6_NO_DMG_PERCENT_MODS        0x20000000            // 29 do not apply damage percent mods (usually in cases where it has already been applied)
+#define SPELL_ATTR_EX6_NO_DMG_MODS                0x20000000            // 29 do not apply damage mods (usually in cases where it has already been applied)
 #define SPELL_ATTR_EX6_UNK30                      0x40000000            // 30 not set in 3.0.3
 #define SPELL_ATTR_EX6_UNK31                      0x80000000            // 31 not set in 3.0.3
 
@@ -917,7 +917,7 @@ enum AuraState
     AURA_STATE_SWIFTMEND                    = 15,           //   T |
     AURA_STATE_DEADLY_POISON                = 16,           //   T |
     AURA_STATE_ENRAGE                       = 17,           // C   |
-    AURA_STATE_BLEEDING                     = 18,           // C  t|
+    AURA_STATE_MECHANIC_BLEED               = 18,           // C  t|
     //AURA_STATE_UNKNOWN19                  = 19,           //     | not used
     //AURA_STATE_UNKNOWN20                  = 20,           //  c  | only (45317 Suicide)
     //AURA_STATE_UNKNOWN21                  = 21,           //     | not used
@@ -936,7 +936,7 @@ enum Mechanics
     MECHANIC_FEAR             = 5,
     MECHANIC_GRIP             = 6,
     MECHANIC_ROOT             = 7,
-    MECHANIC_PACIFY           = 8,                          //0 spells use this mechanic
+    MECHANIC_SLOWATTACK       = 8,                          //0 spells use this mechanic, but some SPELL_AURA_MOD_HASTE and SPELL_AURA_MOD_RANGED_HASTE use as effect mechanic 
     MECHANIC_SILENCE          = 9,
     MECHANIC_SLEEP            = 10,
     MECHANIC_SNARE            = 11,
@@ -965,7 +965,7 @@ enum Mechanics
 // Used for spell 42292 Immune Movement Impairment and Loss of Control (0x49967da6)
 #define IMMUNE_TO_MOVEMENT_IMPAIRMENT_AND_LOSS_CONTROL_MASK ( \
     (1<<(MECHANIC_CHARM   -1))|(1<<(MECHANIC_DISORIENTED-1))|(1<<(MECHANIC_FEAR  -1))| \
-    (1<<(MECHANIC_ROOT    -1))|(1<<(MECHANIC_PACIFY     -1))|(1<<(MECHANIC_SLEEP -1))| \
+    (1<<(MECHANIC_ROOT    -1))|(1<<(MECHANIC_SLOWATTACK -1))|(1<<(MECHANIC_SLEEP -1))| \
     (1<<(MECHANIC_SNARE   -1))|(1<<(MECHANIC_STUN       -1))|(1<<(MECHANIC_FREEZE-1))| \
     (1<<(MECHANIC_KNOCKOUT-1))|(1<<(MECHANIC_POLYMORPH  -1))|(1<<(MECHANIC_BANISH-1))| \
     (1<<(MECHANIC_SHACKLE -1))|(1<<(MECHANIC_TURN       -1))|(1<<(MECHANIC_HORROR-1))| \
@@ -985,10 +985,10 @@ enum Mechanics
 
 // Daze and all croud control spells except polymorph are not removed
 #define MECHANIC_NOT_REMOVED_BY_SHAPESHIFT ( \
-    (1<<(MECHANIC_CHARM -1))|(1<<(MECHANIC_DISORIENTED-1))|(1<<(MECHANIC_FEAR  -1))| \
-    (1<<(MECHANIC_PACIFY-1))|(1<<(MECHANIC_STUN       -1))|(1<<(MECHANIC_FREEZE-1))| \
-    (1<<(MECHANIC_BANISH-1))|(1<<(MECHANIC_SHACKLE    -1))|(1<<(MECHANIC_HORROR-1))| \
-    (1<<(MECHANIC_TURN  -1))|(1<<(MECHANIC_DAZE       -1))|(1<<(MECHANIC_SAPPED-1)))
+    (1<<(MECHANIC_CHARM  -1))|(1<<(MECHANIC_DISORIENTED-1))|(1<<(MECHANIC_FEAR  -1))| \
+    (1<<(MECHANIC_STUN   -1))|(1<<(MECHANIC_FREEZE     -1))|(1<<(MECHANIC_BANISH-1))| \
+    (1<<(MECHANIC_SHACKLE-1))|(1<<(MECHANIC_HORROR     -1))|(1<<(MECHANIC_TURN  -1))| \
+    (1<<(MECHANIC_DAZE   -1))|(1<<(MECHANIC_SAPPED     -1)))
 
 // Spell dispell type
 enum DispelType
@@ -2007,7 +2007,7 @@ enum QuestSort
     QUEST_SORT_ROGUE               = 162,
     QUEST_SORT_ALCHEMY             = 181,
     QUEST_SORT_LEATHERWORKING      = 182,
-    QUEST_SORT_ENGINERING          = 201,
+    QUEST_SORT_ENGINEERING         = 201,
     QUEST_SORT_TREASURE_MAP        = 221,
     QUEST_SORT_SUNKEN_TEMPLE_OLD   = 241,
     QUEST_SORT_HUNTER              = 261,
@@ -2109,7 +2109,7 @@ enum SkillType
     SKILL_PET_IMP                  = 188,
     SKILL_PET_FELHUNTER            = 189,
     SKILL_TAILORING                = 197,
-    SKILL_ENGINERING               = 202,
+    SKILL_ENGINEERING              = 202,
     SKILL_PET_SPIDER               = 203,
     SKILL_PET_VOIDWALKER           = 204,
     SKILL_PET_SUCCUBUS             = 205,
@@ -2229,7 +2229,7 @@ inline uint32 SkillByQuestSort(int32 QuestSort)
         case QUEST_SORT_BLACKSMITHING:  return SKILL_BLACKSMITHING;
         case QUEST_SORT_ALCHEMY:        return SKILL_ALCHEMY;
         case QUEST_SORT_LEATHERWORKING: return SKILL_LEATHERWORKING;
-        case QUEST_SORT_ENGINERING:     return SKILL_ENGINERING;
+        case QUEST_SORT_ENGINEERING:    return SKILL_ENGINEERING;
         case QUEST_SORT_TAILORING:      return SKILL_TAILORING;
         case QUEST_SORT_COOKING:        return SKILL_COOKING;
         case QUEST_SORT_FIRST_AID:      return SKILL_FIRST_AID;

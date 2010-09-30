@@ -19,6 +19,7 @@
 #ifndef __SPELL_H
 #define __SPELL_H
 
+#include "Common.h"
 #include "GridDefines.h"
 #include "SharedDefines.h"
 #include "DBCEnums.h"
@@ -308,6 +309,7 @@ class Spell
         void EffectCharge(SpellEffectIndex eff_idx);
         void EffectCharge2(SpellEffectIndex eff_idx);
         void EffectProspecting(SpellEffectIndex eff_idx);
+        void EffectRedirectThreat(SpellEffectIndex eff_idx);
         void EffectMilling(SpellEffectIndex eff_idx);
         void EffectRenamePet(SpellEffectIndex eff_idx);
         void EffectSendTaxi(SpellEffectIndex eff_idx);
@@ -337,6 +339,7 @@ class Spell
         void EffectKillCredit(SpellEffectIndex eff_idx);
         void EffectQuestFail(SpellEffectIndex eff_idx);
         void EffectActivateRune(SpellEffectIndex eff_idx);
+
         void EffectTeachTaxiNode(SpellEffectIndex eff_idx);
         void EffectTitanGrip(SpellEffectIndex eff_idx);
         void EffectEnchantItemPrismatic(SpellEffectIndex eff_idx);
@@ -348,7 +351,9 @@ class Spell
         ~Spell();
 
         void prepare(SpellCastTargets const* targets, Aura* triggeredByAura = NULL);
+
         void cancel();
+
         void update(uint32 difftime);
         void cast(bool skipCheck = false);
         void finish(bool ok = true);
@@ -485,6 +490,9 @@ class Spell
 
         static void SelectMountByAreaAndSkill(Unit* target, uint32 spellId75, uint32 spellId150, uint32 spellId225, uint32 spellId300, uint32 spellIdSpecial);
     protected:
+        bool HasGlobalCooldown();
+        void TriggerGlobalCooldown();
+        void CancelGlobalCooldown();
 
         void SendLoot(uint64 guid, LootType loottype);
         bool IgnoreItemRequirements() const;                        // some item use spells have unexpected reagent data
@@ -698,7 +706,7 @@ namespace MaNGOS
 
         template<class T> inline void Visit(GridRefManager<T>  &m)
         {
-            ASSERT(i_data);
+            MANGOS_ASSERT(i_data);
 
             if(!i_originalCaster)
                 return;

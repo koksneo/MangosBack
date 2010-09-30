@@ -22,12 +22,25 @@ SDCategory: Gundrak
 EndScriptData */
 
 #include "precompiled.h"
+#include "gundrak.h"
 
 enum
 {
     EMOTE_SURGE                 = -1604008,
     EMOTE_SEEP                  = -1604009,
-    EMOTE_GLOW                  = -1604010
+    EMOTE_GLOW                  = -1604010,
+
+    // collosus' abilities
+    SPELL_EMERGE                = 54850,
+    SPELL_MIGHTY_BLOW           = 54719,
+    SPELL_MORTAL_STRIKES        = 54715,
+    SPELL_MORTAL_STRIKES_H      = 59454,
+
+    // elemental's abilities
+    SPELL_MERGE                 = 54878,
+    SPELL_SURGE                 = 54801,
+    SPELL_MOJO_VOLLEY           = 59453,
+    SPELL_MOJO_VOLLEY_H         = 54849
 };
 
 /*######
@@ -38,22 +51,84 @@ struct MANGOS_DLL_DECL boss_colossusAI : public ScriptedAI
 {
     boss_colossusAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_gundrak*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance* m_pInstance;
+    instance_gundrak* m_pInstance;
     bool m_bIsRegularMode;
+    bool m_bFirstEmerge;
+
+    uint32 m_uiMightyBlowTimer;
 
     void Reset()
     {
+        m_bFirstEmerge = false;
+        m_uiMightyBlowTimer = 10000;
+    }
+
+    void Agrro()
+    {
+        DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_MORTAL_STRIKES : SPELL_MORTAL_STRIKES_H);
+
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_COLOSSUS, IN_PROGRESS);
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_COLOSSUS, DONE);
+    }
+
+    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+    {
+        if (pSpell->Id == SPELL_MERGE)
+        {
+            // re-activate colossus here
+        }
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        if (pSummoned->GetEntry() == NPC_ELEMENTAL)
+        {
+            // handle elemental stuff
+        }
+    }
+
+    void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+    {
+        if (!m_bFirstEmerge && m_creature->GetHealthPercent() < 50.0f)
+        {
+            m_bFirstEmerge = true;
+            DoCastSpellIfCan(m_creature, SPELL_EMERGE);
+        }
+        else if (m_creature->GetHealth() - uiDamage <= 0)
+        {
+            // prevent boss from dying if players deal the final blow
+            if (pDoneBy->GetCharmerOrOwnerPlayerOrPlayerItself())
+            {
+                uiDamage = 0;
+                DoCastSpellIfCan(m_creature, SPELL_EMERGE);
+            }
+        }
+
     }
 
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
+
+        if (m_uiMightyBlowTimer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_MIGHTY_BLOW);
+            m_uiMightyBlowTimer = 10000;
+        }
+        else
+            m_uiMightyBlowTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }
@@ -66,10 +141,10 @@ CreatureAI* GetAI_boss_colossus(Creature* pCreature)
 
 void AddSC_boss_colossus()
 {
-    Script *newscript;
+    Script* pNewScript;
 
-    newscript = new Script;
-    newscript->Name = "boss_colossus";
-    newscript->GetAI = &GetAI_boss_colossus;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "boss_colossus";
+    pNewScript->GetAI = &GetAI_boss_colossus;
+    pNewScript->RegisterSelf();
 }

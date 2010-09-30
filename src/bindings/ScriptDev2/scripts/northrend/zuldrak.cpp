@@ -52,7 +52,11 @@ bool QuestAccept_npc_gurgthock(Player* pPlayer, Creature* pCreature, const Quest
     return true;
 }
 
-enum 
+/*###################
+# Quest: Leave no one behind
+###################*/
+
+enum Crusaders
 {
     NPC_LAMOOF                          = 28142,
     NPC_LAMOOF_TRIGGER                  = 28141,
@@ -165,8 +169,8 @@ struct MANGOS_DLL_DECL mob_crusaderAI : public FollowerAI
                 }
                 if (m_creature->HasAura(dispell))
                     m_creature->RemoveAurasDueToSpell(dispell);
-                pFollowed->CastSpell(pFollowed,spell,true);
-                DoScriptText(textid,m_creature);
+                pFollowed->CastSpell(pFollowed, spell, true);
+                DoScriptText(textid, m_creature);
             }
             SetFollowComplete(true);
         }
@@ -184,16 +188,16 @@ struct MANGOS_DLL_DECL mob_crusaderAI : public FollowerAI
                 switch(m_creature->GetEntry())
                 {
                     case NPC_LAMOOF: 
-                        DoCast(pFollowed,SPELL_DYING_LAMOOF,true);
-                        DoCast(m_creature,SPELL_DYING_LAMOOF,true);
+                        DoCastSpellIfCan(pFollowed, SPELL_DYING_LAMOOF, CAST_TRIGGERED);
+                        DoCastSpellIfCan(m_creature, SPELL_DYING_LAMOOF, CAST_TRIGGERED);
                         break;
                     case NPC_JONATHAN: 
-                        DoCast(pFollowed,SPELL_DYING_JONATHAN,true);
-                        DoCast(m_creature,SPELL_DYING_JONATHAN,true);
+                        DoCastSpellIfCan(pFollowed, SPELL_DYING_JONATHAN, CAST_TRIGGERED);
+                        DoCastSpellIfCan(m_creature, SPELL_DYING_JONATHAN, CAST_TRIGGERED);
                         break;
                     case NPC_JOSEPHINE: 
-                        DoCast(pFollowed,SPELL_DYING_JOSEPHINE,true);
-                        DoCast(m_creature,SPELL_DYING_JOSEPHINE,true);
+                        DoCastSpellIfCan(pFollowed, SPELL_DYING_JOSEPHINE, CAST_TRIGGERED);
+                        DoCastSpellIfCan(m_creature, SPELL_DYING_JOSEPHINE, CAST_TRIGGERED);
                         break;
                 }
             }
@@ -243,17 +247,16 @@ struct MANGOS_DLL_DECL mob_crusader_triggerAI : public FollowerAI
                 break;
             default: break;
         }
-        DoCast(pCaster,spell,true);
-        if (Creature* pSummoned = GetClosestCreatureWithEntry(pCaster,summon,range))
+        DoCastSpellIfCan(pCaster, spell, CAST_TRIGGERED);
+        if (Creature* pSummoned = GetClosestCreatureWithEntry(pCaster, summon, range))
             if (pSummoned->AI())
                 if (mob_crusaderAI* pFollowerAI = dynamic_cast<mob_crusaderAI*>(pSummoned->AI()))
                     if (pFollowerAI->bReady)
                     {
-                        pFollowerAI->StartFollow(((Player*)pCaster),FACTION_ESCORT_N_FRIEND_PASSIVE);
+                        pFollowerAI->StartFollow(((Player*)pCaster), FACTION_ESCORT_N_FRIEND_PASSIVE);
                         pFollowerAI->bBleeding = true;
                         pFollowerAI->bReady = false;
                     }
-
         m_creature->ForcedDespawn();
     }
 
@@ -266,13 +269,14 @@ struct MANGOS_DLL_DECL mob_crusader_triggerAI : public FollowerAI
         {
             switch(m_creature->GetEntry())
             {
-                case NPC_LAMOOF_TRIGGER: DoScriptText(SAY_LAMOOF_MOAN,m_creature);break;
+                case NPC_LAMOOF_TRIGGER: DoScriptText(SAY_LAMOOF_MOAN, m_creature);break;
                 default: break;
             }
             m_uiMoan_Timer = 45000;
-        } else m_uiMoan_Timer -= uiDiff;
+        }
+        else
+            m_uiMoan_Timer -= uiDiff;
     }
-
 };
 CreatureAI* GetAI_mob_crusader_trigger(Creature* pCreature)
 {

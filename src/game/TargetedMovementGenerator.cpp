@@ -55,7 +55,7 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
     else
     {
         // to at i_offset distance from target and i_angle from target facing
-        i_target->GetClosePoint(x, y, z, owner.GetObjectBoundingRadius(), i_offset, i_angle);
+        i_target->GetClosePoint(x, y, z, owner.GetObjectBoundingRadius(), i_offset, i_angle, &owner);
     }
 
     /*
@@ -74,6 +74,7 @@ void TargetedMovementGeneratorMedium<T,D>::_setTargetLocation(T &owner)
         if( i_destinationHolder.HasDestination() && i_destinationHolder.GetDestinationDiff(x,y,z) < bothObjectSize )
             return;
     */
+
     Traveller<T> traveller(owner);
     i_destinationHolder.SetDestination(traveller, x, y, z);
 

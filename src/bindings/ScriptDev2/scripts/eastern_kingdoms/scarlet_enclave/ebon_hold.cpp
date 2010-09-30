@@ -900,11 +900,13 @@ struct MANGOS_DLL_DECL npc_unworthy_initiate_anchorAI : public ScriptedAI
     }
 
     uint64 m_uiMyInitiate;
+    uint64 m_uiMyPrisonGUID;
 
     void Reset() { }
 
-    void NotifyMe(Unit* pSource)
+    void NotifyMe(Unit* pSource, uint64 uiPrisonGuid)
     {
+        m_uiMyPrisonGUID = uiPrisonGuid;
         Creature* pInitiate = m_creature->GetMap()->GetCreature(m_uiMyInitiate);
 
         if (pInitiate && pSource)
@@ -917,6 +919,12 @@ struct MANGOS_DLL_DECL npc_unworthy_initiate_anchorAI : public ScriptedAI
     void RegisterCloseInitiate(uint64 uiGuid)
     {
         m_uiMyInitiate = uiGuid;
+    }
+
+    void ResetPrison()
+    {
+        if (GameObject* pPrison = m_creature->GetMap()->GetGameObject(m_uiMyPrisonGUID))
+            pPrison->ResetDoorOrButton();
     }
 };
 
@@ -953,6 +961,7 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 
     DisplayToSpell* m_pToTransform;
 
+    uint64 m_uiMyAnchorGUID;
     uint32 m_uiNormFaction;
     uint32 m_uiAnchorCheckTimer;
     uint32 m_uiPhase;
@@ -967,6 +976,7 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         if (m_creature->getFaction() != m_uiNormFaction)
             m_creature->setFaction(m_uiNormFaction);
 
+        m_uiMyAnchorGUID = 0;
         m_uiAnchorCheckTimer = 5000;
         m_uiPhase = PHASE_INACTIVE_OR_COMBAT;
         m_uiPhaseTimer = 7500;
@@ -981,14 +991,33 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
         SetAnchor();
     }
 
+    void JustRespawned()
+    {
+        if (Creature* pAnchor = GetAnchor())
+        {
+            if (npc_unworthy_initiate_anchorAI* pAnchorAI = dynamic_cast<npc_unworthy_initiate_anchorAI*>(pAnchor->AI()))
+                pAnchorAI->ResetPrison();
+        }
+
+        Reset();
+    }
+
     int32 GetTextId()
     {
         return m_uiPhase == PHASE_DRESSUP ? SAY_START-rand()%8 : SAY_AGGRO-rand()%8;
     }
 
+    Creature* GetAnchor()
+    {
+        if (m_uiMyAnchorGUID)
+            return m_creature->GetMap()->GetCreature(m_uiMyAnchorGUID);
+        else
+            return GetClosestCreatureWithEntry(m_creature, NPC_ANCHOR, INTERACTION_DISTANCE*2);
+    }
+
     void SetAnchor()
     {
-        if (Creature* pAnchor = GetClosestCreatureWithEntry(m_creature, NPC_ANCHOR, INTERACTION_DISTANCE*2))
+        if (Creature* pAnchor = GetAnchor())
         {
             if (npc_unworthy_initiate_anchorAI* pAnchorAI = dynamic_cast<npc_unworthy_initiate_anchorAI*>(pAnchor->AI()))
                 pAnchorAI->RegisterCloseInitiate(m_creature->GetGUID());
@@ -1018,10 +1047,13 @@ struct MANGOS_DLL_DECL npc_unworthy_initiateAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if (m_uiAnchorCheckTimer && m_uiAnchorCheckTimer < uiDiff)
-            SetAnchor();
-        else
-            m_uiAnchorCheckTimer -= uiDiff;
+        if (m_uiAnchorCheckTimer)
+        {
+            if (m_uiAnchorCheckTimer <= uiDiff)
+                SetAnchor();
+            else
+                m_uiAnchorCheckTimer -= uiDiff;
+        }
 
         if (m_uiPhase == PHASE_INACTIVE_OR_COMBAT)
         {
@@ -1113,7 +1145,7 @@ bool GOHello_go_acherus_soul_prison(Player* pPlayer, GameObject* pGo)
     if (Creature* pAnchor = GetClosestCreatureWithEntry(pGo, NPC_ANCHOR, INTERACTION_DISTANCE))
     {
         if (npc_unworthy_initiate_anchorAI* pAnchorAI = dynamic_cast<npc_unworthy_initiate_anchorAI*>(pAnchor->AI()))
-            pAnchorAI->NotifyMe(pPlayer);
+            pAnchorAI->NotifyMe(pPlayer, pGo->GetGUID());
     }
 
     return false;
@@ -1145,8 +1177,7 @@ struct MANGOS_DLL_DECL npc_eye_of_acherusAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE && uiPointId == 0)
             return;
 
-            char * text = "The Eye of Acherus is in your control";
-            m_creature->MonsterTextEmote(text, m_creature->GetGUID(), true);
+            m_creature->MonsterTextEmote("The Eye of Acherus is in your control", m_creature->GetGUID(), true);
             m_creature->CastSpell(m_creature, 51890, true);
     }
 
@@ -3616,8 +3647,6 @@ struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
     {
         m_uiWaitForThrowTimer   = 3000;
         m_bWaitForThrow         = false;
-        pTarget                 = NULL;
-        m_uiTargetGUID          = 0;
         m_uiHarvesterGUID       = 0;
     }
 

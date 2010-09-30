@@ -69,19 +69,19 @@ struct MANGOS_DLL_DECL mob_rjr_targetAI : public ScriptedAI
         switch (pSpell->Id)
         {
             case SPELL_HIT_APPLE:
-                if (Unit* pWilhelm = GetClosestCreatureWithEntry(m_creature,NPC_WILHELM,30.0f))
-                    DoScriptText(WilhelmText[3],pWilhelm,pCaster);
-                DoCast(m_creature,SPELL_APPLE_FALL,true);
-                ((Player*)pCaster)->KilledMonsterCredit(m_creature->GetEntry(),m_creature->GetGUID());
+                if (Unit* pWilhelm = GetClosestCreatureWithEntry(m_creature, NPC_WILHELM, 30.0f))
+                    DoScriptText(WilhelmText[3], pWilhelm, pCaster);
+                DoCastSpellIfCan(m_creature, SPELL_APPLE_FALL, CAST_TRIGGERED);
+                ((Player*)pCaster)->KilledMonsterCredit(m_creature->GetEntry(), m_creature->GetGUID());
                 m_creature->ForcedDespawn();
                 break;
             case SPELL_HIT_BIRD:
-                if (Unit* pDrostan = GetClosestCreatureWithEntry(m_creature,NPC_DROSTAN,30.0f))
-                    DoScriptText(DrostanText[3],pDrostan,m_creature);
-                DoCast(m_creature,SPELL_BIRD_FALL,true);
+                if (Unit* pDrostan = GetClosestCreatureWithEntry(m_creature, NPC_DROSTAN, 30.0f))
+                    DoScriptText(DrostanText[3], pDrostan ,m_creature);
+                DoCastSpellIfCan(m_creature, SPELL_BIRD_FALL, CAST_TRIGGERED);
                 break;
             case SPELL_HIT_WILHELM:
-                DoScriptText(WilhelmText[urand(0,2)],m_creature);
+                DoScriptText(WilhelmText[urand(0, 2)], m_creature);
                 bResponce = true;
                 break;
                 
@@ -92,13 +92,15 @@ struct MANGOS_DLL_DECL mob_rjr_targetAI : public ScriptedAI
     void UpdateAI (uint32 const uiDiff)
     {
         if (bResponce)
-            if (Unit* pDrostan = GetClosestCreatureWithEntry(m_creature,NPC_DROSTAN,30.0f))
+            if (Unit* pDrostan = GetClosestCreatureWithEntry(m_creature, NPC_DROSTAN, 30.0f))
                 if (m_uiResponceTimer <= uiDiff)
                 {
-                    DoScriptText(DrostanText[urand(0,2)],pDrostan,m_creature);
+                    DoScriptText(DrostanText[urand(0, 2)], pDrostan, m_creature);
                     m_uiResponceTimer = 2000;
                     bResponce = false;
-                }else m_uiResponceTimer -= uiDiff;
+                }
+                else
+                    m_uiResponceTimer -= uiDiff;
     }
 };
 

@@ -526,7 +526,6 @@ struct MANGOS_DLL_DECL boss_arugalAI : public ScriptedAI
                             if (!i)
                                 pLeader = pVoidwalker;
 
-
                             if (mob_arugal_voidwalkerAI* pVoidwalkerAI = dynamic_cast<mob_arugal_voidwalkerAI*>(pVoidwalker->AI()))
                                 pVoidwalkerAI->SetPosition(i,pLeader);
 
@@ -650,7 +649,6 @@ struct MANGOS_DLL_DECL boss_arugalAI : public ScriptedAI
             }
             else
                 m_uiTeleportTimer = urand(48000, 55000);
-
 
             m_posPosition = posNewPosition;
         }

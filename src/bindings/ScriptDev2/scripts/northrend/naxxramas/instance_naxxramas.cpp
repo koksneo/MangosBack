@@ -307,7 +307,7 @@ void instance_naxxramas::ActivateAreaFissures(ChamberArea AreaNo)
         float radius = 4.0f;
         Player* pPlayer = NULL;
         MaNGOS::AnyPlayerInObjectRangeCheck p_check(pFissure, radius);
-        MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck>  checker(pFissure, pPlayer , p_check);
+        MaNGOS::PlayerSearcher<MaNGOS::AnyPlayerInObjectRangeCheck>  checker(pPlayer , p_check);
         Cell::VisitAllObjects(pFissure, checker, radius);
 
         if (pPlayer)
@@ -710,7 +710,7 @@ Unit* instance_naxxramas::SelectRandomTargetOnSide(bool bRight, const WorldObjec
 
     std::list<uint64>::iterator itrGUID = lTargets.begin();
     advance(itrGUID, (rand()%lTargets.size()) );
-    if (Player* pTarget = instance->GetPlayer(*itrGUID))
+    if (Unit* pTarget = instance->GetUnit(*itrGUID))
         return pTarget;
 
     return NULL;

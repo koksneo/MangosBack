@@ -132,4 +132,33 @@ pkgdata_DATA = \
 	r1771_scriptdev2.sql \
 	r1777_scriptdev2.sql \
 	r1780_scriptdev2.sql \
-	r1782_scriptdev2.sql
+	r1782_scriptdev2.sql \
+	r1783_scriptdev2.sql \
+	r1784_scriptdev2.sql \
+	r1785_scriptdev2.sql \
+	r1786_scriptdev2.sql \
+	r1789_scriptdev2.sql \
+	r1791_scriptdev2.sql \
+	r1797_mangos.sql \
+	r1798_mangos.sql \
+	r1800_mangos.sql \
+	r1800_scriptdev2.sql \
+	r1807_scriptdev2.sql \
+	r1810_scriptdev2.sql \
+	r1813_mangos.sql \
+	r1816_scriptdev2.sql \
+	r1818_mangos.sql \
+	r1818_scriptdev2.sql \
+	r1819_mangos.sql \
+	r1822_scriptdev2.sql \
+	r1824_mangos.sql \
+	r1825_mangos.sql \
+	r1825_scriptdev2.sql \
+	r1826_mangos.sql \
+	r1826_scriptdev2.sql \
+	r1827_scriptdev2.sql \
+	r1828_scriptdev2.sql \
+	r1829_mangos.sql \
+	r1830_scriptdev2.sql \
+	r1831_scriptdev2.sql
+

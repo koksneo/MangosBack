@@ -144,39 +144,39 @@ class MANGOS_DLL_SPEC Object
 
         const int32& GetInt32Value( uint16 index ) const
         {
-            ASSERT( index < m_valuesCount || PrintIndexError( index , false) );
+            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false) );
             return m_int32Values[ index ];
         }
 
         const uint32& GetUInt32Value( uint16 index ) const
         {
-            ASSERT( index < m_valuesCount || PrintIndexError( index , false) );
+            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false) );
             return m_uint32Values[ index ];
         }
 
         const uint64& GetUInt64Value( uint16 index ) const
         {
-            ASSERT( index + 1 < m_valuesCount || PrintIndexError( index , false) );
+            MANGOS_ASSERT( index + 1 < m_valuesCount || PrintIndexError( index , false) );
             return *((uint64*)&(m_uint32Values[ index ]));
         }
 
         const float& GetFloatValue( uint16 index ) const
         {
-            ASSERT( index < m_valuesCount || PrintIndexError( index , false ) );
+            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false ) );
             return m_floatValues[ index ];
         }
 
         uint8 GetByteValue( uint16 index, uint8 offset) const
         {
-            ASSERT( index < m_valuesCount || PrintIndexError( index , false) );
-            ASSERT( offset < 4 );
+            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false) );
+            MANGOS_ASSERT( offset < 4 );
             return *(((uint8*)&m_uint32Values[ index ])+offset);
         }
 
         uint16 GetUInt16Value( uint16 index, uint8 offset) const
         {
-            ASSERT( index < m_valuesCount || PrintIndexError( index , false) );
-            ASSERT( offset < 2 );
+            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false) );
+            MANGOS_ASSERT( offset < 2 );
             return *(((uint16*)&m_uint32Values[ index ])+offset);
         }
 
@@ -218,7 +218,7 @@ class MANGOS_DLL_SPEC Object
 
         bool HasFlag( uint16 index, uint32 flag ) const
         {
-            ASSERT( index < m_valuesCount || PrintIndexError( index , false ) );
+            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false ) );
             return (m_uint32Values[ index ] & flag) != 0;
         }
 
@@ -235,8 +235,8 @@ class MANGOS_DLL_SPEC Object
 
         bool HasByteFlag( uint16 index, uint8 offset, uint8 flag ) const
         {
-            ASSERT( index < m_valuesCount || PrintIndexError( index , false ) );
-            ASSERT( offset < 4 );
+            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false ) );
+            MANGOS_ASSERT( offset < 4 );
             return (((uint8*)&m_uint32Values[index])[offset] & flag) != 0;
         }
 
@@ -269,7 +269,7 @@ class MANGOS_DLL_SPEC Object
 
         bool HasFlag64( uint16 index, uint64 flag ) const
         {
-            ASSERT( index < m_valuesCount || PrintIndexError( index , false ) );
+            MANGOS_ASSERT( index < m_valuesCount || PrintIndexError( index , false ) );
             return (GetUInt64Value( index ) & flag) != 0;
         }
 
@@ -360,10 +360,10 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         float GetOrientation( ) const { return m_orientation; }
         void GetNearPoint2D( float &x, float &y, float distance, float absAngle) const;
         void GetNearPoint(WorldObject const* searcher, float &x, float &y, float &z, float searcher_bounding_radius, float distance2d, float absAngle) const;
-        void GetClosePoint(float &x, float &y, float &z, float bounding_radius, float distance2d = 0, float angle = 0) const
+        void GetClosePoint(float &x, float &y, float &z, float bounding_radius, float distance2d = 0, float angle = 0, const WorldObject* obj = NULL ) const
         {
             // angle calculated from current orientation
-            GetNearPoint(NULL, x, y, z, bounding_radius, distance2d, GetOrientation() + angle);
+            GetNearPoint(obj, x, y, z, bounding_radius, distance2d, GetOrientation() + angle);
         }
         void GetContactPoint( const WorldObject* obj, float &x, float &y, float &z, float distance2d = CONTACT_DISTANCE) const
         {
@@ -375,6 +375,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
 
         bool IsPositionValid() const;
         void UpdateGroundPositionZ(float x, float y, float &z) const;
+        void UpdateAllowedPositionZ(float x, float y, float &z) const;
 
         void GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z ) const;
 
@@ -474,7 +475,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         virtual bool isVisibleForInState(Player const* u, WorldObject const* viewPoint, bool inVisibleList) const = 0;
 
         void SetMap(Map * map);
-        Map * GetMap() const { ASSERT(m_currMap); return m_currMap; }
+        Map * GetMap() const { MANGOS_ASSERT(m_currMap); return m_currMap; }
         //used to check all object's GetMap() calls when object is not in world!
         void ResetMap() { m_currMap = NULL; }
 
@@ -485,7 +486,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         void RemoveFromClientUpdateList();
         void BuildUpdateData(UpdateDataMapType &);
 
-        Creature* SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime);
+        Creature* SummonCreature(uint32 id, float x, float y, float z, float ang,TempSummonType spwtype,uint32 despwtime, bool asActiveObject = false);
 
         bool isActiveObject() const { return m_isActiveObject || m_viewPoint.hasViewers(); }
 

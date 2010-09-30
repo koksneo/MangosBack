@@ -365,7 +365,7 @@ extern void AddSC_boss_moragg();
 extern void AddSC_boss_erekem();
 extern void AddSC_boss_xevozz();
 extern void AddSC_boss_ichoron();
-extern void AddSC_boss_zuramat();
+/*extern void AddSC_boss_zuramat();*/
 extern void AddSC_boss_lavanthor();
 
 extern void AddSC_borean_tundra();

@@ -464,6 +464,7 @@ scripts/northrend/violet_hold/boss_lavanthor.cpp \
 scripts/northrend/violet_hold/boss_moragg.cpp \
 scripts/northrend/violet_hold/boss_xevozz.cpp \
 scripts/northrend/violet_hold/boss_zuramat.cpp \
+scripts/northrend/violet_hold/boss_erekem.cpp \
 scripts/northrend/violet_hold/boss_cyanigosa.cpp \
 scripts/northrend/vault_of_archavon/boss_emalon.cpp \
 scripts/northrend/vault_of_archavon/boss_koralon.cpp \

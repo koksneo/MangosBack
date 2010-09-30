@@ -816,7 +816,7 @@ void AddScripts()
     AddSC_boss_erekem();
     AddSC_boss_xevozz();
     AddSC_boss_ichoron();
-    AddSC_boss_zuramat();
+    /*AddSC_boss_zuramat();*/
     AddSC_boss_lavanthor();
 
     AddSC_borean_tundra();

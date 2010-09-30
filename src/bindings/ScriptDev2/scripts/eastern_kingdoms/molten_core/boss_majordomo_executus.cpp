@@ -262,7 +262,7 @@ struct MANGOS_DLL_DECL boss_majordomoAI : public ScriptedAI
 
         for(std::list<uint64>::iterator itr = m_lFlamewalkersList.begin(); itr != m_lFlamewalkersList.end(); ++itr)
         {
-            Creature* pTemp = (Creature*)Unit::GetUnit(*m_creature, *itr);
+            Creature* pTemp = m_creature->GetMap()->GetCreature(*itr);
             if (pTemp && pTemp->isAlive())
                 pTemp->ForcedDespawn();
         }

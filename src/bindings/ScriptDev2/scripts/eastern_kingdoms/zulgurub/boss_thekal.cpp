@@ -195,12 +195,12 @@ struct MANGOS_DLL_DECL boss_thekalAI : public ScriptedAI
                 m_creature->UpdateDamagePhysical(BASE_ATTACK);
                 DoResetThreat();         
                 // Kill Zath if exist after tiger form
-                if (Unit *pLorKhan = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_LORKHAN)))
+                if (Unit *pLorKhan = m_creature->GetMap()->GetUnit(m_pInstance->GetData64(DATA_LORKHAN)))
                 {
                     pLorKhan->DealDamage(m_creature,pLorKhan->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }
                 //  Kill Zath  if exist after tiger form
-                if (Unit *pZath = Unit::GetUnit((*m_creature), m_pInstance->GetData64(DATA_ZATH)))
+                if (Unit *pZath = m_creature->GetMap()->GetUnit(m_pInstance->GetData64(DATA_ZATH)))
                 {
                     pZath->DealDamage(m_creature,pZath->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
                 }

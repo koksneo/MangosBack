@@ -193,6 +193,13 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
             uiDamage = 0;
     }
 
+    void SpellHitTarget(Unit *pVictim, const SpellEntry *spellInfo)
+    {
+        if (spellInfo && spellInfo->Id == SPELL_FROSTBREATH)
+            if (pVictim && pVictim->HasAura(SPELL_ICEBOLT))
+                pVictim->RemoveAurasDueToSpell(SPELL_ICEBOLT);
+    }
+
     void Aggro(Unit* pWho)
     {
         if (m_pInstance)

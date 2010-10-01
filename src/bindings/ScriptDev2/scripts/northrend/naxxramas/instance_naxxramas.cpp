@@ -108,6 +108,16 @@ void instance_naxxramas::OnCreatureCreate(Creature* pCreature)
         case NPC_GOTHIK:            m_uiGothikGUID = pCreature->GetGUID();          break;
         case NPC_KELTHUZAD:         m_uiKelthuzadGUID = pCreature->GetGUID();       break;
         case NPC_SUB_BOSS_TRIGGER:  m_lGothTriggerList.push_back(pCreature->GetGUID()); break;
+        case NPC_PATCHWORK_GOLEM:
+        case NPC_BILE_RETCHER:
+            if (pCreature->GetPositionY() > -3258.0f)
+                lPatchwerkAreaMobs.push_back(pCreature->GetGUID());
+            break;
+        case NPC_MAD_SCIENTIST:
+        case NPC_LIVING_MONSTROSITY:
+        case NPC_SURGICAL_ASSIST:
+            lPatchwerkAreaMobs.push_back(pCreature->GetGUID());
+            break;
         case NPC_NAXXRAMAS_FOLLOWER:
         case NPC_NAXXRAMAS_WORSHIPPER:
             lFaelinasAdds.push_back(pCreature->GetGUID());

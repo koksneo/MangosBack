@@ -34,6 +34,13 @@ enum
     TYPE_STALAGG                = 14,
     TYPE_FEUGEN                 = 15,
 
+    // Patchwerk
+    NPC_PATCHWORK_GOLEM         = 16017,
+    NPC_BILE_RETCHER            = 16018,
+    NPC_MAD_SCIENTIST           = 16020,
+    NPC_LIVING_MONSTROSITY      = 16021,
+    NPC_SURGICAL_ASSIST         = 16022,
+
     TYPE_SAPPHIRON              = 16,
     TYPE_KELTHUZAD              = 17,
 
@@ -174,15 +181,16 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
 
         // faerlina
         std::list<uint64> lFaelinasAdds;
-		
-        // gothik
-        std::list<uint64> lGothikDeathAdds;
-        std::list<uint64> lGothikLiveAdds;
 
         // ravozious
         std::list<uint64> lUnderstudyGUID;
 
-        // goth
+        // patchwerk
+        std::list<uint64> lPatchwerkAreaMobs;
+
+        // gothik
+        std::list<uint64> lGothikDeathAdds;
+        std::list<uint64> lGothikLiveAdds;
         void SetGothTriggers();
         Creature* GetClosestAnchorForGoth(Creature* pSource, bool bRightSide);
         void GetGothSummonPointCreatures(std::list<Creature*> &lList, bool bRightSide);

@@ -260,3 +260,32 @@ INSERT INTO `creature_movement` (`id`, `point`, `position_x`, `position_y`, `pos
 ('128312','13','2767.05','-3113.45','267.685','0','0','0','0','0','0','0','0','0','0','3.18532','0','0'),
 ('128312','14','2759.36','-3108.59','267.685','0','0','0','0','0','0','0','0','0','0','2.56878','0','0'),
 ('128312','15','2756.45','-3103.54','267.685','0','0','0','0','0','0','0','0','0','0','2.09362','0','0');
+
+###################### naxxramas trash mobs ##################################
+-- Living Poisons moving like in Frogger. Killing Players who step near them.
+UPDATE `creature_template` SET `ScriptName` = "mob_living_poison" WHERE `entry` = 16027;
+-- Delete some Living Poison spawns from DB except 3 spawners
+DELETE FROM `creature` WHERE `id` = 16027 AND `guid` NOT IN (128131, 128132, 128133);
+
+-- Plague Quarter part between Heigan and Loatheb trash mobs
+-- Eye Stalks now stand still, cast Mind Flay on aggro and evade when target escapes from the range of Flay.
+-- Maggots despawn immediately after their death and respawn after 5 seconds. Eye Stalks submerge and emerge when players come nearby.
+UPDATE `creature_template` SET `MovementType` = 0, `AIName` = "EventAI" WHERE `entry` = 16236;
+UPDATE `creature_template` SET `AIName` = "EventAI" WHERE `entry` IN (16056, 16057);
+UPDATE `creature` SET `spawndist` = 0, `spawntimesecs` = 5, `MovementType` = 0 WHERE `id` = 16236;
+UPDATE `creature` SET `spawntimesecs` = 5 WHERE `id` IN (16056, 16057);
+
+-- EAI for Eye Stalks...
+DELETE FROM `creature_ai_scripts` WHERE `creature_id` IN (16056, 16057, 16236);
+INSERT INTO `creature_ai_scripts` VALUES
+(1623601, 16236, 11, 0, 100, 6, 0, 0, 0, 0, 22, 1, 0, 0, 5, 449, 0, 0, 0, 0, 0, 0, "Eye Stalk - Emerge and set Phase 1 at spawn"),
+(1623602, 16236, 4, 0, 100, 6, 0, 0, 0, 0, 21, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Eye Stalk - prevent CB Movement on aggro (Phase 1)"),
+(1623603, 16236, 0, 1, 100, 3, 0, 0, 12000, 15000, 11, 29407, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Eye Stalk - Cast Mind Flay(normal) (Phase 1)"),
+(1623604, 16236, 0, 1, 100, 5, 0, 0, 12000, 15000, 11, 54805, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, "Eye Stalk - Cast Mind Flay(heroic) (Phase 1)"),
+(1623605, 16236, 9, 0, 100, 2, 45, 100, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Eye Stalk - Evade(normal) (Phase 1)"),
+(1623606, 16236, 9, 0, 100, 4, 35, 100, 0, 0, 24, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Eye Stalk - Evade(heroic) (Phase 1)"),
+(1623607, 16236, 1, 1, 100, 6, 15000, 30000, 0, 0, 5, 374, 0, 0, 23, 1, 0, 0, 0, 0, 0, 0, "Eye Stalk - Submerge and Despawn(Phase 1)"),
+(1623608, 16236, 1, 2, 100, 6, 1000, 1000, 0, 0, 41, 0, 0, 0, 23, -1, 0, 0, 0, 0, 0, 0, "Eye Stalk - Despawn after submerge (Phase 2)"),
+-- ...and Maggots
+(1605601, 16056, 6, 0, 100, 6, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Diseased Maggot - Despawn after death"),
+(1605701, 16057, 6, 0, 100, 6, 0, 0, 0, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Rotting Maggot - Despawn after death");

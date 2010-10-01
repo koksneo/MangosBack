@@ -509,7 +509,8 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             {
                 if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 {
-                    if (DoCastSpellIfCan(pTarget, SPELL_SHADOW_FISSURE) == CAST_OK)
+                    Player *pPlayerTarget = pTarget->GetCharmerOrOwnerPlayerOrPlayerItself();
+                    if (DoCastSpellIfCan(pPlayerTarget ? pPlayerTarget : pTarget, SPELL_SHADOW_FISSURE) == CAST_OK)
                     {
                         if (urand(0, 1))
                             DoScriptText(SAY_SPECIAL3_MANA_DET, m_creature);
@@ -525,12 +526,16 @@ struct MANGOS_DLL_DECL boss_kelthuzadAI : public ScriptedAI
             {
                 if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, (m_bIsRegularMode ? 1 : 0)))
                 {
-                    if (DoCastSpellIfCan(pTarget, SPELL_FROST_BLAST) == CAST_OK)
+                    Player *pPlayerTarget = pTarget->GetCharmerOrOwnerPlayerOrPlayerItself();
+                    if (pPlayerTarget && (m_bIsRegularMode || pPlayerTarget != m_creature->getVictim()))
                     {
-                        if (urand(0, 1))
-                            DoScriptText(SAY_FROST_BLAST, m_creature);
+                        if (DoCastSpellIfCan(pPlayerTarget, SPELL_FROST_BLAST) == CAST_OK)
+                        {
+                            if (urand(0, 1))
+                                DoScriptText(SAY_FROST_BLAST, m_creature);
 
-                        m_uiFrostBlastTimer = urand(30000, 60000);
+                            m_uiFrostBlastTimer = urand(30000, 60000);
+                        }
                     }
                 }
             }

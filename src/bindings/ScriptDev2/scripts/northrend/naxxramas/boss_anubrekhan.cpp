@@ -88,11 +88,19 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         if (m_pInstance && m_pInstance->GetData(TYPE_ANUB_REKHAN) == NOT_STARTED)
         {
             if (Creature* pGuard = m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()+10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000))
+            {
                 m_lCryptGuardList.push_back(pGuard->GetGUID());
+                pGuard->SetRespawnTime(WEEK);
+            }
 
             if (!m_bIsRegularMode)
+            {
                 if (Creature* pGuard = m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()-10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000))
+                {
                     m_lCryptGuardList.push_back(pGuard->GetGUID());
+                    pGuard->SetRespawnTime(WEEK);
+                }
+            }
         }
     }
 

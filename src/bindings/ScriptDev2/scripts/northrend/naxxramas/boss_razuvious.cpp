@@ -94,6 +94,7 @@ struct MANGOS_DLL_DECL boss_razuviousAI : public ScriptedAI
     void JustDied(Unit* pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
+        DoCastSpellIfCan(m_creature, SPELL_HOPELESS, CAST_TRIGGERED);
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_RAZUVIOUS, DONE);

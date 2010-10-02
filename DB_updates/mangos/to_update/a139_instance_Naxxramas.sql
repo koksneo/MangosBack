@@ -238,6 +238,11 @@ DELETE FROM spell_script_target WHERE entry = 55479;
 INSERT INTO spell_Script_target VALUES
 (55479,1,16803);
 
+-- Force Hopeless focus on Understudies
+DELETE FROM `spell_script_target` WHERE `entry` = 29125; 
+INSERT INTO `spell_script_target` VALUES
+(29125, 1, 16803);
+
 -- Replaced Razuvious and changed movement to waypoint
 DELETE FROM creature WHERE guid = 128312;
 INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`, `equipment_id`, `position_x`, `position_y`, `position_z`, `orientation`, `spawntimesecs`, `spawndist`, `currentwaypoint`, `curhealth`, `curmana`, `DeathState`, `MovementType`) VALUES

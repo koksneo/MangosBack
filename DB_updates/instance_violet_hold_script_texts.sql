@@ -70,6 +70,11 @@ INSERT INTO script_texts (entry,content_default,sound,type,comment) VALUES
 DELETE FROM script_texts WHERE entry=-1608009;
 INSERT INTO script_texts (entry,content_default,type,comment) VALUES
 (-1608009,'You did it! You held the Blue Dragonblight back and defeated their commander. Amazing work!',1,'sinclair SAY_END');
+DELETE FROM gossip_texts WHERE entry IN (-3608001,-3608000);
+INSERT INTO gossip_texts (entry,content_default,comment) VALUES
+(-3608001,'Get your people to safety, we\'ll keep the Blue Dragonflight\'s forces at bay.','sinclari GOSSIP_ITEM_START'),
+(-3608000,'Activate the crystals when we get in trouble, right?','sinclari GOSSIP_ITEM_INTRO');
+
 
 
 -- Boss emotes
@@ -93,5 +98,4 @@ INSERT INTO script_texts (entry,content_default,type,comment) VALUES
 (-1608062,'Why do you defend the Kirin Tor...',1,'Portal Keeper/Guardian DEATH_2'),
 (-1608063,'My death will not stop the invasion!',1,'Portal Keeper/Guardian DEATH_2'),
 (-1608065,'Destroy all who stand against us!',0,'Azure Captain AGGRO_1');
-
 

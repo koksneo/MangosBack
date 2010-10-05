@@ -2067,45 +2067,6 @@ void Unit::CalculateDamageAbsorbAndResist(Unit *pCaster, SpellSchoolMask schoolM
                 }
                 break;
             }
-            case SPELLFAMILY_PALADIN:
-            {
-                // Ardent Defender
-                if (spellProto->SpellIconID == 2135 && pVictim->GetTypeId() == TYPEID_PLAYER)
-                {
-                    int32 remainingHealth = pVictim->GetHealth() - RemainingDamage;
-                    uint32 allowedHealth = pVictim->GetMaxHealth() * 0.35f;
-                    // If damage kills us
-                    if (remainingHealth <= 0 && !((Player*)pVictim)->HasAura(66233))
-                    {
-                        // Cast healing spell, completely avoid damage
-                        RemainingDamage = 0;
-
-                        uint32 defenseSkillValue = pVictim->GetDefenseSkillValue();
-                          uint32 baseLevelSkillValue = pVictim->getLevel() * 5;
-                          // If player does not achieve even lvl cap of defense return 0%
-                          float pctFromDefense = (defenseSkillValue <= baseLevelSkillValue) ? 0.0f :
-                          // If player overexeceded maxlevelcap+140 return 100%
-                          (((defenseSkillValue - baseLevelSkillValue) >= 140) ? 1.0f :
-                          // else scale pct
-                          ((float(defenseSkillValue) - float(baseLevelSkillValue)) / 140));
-
-                      int32 healAmount = pVictim->GetMaxHealth() * (*i)->GetSpellProto()->EffectBasePoints[1] *  pctFromDefense / 100;
-                      pVictim->CastCustomSpell(pVictim, 66235, &healAmount, NULL, NULL, true);
-                        pVictim->CastSpell(pVictim, 66233, true);
-                    }
-                    else if (remainingHealth < allowedHealth)
-                    {
-                        // Reduce damage that brings us under 35% (or full damage if we are already under 35%) by x%
-                        uint32 damageToReduce = (pVictim->GetHealth() < allowedHealth)
-                            ? RemainingDamage
-                            : allowedHealth - remainingHealth;
-                        RemainingDamage -= damageToReduce * currentAbsorb / 100;
-                    }
-                    continue;
-
-                }
-                break;
-            }
             case SPELLFAMILY_PRIEST:
             {
                 // Guardian Spirit

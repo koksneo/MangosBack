@@ -829,7 +829,9 @@ void Spell::AddUnitTarget(Unit* pVictim, SpellEffectIndex effIndex)
     target.deleted = false;
 
     // Calculate hit result
-    target.missCondition = m_caster->SpellHitResult(pVictim, m_spellInfo, m_canReflect);
+    // Procs can miss, weapon enchants can miss, triggered spells and effects cannot miss (miss already calculated in triggering spell)
+    bool canMiss = (m_triggeredByAuraSpell || !m_IsTriggeredSpell);
+    target.missCondition = m_caster->SpellHitResult(pVictim, m_spellInfo, m_canReflect, canMiss);
 
     // spell fly from visual cast object
     WorldObject* affectiveObject = GetAffectiveCasterObject();
@@ -4417,7 +4419,7 @@ SpellCastResult Spell::CheckCast(bool strict)
     {
         if(m_triggeredByAuraSpell)
             return SPELL_FAILED_DONT_REPORT;
-        else
+        else if(!m_IsTriggeredSpell || m_CastItem)
             return SPELL_FAILED_NOT_READY;
     }
 

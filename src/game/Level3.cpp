@@ -169,6 +169,7 @@ bool ChatHandler::HandleReloadAllSpellCommand(char* /*args*/)
     HandleReloadSpellTargetPositionCommand((char*)"a");
     HandleReloadSpellThreatsCommand((char*)"a");
     HandleReloadSpellPetAurasCommand((char*)"a");
+    HandleReloadSpellDisabledCommand((char*)"a");
     return true;
 }
 
@@ -923,6 +924,17 @@ bool ChatHandler::HandleReloadMailLevelRewardCommand(char* /*args*/)
     sLog.outString( "Re-Loading Player level dependent mail rewards..." );
     sObjectMgr.LoadMailLevelRewards();
     SendGlobalSysMessage("DB table `mail_level_reward` reloaded.");
+    return true;
+}
+
+bool ChatHandler::HandleReloadSpellDisabledCommand(char* /*arg*/)
+{
+    sLog.outString( "Re-Loading spell disabled table...");
+
+    sObjectMgr.LoadSpellDisabledEntrys();
+
+    SendGlobalSysMessage("DB table `spell_disabled` reloaded.");
+
     return true;
 }
 

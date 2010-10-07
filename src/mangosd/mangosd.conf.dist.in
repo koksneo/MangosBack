@@ -52,11 +52,11 @@ ConfVersion=2010062001
 ###################################################################################################################
 
 RealmID = 1
-DataDir = "E:/Serwer/data"
-LogsDir = "E:/Serwer/log"
-LoginDatabaseInfo     = "127.0.0.1;3306;gra;gra;realmd"
-WorldDatabaseInfo     = "127.0.0.1;3306;gra;gra;mangos"
-CharacterDatabaseInfo = "127.0.0.1;3306;gra;gra;characters"
+DataDir = "."
+LogsDir = ""
+LoginDatabaseInfo     = "127.0.0.1;3306;mangos;mangos;realmd"
+WorldDatabaseInfo     = "127.0.0.1;3306;mangos;mangos;mangos"
+CharacterDatabaseInfo = "127.0.0.1;3306;mangos;mangos;characters"
 MaxPingTime = 30
 WorldServerPort = 8085
 BindIP = "0.0.0.0"

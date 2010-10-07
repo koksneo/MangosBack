@@ -5715,13 +5715,28 @@ bool ChatHandler::HandleGMFlyCommand(char* args)
         target = m_session->GetPlayer();
 
     WorldPacket data(12);
-    data.SetOpcode(value ? SMSG_MOVE_SET_CAN_FLY : SMSG_MOVE_UNSET_CAN_FLY);
+    if (strncmp(args, "on", 3) == 0)
+    {
+        data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
+        ((Player*)(target))->SetCanFly(true);
+    }
+    else if (strncmp(args, "off", 4) == 0)
+    {
+        data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
+        ((Player*)(target))->SetCanFly(false);
+    }
+    else
+    {
+        SendSysMessage(LANG_USE_BOL);
+        return false;
+    }
     data << target->GetPackGUID();
-    data << uint32(0);                                      // unknown
+    data << uint32(0); // unknown
     target->SendMessageToSet(&data, true);
     PSendSysMessage(LANG_COMMAND_FLYMODE_STATUS, GetNameLink(target).c_str(), args);
     return true;
 }
+
 
 bool ChatHandler::HandlePDumpLoadCommand(char *args)
 {

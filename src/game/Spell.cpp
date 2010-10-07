@@ -2993,7 +2993,7 @@ void Spell::cast(bool skipCheck)
         {
             // Shattering Throw
             if (m_spellInfo->Id == 64382)
-                AddPrecastSpell(64380);                     // Shattering Throw
+                AddTriggeredSpell(64380);                     // Shattering Throw
             break;
 
             // Shield Slam

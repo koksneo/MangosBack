@@ -2126,6 +2126,16 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 }
                 break;
             }
+            case SPELLFAMILY_MAGE:
+            {
+                // hack for Fingers of Frost stacks
+                if (GetId() == 74396)
+                {
+                    if (SpellAuraHolder *holder = target->GetSpellAuraHolder(74396))
+                        holder->SetAuraCharges(3);
+                }
+                break;
+            }
             case SPELLFAMILY_WARRIOR:
             {
                 // Overpower
@@ -2359,6 +2369,13 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 {
                     target->CastSpell(target, 58601, true); // Remove Flight Auras (also triggered Parachute (45472))
                 }
+                return;
+            }
+            case 74396:                                     // Fingers of Frost effect removeis
+            {
+                if (GetHolder()->GetAuraCharges() < 0)
+                    target->RemoveAurasDueToSpell(44544);
+
                 return;
             }
         }
@@ -8464,6 +8481,8 @@ bool SpellAuraHolder::IsNeedVisibleSlot(Unit const* caster) const
     else if (HasAuraWithTriggerEffect(m_spellProto))
         return true;
     else if (IsSpellHaveAura(m_spellProto, SPELL_AURA_MOD_IGNORE_SHAPESHIFT))
+        return true;
+    else if (IsSpellHaveAura(m_spellProto, SPELL_AURA_IGNORE_UNIT_STATE))
         return true;
     else if (IsSpellHaveAura(m_spellProto, SPELL_AURA_IGNORE_UNIT_STATE))
         return true;

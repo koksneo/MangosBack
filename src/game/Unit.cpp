@@ -7000,6 +7000,20 @@ uint32 Unit::SpellHealingBonusTaken(Unit *pCaster, SpellEntry const *spellProto,
         if ((*i)->isAffectedOnSpell(spellProto))
             TakenTotalMod *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
 
+    //Nourish 20% of heal increase if target is afected by Druids HOTs
+    if(spellProto->SpellFamilyFlags & UI64LIT(0x0200000000000000))
+    {
+        Unit::AuraList const& RejorRegr = GetAurasByType(SPELL_AURA_PERIODIC_HEAL);
+        for(Unit::AuraList::const_iterator i = RejorRegr.begin(); i != RejorRegr.end(); ++i)
+        {
+            if((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID)
+            {
+                TakenTotalMod *= 1.2f;
+                break;
+            }
+        }
+    }
+
     // use float as more appropriate for negative values and percent applying
     float heal = (healamount + TakenTotal * int32(stack)) * TakenTotalMod;
 

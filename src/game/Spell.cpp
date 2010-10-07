@@ -1148,7 +1148,8 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     // Recheck immune (only for delayed spells)
     if (m_spellInfo->speed && (
         unit->IsImmunedToDamage(GetSpellSchoolMask(m_spellInfo)) ||
-        unit->IsImmunedToSpell(m_spellInfo)))
+        unit->IsImmunedToSpell(m_spellInfo)) && !(m_spellInfo->Id == 64380 || m_spellInfo->Id == 64382 ||
+        m_spellInfo->Id == 32375 || m_spellInfo->Id == 32592 || m_spellInfo->Id == 39897))
     {
         if (realCaster)
             realCaster->SendSpellMiss(unit, m_spellInfo->Id, SPELL_MISS_IMMUNE);
@@ -2990,6 +2991,11 @@ void Spell::cast(bool skipCheck)
         }
         case SPELLFAMILY_WARRIOR:
         {
+            // Shattering Throw
+            if (m_spellInfo->Id == 64382)
+                AddPrecastSpell(64380);                     // Shattering Throw
+            break;
+
             // Shield Slam
             if ((m_spellInfo->SpellFamilyFlags & UI64LIT(0x0000020000000000)) && m_spellInfo->Category==1209)
                 if (m_caster->HasAura(58375))               // Glyph of Blocking

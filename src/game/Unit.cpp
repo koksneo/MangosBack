@@ -4235,6 +4235,10 @@ bool Unit::RemoveNoStackAurasDueToAuraHolder(SpellAuraHolder *holder)
         bool is_spellSpecPerTarget = IsSingleFromSpellSpecificPerTarget(spellId_spec,i_spellId_spec);
         if( is_spellSpecPerTarget || is_spellSpecPerTargetPerCaster && holder->GetCasterGUID() == (*i).second->GetCasterGUID() )
         {
+            if (i_spellId_spec == SPELL_BLESSING && holder->GetCasterGUID() != (*i).second->GetCasterGUID())
+                if (spellProto->SpellFamilyFlags != i_spellProto->SpellFamilyFlags)
+                    continue;
+
             // cannot remove higher rank
             if (sSpellMgr.IsRankSpellDueToSpell(spellProto, i_spellId))
                 if(CompareAuraRanks(spellId, i_spellId) < 0)

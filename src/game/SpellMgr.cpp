@@ -501,7 +501,6 @@ bool IsSingleFromSpellSpecificPerTargetPerCaster(SpellSpecific spellSpec1,SpellS
 {
     switch(spellSpec1)
     {
-        case SPELL_BLESSING:
         case SPELL_AURA:
         case SPELL_STING:
         case SPELL_CURSE:
@@ -537,6 +536,7 @@ bool IsSingleFromSpellSpecificPerTarget(SpellSpecific spellSpec1,SpellSpecific s
 {
     switch(spellSpec1)
     {
+        case SPELL_BLESSING:
         case SPELL_SEAL:
         case SPELL_TRACKER:
         case SPELL_WARLOCK_ARMOR:

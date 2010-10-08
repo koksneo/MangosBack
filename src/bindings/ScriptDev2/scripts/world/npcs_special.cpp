@@ -96,7 +96,7 @@ struct MANGOS_DLL_DECL mob_mirror_imageAI : public ScriptedAI
             bLocked = true;
         }
 
-        Player* pOwner = m_creature->GetMap()->GetUnit(m_uiCreatorGUID);
+        Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID);
         if (!pOwner || !pOwner->IsInWorld())
         {
             m_creature->ForcedDespawn();
@@ -110,7 +110,7 @@ struct MANGOS_DLL_DECL mob_mirror_imageAI : public ScriptedAI
         else if (pOwner->getVictim())
             targetGUID = pOwner->getVictim()->GetGUID();
 
-        Unit* pTarget = m_creature->GetMap()->GetPlayer(targetGUID);
+        Unit* pTarget = m_creature->GetMap()->GetUnit(targetGUID);
 
         if (!pTarget || !m_creature->CanInitiateAttack() || !pTarget->isTargetableForAttack() ||
         !m_creature->IsHostileTo(pTarget) || !pTarget->isInAccessablePlaceFor(m_creature))

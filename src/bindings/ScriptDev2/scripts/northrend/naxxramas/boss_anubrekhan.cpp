@@ -87,20 +87,9 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         // Summon Guards only on initial spawn, else guards will be resummoned on JustReachedHome()
         if (m_pInstance && m_pInstance->GetData(TYPE_ANUB_REKHAN) == NOT_STARTED)
         {
-            if (Creature* pGuard = m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()+10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000))
-            {
-                m_lCryptGuardList.push_back(pGuard->GetGUID());
-                pGuard->SetRespawnTime(WEEK);
-            }
-
+            m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()+10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
             if (!m_bIsRegularMode)
-            {
-                if (Creature* pGuard = m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()-10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000))
-                {
-                    m_lCryptGuardList.push_back(pGuard->GetGUID());
-                    pGuard->SetRespawnTime(WEEK);
-                }
-            }
+                m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()-10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
         }
     }
 
@@ -194,6 +183,8 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
     void JustSummoned(Creature* pSummoned)
     {
         m_lCryptGuardList.push_back(pSummoned->GetGUID());
+        pSummoned->SetRespawnTime(WEEK);
+        pSummoned->SetRespawnDelay(WEEK);
     }
 
     void UpdateAI(const uint32 uiDiff)

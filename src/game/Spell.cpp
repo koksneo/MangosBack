@@ -1879,6 +1879,18 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 }
             }
 
+            // Mirror Image - initialize immage (removed all except clones)
+            if (m_spellInfo->Id == 58836 && !targetUnitMap.empty())
+            {
+                for (std::list<Unit*>::iterator itr = targetUnitMap.begin(),next; itr != targetUnitMap.end(); itr = next)
+                {
+                    next = itr;
+                    ++next;
+                    if (!(*itr) || (*itr)->GetTypeId() != TYPEID_UNIT || (*itr)->GetCreatorGUID() != m_caster->GetGUID() || ((Creature*)*itr)->isPet())
+                        targetUnitMap.erase(itr);
+                }
+            }
+
             // exclude caster
             targetUnitMap.remove(m_caster);
             break;

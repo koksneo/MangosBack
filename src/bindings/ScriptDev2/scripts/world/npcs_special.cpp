@@ -66,6 +66,7 @@ struct MANGOS_DLL_DECL mob_mirror_imageAI : public ScriptedAI
     mob_mirror_imageAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         bLocked = false;
+        m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
         Reset();
     }
     Unit* pTarget;
@@ -95,7 +96,7 @@ struct MANGOS_DLL_DECL mob_mirror_imageAI : public ScriptedAI
             bLocked = true;
         }
 
-        Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID);
+        Player* pOwner = m_creature->GetMap()->GetUnit(m_uiCreatorGUID);
         if (!pOwner || !pOwner->IsInWorld())
         {
             m_creature->ForcedDespawn();

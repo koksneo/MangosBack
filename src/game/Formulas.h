@@ -122,6 +122,9 @@ namespace MaNGOS
             if(u->GetTypeId()==TYPEID_UNIT && ((Creature*)u)->isElite())
                 xp_gain *= 2;
 
+            if(u->GetTypeId()==TYPEID_UNIT && ((Creature*)u)->GetCreatureInfo()->flags_extra & CREATURE_FLAG_PARTIAL_XP_REWARDED)
+                xp_gain /= 8;
+
             return (uint32)(xp_gain*sWorld.getConfig(CONFIG_FLOAT_RATE_XP_KILL));
         }
 

@@ -470,7 +470,7 @@ void instance_culling_of_stratholme::DoSpawnArthasIfNeeded()
     if (uiPosition && uiPosition <= MAX_ARTHAS_SPAWN_POS)
     {
         if (Player* pPlayer = GetPlayerInMap())
-            pPlayer->SummonCreature(NPC_ARTHAS, m_aArthasSpawnLocs[uiPosition-1].m_fX, m_aArthasSpawnLocs[uiPosition-1].m_fY, m_aArthasSpawnLocs[uiPosition-1].m_fZ, m_aArthasSpawnLocs[uiPosition-1].m_fO, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+            pPlayer->SummonCreature(NPC_ARTHAS, m_aArthasSpawnLocs[uiPosition-1].m_fX, m_aArthasSpawnLocs[uiPosition-1].m_fY, m_aArthasSpawnLocs[uiPosition-1].m_fZ, m_aArthasSpawnLocs[uiPosition-1].m_fO, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY);
     }
 }
 
@@ -486,13 +486,13 @@ void instance_culling_of_stratholme::DoSpawnChromieIfNeeded()
     {
         Creature* pChromie = instance->GetCreature(m_uiChromieEndGUID);
         if (!pChromie)
-            pPlayer->SummonCreature(NPC_CHROMIE_END, m_aChromieSpawnLocs[1].m_fX, m_aChromieSpawnLocs[1].m_fY, m_aChromieSpawnLocs[1].m_fZ, m_aChromieSpawnLocs[1].m_fO, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+            pPlayer->SummonCreature(NPC_CHROMIE_END, m_aChromieSpawnLocs[1].m_fX, m_aChromieSpawnLocs[1].m_fY, m_aChromieSpawnLocs[1].m_fZ, m_aChromieSpawnLocs[1].m_fO, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY);
     }
     else if (GetInstancePosition() >= POS_ARTHAS_INTRO)
     {
         Creature* pChromie = instance->GetCreature(m_uiChromieEntranceGUID);
         if (!pChromie)
-            pPlayer->SummonCreature(NPC_CHROMIE_ENTRANCE, m_aChromieSpawnLocs[0].m_fX, m_aChromieSpawnLocs[0].m_fY, m_aChromieSpawnLocs[0].m_fZ, m_aChromieSpawnLocs[0].m_fO, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+            pPlayer->SummonCreature(NPC_CHROMIE_ENTRANCE, m_aChromieSpawnLocs[0].m_fX, m_aChromieSpawnLocs[0].m_fY, m_aChromieSpawnLocs[0].m_fZ, m_aChromieSpawnLocs[0].m_fO, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY);
     }
 }
 

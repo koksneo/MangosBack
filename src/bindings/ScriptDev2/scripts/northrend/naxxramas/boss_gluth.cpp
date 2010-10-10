@@ -122,7 +122,7 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
     void JustReachedHome()
     {
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_GOTHIK, FAIL);
+            m_pInstance->SetData(TYPE_GLUTH, FAIL);
     }
 
     void MoveInLineOfSight(Unit *pWho)

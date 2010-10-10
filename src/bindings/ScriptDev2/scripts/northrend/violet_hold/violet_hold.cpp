@@ -801,7 +801,7 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public ScriptedAI
                 }
                 else if (m_uiRiftPortalCount == 18 && m_pInstance->GetData(TYPE_RIFT) != DONE)
                 {
-                    m_creature->SummonCreature(NPC_CYANIGOSA, 1922.420f, 803.240f, 52.40f, 3.022f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                    m_creature->SummonCreature(NPC_CYANIGOSA, 1922.420f, 803.240f, 52.40f, 3.022f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY);
                     m_pInstance->SetData(TYPE_RIFT, DONE);
                     m_pInstance->SetData(TYPE_DISRUPTIONS, 20);
                     m_uiNextPortal_Timer = 1*DAY;

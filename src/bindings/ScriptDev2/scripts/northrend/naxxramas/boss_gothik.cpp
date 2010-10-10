@@ -193,7 +193,7 @@ struct MANGOS_DLL_DECL boss_gothikAI : public ScriptedAI
             if (uiCount == 0)
                 break;
 
-            if(Creature* pAdds = m_creature->SummonCreature(uiSummonEntry, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ(), (*itr)->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
+            if(Creature* pAdds = m_creature->SummonCreature(uiSummonEntry, (*itr)->GetPositionX(), (*itr)->GetPositionY(), (*itr)->GetPositionZ(), (*itr)->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
             {
                 m_pInstance->lGothikLiveAdds.push_back(pAdds->GetGUID() );
                 if (Unit* pVictim = m_pInstance->SelectRandomTargetOnSide(true, *pAdds) )
@@ -464,7 +464,7 @@ bool EffectDummyCreature_spell_anchor(Unit* pCaster, uint32 uiSpellId, SpellEffe
                 else if (uiSpellId == SPELL_C_TO_SKULL)
                     uiNpcEntry = NPC_SPECT_RIDER;
 
-                if(Creature* pDeathAdds = pGoth->SummonCreature(uiNpcEntry, pCreatureTarget->GetPositionX(), pCreatureTarget->GetPositionY(), pCreatureTarget->GetPositionZ(), pCreatureTarget->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
+                if(Creature* pDeathAdds = pGoth->SummonCreature(uiNpcEntry, pCreatureTarget->GetPositionX(), pCreatureTarget->GetPositionY(), pCreatureTarget->GetPositionZ(), pCreatureTarget->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
                 {
                     pInstance->lGothikDeathAdds.push_back(pDeathAdds->GetGUID() );
                     if(Unit* pVictim = pInstance->SelectRandomTargetOnSide(false, *pDeathAdds) )
@@ -473,7 +473,7 @@ bool EffectDummyCreature_spell_anchor(Unit* pCaster, uint32 uiSpellId, SpellEffe
 
                 if (uiNpcEntry == NPC_SPECT_RIDER)
                 {
-                    if(Creature* pDeathSpecial = pGoth->SummonCreature(NPC_SPECT_HORSE, pCreatureTarget->GetPositionX(), pCreatureTarget->GetPositionY(), pCreatureTarget->GetPositionZ(), pCreatureTarget->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
+                    if(Creature* pDeathSpecial = pGoth->SummonCreature(NPC_SPECT_HORSE, pCreatureTarget->GetPositionX(), pCreatureTarget->GetPositionY(), pCreatureTarget->GetPositionZ(), pCreatureTarget->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
                     {
                         pInstance->lGothikDeathAdds.push_back(pDeathSpecial->GetGUID() );
                         if(Unit* pVictim = pInstance->SelectRandomTargetOnSide(false, *pDeathSpecial) )

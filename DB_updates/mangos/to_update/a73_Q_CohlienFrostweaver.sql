@@ -4,9 +4,9 @@ DELETE FROM creature WHERE id=19550;
 
 -- event 12610
 DELETE FROM event_scripts WHERE id=12610;
-INSERT INTO event_scripts VALUES
-(12610,0,10,19550,4000,0,0,0,0,2202.37,2412.08,109.269,5.2709),
-(12610,3,0,0,19545,15,0,0x02,2000007003,0,0,0,0);
+INSERT INTO event_scripts (id,delay,command,datalong,datalong2,datalong3,data_flags,dataint,x,y,z,o) VALUES
+(12610,0,10,19550,4000,0,0,0,2202.37,2412.08,109.269,5.2709),
+(12610,3,0,0,19545,15,0x02,2000007003,0,0,0,0);
 
 DELETE FROM db_script_string WHERE entry=2000007003;
 INSERT INTO db_script_string (entry,content_default) VALUES

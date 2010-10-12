@@ -60,9 +60,9 @@ struct MANGOS_DLL_DECL mob_shattered_rumblerAI : public ScriptedAI
             float y = m_creature->GetPositionY();
             float z = m_creature->GetPositionZ();
 
-            Hitter->SummonCreature(18181,x+(0.7 * (rand()%30)),y+(rand()%5),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
-            Hitter->SummonCreature(18181,x+(rand()%5),y-(rand()%5),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
-            Hitter->SummonCreature(18181,x-(rand()%5),y+(0.5 *(rand()%60)),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
+            Hitter->SummonCreature(18181,x+(0.7 * (rand()%30)),y+(rand()%5),z,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+            Hitter->SummonCreature(18181,x+(rand()%5),y-(rand()%5),z,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+            Hitter->SummonCreature(18181,x-(rand()%5),y+(0.5 *(rand()%60)),z,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
             m_creature->setDeathState(CORPSE);
             Spawn = true;
         }

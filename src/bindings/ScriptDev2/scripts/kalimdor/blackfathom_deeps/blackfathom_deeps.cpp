@@ -94,7 +94,7 @@ bool GOHello_go_shrine(Player* pPlayer, GameObject* pGo)
 
     for (uint8 i = 0; i < m_uiAddsToSummon; ++i)
     {
-        if (Creature* pSummon = pGo->SummonCreature(m_uiAddEntry, SummonPosition[i][0],SummonPosition[i][1],SummonPosition[i][2],SummonPosition[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 60000))
+        if (Creature* pSummon = pGo->SummonCreature(m_uiAddEntry, SummonPosition[i][0],SummonPosition[i][1],SummonPosition[i][2],SummonPosition[i][3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000))
         {
             // If summon successfully spawned lets make him attack
             pSummon->AI()->AttackStart(pPlayer);

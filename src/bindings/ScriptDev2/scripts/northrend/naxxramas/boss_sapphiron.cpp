@@ -195,9 +195,18 @@ struct MANGOS_DLL_DECL boss_sapphironAI : public ScriptedAI
 
     void SpellHitTarget(Unit *pVictim, const SpellEntry *spellInfo)
     {
-        if (spellInfo && spellInfo->Id == SPELL_FROSTBREATH)
-            if (pVictim && pVictim->HasAura(SPELL_ICEBOLT))
-                pVictim->RemoveAurasDueToSpell(SPELL_ICEBOLT);
+        if (!pVictim || !spellInfo || spellInfo->Id != SPELL_FROSTBREATH)
+            return;
+
+        if (SpellAuraHolder *holder = pVictim->GetSpellAuraHolder(SPELL_ICEBOLT))
+        {
+            for (int32 i = 0; i < MAX_EFFECT_INDEX; ++i)
+            {
+                if (Aura *aur = holder->GetAuraByEffectIndex(SpellEffectIndex(i)))
+                    aur->SetAuraDuration(500);
+            }
+            holder->SendAuraUpdate(false);
+        }
     }
 
     void Aggro(Unit* pWho)

@@ -285,14 +285,15 @@ struct MANGOS_DLL_DECL mob_vh_dragonsAI : public ScriptedAI
         }
 
         //Corrupt Seal
-        if(pDoorSeal && !IsInCombat){
-            if(m_creature->IsWithinDist(pDoorSeal, 27.0f, false))
+        
+        if(Creature *pDoorSeal2 = GetClosestCreatureWithEntry(m_creature, NPC_DOOR_SEAL, 150.0f)){
+            if(m_creature->IsWithinDist(pDoorSeal2, 27.0f, false) && !IsInCombat)
             {
                 IsWalking = false;
                 WayPointList.clear();
                 m_creature->GetMotionMaster()->Clear(false);
                 m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
-                DoCast(pDoorSeal, SPELL_CORRUPT);
+                DoCast(pDoorSeal2, SPELL_CORRUPT);
                 m_pInstance->SetData(TYPE_DOOR,SPECIAL);
             }
         }
@@ -495,7 +496,7 @@ struct MANGOS_DLL_DECL npc_violet_portalAI : public ScriptedAI
         for(uint8 i = 0; i < uiSpawnCount; i++)
         {
             uint32 uiSpawnEntry = SelectRandSummon();
-            if(Creature* pSummoned = m_creature->SummonCreature(uiSpawnEntry, m_creature->GetPositionX()-5+rand()%10, m_creature->GetPositionY()-5+rand()%10, m_creature->GetPositionZ(), 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000))
+            if(Creature* pSummoned = m_creature->SummonCreature(uiSpawnEntry, m_creature->GetPositionX()-5+rand()%10, m_creature->GetPositionY()-5+rand()%10, m_creature->GetPositionZ(), 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
             {
                 debug_log("Spawn NPC %u, motherPortalID %u, portalLoc %u", uiSpawnEntry, portalID, portalLoc);
                 ((mob_vh_dragonsAI*)pSummoned->AI())->motherPortalID = portalID;
@@ -675,7 +676,7 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public ScriptedAI
     void DoSpawnPortal()
     {
         int tmp = urand(1, 6);
-        if (Creature* pTemp = m_creature->SummonCreature(NPC_PORTAL, PortalLoc[tmp].x, PortalLoc[tmp].y, PortalLoc[tmp].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000))
+        if (Creature* pTemp = m_creature->SummonCreature(NPC_PORTAL, PortalLoc[tmp].x, PortalLoc[tmp].y, PortalLoc[tmp].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
         {
             pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
             pTemp->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
@@ -690,7 +691,7 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public ScriptedAI
             if(portalType == 1)
             {
                 uint32 entry = urand(0, 1) ? NPC_GUARDIAN : NPC_KEEPER;
-                if (Creature* pSummoned = pTemp->SummonCreature(entry, PortalLoc[tmp].x, PortalLoc[tmp].y, PortalLoc[tmp].z, pTemp->GetOrientation(), TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000))
+                if (Creature* pSummoned = pTemp->SummonCreature(entry, PortalLoc[tmp].x, PortalLoc[tmp].y, PortalLoc[tmp].z, pTemp->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 300000))
                 {
                     pSummoned->AddThreat(pTemp);
                     pTemp->CastSpell(pSummoned, SPELL_PORTAL_CHANNEL,false);
@@ -784,7 +785,7 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public ScriptedAI
                         if (Creature* pTemp = m_creature->SummonCreature(NPC_PORTAL, PortalLoc[0].x, PortalLoc[0].y, PortalLoc[0].z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
                         {
                             pTemp->SetRespawnDelay(7*DAY);
-                            Creature* pSummoned = m_creature->SummonCreature(NPC_AZURE_SABOTEUR, PortalLoc[0].x, PortalLoc[0].y, PortalLoc[0].z, 0, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000);
+                            Creature* pSummoned = m_creature->SummonCreature(NPC_AZURE_SABOTEUR, PortalLoc[0].x, PortalLoc[0].y, PortalLoc[0].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
 //                          pSummoned->AddThreat(pTemp);
                             pTemp->CastSpell(pSummoned, SPELL_PORTAL_CHANNEL, false);
                             if(m_uiRiftPortalCount == 6) {m_pInstance->SetData(TYPE_PORTAL6, IN_PROGRESS);}
@@ -800,7 +801,7 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public ScriptedAI
                 }
                 else if (m_uiRiftPortalCount == 18 && m_pInstance->GetData(TYPE_RIFT) != DONE)
                 {
-                    m_creature->SummonCreature(NPC_CYANIGOSA, 1922.420f, 803.240f, 52.40f, 3.022f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 300000);
+                    m_creature->SummonCreature(NPC_CYANIGOSA, 1922.420f, 803.240f, 52.40f, 3.022f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY);
                     m_pInstance->SetData(TYPE_RIFT, DONE);
                     m_pInstance->SetData(TYPE_DISRUPTIONS, 20);
                     m_uiNextPortal_Timer = 1*DAY;

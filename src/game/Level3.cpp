@@ -5715,20 +5715,15 @@ bool ChatHandler::HandleGMFlyCommand(char* args)
         target = m_session->GetPlayer();
 
     WorldPacket data(12);
-    if (strncmp(args, "on", 3) == 0)
+    if (value)
     {
         data.SetOpcode(SMSG_MOVE_SET_CAN_FLY);
         ((Player*)(target))->SetCanFly(true);
     }
-    else if (strncmp(args, "off", 4) == 0)
+    else
     {
         data.SetOpcode(SMSG_MOVE_UNSET_CAN_FLY);
         ((Player*)(target))->SetCanFly(false);
-    }
-    else
-    {
-        SendSysMessage(LANG_USE_BOL);
-        return false;
     }
     data << target->GetPackGUID();
     data << uint32(0); // unknown

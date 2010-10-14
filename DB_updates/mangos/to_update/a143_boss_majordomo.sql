@@ -13,7 +13,7 @@ UPDATE `creature_template` SET `faction_A` = 1081, `faction_H` = 1081, `Movement
 DELETE FROM `creature_ai_scripts` WHERE `id` IN (1166303, 1166304);
 INSERT INTO `creature_ai_scripts` VALUES
 (1166303, 11663, 4, 0, 100, 3, 0, 0, 0, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Flamewaker Healer - Call for help"),
-(1166404, 11664, 4, 0, 100, 3, 0, 0, 0, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Flamewaker Elite - Call for help");
+(1166304, 11664, 4, 0, 100, 3, 0, 0, 0, 0, 39, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, "Flamewaker Elite - Call for help");
 
 -- script texts
 DELETE FROM `script_texts` WHERE `entry` = -1409019;
@@ -21,4 +21,4 @@ INSERT INTO `script_texts` (`entry`, `content_default`, `sound`, `type`, `langua
 (-1409019, "Very well, $N.", 0, 0, 0, 0, "majordomo SAY_GOSSIP_SUMMON");
 
 -- Emote Yell for Ragnaros (very nervous guy)
-UPDATE `script_texts` SET `emote = 1 WHERE `entry` BETWEEN -1409018 AND -1409009;
+UPDATE `script_texts` SET `emote` = 1 WHERE `entry` BETWEEN -1409018 AND -1409009;

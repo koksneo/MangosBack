@@ -87,3 +87,4 @@ INSERT INTO creature_loot_template VALUES
 DELETE FROM creature_loot_template WHERE entry=31506 AND item=40752;
 INSERT INTO creature_loot_template VALUES
 (31506, 40752, 100, 5, 1, 1, 0, 0, 0);
+

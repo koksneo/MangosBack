@@ -2096,6 +2096,13 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                     case 58591:                                 // Stoneclaw Totem X
                         target->CastSpell(target, 58585, true);
                         return;
+                    case 61187:                             // Twilight Shift
+                        target->CastSpell(target, 61885, true);
+                        if (target->HasAura(57620))
+                            target->RemoveAurasDueToSpell(57620);
+                        if (target->HasAura(57874))
+                            target->RemoveAurasDueToSpell(57874);
+                        break;
                     case 62061:                             // Festive Holiday Mount
                         if (target->HasAuraType(SPELL_AURA_MOUNTED))
                             // Reindeer Transformation
@@ -5585,7 +5592,19 @@ void Aura::HandleAuraModIncreaseEnergyPercent(bool apply, bool /*Real*/)
 
 void Aura::HandleAuraModIncreaseHealthPercent(bool apply, bool /*Real*/)
 {
-    GetTarget()->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, float(m_modifier.m_amount), apply);
+    Unit *unitTarget = GetTarget();
+
+    if (!unitTarget)
+        return;
+
+    unitTarget->HandleStatModifier(UNIT_MOD_HEALTH, TOTAL_PCT, float(m_modifier.m_amount), apply);
+
+    switch (GetId())
+    {
+        case 60430:                                         // Molten Fury (Sartharion encounter)
+            unitTarget->SetHealthPercent(unitTarget->GetHealth() * 100.0f / (unitTarget->GetMaxHealth() / (1.0f + float(m_modifier.m_amount) / 100.0f)));
+            break;
+    }
 }
 
 void Aura::HandleAuraIncreaseBaseHealthPercent(bool apply, bool /*Real*/)

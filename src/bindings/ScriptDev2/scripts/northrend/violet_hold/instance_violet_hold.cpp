@@ -213,7 +213,8 @@ struct MANGOS_DLL_DECL instance_violet_hold : public ScriptedInstance
                 {
                 DoUpdateWorldState(WORLD_STATE_VH, 0);
                 DoUseDoorOrButton(m_uiSealDoorGUID);
-                }
+                if (Creature* pSinclari = instance->GetCreature(m_uiSinclariGUID))
+                {pSinclari->ForcedDespawn(1000);}}
                 m_auiEncounter[0] = uiData;
                 break;
             case TYPE_EREKEM:

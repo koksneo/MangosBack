@@ -201,6 +201,15 @@ struct MANGOS_DLL_DECL mob_vh_dragonsAI : public ScriptedAI
         IsWalking = true;
         MovementStarted = true;
     }
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+        {
+            m_pInstance->SetData(TYPE_EVENT, FAIL);
+            m_pInstance->SetData(TYPE_RIFT, FAIL);
+                    
+        }
+    }
     void AddWaypoint(uint32 id, float x, float y, float z)
     {
         WayPoints DWP(id, x, y, z);
@@ -612,7 +621,9 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public ScriptedAI
     std::list<Creature*> m_lGuardsList;
     uint32 m_uiWaypoint;
     bool start;
+    
     uint32 m_uiWalkTimer;
+    
 
     void Reset()
     {
@@ -623,12 +634,8 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public ScriptedAI
         m_uiPortalCheck_Timer = 1000;
         m_bIsRegular = m_creature->GetMap()->IsRegularDifficulty();
         m_uiWaypoint = 0;
-        
-
         start = false;
-        
-        
-    }
+     }
 
     void CallGuards(bool bRespawn)
     {
@@ -801,7 +808,10 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public ScriptedAI
                 }
                 else if (m_uiRiftPortalCount == 18 && m_pInstance->GetData(TYPE_RIFT) != DONE)
                 {
-                    m_creature->SummonCreature(NPC_CYANIGOSA, 1922.420f, 803.240f, 52.40f, 3.022f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY);
+                    Creature* pCyanigossa = GetClosestCreatureWithEntry(m_creature, NPC_CYANIGOSA, 300.0f);
+
+                    if (!pCyanigossa) {                   
+                        m_creature->SummonCreature(NPC_CYANIGOSA, 1922.420f, 803.240f, 52.40f, 3.022f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN , 99999999);}
                     m_pInstance->SetData(TYPE_RIFT, DONE);
                     m_pInstance->SetData(TYPE_DISRUPTIONS, 20);
                     m_uiNextPortal_Timer = 1*DAY;
@@ -826,6 +836,8 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public ScriptedAI
 
             return;
         }
+        
+        
     }
 };
 
@@ -837,7 +849,7 @@ bool GossipHello_npc_sinclari(Player* pPlayer, Creature* pCreature)
 {
  if (ScriptedInstance* m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData())
  {
-       if (m_pInstance->GetData(TYPE_EVENT) == NOT_STARTED)
+       if (m_pInstance->GetData(TYPE_EVENT) == NOT_STARTED || m_pInstance->GetData(TYPE_EVENT) == FAIL)
          {
             pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_INTRO, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
             pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_ID_INTRO, pCreature->GetGUID());
@@ -852,7 +864,7 @@ bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 uiSe
     {
         if (ScriptedInstance* m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData())
         {
-            if (m_pInstance->GetData(TYPE_EVENT) == NOT_STARTED)
+            if (m_pInstance->GetData(TYPE_EVENT) == NOT_STARTED || m_pInstance->GetData(TYPE_EVENT) == FAIL)
             {
                 pPlayer->ADD_GOSSIP_ITEM_ID(GOSSIP_ICON_CHAT, GOSSIP_ITEM_START, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
                 pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXT_ID_START, pCreature->GetGUID());
@@ -869,7 +881,7 @@ bool GossipSelect_npc_sinclari(Player* pPlayer, Creature* pCreature, uint32 uiSe
             pPlayer->CLOSE_GOSSIP_MENU();
 
            
-            if (m_pInstance->GetData(TYPE_EVENT) == NOT_STARTED)
+            if (m_pInstance->GetData(TYPE_EVENT) == NOT_STARTED || m_pInstance->GetData(TYPE_EVENT) == FAIL)
             {
                 
 

@@ -98,15 +98,24 @@ struct MANGOS_DLL_DECL boss_ichoronAI : public ScriptedAI
         
         
 
-        m_pInstance->SetData(TYPE_ICHORON, NOT_STARTED);
+        
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
-        if(m_pInstance->GetData(TYPE_PORTAL6) == IN_PROGRESS) {m_pInstance->SetData(TYPE_PORTAL6, NOT_STARTED);}
-            else {m_pInstance->SetData(TYPE_PORTAL12, NOT_STARTED);}
-
         DespawnWaterElements();
     }
 
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+        {
+            m_pInstance->SetData(TYPE_ICHORON, FAIL);
+            m_pInstance->SetData(TYPE_EVENT, FAIL);
+            m_pInstance->SetData(TYPE_RIFT, FAIL);
+            if(m_pInstance->GetData(TYPE_PORTAL6) == IN_PROGRESS) {m_pInstance->SetData(TYPE_PORTAL6, NOT_STARTED);}
+            else {m_pInstance->SetData(TYPE_PORTAL12, NOT_STARTED);}
+            
+        }
+    }
     void Aggro(Unit* pWho)
     {
         if (!m_pInstance) return;

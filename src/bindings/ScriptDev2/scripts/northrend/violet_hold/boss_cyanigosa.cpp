@@ -79,6 +79,16 @@ struct MANGOS_DLL_DECL boss_cyanigosaAI : public ScriptedAI
         m_creature->SetInCombatWithZone();
     }
 
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+        {
+            m_pInstance->SetData(TYPE_CYANIGOSA, FAIL);
+            m_pInstance->SetData(TYPE_EVENT, FAIL);
+            m_pInstance->SetData(TYPE_RIFT, FAIL);
+        }
+    }
+
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);

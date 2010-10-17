@@ -24,6 +24,9 @@ UPDATE creature_template SET ScriptName='npc_sinclari' WHERE entry=30658;
 UPDATE creature_template SET ScriptName='npc_violet_portal' WHERE entry=31011;
 UPDATE creature_template SET ScriptName='npc_door_seal_vh' WHERE entry=30896;
 
+-- Lieuntenant Sinclari (30658)
+UPDATE creature SET Spawntimesecs=180 WHERE id=30658;
+
 
 -- void sentry template (29364)
 

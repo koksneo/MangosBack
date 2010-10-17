@@ -56,15 +56,20 @@ struct MANGOS_DLL_DECL boss_moraggAI : public ScriptedAI
         m_uiCorrosiveSaliva_Timer = urand(10000, 11000);
         m_uiOpticLink_Timer = urand(25000, 30000);
         m_uiRay_Timer = urand(2000, 7000);
-
-        if (m_pInstance){
-            m_pInstance->SetData(TYPE_MORAGG, NOT_STARTED);
-            if(m_pInstance->GetData(TYPE_PORTAL6) == IN_PROGRESS) {m_pInstance->SetData(TYPE_PORTAL6, NOT_STARTED);}
-            else {m_pInstance->SetData(TYPE_PORTAL12, NOT_STARTED);}
-        }
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
+    }
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+        {
+            m_pInstance->SetData(TYPE_MORAGG, FAIL);
+            m_pInstance->SetData(TYPE_EVENT, FAIL);
+            m_pInstance->SetData(TYPE_RIFT, FAIL);
+            if(m_pInstance->GetData(TYPE_PORTAL6) == IN_PROGRESS) {m_pInstance->SetData(TYPE_PORTAL6, NOT_STARTED);}
+            else {m_pInstance->SetData(TYPE_PORTAL12, NOT_STARTED);}
+            }
     }
 
     void Aggro(Unit* pWho)

@@ -82,13 +82,8 @@ struct MANGOS_DLL_DECL boss_xevozzAI : public ScriptedAI
         m_uiArcaneBuffet_Timer = m_uiSummonEtherealSphere_Timer + urand(5000, 6000);
         DespawnSphere();
         MovementStarted = false;
-
-        if (m_pInstance){
-            m_pInstance->SetData(TYPE_XEVOZZ, NOT_STARTED);
-            if(m_pInstance->GetData(TYPE_PORTAL6) == IN_PROGRESS) {m_pInstance->SetData(TYPE_PORTAL6, NOT_STARTED);}
-            else {m_pInstance->SetData(TYPE_PORTAL12, NOT_STARTED);}
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
-            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);}
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+        m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
 
     }
 
@@ -100,6 +95,18 @@ struct MANGOS_DLL_DECL boss_xevozzAI : public ScriptedAI
         m_pInstance->SetData(TYPE_XEVOZZ, IN_PROGRESS);
         m_creature->GetMotionMaster()->MovementExpired();
         SetCombatMovement(true);
+    }
+
+    void JustReachedHome()
+    {
+        if (m_pInstance)
+        {
+            m_pInstance->SetData(TYPE_XEVOZZ, FAIL);
+            m_pInstance->SetData(TYPE_EVENT, FAIL);
+            m_pInstance->SetData(TYPE_RIFT, FAIL);
+            if(m_pInstance->GetData(TYPE_PORTAL6) == IN_PROGRESS) {m_pInstance->SetData(TYPE_PORTAL6, NOT_STARTED);}
+            else {m_pInstance->SetData(TYPE_PORTAL12, NOT_STARTED);}
+            }
     }
 
     void AttackStart(Unit* pWho)

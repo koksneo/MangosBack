@@ -3,7 +3,7 @@
 #####################################
 
 [MangosdConf]
-ConfVersion=2010062001
+ConfVersion=2010100901
 
 ###################################################################################################################
 # CONNECTIONS AND DIRECTORIES
@@ -137,12 +137,6 @@ BindIP = "0.0.0.0"
 #        Default: 0 (disable)
 #                 1 (enable)
 #
-#    vmap.ignoreMapIds
-#        Map id that will be ignored by VMaps
-#        List of ids with delimiter ','
-#        If more then one id is defined and spaces are included, the string has to be enclosed by "
-#        Example: "369,0,1,530"
-#
 #    vmap.ignoreSpellIds
 #        These spells are ignored for LoS calculation
 #        List of ids with delimiter ','
@@ -202,9 +196,8 @@ ChangeWeatherInterval = 600000
 PlayerSave.Interval = 900000
 PlayerSave.Stats.MinLevel = 0
 PlayerSave.Stats.SaveOnlyOnLogout = 1
-vmap.enableLOS = 0
-vmap.enableHeight = 0
-vmap.ignoreMapIds = ""
+vmap.enableLOS = 1
+vmap.enableHeight = 1
 vmap.ignoreSpellIds = "7720"
 vmap.enableIndoorCheck = 1
 DetectPosCollision = 1
@@ -382,6 +375,78 @@ GmLogTimestamp = 0
 GmLogPerAccount = 0
 RaLogFile = ""
 LogColors = ""
+
+# Chat log parameters
+ChatLogEnable = 0
+
+# If this is enabled, all $d in file names are replaced with current date
+# This does include innormative lexics log
+ChatLogDateSplit = 1
+
+# If this is enabled, UTF8 header is written into new files
+ChatLogUTFHeader = 1
+
+# If this is enabled, chat log will ignore messages with unprintable chars
+ChatLogIgnoreUnprintable = 1
+
+# Chat log files
+ChatLogChatFile = main_chat-$d.log
+ChatLogPartyFile = party_chat-$d.log
+ChatLogGuildFile = guild_chat-$d.log
+ChatLogWhisperFile = whisper_chat-$d.log
+ChatLogChannelFile = channel_chat-$d.log
+ChatLogRaidFile = raid_chat-$d.log
+ChatLogBattleGroundFile = bg_chat-$d.log
+
+# Chat log screen logging
+ChatLogChatScreen = 0
+ChatLogPartyScreen = 0
+ChatLogGuildScreen = 0
+ChatLogWhisperScreen = 0
+ChatLogChannelScreen = 0
+ChatLogRaidScreen = 0
+ChatLogBattleGroundScreen = 0
+
+# Lexics cutter parameters
+LexicsCutterEnable = 1
+
+LexicsCutterInnormativeCut = 1
+LexicsCutterCutReplacement = &!@^%!^&*!!!
+LexicsCutterLogFile = innormative-$d.log
+LexicsCutterScreenLog = 0
+LexicsCutterAnalogsFile = letter_analogs.txt
+LexicsCutterWordsFile = innormative_words.txt
+
+# Where to cut lexics
+LexicsCutInChat = 1
+LexicsCutInParty = 1
+LexicsCutInGuild = 1
+LexicsCutInWhisper = 1
+LexicsCutInChannel = 1
+LexicsCutInRaid = 1
+LexicsCutInBattleGround = 1
+
+# Ignore word spaces like: W O R D
+LexicsCutterIgnoreSpaces = 0
+
+# Ignore repeats like: WWOOOORRRRRD
+LexicsCutterIgnoreRepeats = 1
+
+# --- Action:
+# ---   0: log only
+# ---   1: sheep
+# ---   2: stun
+# ---   3: kill
+# ---   4: leave 5 health
+# ---   5: disable chat
+# ---   6: stuck (works as stun + 50% health)
+# ---   7: resurrection sickness
+# ---   8: shear
+LexicsCutterAction = 0
+LexicsCutterActionDuration = 60000
+
+# Do not perform action on GM if this is enabled
+LexicsCutterNoActionOnGM = 1
 
 ###################################################################################################################
 # SERVER SETTINGS
@@ -1433,10 +1498,9 @@ BattleGround.Random.ResetHour = 6
 #        Current area season id show in client
 #        Default: 1
 #
-#    Arena.ArenaSeason.InProgress
-#        Current area season state
-#        Default: 1 (active)
-#                 0 (finished)
+#    Arena.ArenaSeasonPrevious.ID
+#        Previous area season id show in client
+#        Default: 0
 #
 #    Arena.StartRating
 #        Default Rating at team creation
@@ -1455,7 +1519,7 @@ Arena.AutoDistributeInterval = 7
 Arena.QueueAnnouncer.Join = 0
 Arena.QueueAnnouncer.Exit = 0
 Arena.ArenaSeason.ID = 1
-Arena.ArenaSeason.InProgress = 1
+Arena.ArenaSeasonPrevious.ID = 0
 Arena.StartRating = -1
 Arena.StartPersonalRating = -1
 

@@ -187,7 +187,7 @@ template<>
 void Map::AddToGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // add to world object registry in grid
-    if(obj->isPet() || obj->isVehicle())
+    if(obj->IsPet() || obj->IsVehicle())
     {
         (*grid)(cell.CellX(), cell.CellY()).AddWorldObject<Creature>(obj);
         obj->SetCurrentCell(cell);
@@ -231,7 +231,7 @@ template<>
 void Map::RemoveFromGrid(Creature* obj, NGridType *grid, Cell const& cell)
 {
     // remove from world object registry in grid
-    if(obj->isPet() || obj->isVehicle())
+    if(obj->IsPet() || obj->IsVehicle())
     {
         (*grid)(cell.CellX(), cell.CellY()).RemoveWorldObject<Creature>(obj);
     }
@@ -335,13 +335,17 @@ bool Map::EnsureGridLoaded(const Cell &cell)
     MANGOS_ASSERT(grid != NULL);
     if( !isGridObjectDataLoaded(cell.GridX(), cell.GridY()) )
     {
+        //it's important to set it loaded before loading!
+        //otherwise there is a possibility of infinity chain (grid loading will be called many times for the same grid)
+        //possible scenario:
+        //active object A(loaded with loader.LoadN call and added to the  map)
+        //summons some active object B, while B added to map grid loading called again and so on.. 
+        setGridObjectDataLoaded(true,cell.GridX(), cell.GridY());
         ObjectGridLoader loader(*grid, this, cell);
         loader.LoadN();
 
         // Add resurrectable corpses to world object list in grid
         sObjectAccessor.AddCorpsesToGrid(GridPair(cell.GridX(),cell.GridY()),(*grid)(cell.CellX(), cell.CellY()), this);
-
-        setGridObjectDataLoaded(true,cell.GridX(), cell.GridY());
         return true;
     }
 
@@ -1592,7 +1596,7 @@ void Map::AddToActive( WorldObject* obj )
     {
         Creature* c= (Creature*)obj;
 
-        if (!c->isPet() && c->GetDBTableGUIDLow())
+        if (!c->IsPet() && c->GetDBTableGUIDLow())
         {
             float x,y,z;
             c->GetRespawnCoord(x,y,z);
@@ -1627,7 +1631,7 @@ void Map::RemoveFromActive( WorldObject* obj )
     {
         Creature* c= (Creature*)obj;
 
-        if(!c->isPet() && c->GetDBTableGUIDLow())
+        if(!c->IsPet() && c->GetDBTableGUIDLow())
         {
             float x,y,z;
             c->GetRespawnCoord(x,y,z);
@@ -3498,6 +3502,28 @@ void Map::SendObjectUpdates()
         iter->first->GetSession()->SendPacket(&packet);
         packet.clear();                                     // clean the string
     }
+}
+
+bool Map::IsNextZcoordOK(float x, float y, float oldZ, float maxDiff) const
+{
+    // The fastest way to get an accurate result 90% of the time.
+    // Better result can be obtained like 99% accuracy with a ray light, but the cost is too high and the code is too long.
+    maxDiff = maxDiff >= 100.0f ? 10.0f : sqrtf(maxDiff);
+    bool useVmaps = false;
+    if( GetHeight(x, y, oldZ, false) <  GetHeight(x, y, oldZ, true) ) // check use of vmaps
+        useVmaps = true;
+
+    float newZ = GetHeight(x, y, oldZ+maxDiff-2.0f, useVmaps);
+
+    if (fabs(newZ-oldZ) > maxDiff)                              // bad...
+    {
+        useVmaps = !useVmaps;                                     // try change vmap use
+        newZ = GetHeight(x, y, oldZ+maxDiff-2.0f, useVmaps);
+
+        if (fabs(newZ-oldZ) > maxDiff)
+            return false;
+    }
+    return true;
 }
 
 uint32 Map::GenerateLocalLowGuid(HighGuid guidhigh)

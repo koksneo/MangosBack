@@ -784,13 +784,11 @@ void WorldSession::HandleSetActiveMoverOpcode(WorldPacket &recv_data)
     ObjectGuid guid;
     recv_data >> guid;
 
-    if (!GetPlayer()->IsInWorld())
-        return;
-
     if (Unit *pMover = ObjectAccessor::GetUnit(*GetPlayer(), guid))
         GetPlayer()->SetMover(pMover);
     else
         GetPlayer()->SetMover(NULL);
+
 }
 
 void WorldSession::HandleMoveNotActiveMoverOpcode(WorldPacket &recv_data)

@@ -456,9 +456,9 @@ void Pet::DeleteFromDB(uint32 guidlow)
     CharacterDatabase.PExecute("DELETE FROM pet_spell_cooldown WHERE guid = '%u'", guidlow);
 }
 
-void Pet::setDeathState(DeathState s)                       // overwrite virtual Creature::setDeathState and Unit::setDeathState
+void Pet::SetDeathState(DeathState s)                       // overwrite virtual Creature::SetDeathState and Unit::SetDeathState
 {
-    Creature::setDeathState(s);
+    Creature::SetDeathState(s);
     if(getDeathState()==CORPSE)
     {
         //remove summoned pet (no corpse)
@@ -1294,9 +1294,9 @@ void Pet::_SaveAuras()
             }
         }
 
-        //skip all holders from spells that are passive
+        //skip all holders from spells that are passive or channeled
         //do not save single target holders (unless they were cast by the player)
-        if (save && !holder->IsPassive() && (holder->GetCasterGUID() == GetGUID() || !holder->IsSingleTarget()))
+        if (save && !holder->IsPassive() && !IsChanneledSpell(holder->GetSpellProto()) && (holder->GetCasterGUID() == GetGUID() || !holder->IsSingleTarget()))
         {
             int32 damage[MAX_EFFECT_INDEX];
             int32 remaintime[MAX_EFFECT_INDEX];

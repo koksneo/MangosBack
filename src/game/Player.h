@@ -1200,7 +1200,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void ResetTimeSync();
         void SendTimeSync();
 
-        void setDeathState(DeathState s);                   // overwrite Unit::setDeathState
+        void SetDeathState(DeathState s);                   // overwrite Unit::SetDeathState
 
         float GetRestBonus() const { return m_rest_bonus; }
         void SetRestBonus(float rest_bonus_new);
@@ -1644,7 +1644,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         TrainerSpellState GetTrainerSpellState(TrainerSpell const* trainer_spell) const;
         bool IsSpellFitByClassAndRace( uint32 spell_id ) const;
         bool IsNeedCastPassiveSpellAtLearn(SpellEntry const* spellInfo) const;
-        bool IsImmunedToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex index) const;
+        bool IsImmuneToSpellEffect(SpellEntry const* spellInfo, SpellEffectIndex index) const;
 
         void SendProficiency(ItemClass itemClass, uint32 itemSubclassMask);
         void SendInitialSpells();
@@ -2203,6 +2203,10 @@ class MANGOS_DLL_SPEC Player : public Unit
         bool GetRandomWinner() { return m_IsBGRandomWinner; }
         void SetRandomWinner(bool isWinner);
 
+        // last used pet number (for BG's)
+        uint32 GetLastPetNumber() const { return m_lastpetnumber; }
+        void SetLastPetNumber(uint32 petnumber) { m_lastpetnumber = petnumber; }
+
         /*********************************************************/
         /***                    REST SYSTEM                    ***/
         /*********************************************************/
@@ -2720,7 +2724,6 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         // Temporary removed pet cache
         uint32 m_temporaryUnsummonedPetNumber;
-        uint32 m_oldpetspell;
 
         AchievementMgr m_achievementMgr;
         ReputationMgr  m_reputationMgr;

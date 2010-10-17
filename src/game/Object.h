@@ -225,6 +225,9 @@ class MANGOS_DLL_SPEC Object
         void SetByteFlag( uint16 index, uint8 offset, uint8 newFlag );
         void RemoveByteFlag( uint16 index, uint8 offset, uint8 newFlag );
 
+        void SetShortFlag(uint16 index, bool highpart, uint16 newFlag);
+        void RemoveShortFlag(uint16 index, bool highpart, uint16 oldFlag);
+
         void ToggleFlag( uint16 index, uint8 offset, uint8 flag )
         {
             if(HasByteFlag(index, offset, flag))
@@ -286,8 +289,8 @@ class MANGOS_DLL_SPEC Object
 
         void InitValues() { _InitValues(); }
 
-        virtual bool hasQuest(uint32 /* quest_id */) const { return false; }
-        virtual bool hasInvolvedQuest(uint32 /* quest_id */) const { return false; }
+        virtual bool HasQuest(uint32 /* quest_id */) const { return false; }
+        virtual bool HasInvolvedQuest(uint32 /* quest_id */) const { return false; }
     protected:
 
         Object ( );
@@ -374,7 +377,7 @@ class MANGOS_DLL_SPEC WorldObject : public Object
         virtual float GetObjectBoundingRadius() const { return DEFAULT_WORLD_OBJECT_SIZE; }
 
         bool IsPositionValid() const;
-        void UpdateGroundPositionZ(float x, float y, float &z) const;
+        void UpdateGroundPositionZ(float x, float y, float &z, float maxDiff = 30.0f) const;
         void UpdateAllowedPositionZ(float x, float y, float &z) const;
 
         void GetRandomPoint( float x, float y, float z, float distance, float &rand_x, float &rand_y, float &rand_z ) const;

@@ -357,6 +357,16 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                         damage+= uint32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK) * 0.12f);
                         break;
                     }
+                    case 28375:                             // Decimate (Gluth encounter)
+                    {
+                        // leave only 5% HP
+                        if (unitTarget)
+                        {
+                            // damage of this spell is very odd so we're setting HP manually
+                            damage = 0;
+                            unitTarget->SetHealthPercent(5.0f);
+                        }
+                    }
                     // percent max target health
                     case 29142:                             // Eyesore Blaster
                     case 35139:                             // Throw Boom's Doom
@@ -6051,6 +6061,15 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                         unitTarget->CastSpell(unitTarget, 26655, false);
 
                     return;
+                }
+                case 28374:                                 // Decimate (Gluth encounter)
+                {
+                    if (unitTarget && unitTarget != m_caster)
+                    {
+                        if (unitTarget->GetHealthPercent() > 5.0f)
+                            m_caster->CastSpell(unitTarget, 28375, true);
+                    }
+                    break;
                 }
                 case 29830:                                 // Mirren's Drinking Hat
                 {

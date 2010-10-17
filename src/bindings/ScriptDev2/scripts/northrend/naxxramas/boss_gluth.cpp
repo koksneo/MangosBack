@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Boss_Gluth
-SD%Complete: 70
+SD%Complete: 90
 SDComment:
 SDCategory: Naxxramas
 EndScriptData */
@@ -33,6 +33,7 @@ enum
 
     SPELL_MORTALWOUND       = 25646,
     SPELL_DECIMATE          = 28374,
+    SPELL_DECIMATE_EFFECT   = 28375,
     SPELL_ENRAGE            = 28371,
     SPELL_ENRAGE_H          = 54427,
     SPELL_BERSERK           = 26662,
@@ -130,7 +131,7 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
         if (m_creature->CanInitiateAttack() && pWho->isTargetableForAttack() &&
             m_creature->IsHostileTo(pWho) && pWho->isInAccessablePlaceFor(m_creature))
         {
-            if (!m_creature->canFly() && m_creature->GetDistanceZ(pWho) > CREATURE_Z_ATTACK_RANGE)
+            if (!m_creature->CanFly() && m_creature->GetDistanceZ(pWho) > CREATURE_Z_ATTACK_RANGE)
                 return;
 
             if (m_creature->IsWithinLOSInMap(pWho))
@@ -160,7 +161,7 @@ struct MANGOS_DLL_DECL boss_gluthAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        // Seatch and devour Zombie
+        // Search and devour Zombie
         if (m_uiSearchZombieTimer < uiDiff)
         {
             if (Creature* pZombie = GetClosestCreatureWithEntry(m_creature, NPC_ZOMBIE_CHOW, 10.0f))
@@ -258,15 +259,24 @@ struct MANGOS_DLL_DECL mob_zombie_chowAI : public ScriptedAI
 
     void MoveInLineOfSight(Unit* pWho){}
 
-    void DamageTaken(Unit* pDoneBy, uint32 &uiDamage)
+    void AttackStart(Unit *pWho)
     {
-        if (!pDoneBy)
+        ScriptedAI::AttackStart(pWho);
+
+        if (!m_creature->HasSplineFlag(SPLINEFLAG_WALKMODE))
+            m_creature->AddSplineFlag(SPLINEFLAG_WALKMODE);
+    }
+
+    void SpellHit(Unit *pCaster, const SpellEntry *spellInfo)
+    {
+        if (!pCaster || !spellInfo)
             return;
 
-        if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() != CHASE_MOTION_TYPE)
+        if (spellInfo->Id == SPELL_DECIMATE_EFFECT)
         {
+            m_creature->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
             m_creature->GetMotionMaster()->Clear();
-            m_creature->GetMotionMaster()->MoveChase(pDoneBy);
+            m_creature->GetMotionMaster()->MoveFollow(pCaster, 0.0f, 0.0f);
         }
     }
 

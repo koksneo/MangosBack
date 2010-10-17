@@ -1942,6 +1942,13 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                             }
                 break;
             }
+            // Decimate - Gluth encounter
+            // target everything in the room except the caster
+            if (m_spellInfo->Id == 28374)
+            {
+                targetUnitMap.clear();
+                FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
+            }
 
             // exclude caster
             targetUnitMap.remove(m_caster);

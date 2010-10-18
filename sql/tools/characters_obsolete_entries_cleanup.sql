@@ -1,8 +1,8 @@
--- VERY IMPORTANT NOTE: you must replace `mangos_realmd` with your own realm database name!
+-- VERY IMPORTANT NOTE: you must replace `server_realmd` with your own realm database name!
 
-DELETE FROM `characters` WHERE `account` NOT IN (SELECT `id` FROM `mangos_realmd`.`account`) AND `account` != '0';
-DELETE FROM `account_data` WHERE `account` NOT IN (SELECT `id` FROM `mangos_realmd`.`account`) AND `account` != '0';
-DELETE FROM `character_tutorial` WHERE `account` NOT IN (SELECT `id` FROM `mangos_realmd`.`account`) AND `account` != '0';
+DELETE FROM `characters` WHERE `account` NOT IN (SELECT `id` FROM `server_realmd`.`account`) AND `account` != '0';
+DELETE FROM `account_data` WHERE `account` NOT IN (SELECT `id` FROM `server_realmd`.`account`) AND `account` != '0';
+DELETE FROM `character_tutorial` WHERE `account` NOT IN (SELECT `id` FROM `server_realmd`.`account`) AND `account` != '0';
 
 DELETE FROM `character_account_data` WHERE `guid` NOT IN (SELECT `guid` FROM `characters`);
 DELETE FROM `character_achievement` WHERE `guid` NOT IN (SELECT `guid` FROM `characters`);
@@ -40,4 +40,4 @@ DELETE FROM `guild_member` WHERE `guildid` NOT IN (SELECT `guildid` FROM `guild`
 DELETE FROM `guild_rank` WHERE `guildid` NOT IN (SELECT `guildid` FROM `guild`);
 
 -- Warning: this query will be executing extremely long in large databases!
-DELETE FROM `item_instance` WHERE `guid` NOT IN (SELECT `item` FROM `character_inventory`) AND `guid` NOT IN (SELECT `item_guid` FROM `guild_bank_item`) AND `guid` NOT IN (SELECT `item_guid` FROM `mail_items`) AND `guid` NOT IN (SELECT `itemguid` FROM `auctionhouse`);
+DELETE FROM `item_instance` WHERE `guid` NOT IN (SELECT `item` FROM `character_inventory`) AND `guid` NOT IN (SELECT `item_guid` FROM `guild_bank_item`) AND `guid` NOT IN (SELECT `item_guid` FROM `mail_items`) AND `guid` NOT IN (SELECT `itemguid` FROM `auction`);

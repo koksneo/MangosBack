@@ -2170,16 +2170,6 @@ void Aura::HandleAuraDummy(bool apply, bool Real)
                 }
                 break;
             }
-            case SPELLFAMILY_MAGE:
-            {
-                // hack for Fingers of Frost stacks
-                if (GetId() == 74396)
-                {
-                    if (SpellAuraHolder *holder = target->GetSpellAuraHolder(74396))
-                        holder->SetAuraCharges(3);
-                }
-                break;
-            }
             case SPELLFAMILY_WARRIOR:
             {
                 // Overpower
@@ -9405,7 +9395,7 @@ void Aura::HandleAuraInitializeImages(bool Apply, bool Real)
     Unit* creator = target->GetMap()->GetUnit(target->GetCreatorGUID());
     Creature* pImmage = (Creature*)target;
 
-    if (!creator || !caster || creator != caster || pImmage->isPet())
+    if (!creator || !caster || creator != caster || pImmage->IsPet())
         return;
 
     // set stats and visual

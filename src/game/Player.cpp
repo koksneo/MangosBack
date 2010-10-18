@@ -6408,8 +6408,8 @@ void Player::RewardReputation(Unit *pVictim, float rate)
 		uint32 factionId = Rep->repfaction1;
 
         // Alliance Vanguard
-        if (tabardFactionId && Rep->repfaction1 == 1037)
-            factionId = tabardFactionId;
+        if (tabardFactionID && Rep->repfaction1 == 1037)
+            factionId = tabardFactionID;
 
         donerep1 = int32(donerep1*rate);
         FactionEntry const *factionEntry1 = sFactionStore.LookupEntry(Repfaction1);
@@ -6434,7 +6434,7 @@ void Player::RewardReputation(Unit *pVictim, float rate)
 
         // Horde Expedition
         if (tabardFactionId && Rep->repfaction2 == 1052)
-            factionId = tabardFactionId;
+            factionId = tabardFactionID;
 
         donerep2 = int32(donerep2*rate);
         FactionEntry const *factionEntry2 = sFactionStore.LookupEntry(Repfaction2);

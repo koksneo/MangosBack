@@ -1150,7 +1150,7 @@ void Spell::DoSpellHitOnUnit(Unit *unit, const uint32 effectMask)
     // Recheck immune (only for delayed spells)
     if (m_spellInfo->speed && (
         unit->IsImmunedToDamage(GetSpellSchoolMask(m_spellInfo)) ||
-        unit->IsImmunedToSpell(m_spellInfo)) &&
+        unit->IsImmuneToSpell(m_spellInfo)) &&
         !(m_spellInfo->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
     {
         if (realCaster)
@@ -1828,7 +1828,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     for (UnitList::iterator itr = targetUnitMap.begin(); itr != targetUnitMap.end();)
                     {
                         Creature *pTmp = (Creature*)(*itr);
-                        if ( ((*itr) && (*itr)->GetTypeId() == TYPEID_PLAYER) || (pTmp && pTmp->isWorldBoss()) )
+                        if ( ((*itr) && (*itr)->GetTypeId() == TYPEID_PLAYER) || (pTmp && pTmp->IsWorldBoss()) )
                         {
                             targetUnitMap.erase(itr);
                             targetUnitMap.sort();
@@ -1903,7 +1903,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     {
                         next = itr;
                         ++next;
-                        if (!(*itr) || (*itr)->GetTypeId() != TYPEID_UNIT || (*itr)->GetCreatorGUID() != m_caster->GetGUID() || ((Creature*)*itr)->isPet())
+                        if (!(*itr) || (*itr)->GetTypeId() != TYPEID_UNIT || (*itr)->GetCreatorGUID() != m_caster->GetGUID() || ((Creature*)*itr)->IsPet())
                             targetUnitMap.erase(itr);
                     }
                 }
@@ -1977,7 +1977,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 if (unitTarget)
                 {
                     // Cast on corpses...
-                    if ((unitTarget->getDeathState() == CORPSE && !unitTarget->IsTaxiFlying() && !((Creature*)unitTarget)->isDeadByDefault() &&
+                    if ((unitTarget->getDeathState() == CORPSE && !unitTarget->IsTaxiFlying() && !((Creature*)unitTarget)->IsDeadByDefault() &&
                         (unitTarget->GetDisplayId() == unitTarget->GetNativeDisplayId()) && m_caster->IsWithinDistInMap(unitTarget, range) &&
                         (unitTarget->GetCreatureTypeMask() & CREATURE_TYPEMASK_MECHANICAL_OR_ELEMENTAL) == 0) ||
                         // ...or own Risen Ghoul pet - self explode effect

@@ -3197,7 +3197,7 @@ SpellMissInfo Unit::SpellHitResult(Unit *pVictim, SpellEntry const *spell, bool 
     if (!(spell->Attributes & SPELL_ATTR_UNAFFECTED_BY_INVULNERABILITY))
     {
         // Check for immune
-        if (pVictim->IsImmunedToSpell(spell))
+        if (pVictim->IsImmuneToSpell(spell))
             return SPELL_MISS_IMMUNE;
 
         // All positive spells can`t miss

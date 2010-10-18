@@ -17,12 +17,13 @@
 /* ScriptData
 SDName: Desolace
 SD%Complete: 100
-SDComment: Quest support: 5561
+SDComment: Quest support: 5561, 5381
 SDCategory: Desolace
 EndScriptData */
 
 /* ContentData
 npc_aged_dying_ancient_kodo
+go_hand_of_iruxos_crystal
 EndContentData */
 
 #include "precompiled.h"
@@ -167,8 +168,8 @@ bool GossipHello_npc_aged_dying_ancient_kodo(Player* pPlayer, Creature* pCreatur
 
 enum
 {
-QUEST_HAND_OF_IRUXOS = 5381,
-NPC_DEMON_SPIRIT = 11876
+QUEST_HAND_OF_IRUXOS    = 5381,
+NPC_DEMON_SPIRIT        = 11876
 };
 
 bool GOHello_go_hand_of_iruxos_crystal (Player* pPlayer, GameObject* pGo)
@@ -180,7 +181,7 @@ Creature* pDemon = GetClosestCreatureWithEntry(pPlayer, NPC_DEMON_SPIRIT, 25.0f)
 
 if (pPlayer->GetQuestStatus(QUEST_HAND_OF_IRUXOS) == QUEST_STATUS_INCOMPLETE)
 {
-pPlayer->SummonCreature(NPC_DEMON_SPIRIT, -359.605f, 1781.72f, 139.352f, 5.31098f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+pPlayer->SummonCreature(NPC_DEMON_SPIRIT, -359.605f, 1781.72f, 139.352f, 5.31098f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN , 99999999);
 
 }
 return true;

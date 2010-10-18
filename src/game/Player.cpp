@@ -22326,6 +22326,16 @@ Object* Player::GetObjectByTypeMask(ObjectGuid guid, TypeMask typemask)
     return NULL;
 }
 
+void Player::CompletedAchievement(AchievementEntry const* entry)
+{
+    GetAchievementMgr().CompletedAchievement(entry);
+}
+
+void Player::CompletedAchievement(uint32 uiAchievementID)
+{
+    GetAchievementMgr().CompletedAchievement(sAchievementStore.LookupEntry(uiAchievementID));
+}
+
 void Player::SetRestType( RestType n_r_type, uint32 areaTriggerId /*= 0*/)
 {
     rest_type = n_r_type;

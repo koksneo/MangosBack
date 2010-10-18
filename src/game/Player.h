@@ -2352,10 +2352,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         static void ConvertInstancesToGroup(Player *player, Group *group = NULL, ObjectGuid player_guid = ObjectGuid());
         InstanceSave* GetBoundInstanceSaveForSelfOrGroup(uint32 mapid);
 
-        // last used pet number (for BG's)
-        uint32 GetLastPetNumber() const { return m_lastpetnumber; }
-        void SetLastPetNumber(uint32 petnumber) { m_lastpetnumber = petnumber; }
-
         /*********************************************************/
         /***                   GROUP SYSTEM                    ***/
         /*********************************************************/

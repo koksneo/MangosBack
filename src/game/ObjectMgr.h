@@ -1396,9 +1396,6 @@ class ObjectMgr
         typedef UNORDERED_MAP<uint32, uint32> SpellDisabledMap;
         SpellDisabledMap  m_spell_disabled;
 
-        typedef UNORDERED_MAP<uint32, uint32> SpellDisabledMap;
-        SpellDisabledMap  m_spell_disabled;
-
         GraveYardMap        mGraveYardMap;
 
         GameTeleMap         m_GameTeleMap;

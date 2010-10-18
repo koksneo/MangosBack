@@ -6433,7 +6433,7 @@ void Player::RewardReputation(Unit *pVictim, float rate)
 		uint32 factionId = Rep->repfaction2;
 
         // Horde Expedition
-        if (tabardFactionId && Rep->repfaction2 == 1052)
+        if (tabardFactionID && Rep->repfaction2 == 1052)
             factionId = tabardFactionID;
 
         donerep2 = int32(donerep2*rate);

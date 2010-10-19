@@ -7101,6 +7101,57 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
         {
             switch(m_spellInfo->Id)
             {
+                case 46584:                                 // Raise Dead
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    Player* p_caster = (Player*)m_caster;
+
+                    // do nothing if ghoul summon already exsists (in fact not possible, but...)
+                    if (p_caster->FindGuardianWithEntry(26125) || p_caster->GetPet() )
+                    {
+                        SendCastResult(SPELL_FAILED_ALREADY_HAVE_SUMMON);
+                        finish(false);
+                        return;
+                    }
+
+                    // choose reagent: check if "Glyph of Raise Dead" ,corpse- or "Corpse Dust" is available
+                    bool bCanCast = unitTarget && unitTarget != m_caster;
+                    if (!bCanCast)
+                    {
+                        if (p_caster->CanNoReagentCast(m_spellInfo) )
+                            bCanCast = true;
+                        else if (p_caster->HasItemCount(37201,1) )
+                        {
+                            bCanCast = true;
+                            p_caster->DestroyItemCount(37201, 1, true);
+                        }
+                    }
+                    // remove spellcooldown if can't cast and send result
+                    if (!bCanCast)
+                    {
+                        p_caster->RemoveSpellCooldown(m_spellInfo->Id, true);
+                        SendCastResult(SPELL_FAILED_REAGENTS);
+                        finish(false);
+                        return;
+                    }
+
+                    // check for "Master of Ghouls"
+                    uint32 spell = uint32(m_spellInfo->CalculateSimpleValue(p_caster->HasSpell(52143) ? SpellEffectIndex(eff_idx+1) : eff_idx) );
+
+                    // if no corpse found
+                    if (unitTarget == m_caster)
+                    {
+                        float x, y, z;
+                        p_caster->GetClosePoint(x, y, z, p_caster->GetObjectBoundingRadius(), PET_FOLLOW_DIST, PET_FOLLOW_ANGLE);
+                        p_caster->CastSpell(x, y, z, spell, true);
+                    }
+                    else if (unitTarget)
+                        p_caster->CastSpell(unitTarget, spell, true, NULL, NULL, unitTarget->GetGUID() );
+
+                    break;
+                }
                 case 50842:                                 // Pestilence
                 {
                     if (!unitTarget)

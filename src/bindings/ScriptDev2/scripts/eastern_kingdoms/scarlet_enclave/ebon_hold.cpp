@@ -217,7 +217,7 @@ struct MANGOS_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 10: DoScriptText(SAY_EXEC_WAITING, m_creature, pPlayer); break;
                             case 11:
                                 DoScriptText(EMOTE_DIES, m_creature);
-                                m_creature->setDeathState(JUST_DIED);
+                                m_creature->SetDeathState(JUST_DIED);
                                 m_creature->SetHealth(0);
                                 return;
                         }
@@ -245,7 +245,7 @@ struct MANGOS_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 10: DoScriptText(SAY_EXEC_WAITING, m_creature, pPlayer); break;
                             case 11:
                                 DoScriptText(EMOTE_DIES, m_creature);
-                                m_creature->setDeathState(JUST_DIED);
+                                m_creature->SetDeathState(JUST_DIED);
                                 m_creature->SetHealth(0);
                                 return;
                         }
@@ -273,7 +273,7 @@ struct MANGOS_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 10: DoScriptText(SAY_EXEC_WAITING, m_creature, pPlayer); break;
                             case 11:
                                 DoScriptText(EMOTE_DIES, m_creature);
-                                m_creature->setDeathState(JUST_DIED);
+                                m_creature->SetDeathState(JUST_DIED);
                                 m_creature->SetHealth(0);
                                 return;
                         }
@@ -301,7 +301,7 @@ struct MANGOS_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 10: DoScriptText(SAY_EXEC_WAITING, m_creature, pPlayer); break;
                             case 11:
                                 DoScriptText(EMOTE_DIES, m_creature);
-                                m_creature->setDeathState(JUST_DIED);
+                                m_creature->SetDeathState(JUST_DIED);
                                 m_creature->SetHealth(0);
                                 return;
                         }
@@ -329,7 +329,7 @@ struct MANGOS_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 10: DoScriptText(SAY_EXEC_WAITING, m_creature, pPlayer); break;
                             case 11:
                                 DoScriptText(EMOTE_DIES, m_creature);
-                                m_creature->setDeathState(JUST_DIED);
+                                m_creature->SetDeathState(JUST_DIED);
                                 m_creature->SetHealth(0);
                                 return;
                         }
@@ -357,7 +357,7 @@ struct MANGOS_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 10: DoScriptText(SAY_EXEC_WAITING, m_creature, pPlayer); break;
                             case 11:
                                 DoScriptText(EMOTE_DIES, m_creature);
-                                m_creature->setDeathState(JUST_DIED);
+                                m_creature->SetDeathState(JUST_DIED);
                                 m_creature->SetHealth(0);
                                 return;
                         }
@@ -385,7 +385,7 @@ struct MANGOS_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 10: DoScriptText(SAY_EXEC_WAITING, m_creature, pPlayer); break;
                             case 11:
                                 DoScriptText(EMOTE_DIES, m_creature);
-                                m_creature->setDeathState(JUST_DIED);
+                                m_creature->SetDeathState(JUST_DIED);
                                 m_creature->SetHealth(0);
                                 return;
                         }
@@ -413,7 +413,7 @@ struct MANGOS_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 10: DoScriptText(SAY_EXEC_WAITING, m_creature, pPlayer); break;
                             case 11:
                                 DoScriptText(EMOTE_DIES, m_creature);
-                                m_creature->setDeathState(JUST_DIED);
+                                m_creature->SetDeathState(JUST_DIED);
                                 m_creature->SetHealth(0);
                                 return;
                         }
@@ -441,7 +441,7 @@ struct MANGOS_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 10: DoScriptText(SAY_EXEC_WAITING, m_creature, pPlayer); break;
                             case 11:
                                 DoScriptText(EMOTE_DIES, m_creature);
-                                m_creature->setDeathState(JUST_DIED);
+                                m_creature->SetDeathState(JUST_DIED);
                                 m_creature->SetHealth(0);
                                 return;
                         }
@@ -469,7 +469,7 @@ struct MANGOS_DLL_DECL npc_a_special_surpriseAI : public ScriptedAI
                             case 10: DoScriptText(SAY_EXEC_WAITING, m_creature, pPlayer); break;
                             case 11:
                                 DoScriptText(EMOTE_DIES, m_creature);
-                                m_creature->setDeathState(JUST_DIED);
+                                m_creature->SetDeathState(JUST_DIED);
                                 m_creature->SetHealth(0);
                                 return;
                         }
@@ -1629,23 +1629,23 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                 return;
 
             if (Creature* pTemp = m_pMap->GetCreature(uiTirionGUID))
-                pTemp->setDeathState(JUST_DIED);
+                pTemp->SetDeathState(JUST_DIED);
             if (Creature* pTemp = m_pMap->GetCreature(uiKorfaxGUID))
-                pTemp->setDeathState(JUST_DIED);
+                pTemp->SetDeathState(JUST_DIED);
             if (Creature* pTemp = m_pMap->GetCreature(uiMaxwellGUID))
-                pTemp->setDeathState(JUST_DIED);
+                pTemp->SetDeathState(JUST_DIED);
             if (Creature* pTemp = m_pMap->GetCreature(uiEligorGUID))
-                pTemp->setDeathState(JUST_DIED);
+                pTemp->SetDeathState(JUST_DIED);
             if (Creature* pTemp = m_pMap->GetCreature(uiRayneGUID))
-                pTemp->setDeathState(JUST_DIED);
+                pTemp->SetDeathState(JUST_DIED);
             if (Creature* pTemp = m_pMap->GetCreature(uiEarthshatterGUID))
-                pTemp->setDeathState(JUST_DIED);
+                pTemp->SetDeathState(JUST_DIED);
             if (Creature* pTemp = m_pMap->GetCreature(uiLeonidGUID))
-                pTemp->setDeathState(JUST_DIED);
+                pTemp->SetDeathState(JUST_DIED);
             if (Creature* pTemp = m_pMap->GetCreature(uiDukeGUID))
-                pTemp->setDeathState(JUST_DIED);
+                pTemp->SetDeathState(JUST_DIED);
             if (Creature* pTemp = m_pMap->GetCreature(uiLichKingGUID))
-                pTemp->setDeathState(JUST_DIED);
+                pTemp->SetDeathState(JUST_DIED);
             if (Creature* pTemp = m_pMap->GetCreature(uiKoltiraGUID))
                 pTemp->Respawn();
             if (Creature* pTemp = m_pMap->GetCreature(uiOrbazGUID))
@@ -1669,19 +1669,19 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             for(uint8 i = 0; i < ENCOUNTER_GHOUL_NUMBER; ++i)
             {
                 if (Creature* pTemp = m_pMap->GetCreature(uiGhoulGUID[i]))
-                    pTemp->setDeathState(JUST_DIED);
+                    pTemp->SetDeathState(JUST_DIED);
                 uiGhoulGUID[i] = 0;
             }
             for(uint8 i = 0; i < ENCOUNTER_WARRIOR_NUMBER; ++i)
             {
                 if (Creature* pTemp = m_pMap->GetCreature(uiWarriorGUID[i]))
-                    pTemp->setDeathState(JUST_DIED);
+                    pTemp->SetDeathState(JUST_DIED);
                 uiWarriorGUID[i] = 0;
             }
             for(uint8 i = 0; i < ENCOUNTER_ABOMINATION_NUMBER; ++i)
             {
                 if (Creature* pTemp = m_pMap->GetCreature(uiAbominationGUID[i]))
-                   pTemp->setDeathState(JUST_DIED);
+                   pTemp->SetDeathState(JUST_DIED);
                 uiAbominationGUID[i] = 0;
             }
             for(uint8 i = 0; i < ENCOUNTER_BEHEMOTH_NUMBER; ++i)
@@ -1689,7 +1689,7 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
             for(uint8 i = 0; i < ENCOUNTER_DEFENDER_NUMBER; ++i)
             {
                 if (Creature* pTemp = m_pMap->GetCreature(uiDefenderGUID[i]))
-                    pTemp->setDeathState(JUST_DIED);
+                    pTemp->SetDeathState(JUST_DIED);
                 uiDefenderGUID[i] = 0;
             }
         }
@@ -2244,7 +2244,7 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
 
                     case 27:
                         if (Creature* pTemp = m_pMap->GetCreature(uiDarionGUID))
-                            pTemp->setDeathState(JUST_DIED);
+                            pTemp->SetDeathState(JUST_DIED);
                         JumpToNextStep(23000);
                         break;
 

@@ -225,7 +225,7 @@ struct MANGOS_DLL_DECL mob_living_poisonAI : public ScriptedAI
 {
     mob_living_poisonAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_bIsTempSummon = m_creature->isTemporarySummon();
+        m_bIsTempSummon = m_creature->IsTemporarySummon();
         Reset();
     }
 

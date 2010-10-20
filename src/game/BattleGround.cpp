@@ -1602,8 +1602,8 @@ void BattleGround::SpawnBGCreature(uint64 const& guid, uint32 respawntime)
     else
     {
         map->Add(obj);
-        obj->SetDeathState(JUST_DIED);
         obj->SetRespawnDelay(respawntime);
+        obj->SetDeathState(JUST_DIED);
         obj->RemoveCorpse();
     }
 }

@@ -4751,6 +4751,7 @@ void Spell::DoSummonSnakes(SpellEffectIndex eff_idx, uint32 forceFaction)
         pSummon->SetCreatorGUID(m_caster->GetGUID());
         pSummon->setFaction(forceFaction ? forceFaction : m_caster->getFaction());
         pSummon->SetLevel(m_caster->getLevel());
+        pSummon->SetMaxHealth(m_caster->getLevel() + urand(20,30));
     }
 }
 
@@ -8160,7 +8161,8 @@ void Spell::EffectSummonAllTotems(SpellEffectIndex eff_idx)
         if (ActionButton const* actionButton = ((Player*)m_caster)->GetActionButton(start_button+slot))
             if (actionButton->GetType()==ACTION_BUTTON_SPELL)
                 if (uint32 spell_id = actionButton->GetAction())
-                    m_caster->CastSpell(unitTarget,spell_id,true);
+                    if (!((Player*)m_caster)->HasSpellCooldown(spell_id))
+                        m_caster->CastSpell(unitTarget,spell_id,true);
 }
 
 void Spell::EffectDestroyAllTotems(SpellEffectIndex /*eff_idx*/)

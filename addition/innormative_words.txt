@@ -1,7 +1,12 @@
 ﻿hooj
 hój
 huj
+huy
+hoy
 jeb
+yeahb
+yeb
+yehb
 kurv
 kurw
 kurf
@@ -31,6 +36,14 @@ qrfi
 qurf
 qórf
 qorf
+kruwa
+kruwo
+kruwy
+kruwi
+krufa
+krufo
+krufy
+krufi
 kurestw
 korestw
 kórestw
@@ -58,8 +71,17 @@ cioto
  cipie 
  ocip
  picza
- piczo
- piczka
+ piczą 
+ picze 
+ piczę 
+ piczo 
+ piczk
+ pipk
+ pipa
+ pipą 
+ pipe 
+ pipę 
+ pipo 
  ciul
  dziwk
  dzifk
@@ -68,6 +90,8 @@ cioto
  pizg
  podup
  wydup
+ wdup
+ zdup
  rozdup
 cwel
 ruchaj

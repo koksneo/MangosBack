@@ -59,14 +59,14 @@ pierdal
 pierdol
 pierdól
 pierdul
-ciota
-cioty
-cioto
+ ciota
+ cioty 
+ cioto
  cipa
  cipą 
  cipe 
  cipę 
- cipo 
+ cipo
  cipy 
  cipie 
  ocip
@@ -74,14 +74,14 @@ cioto
  piczą 
  picze 
  piczę 
- piczo 
+ piczo
  piczk
  pipk
  pipa
  pipą 
  pipe 
  pipę 
- pipo 
+ pipo
  ciul
  dziwk
  dzifk
@@ -94,15 +94,16 @@ cioto
  zdup
  rozdup
 cwel
-ruchaj
-fiut
-fjut
+rucha
+ fiut
+ fjut
+ fiuc
  pedale
 fuck
  dick 
  dicks 
-prick
-asshole
+ prick
+ asshole
  whore
  bitch
  cunt 

@@ -6,26 +6,49 @@ kurv
 kurw
 kurf
 korv
+kur\/\/
 kórv
 kórw
 kórf
+kor\/\/
 koorv
 koorw
 koorf
 korwa
 korwy
+korwi
 qrwa
+qrwo
 qrwy
+qrwi
+qurw
+qórw
+qorw
+qrfa
+qrfo
+qrfy
+qrfi
+qurf
+qórf
+qorf
 kurestw
+korestw
+kórestw
+kurestf
+korestf
+kórestf
 kurew
+korew
+kórew
 kótas
 kutas
 pierdal
 pierdol
 pierdól
 pierdul
- ciota
+ciota
 cioty
+cioto
  cipa
  cipą 
  cipe 
@@ -34,17 +57,28 @@ cioty
  cipy 
  cipie 
  ocip
+ picza
+ piczo
+ piczka
  ciul
  dziwk
+ dzifk
  pizd
  piźd
+ pizg
  podup
  wydup
- fuck
+ rozdup
+cwel
+ruchaj
+fiut
+fjut
+ pedale
+fuck
  dick 
  dicks 
 prick
- asshole
+asshole
  whore
  bitch
  cunt 

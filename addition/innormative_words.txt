@@ -1,6 +1,8 @@
 ﻿hooj
 hój
 huj
+hju
+hui
 huy
 hoy
 jeb
@@ -9,6 +11,10 @@ yeb
 yehb
 kurv
 kurw
+awruk
+ywruk
+owruk
+iwruk
 kurf
 korv
 kur\/\/
@@ -16,9 +22,7 @@ kórv
 kórw
 kórf
 kor\/\/
-koorv
-koorw
-koorf
+korf
 korwa
 korwy
 korwi
@@ -36,6 +40,10 @@ qrfi
 qurf
 qórf
 qorf
+curv
+curw
+curf
+corv
 kruwa
 kruwo
 kruwy
@@ -59,6 +67,18 @@ pierdal
 pierdol
 pierdól
 pierdul
+peirdal
+peirdol
+peirdól
+peirdul
+piedral
+piedrol
+piedról
+piedrul
+peidral
+peidrol
+peidról
+peidrul
  ciota
  cioty 
  cioto
@@ -104,7 +124,9 @@ fuck
  dicks 
  prick
  asshole
+ asslick
  whore
  bitch
  cunt 
  cunts 
+ cocksuck

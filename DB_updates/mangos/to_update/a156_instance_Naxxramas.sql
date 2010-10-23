@@ -74,7 +74,7 @@ INSERT INTO script_texts (`entry`,`content_default`,`type`,`comment`) VALUES
 (-1999779, '%s becomes enraged',3,'Gluth - Periodic Enrage'),
 (-1533119, '%s spots zombie to devour!',2,'Gluth - Spoted Zombie');
 
-UPDATE creature_template SET speed_run = 0.8, ScriptName = 'mob_zombie_chow' WHERE entry = 16360;
+UPDATE creature_template SET speed_run = 0.8, ScriptName = 'mob_zombie_chow' WHERE entry IN (16360, 30303);
 
 ################### four horsemen encounter #####################################################
 

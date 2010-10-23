@@ -153,7 +153,7 @@ struct MANGOS_DLL_DECL instance_molten_core : public ScriptedInstance
                 if (m_auiEncounter[8] == DONE)
                 {
                     pCreature->SetObjectScale(0.1f);
-                    if (Creature *pDomo = pCreature->SummonCreature(NPC_DOMO, (float)SPAWN_RAG_X, (float)SPAWN_RAG_Y, (float)SPAWN_RAG_Z, (float)SPAWN_RAG_O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY) )
+                    if (Creature *pDomo = pCreature->SummonCreature(NPC_DOMO, (float)SPAWN_RAG_X, (float)SPAWN_RAG_Y, (float)SPAWN_RAG_Z, (float)SPAWN_RAG_O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS) )
                         pDomo->SetUInt32Value(UNIT_NPC_FLAGS, 1);
                 }
                 break;
@@ -198,7 +198,7 @@ struct MANGOS_DLL_DECL instance_molten_core : public ScriptedInstance
                     DoRespawnGameObject(m_uiFirelordCacheGUID);
                     if (Creature* pRagnaros = instance->GetCreature(m_uiRagnarosGUID) )
                     {
-                        if (Creature *pDomo = pRagnaros->SummonCreature(NPC_DOMO, (float)SPAWN_RAG_X, (float)SPAWN_RAG_Y, (float)SPAWN_RAG_Z, (float)SPAWN_RAG_O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY) )
+                        if (Creature *pDomo = pRagnaros->SummonCreature(NPC_DOMO, (float)SPAWN_RAG_X, (float)SPAWN_RAG_Y, (float)SPAWN_RAG_Z, (float)SPAWN_RAG_O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS) )
                             pDomo->SetUInt32Value(UNIT_NPC_FLAGS, 1);
                     }
                 }

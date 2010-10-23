@@ -791,7 +791,7 @@ struct MANGOS_DLL_DECL npc_sinclariAI : public ScriptedAI
                     {
                         if (Creature* pTemp = m_creature->SummonCreature(NPC_PORTAL, PortalLoc[0].x, PortalLoc[0].y, PortalLoc[0].z, 0, TEMPSUMMON_TIMED_DESPAWN, 15000))
                         {
-                            pTemp->SetRespawnDelay(7*DAY);
+                            pTemp->SetRespawnDelay(7*DAY*IN_MILLISECONDS);
                             Creature* pSummoned = m_creature->SummonCreature(NPC_AZURE_SABOTEUR, PortalLoc[0].x, PortalLoc[0].y, PortalLoc[0].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
 //                          pSummoned->AddThreat(pTemp);
                             pTemp->CastSpell(pSummoned, SPELL_PORTAL_CHANNEL, false);

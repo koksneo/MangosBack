@@ -212,43 +212,43 @@ struct MANGOS_DLL_DECL boss_majordomoAI : public ScriptedAI
             return;
 
         // Flamewalker Healers
-        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_HEALER, m_creature->GetPositionX()-1, m_creature->GetPositionY()+3, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()+0.3f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
+        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_HEALER, m_creature->GetPositionX()-1, m_creature->GetPositionY()+3, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()+0.3f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS))
         {
             m_lFlamewalkersList.push_back(pFlamewalker->GetGUID());
             m_uiFlamewalkersAlive++;
         }
-        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_HEALER, m_creature->GetPositionX()-3, m_creature->GetPositionY()+9, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()+0.4f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
+        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_HEALER, m_creature->GetPositionX()-3, m_creature->GetPositionY()+9, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()+0.4f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS))
         {
             m_lFlamewalkersList.push_back(pFlamewalker->GetGUID());
             m_uiFlamewalkersAlive++;
         }
-        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_HEALER, m_creature->GetPositionX()-1.5f, m_creature->GetPositionY()-3, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()-0.3f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
+        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_HEALER, m_creature->GetPositionX()-1.5f, m_creature->GetPositionY()-3, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()-0.3f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS))
         {
             m_lFlamewalkersList.push_back(pFlamewalker->GetGUID());
             m_uiFlamewalkersAlive++;
         }
-        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_HEALER, m_creature->GetPositionX()-4.5f, m_creature->GetPositionY()-9, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()-0.4f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
+        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_HEALER, m_creature->GetPositionX()-4.5f, m_creature->GetPositionY()-9, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()-0.4f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS))
         {
             m_lFlamewalkersList.push_back(pFlamewalker->GetGUID());
             m_uiFlamewalkersAlive++;
         }
         // Flamewalker Elites
-        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_ELITE, m_creature->GetPositionX()-2, m_creature->GetPositionY()+6, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()+0.4f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
+        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_ELITE, m_creature->GetPositionX()-2, m_creature->GetPositionY()+6, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()+0.4f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS))
         {
             m_lFlamewalkersList.push_back(pFlamewalker->GetGUID());
             m_uiFlamewalkersAlive++;
         }
-        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_ELITE, m_creature->GetPositionX()-4, m_creature->GetPositionY()+12, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()+0.8f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
+        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_ELITE, m_creature->GetPositionX()-4, m_creature->GetPositionY()+12, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()+0.8f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS))
         {
             m_lFlamewalkersList.push_back(pFlamewalker->GetGUID());
             m_uiFlamewalkersAlive++;
         }
-        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_ELITE, m_creature->GetPositionX()-3.5f, m_creature->GetPositionY()-6, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()-0.4f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
+        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_ELITE, m_creature->GetPositionX()-3.5f, m_creature->GetPositionY()-6, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()-0.4f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS))
         {
             m_lFlamewalkersList.push_back(pFlamewalker->GetGUID());
             m_uiFlamewalkersAlive++;
         }
-        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_ELITE, m_creature->GetPositionX()-6, m_creature->GetPositionY()-12, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()-0.8f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
+        if (Creature* pFlamewalker = m_creature->SummonCreature(ENTRY_FLAMEWALKER_ELITE, m_creature->GetPositionX()-6, m_creature->GetPositionY()-12, m_creature->GetPositionZ()+1.0f, m_creature->GetOrientation()-0.8f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS))
         {
             m_lFlamewalkersList.push_back(pFlamewalker->GetGUID());
             m_uiFlamewalkersAlive++;

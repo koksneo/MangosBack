@@ -883,7 +883,7 @@ struct MANGOS_DLL_DECL dummy_dragonAI : public ScriptedAI
                             if (m_pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
                                 uiShadronAddEntry = NPC_ACOLYTE_OF_SHADRON;
 
-                            if (pAcolyte = m_creature->SummonCreature(uiShadronAddEntry, pPortal->GetPositionX()-10+urand(0, 20), pPortal->GetPositionY()-10+urand(0, 20), pPortal->GetPositionZ()+1.0f, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
+                            if (pAcolyte = m_creature->SummonCreature(uiShadronAddEntry, pPortal->GetPositionX()-10+urand(0, 20), pPortal->GetPositionY()-10+urand(0, 20), pPortal->GetPositionZ()+1.0f, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS))
                             {
                                 m_pInstance->m_uiAcolyteShadronGUID =  pAcolyte->GetGUID();
                                 pAcolyte->SetPhaseMask(16, true);
@@ -929,7 +929,7 @@ struct MANGOS_DLL_DECL dummy_dragonAI : public ScriptedAI
                             if (m_pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
                                 uiVesperonAddEntry = NPC_ACOLYTE_OF_VESPERON;
 
-                            if (pAcolyte = m_creature->SummonCreature(uiVesperonAddEntry, pPortal->GetPositionX()-10+urand(0, 20), pPortal->GetPositionY()-10+urand(0, 20), pPortal->GetPositionZ()+1.0f, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY))
+                            if (pAcolyte = m_creature->SummonCreature(uiVesperonAddEntry, pPortal->GetPositionX()-10+urand(0, 20), pPortal->GetPositionY()-10+urand(0, 20), pPortal->GetPositionZ()+1.0f, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS))
                             {
                                 m_pInstance->m_uiAcolyteVesperonGUID = pAcolyte->GetGUID();
                                 pAcolyte->SetPhaseMask(16, true);

@@ -1327,7 +1327,7 @@ struct MANGOS_DLL_DECL boss_illidan_stormrageAI : public ScriptedAI
             Glaive = m_creature->GetMap()->GetCreature(GlaiveGUID[i]);
             if (Glaive)
             {
-                Flame = m_creature->SummonCreature(FLAME_OF_AZZINOTH, GlaivePosition[i+2].x, GlaivePosition[i+2].y, GlaivePosition[i+2].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY);
+                Flame = m_creature->SummonCreature(FLAME_OF_AZZINOTH, GlaivePosition[i+2].x, GlaivePosition[i+2].y, GlaivePosition[i+2].z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS);
                 if (Flame)
                 {
                     // Just in case the database has it as a different faction

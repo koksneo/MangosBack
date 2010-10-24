@@ -1809,7 +1809,12 @@ bool InstanceMap::Add(Player *player)
                                 sLog.outError("GroupBind save players: %d, group count: %d", groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount());
                             else
                                 sLog.outError("GroupBind save NULL");
-                            player->RepopAtGraveyard();
+
+                            if (WorldSafeLocsEntry const *ClosestGrave = sObjectMgr.GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam() ))
+                                player->RepopAtGraveyard();
+                            else player->RelocateToHomebind();
+                            // MANGOS_ASSERT(false);
+
                         }
                         // if the group/leader is permanently bound to the instance
                         // players also become permanently bound when they enter

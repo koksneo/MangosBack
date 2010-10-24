@@ -1515,6 +1515,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 38794:                                 // Murmur's Touch (h)
                 case 50988:                                 // Glare of the Tribunal (Halls of Stone)
                 case 59870:                                 // Glare of the Tribunal (h) (Halls of Stone)
+                case 62488:                                 // Activate Construct (Ulduar - Ignis encounter)
                     unMaxTargets = 1;
                     break;
                 case 28542:                                 // Life Drain
@@ -1948,6 +1949,37 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             {
                 targetUnitMap.clear();
                 FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_DEST_CENTER, SPELL_TARGETS_ALL);
+            }
+            // Activate Constructs (remove all except inactive constructs)
+            if (m_spellInfo->Id == 62488 && !targetUnitMap.empty() )
+            {
+                std::list<Unit*> tempTargetUnitMap;
+                targetUnitMap.clear();
+                FillAreaTargets(tempTargetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_DEST_CENTER, SPELL_TARGETS_NOT_HOSTILE);
+
+                for (std::list<Unit*>::iterator itr = tempTargetUnitMap.begin(),next; itr != tempTargetUnitMap.end(); itr++)
+                {
+                    if ((*itr) && (*itr)->GetEntry() == 33121 && (*itr)->HasAura(62468, EFFECT_INDEX_0))
+                        targetUnitMap.push_back(*itr);
+                }
+            }
+            // Heat (remove all except active iron constructs)
+            if (m_spellInfo->Id == 62343)
+            {
+                std::list<Unit*> tempTargetUnitMap;
+                targetUnitMap.clear();
+                FillAreaTargets(tempTargetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_DEST_CENTER, SPELL_TARGETS_NOT_HOSTILE);
+
+                for (std::list<Unit*>::iterator itr = tempTargetUnitMap.begin(),next; itr != tempTargetUnitMap.end(); itr++)
+                {
+                    if ((*itr) && (*itr)->GetEntry() == 33121 &&
+                        !(*itr)->HasAura(62468) && !(*itr)->HasAura(62373) &&
+                        !(*itr)->HasAura(62382) && !(*itr)->HasAura(67114)
+                        )
+                        targetUnitMap.push_back(*itr);
+                }
+
+                return;
             }
 
             // exclude caster

@@ -4860,6 +4860,27 @@ void Aura::HandleAuraPeriodicDummy(bool apply, bool Real)
     SpellEntry const*spell = GetSpellProto();
     switch( spell->SpellFamilyName)
     {
+        case SPELLFAMILY_GENERIC:
+        {
+            switch(spell->Id)
+            {
+                // Slag Pot (Ulduar: Ignis)
+                case 62717:
+                case 63477:
+                {
+                    Unit *caster = GetCaster();
+
+                    if (!caster || !target)
+                        return;
+
+                    // Haste buff (Slag Imbued)
+                    if (!apply)
+                        target->CastSpell(caster, (spell->Id == 62717) ? 62836 : 63536, true);
+
+                    break;
+                }
+            }
+        }
         case SPELLFAMILY_ROGUE:
         {
             if(!apply)
@@ -7539,6 +7560,15 @@ void Aura::PeriodicDummyTick()
                         case 2: target->CastSpell(target, 55739, true); break;
                     }
                     return;
+                case 62717:                                 // Slag Pot (periodic dmg)
+                case 63477:
+                {
+                    Unit *caster = GetCaster();
+
+                    if (caster && target)
+                        caster->CastSpell(target, (spell->Id == 62717) ? 65722 : 65723, true, 0, this, this->GetCasterGUID(), this->GetSpellProto());
+                    return;
+                }
                 case 66118:                                 // Leeching Swarm 10 man
                 case 68646:
                 {

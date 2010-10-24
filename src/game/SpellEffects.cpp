@@ -6688,6 +6688,16 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
 
                     return;
                 }
+                case 62707:                                 // Grab (Ulduar: Ignis)
+                case 63535:                                 // Grab heroic
+                {
+                    if (!unitTarget || !m_caster)
+                        return;
+
+                    unitTarget->CastSpell(m_caster, 62708, true); // Control Vehicle aura
+                    m_caster->CastSpell(unitTarget, (m_spellInfo->Id == 62707) ? 62717 : 63477, true); // DoT/Immunity
+                    break;
+                }
                 case 66477:                                 // Bountiful Feast
                 {
                     if (!unitTarget)

@@ -55,10 +55,13 @@ instance_gundrak::instance_gundrak(Map* pMap) : ScriptedInstance(pMap),
     m_uiAltarOfMoorabiGUID(0),
     m_uiAltarOfColossusGUID(0),
     m_uiBridgeGUID(0),
+    m_uiElemental(0),
+    m_uiColisionGUID(0),
 
     m_uiSladranGUID(0),
     m_uiElementalGUID(0),
-    m_uiColossusGUID(0)
+    m_uiColossusGUID(0),
+    m_uiMoorabiGUID(0)
 {
     Initialize();
 }
@@ -75,6 +78,7 @@ void instance_gundrak::OnCreatureCreate(Creature* pCreature)
         case NPC_SLADRAN:   m_uiSladranGUID   = pCreature->GetGUID(); break;
         case NPC_ELEMENTAL: m_uiElementalGUID = pCreature->GetGUID(); break;
         case NPC_COLOSSUS:  m_uiColossusGUID  = pCreature->GetGUID(); break;
+        case NPC_MOORABI:   m_uiMoorabiGUID   = pCreature->GetGUID(); break;
     }
 }
 
@@ -139,7 +143,17 @@ void instance_gundrak::OnObjectCreate(GameObject* pGo)
         case GO_BRIDGE:
             m_uiBridgeGUID = pGo->GetGUID();
             break;
+        case GO_COLLISION:
+            m_uiColisionGUID = pGo->GetGUID();
     }
+}
+bool instance_gundrak::IsEncounterInProgress() const
+{
+    for (uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        if (m_auiEncounter[i] == IN_PROGRESS)
+            return true;
+
+    return false;
 }
 void instance_gundrak::Load(const char* chrIn)
 {
@@ -211,9 +225,24 @@ void instance_gundrak::SetData(uint32 uiType, uint32 uiData)
             if (uiData == DONE)
                 DoUseDoorOrButton(m_uiEckUnderwaterDoorGUID);
             break;
+        case TYPE_ELEMENTAL:
+            m_uiElemental = uiData;
+            break;
         default:
             error_log("SD2: Instance Gundrak: ERROR SetData = %u for type %u does not exist/not implemented.", uiType, uiData);
             break;
+    }
+    if (m_auiEncounter[0] == SPECIAL && m_auiEncounter[1] == SPECIAL && m_auiEncounter[2] == SPECIAL)
+    {
+        //DoUseDoorOrButton(m_uiBridgeGUID);
+       // DoUseDoorOrButton(m_uiColisionGUID);
+        /*if (GameObject* pCollision = instance->GetGameObject(uiCollision))
+                     pCollision->SummonGameObject(192743, pCollision->GetPositionX(), pCollision->GetPositionY(), pCollision->GetPositionZ(), pCollision->GetOrientation(), 0, 0, 0, 0, 0);
+*/
+        if(GameObject* pGo = instance->GetGameObject(m_uiBridgeGUID))
+        {
+            pGo->SetGoState(GO_STATE_ACTIVE);}
+        DoUseDoorOrButton(m_uiColisionGUID);
     }
 
     if (uiData == DONE)
@@ -245,6 +274,8 @@ uint32 instance_gundrak::GetData(uint32 uiType)
             return m_auiEncounter[TYPE_GALDARAH];
         case TYPE_ECK:
             return m_auiEncounter[TYPE_ECK];
+        case TYPE_ELEMENTAL:
+            return m_uiElemental;
     }
     return 0;
 }
@@ -259,6 +290,8 @@ uint64 instance_gundrak::GetData64(uint32 uiType)
             return m_uiElementalGUID;
         case NPC_COLOSSUS:
             return m_uiColossusGUID;
+        case NPC_MOORABI:
+            return m_uiMoorabiGUID;
     }
     return 0;
 }

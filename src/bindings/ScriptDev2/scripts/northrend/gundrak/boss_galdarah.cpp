@@ -102,12 +102,18 @@ struct MANGOS_DLL_DECL boss_galdarahAI : public ScriptedAI
 
     void Aggro(Unit* pWho)
     {
+        m_creature->SetInCombatWithZone();
         DoScriptText(SAY_AGGRO, m_creature);
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_GALDARAH , IN_PROGRESS);
     }
 
+     void JustReachedHome()
+    {
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_GALDARAH, NOT_STARTED);
+    }
     void KilledUnit(Unit* pVictim)
     {
         switch(urand(0, 2))
@@ -116,12 +122,6 @@ struct MANGOS_DLL_DECL boss_galdarahAI : public ScriptedAI
             case 1: DoScriptText(SAY_SLAY_2, m_creature); break;
             case 2: DoScriptText(SAY_SLAY_3, m_creature); break;
         }
-    }
-
-    void JustReachedHome()
-    {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_GALDARAH, NOT_STARTED);
     }
 
     void JustDied(Unit* pKiller)
@@ -149,11 +149,11 @@ struct MANGOS_DLL_DECL boss_galdarahAI : public ScriptedAI
         m_bIsTrollPhase = !m_bIsTrollPhase;
 
         if (m_bIsTrollPhase)
-            DoCastSpellIfCan(m_creature, SPELL_TROLL_TRANSFORM);
+            DoCast(m_creature, SPELL_TROLL_TRANSFORM);
         else
         {
             DoScriptText(urand(0, 1) ? SAY_TRANSFORM_1 : SAY_TRANSFORM_2, m_creature);
-            DoCastSpellIfCan(m_creature, SPELL_RHINO_TRANSFORM);
+            DoCast(m_creature, SPELL_RHINO_TRANSFORM);
 
             m_uiEnrageTimer = 4000;
             m_uiStompTimer  = 1000;
@@ -240,8 +240,9 @@ struct MANGOS_DLL_DECL boss_galdarahAI : public ScriptedAI
                     DoScriptText(EMOTE_IMPALED, m_creature, pTarget);
                     m_uiSpecialAbilityTimer = 12000;
 
-                    ++m_uiAbilityCount;
+                    
                 }
+                ++m_uiAbilityCount;
             }
             else
                 m_uiSpecialAbilityTimer -= uiDiff;

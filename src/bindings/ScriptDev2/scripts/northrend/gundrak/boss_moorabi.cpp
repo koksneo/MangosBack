@@ -90,11 +90,15 @@ struct MANGOS_DLL_DECL boss_moorabiAI : public ScriptedAI
     {
         DoScriptText(SAY_AGGRO, m_creature);
         DoCastSpellIfCan(m_creature, SPELL_MOJO_FRENZY);
-
+        m_creature->SetInCombatWithZone();
         if (m_pInstance)
             m_pInstance->SetData(TYPE_MOORABI, IN_PROGRESS);
     }
-
+     void JustReachedHome()
+    {
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_MOORABI, NOT_STARTED);
+    }
     void KilledUnit(Unit* pVictim)
     {
         switch(urand(0, 2))
@@ -111,6 +115,24 @@ struct MANGOS_DLL_DECL boss_moorabiAI : public ScriptedAI
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_MOORABI, DONE);
+
+   /*     if (!m_bIsRegularMode)
+        {
+            if(!m_creature->HasAura(SPELL_TRANSFORMATION, EFFECT_INDEX_0))
+            {
+                AchievementEntry const *AchievLessRabi = GetAchievementStore()->LookupEntry(ACHIEV_LESS_RABI);
+                if (AchievLessRabi)
+                {
+                    Map* pMap = m_creature->GetMap();
+                    if (pMap && pMap->IsDungeon())
+                    {
+                        Map::PlayerList const &players = pMap->GetPlayers();
+                        for (Map::PlayerList::const_iterator itr = players.begin(); itr != players.end(); ++itr)
+                            itr->getSource()->CompletedAchievement(AchievLessRabi);
+                    }
+                }
+            }
+        }*/ 
     }
 
     void UpdateAI(const uint32 uiDiff)

@@ -125,11 +125,15 @@ struct MANGOS_DLL_DECL boss_sladranAI : public ScriptedAI
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
-
+        m_creature->SetInCombatWithZone();
         if (m_pInstance)
             m_pInstance->SetData(TYPE_SLADRAN, IN_PROGRESS);
     }
-
+    void JustReachedHome()
+    {
+        if(m_pInstance)
+            m_pInstance->SetData(TYPE_SLADRAN, NOT_STARTED);
+    }
     void KilledUnit(Unit* pVictim)
     {
         switch(urand(0, 2))
@@ -170,7 +174,7 @@ struct MANGOS_DLL_DECL boss_sladranAI : public ScriptedAI
         if (m_uiPoisonNovaTimer < uiDiff)
         {
             DoScriptText(EMOTE_NOVA, m_creature);
-            DoCastSpellIfCan(m_creature->getVictim(),m_bIsRegularMode ? SPELL_POISON_NOVA : SPELL_POISON_NOVA_H);
+            DoCast(m_creature->getVictim(),m_bIsRegularMode ? SPELL_POISON_NOVA : SPELL_POISON_NOVA_H);
             m_uiPoisonNovaTimer = 22000;
         }
         else

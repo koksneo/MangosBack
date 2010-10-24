@@ -225,6 +225,10 @@ extern int main(int argc, char **argv)
     LoginDatabase.Execute("UPDATE account_banned SET active = 0 WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
     LoginDatabase.Execute("DELETE FROM ip_banned WHERE unbandate<=UNIX_TIMESTAMP() AND unbandate<>bandate");
 
+    // unused session keys cleaner, compacting accounts database
+    LoginDatabase.Execute("UPDATE account SET sessionkey = NULL, v = NULL, s = NULL WHERE active_realm_id = 0");
+    LoginDatabase.Execute("OPTIMIZE TABLE account");
+
     ///- Launch the listening network socket
     ACE_Acceptor<AuthSocket, ACE_SOCK_Acceptor> acceptor;
 

@@ -20,10 +20,11 @@ enum
     TYPE_COLOSSUS          = 2,
     TYPE_GALDARAH          = 3,
     TYPE_ECK               = 4,
+    TYPE_ELEMENTAL         = 15,
 
     NPC_SLADRAN            = 29304,
-    NPC_MOORABI            = 29307,
-    NPC_COLOSSUS           = 29305,
+    NPC_MOORABI            = 29305,
+    NPC_COLOSSUS           = 29307,
     NPC_ELEMENTAL          = 29573,
     NPC_LIVIN_MOJO         = 29830,
     NPC_GALDARAH           = 29306,
@@ -56,6 +57,8 @@ class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
 
         void Initialize();
 
+        bool IsEncounterInProgress() const;
+
         void OnCreatureCreate(Creature* pCreature);
         void OnObjectCreate(GameObject* pGo);
 
@@ -82,10 +85,13 @@ class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
         uint64 m_uiAltarOfMoorabiGUID;
         uint64 m_uiAltarOfColossusGUID;
         uint64 m_uiBridgeGUID;
+        uint64 m_uiColisionGUID;
+        uint32 m_uiElemental;
 
         uint64 m_uiSladranGUID;
         uint64 m_uiElementalGUID;
         uint64 m_uiColossusGUID;
+        uint64 m_uiMoorabiGUID;
 };
 
 #endif

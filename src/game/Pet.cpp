@@ -1017,12 +1017,6 @@ bool Pet::InitStatsForLevel(uint32 petlevel, Unit* owner)
                         attack_bonus = owner->GetUInt32Value(PLAYER_FIELD_MOD_DAMAGE_DONE_POS + SPELL_SCHOOL_NATURE) * 0.15f;
                         break;
                     }
-                    case 27829:
-                    {
-                                                            //40% damage bonus of dk's attack power
-                        SetBonusDamage(int32(owner->GetTotalAttackPowerValue(BASE_ATTACK)*0.4f));
-                        break;
-                    }
                     default:
                         break;
                 }
@@ -1989,7 +1983,13 @@ void Pet::CastPetAuras(bool current)
 
     // Feral Spirit
     if (GetEntry() == 29264)
+    {
+        // Spirit Hunt
         CastSpell(this, 58877, true);
+        // hit rating scaling
+        int32 bp0 = (int32)((Player*)owner)->GetRatingBonusValue(CR_HIT_MELEE);
+        CastCustomSpell(this, 61783, &bp0, 0, 0, true);
+    }
 }
 
 void Pet::CastPetAura(PetAura const* aura)

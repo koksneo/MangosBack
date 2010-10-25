@@ -17,8 +17,13 @@
 /* ScriptData
 SDName: boss_thorim
 SD%Complete: 0%
-SDComment:
+SDComment: Placeholder
 SDCategory: Ulduar
 EndScriptData */
 
 #include "precompiled.h"
+
+void AddSC_boss_thorim()
+{
+    // Script goes here
+}

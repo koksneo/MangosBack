@@ -17,8 +17,13 @@
 /* ScriptData
 SDName: boss_yogg_saron
 SD%Complete: 0%
-SDComment:
+SDComment: Placeholder
 SDCategory: Ulduar
 EndScriptData */
 
 #include "precompiled.h"
+
+void AddSC_boss_yogg_saron()
+{
+    // Script goes here
+}

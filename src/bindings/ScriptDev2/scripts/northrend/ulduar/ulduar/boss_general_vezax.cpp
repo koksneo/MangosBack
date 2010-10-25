@@ -17,8 +17,13 @@
 /* ScriptData
 SDName: boss_general_vezax
 SD%Complete: 0%
-SDComment:
+SDComment: Placeholder
 SDCategory: Ulduar
 EndScriptData */
 
 #include "precompiled.h"
+
+void AddSC_boss_general_vezax()
+{
+    // Script goes here
+}

@@ -17,8 +17,13 @@
 /* ScriptData
 SDName: boss_hodir
 SD%Complete: 0%
-SDComment:
+SDComment: Placeholder
 SDCategory: Ulduar
 EndScriptData */
 
 #include "precompiled.h"
+
+void AddSC_boss_hodir()
+{
+    // Script goes here
+}

@@ -17,8 +17,13 @@
 /* ScriptData
 SDName: boss_kologarn
 SD%Complete: 0%
-SDComment:
+SDComment: Placeholder
 SDCategory: Ulduar
 EndScriptData */
 
 #include "precompiled.h"
+
+void AddSC_boss_kologarn()
+{
+    // Script goes here
+}

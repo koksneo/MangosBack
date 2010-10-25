@@ -1486,8 +1486,7 @@ void Map::AddObjectToRemoveList(WorldObject *obj)
 {
     MANGOS_ASSERT(obj->GetMapId()==GetId() && obj->GetInstanceId()==GetInstanceId());
 
-    // need clean references at end of update cycle, NOT during it! called at Map::Remove
-    // obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
+    obj->CleanupsBeforeDelete();                            // remove or simplify at least cross referenced links
 
     i_objectsToRemove.insert(obj);
     //DEBUG_LOG("Object (GUID: %u TypeId: %u ) added to removing list.",obj->GetGUIDLow(),obj->GetTypeId());
@@ -1810,10 +1809,7 @@ bool InstanceMap::Add(Player *player)
                                 sLog.outError("GroupBind save players: %d, group count: %d", groupBind->save->GetPlayerCount(), groupBind->save->GetGroupCount());
                             else
                                 sLog.outError("GroupBind save NULL");
-
-                            if (WorldSafeLocsEntry const *ClosestGrave = sObjectMgr.GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam() ))
                                 player->RepopAtGraveyard();
-                            else player->RelocateToHomebind();
                             // MANGOS_ASSERT(false);
 
                         }
@@ -1834,15 +1830,8 @@ bool InstanceMap::Add(Player *player)
                     if(!playerBind)
                         player->BindToInstance(GetInstanceSave(), false);
                     else
-                    {
                         // cannot jump to a different instance without resetting it
-                        // lets send him to nearest graveyard or homebind
-                        if (WorldSafeLocsEntry const *Grave = sObjectMgr.GetClosestGraveYard(player->GetPositionX(), player->GetPositionY(), player->GetPositionZ(), player->GetMapId(), player->GetTeam() ))
-                            player->RepopAtGraveyard();
-                        else player->RelocateToHomebind();
-                        error_log("Player %s (GUID %u) logged into instance which is not bound to. Cheat, exploit?",player->GetName(),player->GetGUID());
-                        // MANGOS_ASSERT(playerBind->save == GetInstanceSave());
-                    }
+                        MANGOS_ASSERT(playerBind->save == GetInstanceSave());
                 }
             }
         }

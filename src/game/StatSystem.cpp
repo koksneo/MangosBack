@@ -962,8 +962,8 @@ void Pet::UpdateArmor()
     UnitMods unitMod = UNIT_MOD_ARMOR;
 
     Unit *owner = GetOwner();
-    // hunter and warlock pets gain 35% of owner's armor value
-    if(owner && (getPetType() == HUNTER_PET || (getPetType() == SUMMON_PET && owner->getClass() == CLASS_WARLOCK)))
+    // hunter, shaman and warlock pets gain 35% of owner's armor value
+    if(owner && (getPetType() == HUNTER_PET || (getPetType() == SUMMON_PET && (owner->getClass() == CLASS_WARLOCK || owner->getClass() == CLASS_SHAMAN))))
         bonus_armor = 0.35f * float(owner->GetArmor());
 
     value  = GetModifierValue(unitMod, BASE_VALUE);

@@ -347,7 +347,7 @@ extern void AddSC_boss_maiden_of_grief();                   //Ulduar, halls_of_s
 extern void AddSC_boss_sjonnir();
 extern void AddSC_halls_of_stone();
 extern void AddSC_instance_halls_of_stone();
-extern void AddSC_boss_iron_council();                      //ulduar
+extern void AddSC_assembly_of_iron();                      //ulduar
 extern void AddSC_boss_algalon();
 extern void AddSC_boss_auriaya();
 extern void AddSC_boss_flame_leviathan();
@@ -813,7 +813,7 @@ void AddScripts()
     AddSC_boss_sjonnir();
     AddSC_halls_of_stone();
     AddSC_instance_halls_of_stone();
-    AddSC_boss_iron_council();                              //ulduar
+    AddSC_assembly_of_iron();                              //ulduar
     AddSC_boss_algalon();
     AddSC_boss_auriaya();
     AddSC_boss_flame_leviathan();

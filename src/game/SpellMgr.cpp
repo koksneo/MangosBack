@@ -1725,7 +1725,7 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
     if ((spellInfo_1->Attributes & SPELL_ATTR_PASSIVE)!=(spellInfo_2->Attributes & SPELL_ATTR_PASSIVE))
         return false;
         
-     // My rules! :D
+    // My rules! :D
     if (spellInfo_1->AttributesEx6 & SPELL_ATTR_EX6_UNK26 && spellInfo_2->AttributesEx6 & SPELL_ATTR_EX6_UNK26)
     {
         // Marks and Gifts of the Wild
@@ -1755,6 +1755,24 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     GetSpellSpecific(spellInfo_2->Id) == SPELL_SCROLL )
                     return true;
 
+                // BG_WS_SPELL_FOCUSED_ASSAULT & BG_WS_SPELL_BRUTAL_ASSAULT
+                if ((spellInfo_1->Id == 46392 && spellInfo_2->Id == 46393) ||
+                    (spellInfo_1->Id == 46393 && spellInfo_2->Id == 46392))
+                    return true;
+
+                // Summon Telestra Clones (visual aura) - instance Nexus 
+                if (spellInfo_1->Id == 47710 || spellInfo_2->Id == 47710)
+                    return false;
+
+                // Charge Rift spells (boss_anomalus instance Nexus: Nexus)
+                if (spellInfo_1->SpellVisual[0] == 7921 || spellInfo_2->SpellVisual[0] == 7921)
+                    return false;
+
+                // Scourge Resurrection - instance Utgarde Keep
+                if (spellInfo_1->Id == 42704 || spellInfo_1->Id == 42862 || spellInfo_1->Id == 42857 ||
+                    spellInfo_2->Id == 42704 || spellInfo_2->Id == 42862 || spellInfo_2->Id == 42857)
+                    return false;
+
                 // Dark Essence & Light Essence
                 if ((spellInfo_1->Id == 65684 && spellInfo_2->Id == 65686) ||
                     (spellInfo_2->Id == 65684 && spellInfo_1->Id == 65686))
@@ -1764,6 +1782,28 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if ((spellInfo_1->Id == 57055 && spellInfo_2->Id == 56648) ||
                     (spellInfo_2->Id == 57055 && spellInfo_1->Id == 56648))
                     return true;
+
+                // Spell Grow and Poison Aura (Ahn'Kahet - Amanitars mashrooms)
+                if ((spellInfo_1->Id == 62559 && spellInfo_2->Id == 56741) ||
+                    (spellInfo_2->Id == 62559 && spellInfo_1->Id == 56741) )
+                    return false;
+
+                // Fel Rage (Gurtog Bloodboil spell)
+                if(spellInfo_1->SpellIconID == 1930 && spellInfo_2->SpellIconID == 1930)
+                    return false;
+
+                // Headless Horseman regen spells should stack with any other spells
+                if (spellInfo_1->Id == 42556 || spellInfo_1->Id == 42403 || spellInfo_1->Id == 43105)
+                    return false;
+
+                // Pulsing Pumpkin visual auras (Headless Horseman event)
+                if ((spellInfo_1->Id == 42280 && spellInfo_2->Id == 42294) ||
+                    (spellInfo_2->Id == 42280 && spellInfo_1->Id == 42294))
+                    return false;
+
+                // Ymiron - channel spirit to ymiron should stack with everything
+                if (spellInfo_1->Id == 48316 || spellInfo_2->Id == 48316)
+                    return false;
 
                 // Thunderfury
                 if ((spellInfo_1->Id == 21992 && spellInfo_2->Id == 27648) ||
@@ -1812,6 +1852,17 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 // Kindred Spirits
                 if( spellInfo_1->SpellIconID == 3559 && spellInfo_2->SpellIconID == 3559 )
                     return false;
+
+                // Blue Flame Shield and Blue Power Focus (more generic rule needed for all spells with dummy auras)
+                if( (spellInfo_1->Id == 46796 && spellInfo_2->Id == 46789) ||
+                    (spellInfo_2->Id == 46796 && spellInfo_1->Id == 46789) )
+                    return false;
+            }
+            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
+            {
+                // Runescroll of Fortitude & Prayer/PW  Fortitude
+                if (spellInfo_1->Id == 72590 && spellInfo_2->SpellVisual[0] == 278)
+                    return true;
             }
             // Dragonmaw Illusion, Blood Elf Illusion, Human Illusion, Illidari Agent Illusion, Scarlet Crusade Disguise
             if(spellInfo_1->SpellIconID == 1691 && spellInfo_2->SpellIconID == 1691)
@@ -1928,6 +1979,16 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->SpellIconID == 566 && spellInfo_1->SpellIconID == 2820))
                     return false;
             }
+            else if (spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
+            {
+                // Mind Trauma and Berserk/Enrage (PvE spells)
+                if(spellInfo_1->Id == 48301 && spellInfo_2->SpellIconID == 95)
+                    return false;
+
+                // Prayer/PW  Fortitude && Runescroll of Fortitude
+                if (spellInfo_1->SpellVisual[0] == 278 && spellInfo_2->Id == 72590)
+                    return true;
+            }
             break;
         case SPELLFAMILY_DRUID:
             if( spellInfo_2->SpellFamilyName == SPELLFAMILY_DRUID )
@@ -2008,6 +2069,10 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->SpellFamilyFlags & UI64LIT(0x4)) && (spellInfo_1->SpellFamilyFlags & UI64LIT(0x00000004000)) )
                     return false;
 
+                // Deterrence
+                if( spellInfo_1->SpellIconID == 83 && spellInfo_2->SpellIconID == 83 )
+                    return false;
+
                 // Bestial Wrath
                 if( spellInfo_1->SpellIconID == 1680 && spellInfo_2->SpellIconID == 1680 )
                     return false;
@@ -2039,6 +2104,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
 
                 // Seal of Corruption (caster/target parts stacking allow, other stacking checked by spell specs)
                 if (spellInfo_1->SpellIconID == 2292 && spellInfo_2->SpellIconID == 2292)
+                    return false;
+
+                // Righteous Vengeance and Seal of Corruption
+                if (spellInfo_1->SpellIconID == 3025 && spellInfo_2->SpellIconID == 2292 ||
+                    spellInfo_2->SpellIconID == 3025 && spellInfo_1->SpellIconID == 2292)
                     return false;
 
                 // Divine Sacrifice and Divine Guardian

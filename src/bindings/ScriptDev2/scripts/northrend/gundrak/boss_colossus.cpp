@@ -99,9 +99,9 @@ struct MANGOS_DLL_DECL boss_colossusAI : public ScriptedAI
 
     void JustReachedHome()
     {
-        if(m_pInstance)
+        if(m_pInstance){
             m_pInstance->SetData(TYPE_COLOSSUS, NOT_STARTED);
-            m_pInstance->SetData(TYPE_ELEMENTAL, NOT_STARTED);
+            m_pInstance->SetData(TYPE_ELEMENTAL, NOT_STARTED);}
         if(Creature* pElemental = GetClosestCreatureWithEntry(m_creature,NPC_ELEMENTAL, 100.0f))
         {
             if(pElemental->isAlive())
@@ -306,10 +306,6 @@ struct MANGOS_DLL_DECL boss_drakari_elementalAI : public ScriptedAI
         
         DoMeleeAttackIfReady();
     }
-
-
-
-
 
 };
 

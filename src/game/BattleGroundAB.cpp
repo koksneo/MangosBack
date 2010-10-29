@@ -114,6 +114,7 @@ void BattleGroundAB::Update(uint32 diff)
                 m_TeamScores[team] += BG_AB_TickPoints[points];
                 m_HonorScoreTics[team] += BG_AB_TickPoints[points];
                 m_ReputationScoreTics[team] += BG_AB_TickPoints[points];
+                m_ExperiencesTicks[team] += BG_AB_TickPoints[points];
                 if (m_ReputationScoreTics[team] >= m_ReputationTics)
                 {
                     (team == BG_TEAM_ALLIANCE) ? RewardReputationToTeam(509, 10, ALLIANCE) : RewardReputationToTeam(510, 10, HORDE);
@@ -132,6 +133,11 @@ void BattleGroundAB::Update(uint32 diff)
                         SendMessageToAll(LANG_BG_AB_H_NEAR_VICTORY, CHAT_MSG_BG_SYSTEM_NEUTRAL);
                     PlaySoundToAll(BG_AB_SOUND_NEAR_VICTORY);
                     m_IsInformedNearVictory = true;
+                }
+                if (m_ExperiencesTicks[team] >= BG_AB_ExperiencesTicks)
+                {
+                    RewardXpToTeam(0, 0.8f, team);
+                    m_ExperiencesTicks[team] -= BG_AB_ExperiencesTicks;
                 }
 
                 if (m_TeamScores[team] > BG_AB_MAX_TEAM_SCORE)
@@ -463,6 +469,7 @@ void BattleGroundAB::Reset()
         m_lastTick[i]            = 0;
         m_HonorScoreTics[i]      = 0;
         m_ReputationScoreTics[i] = 0;
+        m_ExperiencesTicks[i]    = 0;
         m_TeamScores500Disadvantage[i] = false;
     }
 
@@ -488,12 +495,22 @@ void BattleGroundAB::EndBattleGround(uint32 winner)
 {
     //win reward
     if (winner == ALLIANCE)
+    {
         RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
+        RewardXpToTeam(0, 0.8f, winner);
+    }
     if (winner == HORDE)
+    {
         RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
+        RewardXpToTeam(0, 0.8f, winner);
+    }
+
     //complete map_end rewards (even if no team wins)
     RewardHonorToTeam(GetBonusHonorFromKill(1), HORDE);
     RewardHonorToTeam(GetBonusHonorFromKill(1), ALLIANCE);
+
+    RewardXpToTeam(0, 0.8f, HORDE);
+    RewardXpToTeam(0, 0.8f, ALLIANCE);
 
     BattleGround::EndBattleGround(winner);
 }

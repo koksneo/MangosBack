@@ -347,20 +347,7 @@ extern void AddSC_boss_maiden_of_grief();                   //Ulduar, halls_of_s
 extern void AddSC_boss_sjonnir();
 extern void AddSC_halls_of_stone();
 extern void AddSC_instance_halls_of_stone();
-extern void AddSC_assembly_of_iron();                      //ulduar
-extern void AddSC_boss_algalon();
-extern void AddSC_boss_auriaya();
-extern void AddSC_boss_flame_leviathan();
-extern void AddSC_boss_freya();
-extern void AddSC_boss_general_vezax();
-extern void AddSC_boss_hodir();
-extern void AddSC_boss_ignis();
-extern void AddSC_boss_kologarn();
-extern void AddSC_boss_mimiron();
-extern void AddSC_boss_razorscale();
-extern void AddSC_boss_thorim();
-extern void AddSC_boss_xt_002();
-extern void AddSC_boss_yogg_saron();
+extern void AddSC_boss_ignis();                             //ulduar
 extern void AddSC_ulduar();
 extern void AddSC_instance_ulduar();
 extern void AddSC_boss_ingvar();                            //utgarde_keep
@@ -813,20 +800,7 @@ void AddScripts()
     AddSC_boss_sjonnir();
     AddSC_halls_of_stone();
     AddSC_instance_halls_of_stone();
-    AddSC_assembly_of_iron();                              //ulduar
-    AddSC_boss_algalon();
-    AddSC_boss_auriaya();
-    AddSC_boss_flame_leviathan();
-    AddSC_boss_freya();
-    AddSC_boss_general_vezax();
-    AddSC_boss_hodir();
-    AddSC_boss_ignis();
-    AddSC_boss_kologarn();
-    AddSC_boss_mimiron();
-    AddSC_boss_razorscale();
-    AddSC_boss_thorim();
-    AddSC_boss_xt_002();
-    AddSC_boss_yogg_saron();
+    AddSC_boss_ignis();                                     //ulduar
     AddSC_ulduar();
     AddSC_instance_ulduar();
     AddSC_boss_ingvar();                                    //utgarde_keep

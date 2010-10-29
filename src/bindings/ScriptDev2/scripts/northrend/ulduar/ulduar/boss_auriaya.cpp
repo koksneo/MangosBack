@@ -22,8 +22,3 @@ SDCategory: Ulduar
 EndScriptData */
 
 #include "precompiled.h"
-
-void AddSC_boss_auriaya()
-{
-    // Script goes here
-}

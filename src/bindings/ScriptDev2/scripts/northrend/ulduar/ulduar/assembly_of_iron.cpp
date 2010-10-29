@@ -22,8 +22,3 @@ SDCategory: Ulduar
 EndScriptData */
 
 #include "precompiled.h"
-
-void AddSC_assembly_of_iron()
-{
-    // Script goes here
-}

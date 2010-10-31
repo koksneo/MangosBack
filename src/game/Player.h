@@ -913,6 +913,7 @@ enum PlayerLoginQueryIndex
     PLAYER_LOGIN_QUERY_LOADMAILS,
     PLAYER_LOGIN_QUERY_LOADMAILEDITEMS,
     PLAYER_LOGIN_QUERY_LOADTALENTS,
+    PLAYER_LOGIN_QUERY_LOADRANDOMBG,
     PLAYER_LOGIN_QUERY_LOADWEEKLYQUESTSTATUS,
     PLAYER_LOGIN_QUERY_LOADMONTHLYQUESTSTATUS,
 
@@ -2206,6 +2207,9 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint32 GetLastPetNumber() const { return m_lastpetnumber; }
         void SetLastPetNumber(uint32 petnumber) { m_lastpetnumber = petnumber; }
 
+        bool GetRandomWinner() { return m_IsBGRandomWinner; }
+        void SetRandomWinner(bool isWinner);
+
         /*********************************************************/
         /***                    REST SYSTEM                    ***/
         /*********************************************************/
@@ -2430,6 +2434,7 @@ class MANGOS_DLL_SPEC Player : public Unit
 
         BgBattleGroundQueueID_Rec m_bgBattleGroundQueueID[PLAYER_MAX_BATTLEGROUND_QUEUES];
         BGData                    m_bgData;
+        bool m_IsBGRandomWinner;
 
         /*********************************************************/
         /***                    QUEST SYSTEM                   ***/
@@ -2456,6 +2461,7 @@ class MANGOS_DLL_SPEC Player : public Unit
         void _LoadMailedItems(QueryResult *result);
         void _LoadQuestStatus(QueryResult *result);
         void _LoadDailyQuestStatus(QueryResult *result);
+        void _LoadRandomBGStatus(QueryResult *result);
         void _LoadWeeklyQuestStatus(QueryResult *result);
         void _LoadMonthlyQuestStatus(QueryResult *result);
         void _LoadGroup(QueryResult *result);

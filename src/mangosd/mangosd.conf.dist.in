@@ -1338,6 +1338,10 @@ Visibility.Distance.Grey.Object = 10
 #         Default: 1 (enabled)
 #                  0 (disabled)
 #
+#    BattleGround.Random.ResetHour
+#        Hour when random bg reset (0..23)
+#        Default: 6
+#
 ###################################################################################################################
 
 Rate.Health = 1
@@ -1439,6 +1443,7 @@ Battleground.QueueAnnouncer.Start = 0
 Battleground.InvitationType = 0
 BattleGround.PrematureFinishTimer = 300000
 BattleGround.PremadeGroupWaitForMatch = 1800000
+BattleGround.Random.ResetHour = 6
 
 ###################################################################################################################
 # ARENA CONFIG

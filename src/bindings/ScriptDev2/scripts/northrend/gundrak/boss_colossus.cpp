@@ -41,8 +41,6 @@ enum
     SPELL_SURGE                 = 54801,
     SPELL_MOJO_VOLLEY           = 59453,
     SPELL_MOJO_VOLLEY_H         = 54849,
-    SPELL_MOJO_PUDDLE           = 55627,
-    SPELL_MOJO_PUDDLE_H         = 58994,
     SPELL_MOJO_WAVE             = 55626,
     SPELL_MOJO_WAVE_H           = 58993
 
@@ -66,23 +64,18 @@ struct MANGOS_DLL_DECL boss_colossusAI : public ScriptedAI
     bool m_bFirstEmerge;
     bool m_bSecondEmerge;
     bool m_bSecondElemental;
-    bool m_bIsInCombat;
-    bool m_bIsMojoAlive;
+    
 
     uint32 m_uiMightyBlowTimer;
-    uint32 m_uiCheckTimer;
-
-    std::list<Creature*> lMojos;
+    
 
     void Reset()
     {
         m_bFirstEmerge      = false;
         m_bSecondEmerge     = false;
         m_bSecondElemental  = false; 
-        m_bIsInCombat       = false;
-        m_bIsMojoAlive      = false;
         m_uiMightyBlowTimer = 10000;
-        m_uiCheckTimer      = 5000;
+        
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         m_creature->clearUnitState(UNIT_STAT_STUNNED);
@@ -178,35 +171,6 @@ struct MANGOS_DLL_DECL boss_colossusAI : public ScriptedAI
 
     void UpdateAI(const uint32 uiDiff)
     {
-        if(!m_bIsInCombat)
-        {
-            if(m_uiCheckTimer < uiDiff)
-            {
-                
-                uint8 j = 0;
-                GetCreatureListWithEntryInGrid(lMojos, m_creature, NPC_LIVIN_MOJO, 10.0f);
-                for (std::list<Creature*>::const_iterator i = lMojos.begin(); i != lMojos.end(); i++){
-                            if (*i)
-                            {
-                                if((*i)->isAlive())
-                                {m_bIsMojoAlive = true;}
-                                
-                            } }
-                
-                if(m_bIsMojoAlive){    
-                    m_uiCheckTimer=5000; }
-                else 
-                {
-                    m_uiCheckTimer=0; 
-                    m_bIsInCombat=true; 
-                    m_creature->RemoveFlag(UNIT_FIELD_FLAGS,UNIT_FLAG_OOC_NOT_ATTACKABLE);
-                }
-
-            }
-            else m_uiCheckTimer -= uiDiff;
-
-
-        }
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
@@ -255,7 +219,7 @@ struct MANGOS_DLL_DECL boss_drakari_elementalAI : public ScriptedAI
         
         if(Creature* pColossus = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(NPC_COLOSSUS)))
         {
-            ((boss_colossusAI*)pColossus->AI())->Reset();
+            ((boss_colossusAI*)pColossus->AI())->EnterEvadeMode();
 
         }
         m_creature->ForcedDespawn(10);
@@ -306,6 +270,10 @@ struct MANGOS_DLL_DECL boss_drakari_elementalAI : public ScriptedAI
         
         DoMeleeAttackIfReady();
     }
+
+
+
+
 
 };
 

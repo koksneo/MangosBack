@@ -169,7 +169,7 @@ struct MANGOS_DLL_DECL boss_galdarahAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_uiAbilityCount == 2)
+        if (m_uiAbilityCount >= 2)
         {
             if (m_uiPhaseChangeTimer < uiDiff)
                 DoPhaseSwitch();

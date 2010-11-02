@@ -4403,6 +4403,13 @@ void Aura::HandleAuraModIncreaseSpeed(bool /*apply*/, bool Real)
     if(!Real)
         return;
 
+    // Spirit Walk - trigger removing impairing effects on every target
+    if (GetId() == 58875)
+    {
+        if (Unit *target = GetTarget())
+            target->CastSpell(target, 58876, true);
+    }
+
     GetTarget()->UpdateSpeed(MOVE_RUN, true);
 }
 

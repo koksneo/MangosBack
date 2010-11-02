@@ -814,7 +814,7 @@ void AreaAura::Update(uint32 diff)
         else if( m_areaAuraType == AREA_AURA_PARTY)         // check if in same sub group
         {
             // not check group if target == owner or target == pet
-            if (caster->GetCharmerOrOwnerGUID() != target->GetGUID() && caster->GetGUID() != target->GetCharmerOrOwnerGUID())
+            if (caster->GetCharmerOrOwnerGuid() != target->GetObjectGuid() && caster->GetObjectGuid() != target->GetCharmerOrOwnerGuid())
             {
                 Player* check = caster->GetCharmerOrOwnerPlayerOrPlayerItself();
 
@@ -832,7 +832,7 @@ void AreaAura::Update(uint32 diff)
         else if( m_areaAuraType == AREA_AURA_RAID)          // TODO: fix me!
         {
             // not check group if target == owner or target == pet
-            if (caster->GetCharmerOrOwnerGUID() != target->GetGUID() && caster->GetGUID() != target->GetCharmerOrOwnerGUID())
+            if (caster->GetCharmerOrOwnerGuid() != target->GetObjectGuid() && caster->GetObjectGuid() != target->GetCharmerOrOwnerGuid())
             {
                 Player* check = caster->GetCharmerOrOwnerPlayerOrPlayerItself();
 
@@ -847,9 +847,9 @@ void AreaAura::Update(uint32 diff)
                     target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(), GetCasterGUID());
             }
         }
-        else if( m_areaAuraType == AREA_AURA_PET || m_areaAuraType == AREA_AURA_OWNER )
+        else if (m_areaAuraType == AREA_AURA_PET || m_areaAuraType == AREA_AURA_OWNER)
         {
-            if( target->GetGUID() != caster->GetCharmerOrOwnerGUID() )
+            if (target->GetObjectGuid() != caster->GetCharmerOrOwnerGuid())
                 target->RemoveSingleAuraFromSpellAuraHolder(GetId(), GetEffIndex(), GetCasterGUID());
         }
     }
@@ -3518,7 +3518,7 @@ void Aura::HandleModPossess(bool apply, bool Real)
         target->addUnitState(UNIT_STAT_CONTROLLED);
 
         target->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-        target->SetCharmerGUID(p_caster->GetGUID());
+        target->SetCharmerGuid(p_caster->GetObjectGuid());
         target->setFaction(p_caster->getFaction());
 
         // target should became visible at SetView call(if not visible before):
@@ -3577,7 +3577,7 @@ void Aura::HandleModPossess(bool apply, bool Real)
 
         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
 
-        target->SetCharmerGUID(0);
+        target->SetCharmerGuid(ObjectGuid());
 
         if(target->GetTypeId() == TYPEID_PLAYER)
         {
@@ -3696,13 +3696,13 @@ void Aura::HandleModCharm(bool apply, bool Real)
 
     if( apply )
     {
-        if (target->GetCharmerGUID())
+        if (!target->GetCharmerGuid().IsEmpty())
         {
             target->RemoveSpellsCausingAura(SPELL_AURA_MOD_CHARM);
             target->RemoveSpellsCausingAura(SPELL_AURA_MOD_POSSESS);
         }
 
-        target->SetCharmerGUID(GetCasterGUID());
+        target->SetCharmerGuid(GetCasterGuid());
         target->setFaction(caster->getFaction());
         target->CastStop(target == caster ? GetId() : 0);
         caster->SetCharm(target);
@@ -3747,7 +3747,7 @@ void Aura::HandleModCharm(bool apply, bool Real)
     }
     else
     {
-        target->SetCharmerGUID(0);
+        target->SetCharmerGuid(ObjectGuid());
 
         if(target->GetTypeId() == TYPEID_PLAYER)
             ((Player*)target)->setFactionForRace(target->getRace());

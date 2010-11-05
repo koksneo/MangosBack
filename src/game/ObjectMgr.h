@@ -440,6 +440,7 @@ typedef UNORDERED_MAP<uint32,PageTextLocale> PageTextLocaleMap;
 typedef UNORDERED_MAP<int32,MangosStringLocale> MangosStringLocaleMap;
 typedef UNORDERED_MAP<uint32,GossipMenuItemsLocale> GossipMenuItemsLocaleMap;
 typedef UNORDERED_MAP<uint32,PointOfInterestLocale> PointOfInterestLocaleMap;
+typedef UNORDERED_MAP<uint32,uint32> ItemConvertMap;
 
 typedef std::multimap<int32, uint32> ExclusiveQuestGroupsMap;
 typedef std::multimap<uint32, ItemRequiredTarget> ItemRequiredTargetMap;
@@ -932,6 +933,7 @@ class ObjectMgr
         void LoadGameObjectLocales();
         void LoadGameobjects();
         void LoadGameobjectRespawnTimes();
+        void LoadItemConverts();
         void LoadItemPrototypes();
         void LoadItemRequiredTarget();
         void LoadItemLocales();
@@ -979,7 +981,8 @@ class ObjectMgr
         void LoadGossipMenu();
         void LoadGossipMenuItems();
 
-        void LoadVendors();
+        void LoadVendorTemplates();
+        void LoadVendors() { LoadVendors("npc_vendor", false); }
         void LoadTrainerSpell();
 
         std::string GeneratePetName(uint32 entry);
@@ -1240,9 +1243,18 @@ class ObjectMgr
             return &iter->second;
         }
 
+        VendorItemData const* GetNpcVendorTemplateItemList(uint32 entry) const
+        {
+            CacheVendorItemMap::const_iterator  iter = m_mCacheVendorTemplateItemMap.find(entry);
+            if(iter == m_mCacheVendorTemplateItemMap.end())
+                return NULL;
+
+            return &iter->second;
+        }
+
         void AddVendorItem(uint32 entry,uint32 item, uint32 maxcount, uint32 incrtime, uint32 ExtendedCost);
         bool RemoveVendorItem(uint32 entry,uint32 item);
-        bool IsVendorItemValid( uint32 vendor_entry, uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL, std::set<uint32>* skip_vendors = NULL ) const;
+        bool IsVendorItemValid(bool isTemplate, char const* tableName, uint32 vendor_entry, uint32 item, uint32 maxcount, uint32 ptime, uint32 ExtendedCost, Player* pl = NULL, std::set<uint32>* skip_vendors = NULL) const;
 
         void LoadScriptNames();
         ScriptNameMap &GetScriptNames() { return m_scriptNames; }
@@ -1254,6 +1266,16 @@ class ObjectMgr
         SpellClickInfoMapBounds GetSpellClickInfoMapBounds(uint32 creature_id) const
         {
             return mSpellClickInfoMap.equal_range(creature_id);
+        }
+
+        uint32 GetItemConvert(uint32 itemEntry, uint32 raceMask) const
+        {
+            ItemConvertMap::const_iterator iter = m_ItemConvert.find(itemEntry);
+            if (iter == m_ItemConvert.end())
+                return itemEntry;
+
+            ItemPrototype const* proto = GetItemPrototype(iter->second);
+            return (proto && proto->AllowableRace & raceMask) ? iter->second : itemEntry;
         }
 
         ItemRequiredTargetMapBounds GetItemRequiredTargetMapBounds(uint32 uiItemEntry) const
@@ -1368,6 +1390,7 @@ class ObjectMgr
 
         SpellClickInfoMap   mSpellClickInfoMap;
 
+        ItemConvertMap        m_ItemConvert;
         ItemRequiredTargetMap m_ItemRequiredTarget;
 
         typedef             std::vector<LocaleConstant> LocalForIndex;
@@ -1388,6 +1411,7 @@ class ObjectMgr
         void LoadCreatureAddons(SQLStorage& creatureaddons, char const* entryName, char const* comment);
         void ConvertCreatureAddonAuras(CreatureDataAddon* addon, char const* table, char const* guidEntryStr);
         void LoadQuestRelationsHelper(QuestRelationsMap& map, char const* table);
+        void LoadVendors(char const* tableName, bool isTemplates);
 
         MailLevelRewardMap m_mailLevelRewardMap;
 
@@ -1435,6 +1459,7 @@ class ObjectMgr
         CreatureModelRaceMap    m_mCreatureModelRaceMap;
 
         CacheNpcTextIdMap m_mCacheNpcTextIdMap;
+        CacheVendorItemMap m_mCacheVendorTemplateItemMap;
         CacheVendorItemMap m_mCacheVendorItemMap;
         CacheTrainerSpellMap m_mCacheTrainerSpellMap;
 };

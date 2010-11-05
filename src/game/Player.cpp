@@ -12774,7 +12774,8 @@ void Player::PrepareGossipMenu(WorldObject *pSource, uint32 menuId)
                 case GOSSIP_OPTION_VENDOR:
                 {
                     VendorItemData const* vItems = pCreature->GetVendorItems();
-                    if (!vItems || vItems->Empty())
+                    VendorItemData const* tItems = pCreature->GetVendorTemplateItems();
+                    if ((!vItems || vItems->Empty()) && (!tItems || tItems->Empty()))
                     {
                         sLog.outErrorDb("Creature %u (Entry: %u) have UNIT_NPC_FLAG_VENDOR but have empty trading item list.", pCreature->GetGUIDLow(), pCreature->GetEntry());
                         hasMenuItem = false;
@@ -18733,25 +18734,48 @@ bool Player::BuyItemFromVendorSlot(uint64 vendorguid, uint32 vendorslot, uint32 
     }
 
     VendorItemData const* vItems = pCreature->GetVendorItems();
-    if(!vItems || vItems->Empty())
+    VendorItemData const* tItems = pCreature->GetVendorTemplateItems();
+    if ((!vItems || vItems->Empty()) && (!tItems || tItems->Empty()))
     {
         SendBuyError( BUY_ERR_CANT_FIND_ITEM, pCreature, item, 0);
         return false;
     }
 
-    if (vendorslot >= vItems->GetItemCount())
+    uint32 vCount = vItems ? vItems->GetItemCount() : 0;
+    uint32 tCount = tItems ? tItems->GetItemCount() : 0;
+
+    if (vendorslot >= vCount+tCount)
     {
         SendBuyError( BUY_ERR_CANT_FIND_ITEM, pCreature, item, 0);
         return false;
     }
 
-    VendorItem const* crItem = vItems->GetItem(vendorslot);
-    if(!crItem || crItem->item != item)                     // store diff item (cheating)
+    VendorItem const* crItem = vendorslot < vCount ? vItems->GetItem(vendorslot) : tItems->GetItem(vendorslot - vCount);
+    if (!crItem)                                            // store diff item (cheating)
     {
         SendBuyError( BUY_ERR_CANT_FIND_ITEM, pCreature, item, 0);
         return false;
     }
 
+    if (crItem->item != item)                               // store diff item (cheating or special convert)
+    {
+        ItemPrototype const* crProto = ObjectMgr::GetItemPrototype(crItem->item);
+        // possible item coverting for BoA case
+        if (crProto->Flags & ITEM_FLAG_BOA)
+        {
+            // convert if can use and then buy
+            if (crProto->RequiredReputationFaction && uint32(GetReputationRank(crProto->RequiredReputationFaction)) >= crProto->RequiredReputationRank)
+            {
+                uint32 newitemid = sObjectMgr.GetItemConvert(crItem->item, getRaceMask());
+
+                if (newitemid != item)                      // store diff item (cheating or special convert)
+                {
+                    SendBuyError( BUY_ERR_CANT_FIND_ITEM, pCreature, item, 0);
+                    return false;
+                }
+            }
+        }
+    }
 
     // check current item amount if it limited
     if (crItem->maxcount != 0)

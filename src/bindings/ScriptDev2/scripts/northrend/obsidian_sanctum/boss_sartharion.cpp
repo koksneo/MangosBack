@@ -162,12 +162,12 @@ Waypoint m_aVesp[]=
 //points around raid "isle", counter clockwise. should probably be adjusted to be more alike
 Waypoint m_aDragonCommon[]=
 {
-    {3214.012f, 468.932f, 98.652f},
-    {3244.950f, 468.427f, 98.652f},
-    {3283.520f, 496.869f, 98.652f},
-    {3287.316f, 555.875f, 98.652f},
-    {3250.479f, 585.827f, 98.652f},
-    {3209.969f, 566.523f, 98.652f}
+    {3220.012f, 488.932f, 90.652f},
+    {3244.950f, 488.427f, 90.652f},
+    {3280.520f, 496.869f, 90.652f},
+    {3280.316f, 555.875f, 90.652f},
+    {3250.479f, 565.827f, 90.652f},
+    {3229.969f, 566.523f, 90.652f}
 };
 
 float m_afTsunamiStartLoc[5][4]=
@@ -748,6 +748,12 @@ struct MANGOS_DLL_DECL dummy_dragonAI : public ScriptedAI
         m_uiWaypointId = 0;
         m_uiMoveNextTimer = 500;
         m_bCanMoveFree = false;
+    }
+
+    void JustReachedHome()
+    {
+        if (m_creature->HasFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE))
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
     }
 
     void AttackStart(Unit* pWho)

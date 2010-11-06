@@ -14,6 +14,9 @@ UPDATE `creature_template` SET `ScriptName` = "mob_twilight_whelp" WHERE `entry`
 UPDATE `creature_template` SET `ScriptName` = "mob_fire_cyclone" WHERE `entry` = 30648;
 UPDATE `creature_template` SET `ScriptName` = "mob_flame_tsunami" WHERE `entry` = 30616;
 
+-- fix respawn time (7 days)
+UPDATE `creature` SET `spawntimesecs` = 604800 WHERE `map` = 615;
+
 -- Shadow Fissure
 UPDATE `creature_template` SET `AIName` = "EventAI" WHERE entry = 30641;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 30641;

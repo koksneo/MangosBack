@@ -2232,6 +2232,38 @@
 					Name="violet_hold"
 					>
 					<File
+						RelativePath="..\scripts\northrend\violet_hold\boss_cyanigosa.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\violet_hold\boss_erekem.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\violet_hold\boss_ichoron.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\violet_hold\boss_lavanthor.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\violet_hold\boss_moragg.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\violet_hold\boss_xevozz.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\violet_hold\boss_zuramat.cpp"
+						>
+					</File>
+					<File
+						RelativePath="..\scripts\northrend\violet_hold\def_violet_hold.h"
+						>
+					</File>
+					<File
 						RelativePath="..\scripts\northrend\violet_hold\instance_violet_hold.cpp"
 						>
 					</File>
@@ -2979,39 +3011,7 @@
 			</File>
 		</Filter>
 		<File
-			RelativePath="..\scripts\northrend\violet_hold\boss_cyanigosa.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\scripts\northrend\violet_hold\boss_erekem.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\scripts\northrend\violet_hold\boss_ichoron.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\scripts\northrend\violet_hold\boss_lavanthor.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\scripts\northrend\violet_hold\boss_moragg.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\scripts\northrend\violet_hold\boss_xevozz.cpp"
-			>
-		</File>
-		<File
-			RelativePath="..\scripts\northrend\violet_hold\boss_zuramat.cpp"
-			>
-		</File>
-		<File
 			RelativePath="..\config.h"
-			>
-		</File>
-		<File
-			RelativePath="..\scripts\northrend\violet_hold\def_violet_hold.h"
 			>
 		</File>
 		<File

@@ -213,7 +213,7 @@ INSERT INTO `creature_ai_scripts` VALUES
 -- Kel'Thuzad's throne
 DELETE FROM `gameobject` WHERE `id` = 181640;
 INSERT INTO `gameobject`(`id`, `map`, `spawnMask`, `phaseMask`, `position_x`, `position_y`, `position_z`, `orientation`, `rotation0`, `rotation1`, `rotation2`, `rotation3`, `spawntimesecs`, `animprogress`, `state`) VALUES
-(181640, 533, 1, 0, 3763.3999, -5116.2301, 146.0, 2.9552, 0.0, 0.0, 0.0, 0.0, 5, 100, 0);
+(181640, 533, 3, 0, 3763.3999, -5116.2301, 146.0, 2.9552, 0.0, 0.0, 0.0, 0.0, 5, 100, 0);
 
 /*
 -- Arachnid Quarter::Worshippers and folowers

@@ -15,29 +15,29 @@ INSERT INTO `creature_ai_scripts` VALUES
 (3249103, 32491, 1, 0, 100, 0, 900000, 1800000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Time-Lost Proto Drake - OOC Despawn'),
 (3249104, 32491, 1, 0, 50, 0, 1000, 1000, 0, 0, 41, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Time-Lost Proto Drake - Despawn at spawn');
 
--- Add spawns to `creature` (random spawns from 6 to 24h)
+-- Add spawns to `creature` (random spawns from 12 to 30h)
 DELETE FROM `creature` WHERE `id` = 32491;
 INSERT INTO `creature` VALUES
 -- 1
-(151712, 32491, 571, 1, 1, 0, 0, 7149.75, -1525.29, 973.463, 0.823006, 21600, 0, 0, 18900, 0, 0, 2),
-(151713, 32491, 571, 1, 1, 0, 0, 7149.75, -1525.29, 973.463, 0.823006, 43200, 0, 0, 18900, 0, 0, 2),
-(151714, 32491, 571, 1, 1, 0, 0, 7149.75, -1525.29, 973.463, 0.823006, 64800, 0, 0, 18900, 0, 0, 2),
-(151715, 32491, 571, 1, 1, 0, 0, 7149.75, -1525.29, 973.463, 0.823006, 86400, 0, 0, 18900, 0, 0, 2),
+(151712, 32491, 571, 1, 1, 0, 0, 7149.75, -1525.29, 973.463, 0.823006, 43200, 0, 0, 18900, 0, 0, 2),
+(151713, 32491, 571, 1, 1, 0, 0, 7149.75, -1525.29, 973.463, 0.823006, 64800, 0, 0, 18900, 0, 0, 2),
+(151714, 32491, 571, 1, 1, 0, 0, 7149.75, -1525.29, 973.463, 0.823006, 86400, 0, 0, 18900, 0, 0, 2),
+(151715, 32491, 571, 1, 1, 0, 0, 7149.75, -1525.29, 973.463, 0.823006, 108000, 0, 0, 18900, 0, 0, 2),
 -- 2
-(151716, 32491, 571, 1, 1, 0, 0, 7067.58, -554.09, 848.725, 1.58484, 21600, 0, 0, 18900, 0, 0, 2),
-(151717, 32491, 571, 1, 1, 0, 0, 7067.58, -554.09, 848.725, 1.58484, 43200, 0, 0, 18900, 0, 0, 2),
-(151718, 32491, 571, 1, 1, 0, 0, 7067.58, -554.09, 848.725, 1.58484, 64800, 0, 0, 18900, 0, 0, 2),
-(151719, 32491, 571, 1, 1, 0, 0, 7067.58, -554.09, 848.725, 1.58484, 86400, 0, 0, 18900, 0, 0, 2),
+(151716, 32491, 571, 1, 1, 0, 0, 7067.58, -554.09, 848.725, 1.58484, 43200, 0, 0, 18900, 0, 0, 2),
+(151717, 32491, 571, 1, 1, 0, 0, 7067.58, -554.09, 848.725, 1.58484, 64800, 0, 0, 18900, 0, 0, 2),
+(151718, 32491, 571, 1, 1, 0, 0, 7067.58, -554.09, 848.725, 1.58484, 86400, 0, 0, 18900, 0, 0, 2),
+(151719, 32491, 571, 1, 1, 0, 0, 7067.58, -554.09, 848.725, 1.58484, 108000, 0, 0, 18900, 0, 0, 2),
 -- 3
-(151720, 32491, 571, 1, 1, 0, 0, 8566.84, -1814.94, 1075.96, 1.84244, 21600, 0, 0, 18900, 0, 0, 2),
-(151721, 32491, 571, 1, 1, 0, 0, 8566.84, -1814.94, 1075.96, 1.84244, 43200, 0, 0, 18900, 0, 0, 2),
-(151722, 32491, 571, 1, 1, 0, 0, 8566.84, -1814.94, 1075.96, 1.84244, 64800, 0, 0, 18900, 0, 0, 2),
-(151723, 32491, 571, 1, 1, 0, 0, 8566.84, -1814.94, 1075.96, 1.84244, 86400, 0, 0, 18900, 0, 0, 2),
+(151720, 32491, 571, 1, 1, 0, 0, 8566.84, -1814.94, 1075.96, 1.84244, 43200, 0, 0, 18900, 0, 0, 2),
+(151721, 32491, 571, 1, 1, 0, 0, 8566.84, -1814.94, 1075.96, 1.84244, 64800, 0, 0, 18900, 0, 0, 2),
+(151722, 32491, 571, 1, 1, 0, 0, 8566.84, -1814.94, 1075.96, 1.84244, 86400, 0, 0, 18900, 0, 0, 2),
+(151723, 32491, 571, 1, 1, 0, 0, 8566.84, -1814.94, 1075.96, 1.84244, 108000, 0, 0, 18900, 0, 0, 2),
 -- 4
-(151724, 32491, 571, 1, 1, 0, 0, 8147.33, -935.159, 1017.34, 1.65812, 21600, 0, 0, 18900, 0, 0, 2),
-(151725, 32491, 571, 1, 1, 0, 0, 8147.33, -935.159, 1017.34, 1.65812, 43200, 0, 0, 18900, 0, 0, 2),
-(151726, 32491, 571, 1, 1, 0, 0, 8147.33, -935.159, 1017.34, 1.65812, 64800, 0, 0, 18900, 0, 0, 2),
-(151727, 32491, 571, 1, 1, 0, 0, 8147.33, -935.159, 1017.34, 1.65812, 86400, 0, 0, 18900, 0, 0, 2);
+(151724, 32491, 571, 1, 1, 0, 0, 8147.33, -935.159, 1017.34, 1.65812, 43200, 0, 0, 18900, 0, 0, 2),
+(151725, 32491, 571, 1, 1, 0, 0, 8147.33, -935.159, 1017.34, 1.65812, 64800, 0, 0, 18900, 0, 0, 2),
+(151726, 32491, 571, 1, 1, 0, 0, 8147.33, -935.159, 1017.34, 1.65812, 86400, 0, 0, 18900, 0, 0, 2),
+(151727, 32491, 571, 1, 1, 0, 0, 8147.33, -935.159, 1017.34, 1.65812, 108000, 0, 0, 18900, 0, 0, 2);
 
 -- Add to `pool_template`
 DELETE FROM `pool_template` WHERE `entry` = 32491;
@@ -46,38 +46,38 @@ INSERT INTO `pool_template` VALUES (32491, 1, 'Time-Lost Proto Drake(32491) and 
 -- Add to `pool_creature` Drake and Vyragosa share spawn timers and the pool
 DELETE FROM `pool_creature` WHERE `pool_entry` = 32491;
 INSERT INTO `pool_creature` VALUES
-(151712, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 11'),
-(151713, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 12'),
-(151714, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 13'),
-(151715, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 14'),
-(151716, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 21'),
-(151717, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 22'),
-(151718, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 23'),
-(151719, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 24'),
-(151720, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 31'),
-(151721, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 32'),
-(151722, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 33'),
-(151723, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 34'),
-(151724, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 41'),
-(151725, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 42'),
-(151726, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 43'),
-(151727, 32491, 0, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 44'),
-(151728, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 11'),
-(151729, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 12'),
-(151730, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 13'),
-(151731, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 14'),
-(151732, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 21'),
-(151733, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 22'),
-(151734, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 23'),
-(151735, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 24'),
-(151736, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 31'),
-(151737, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 32'),
-(151738, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 33'),
-(151739, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 34'),
-(151740, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 41'),
-(151741, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 42'),
-(151742, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 43'),
-(151743, 32491, 0, 'Northrend rare - Vyragosa(32630) - Spawn 44');
+(151712, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 11'),
+(151713, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 12'),
+(151714, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 13'),
+(151715, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 14'),
+(151716, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 21'),
+(151717, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 22'),
+(151718, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 23'),
+(151719, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 24'),
+(151720, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 31'),
+(151721, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 32'),
+(151722, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 33'),
+(151723, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 34'),
+(151724, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 41'),
+(151725, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 42'),
+(151726, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 43'),
+(151727, 32491, 1, 'Northrend rare - Time-Lost Proto Drake(32491) - Spawn 44'),
+(151728, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 11'),
+(151729, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 12'),
+(151730, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 13'),
+(151731, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 14'),
+(151732, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 21'),
+(151733, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 22'),
+(151734, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 23'),
+(151735, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 24'),
+(151736, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 31'),
+(151737, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 32'),
+(151738, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 33'),
+(151739, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 34'),
+(151740, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 41'),
+(151741, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 42'),
+(151742, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 43'),
+(151743, 32491, 70, 'Northrend rare - Vyragosa(32630) - Spawn 44');
 
 -- Add waypoints for Drake:
 DELETE FROM `creature_movement` WHERE `id` BETWEEN 151712 AND 151727;

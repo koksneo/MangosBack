@@ -6181,7 +6181,13 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
             if(Unit* magnet = (*i)->GetCaster())
                 if(magnet->isAlive() && magnet->IsWithinLOSInMap(this))
                     if(roll_chance_i((*i)->GetModifier()->m_amount))
+                    {
+                        // Intervene. Probably there should be some generic handling of removing of those auras
+                        if ((*i)->GetId() == 3411)
+                            if ((*i)->GetHolder()->DropAuraCharge())
+                                victim->RemoveSpellAuraHolder((*i)->GetHolder());
                         return magnet;
+                    }
     }
 
     return victim;

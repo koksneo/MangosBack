@@ -6226,10 +6226,19 @@ void Aura::HandleShapeshiftBoosts(bool apply)
 
     if(apply)
     {
+        // Some spells may stack (because they persist in other forms) and we don't want this to happen
         if (spellId1)
-            target->CastSpell(target, spellId1, true, NULL, this );
+        {
+            if (target->HasAura(spellId1))
+                target->RemoveAurasDueToSpell(spellId1);
+            target->CastSpell(target, spellId1, true, NULL, this);
+        }
         if (spellId2)
+        {
+            if (target->HasAura(spellId2))
+                target->RemoveAurasDueToSpell(spellId2);
             target->CastSpell(target, spellId2, true, NULL, this);
+        }
 
         if (target->GetTypeId() == TYPEID_PLAYER)
         {
@@ -6374,6 +6383,10 @@ void Aura::HandleShapeshiftBoosts(bool apply)
                 if ((spellInfo->AttributesEx2 & SPELL_ATTR_EX2_NOT_NEED_SHAPESHIFT) && spellInfo->StancesNot & (1<<(form-1)))
                     target->CastSpell(target, itr->first, true, NULL, this);
             }
+            // Tree of Life exception - should work in all forms so recast
+            // removing and applying again is implemented because of not wanted stacking possibility of the aura
+            if (spellId1 == 5420)
+                target->CastSpell(target, spellId1, true, NULL, this);
         }
 
         Unit::SpellAuraHolderMap& tAuras = target->GetSpellAuraHolderMap();

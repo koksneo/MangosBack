@@ -1681,8 +1681,9 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                                 m_caster->CastSpell(m_caster, spellID, true, NULL);
                             return;
                         }
-                        case EFFECT_INDEX_1:
-                            return;                         // additional data for dummy[0]
+                        case EFFECT_INDEX_1:                // additional data for dummy[0]
+                        case EFFECT_INDEX_2:
+                            return;                         
                     }
                     return;
                 }
@@ -1730,6 +1731,33 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 {
                     // Runeforging Credit
                     m_caster->CastSpell(m_caster, 54586, true);
+                    return;
+                }
+                case 53475:                                 // Set Oracle Faction Friendly
+                case 53487:                                 // Set Wolvar Faction Honored
+                case 54015:                                 // Set Oracle Faction Honored
+                {
+                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
+                        return;
+
+                    if (eff_idx == EFFECT_INDEX_0)
+                    {
+                        Player* pPlayer = (Player*)m_caster;
+
+                        uint32 faction_id = m_currentBasePoints[eff_idx];
+                        int32  rep_change = m_currentBasePoints[EFFECT_INDEX_1];
+
+                        FactionEntry const* factionEntry = sFactionStore.LookupEntry(faction_id);
+
+                        if (!factionEntry)
+                            return;
+
+                        // set rep to baserep + basepoints (expecting spillover for oposite faction -> become hated)
+                        pPlayer->GetReputationMgr().SetReputation(factionEntry, rep_change);
+
+                        // EFFECT_INDEX_2 most likely update at war state, we already handle this in SetReputation
+                    }
+
                     return;
                 }
                 case 53808:                                 // Pygmy Oil
@@ -3859,8 +3887,8 @@ void Spell::EffectOpenLock(SpellEffectIndex eff_idx)
     {
         GameObjectInfo const* goInfo = gameObjTarget->GetGOInfo();
         // Arathi Basin banner opening !
-        if (goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune ||
-            goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK)
+        if ((goInfo->type == GAMEOBJECT_TYPE_BUTTON && goInfo->button.noDamageImmune) ||
+            (goInfo->type == GAMEOBJECT_TYPE_GOOBER && goInfo->goober.losOK))
         {
             //CanUseBattleGroundObject() already called in CheckCast()
             // in battleground check
@@ -5961,7 +5989,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     if (const SpellEntry *pSpell = sSpellStore.LookupEntry(m_spellInfo->CalculateSimpleValue(eff_idx)))
                     {
                         // if we used item at least once...
-                        if (pTarget->IsTemporarySummon() && pTarget->GetEntry() == pSpell->EffectMiscValue[eff_idx])
+                        if (pTarget->IsTemporarySummon() && int32(pTarget->GetEntry()) == pSpell->EffectMiscValue[eff_idx])
                         {
                             TemporarySummon* pSummon = (TemporarySummon*)pTarget;
 

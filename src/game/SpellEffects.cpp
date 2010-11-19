@@ -150,7 +150,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectNULL,                                     // 87 SPELL_EFFECT_WMO_DAMAGE (57 spells in 3.3.2)
     &Spell::EffectNULL,                                     // 88 SPELL_EFFECT_WMO_REPAIR (2 spells in 3.3.2)
     &Spell::EffectNULL,                                     // 89 SPELL_EFFECT_WMO_CHANGE (7 spells in 3.3.2)
-    &Spell::EffectKillCreditPersonal,                       // 90 SPELL_EFFECT_KILL_CREDIT              Kill credit but only for single person
+    &Spell::EffectKillCreditPersonal,                       // 90 SPELL_EFFECT_KILL_CREDIT_PERSONAL     Kill credit but only for single person
     &Spell::EffectUnused,                                   // 91 SPELL_EFFECT_THREAT_ALL               one spell: zzOLDBrainwash
     &Spell::EffectEnchantHeldItem,                          // 92 SPELL_EFFECT_ENCHANT_HELD_ITEM
     &Spell::EffectBreakPlayerTargeting,                     // 93 SPELL_EFFECT_BREAK_PLAYER_TARGETING
@@ -194,7 +194,7 @@ pEffect SpellEffects[TOTAL_SPELL_EFFECTS]=
     &Spell::EffectUnused,                                   //131 SPELL_EFFECT_131                      used in some test spells
     &Spell::EffectPlayMusic,                                //132 SPELL_EFFECT_PLAY_MUSIC               sound id in misc value (SoundEntries.dbc)
     &Spell::EffectUnlearnSpecialization,                    //133 SPELL_EFFECT_UNLEARN_SPECIALIZATION   unlearn profession specialization
-    &Spell::EffectKillCredit,                               //134 SPELL_EFFECT_KILL_CREDIT              misc value is creature entry
+    &Spell::EffectKillCreditGroup,                          //134 SPELL_EFFECT_KILL_CREDIT_GROUP        misc value is creature entry
     &Spell::EffectNULL,                                     //135 SPELL_EFFECT_CALL_PET
     &Spell::EffectHealPct,                                  //136 SPELL_EFFECT_HEAL_PCT
     &Spell::EffectEnergisePct,                              //137 SPELL_EFFECT_ENERGIZE_PCT
@@ -671,36 +671,11 @@ void Spell::EffectSchoolDMG(SpellEffectIndex effect_idx)
                     if (m_caster->HasAura(57627))           // Charge 6 sec post-affect
                         damage *= 2;
                 }
-                // Mongoose Bite
-                else if ((m_spellInfo->SpellFamilyFlags & UI64LIT(0x000000002)) && m_spellInfo->SpellVisual[0]==342)
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
-                }
-                // Counterattack
-                else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x0008000000000000))
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(BASE_ATTACK)*0.2f);
-                }
-                // Arcane Shot
-                else if ((m_spellInfo->SpellFamilyFlags & UI64LIT(0x00000800)) && m_spellInfo->maxLevel > 0)
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.15f);
-                }
                 // Steady Shot
                 else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x100000000))
                 {
                     int32 base = irand((int32)m_caster->GetWeaponDamageRange(RANGED_ATTACK, MINDAMAGE),(int32)m_caster->GetWeaponDamageRange(RANGED_ATTACK, MAXDAMAGE));
                     damage += int32(float(base)/m_caster->GetAttackTime(RANGED_ATTACK)*2800 + m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.1f);
-                }
-                // Explosive Trap Effect
-                else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x00000004))
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.1f);
-                }
-                // Volley
-                else if (m_spellInfo->SpellFamilyFlags & UI64LIT(0x00002000))
-                {
-                    damage += int32(m_caster->GetTotalAttackPowerValue(RANGED_ATTACK)*0.0837f);
                 }
                 break;
             }
@@ -1572,13 +1547,8 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     if (!unitTarget || unitTarget->GetTypeId() != TYPEID_UNIT)
                         return;
 
-                    if (m_caster->GetTypeId() != TYPEID_PLAYER)
-                        return;
-
-                    // Not expecting any MINI_PET here, the ones used for related quests are
-                    // fighting "companions" (effMiscValueB 387). Needs to be corrected.
-                    Pet* pPet = ((Player*)m_caster)->GetMiniPet();
-
+                    // only spell related protector pets exist currently
+                    Pet* pPet = m_caster->GetProtectorPet();
                     if (!pPet)
                         return;
 
@@ -4124,25 +4094,25 @@ void Spell::EffectSummonType(SpellEffectIndex eff_idx)
         case SUMMON_PROP_GROUP_WILD:
         case SUMMON_PROP_GROUP_FRIENDLY:
         {
-            switch(summon_prop->Type)
+            switch(summon_prop->Title)                      // better from known way sorting summons by AI types
             {
-                case SUMMON_PROP_TYPE_OTHER:
+                case UNITNAME_SUMMON_TITLE_NONE:
                 {
                     // those are classical totems - effectbasepoints is their hp and not summon ammount!
-                    //SUMMON_TYPE_TOTEM = 121: 23035, battlestands
-                    //SUMMON_TYPE_TOTEM2 = 647: 52893, Anti-Magic Zone (npc used)
+                    //121: 23035, battlestands
+                    //647: 52893, Anti-Magic Zone (npc used)
                     if (prop_id == 121 || prop_id == 647)
                         DoSummonTotem(eff_idx);
                     else
                         DoSummonWild(eff_idx, summon_prop->FactionId);
                     break;
                 }
-                case SUMMON_PROP_TYPE_SUMMON:
-                case SUMMON_PROP_TYPE_ARMY:
-                case SUMMON_PROP_TYPE_DK:
+                case UNITNAME_SUMMON_TITLE_PET:
+                case UNITNAME_SUMMON_TITLE_MINION:
+                case UNITNAME_SUMMON_TITLE_RUNEBLADE:
                     DoSummonGuardian(eff_idx, summon_prop->FactionId);
                     break;
-                case SUMMON_PROP_TYPE_GUARDIAN:
+                case UNITNAME_SUMMON_TITLE_GUARDIAN:
                 {
                     if (prop_id == 61)                      // mixed guardians, totems, statues
                     {
@@ -4168,7 +4138,7 @@ void Spell::EffectSummonType(SpellEffectIndex eff_idx)
                         DoSummonGuardian(eff_idx, summon_prop->FactionId);
                     break;
                 }
-                case SUMMON_PROP_TYPE_CONSTRUCT:
+                case UNITNAME_SUMMON_TITLE_CONSTRUCT:
                 {
                     if (prop_id == 2913)                    // Scrapbot
                         DoSummonWild(eff_idx, summon_prop->FactionId);
@@ -4176,27 +4146,28 @@ void Spell::EffectSummonType(SpellEffectIndex eff_idx)
                         DoSummonGuardian(eff_idx, summon_prop->FactionId);
                     break;
                 }
-                case SUMMON_PROP_TYPE_TOTEM:
+                case UNITNAME_SUMMON_TITLE_TOTEM:
                     DoSummonTotem(eff_idx, summon_prop->Slot);
                     break;
-                case SUMMON_PROP_TYPE_CRITTER:
-                    DoSummonCritter(eff_idx, summon_prop->FactionId);
-                    // TODO: differenciate between regular 'critter' types and 'critter' that are fighting.
-                    // prop_id == 387 are expected to be fighting (but they have postfix 'companion').
-                    // Note: summon_prop->Slot==6 may be related to how selection are done for this type (need more research)
+                case UNITNAME_SUMMON_TITLE_COMPANION:
+                    // slot 6 set for critters that can help to player in fighting
+                    if (summon_prop->Slot == 6)
+                        DoSummonGuardian(eff_idx, summon_prop->FactionId);
+                    else
+                        DoSummonCritter(eff_idx, summon_prop->FactionId);
                     break;
-                case SUMMON_PROP_TYPE_PHASING:
-                case SUMMON_PROP_TYPE_LIGHTWELL:
-                case SUMMON_PROP_TYPE_REPAIR_BOT:
+                case UNITNAME_SUMMON_TITLE_OPPONENT:
+                case UNITNAME_SUMMON_TITLE_LIGHTWELL:
+                case UNITNAME_SUMMON_TITLE_BUTLER:
                     DoSummonWild(eff_idx, summon_prop->FactionId);
                     break;
-                case SUMMON_PROP_TYPE_SIEGE_VEH:
-                case SUMMON_PROP_TYPE_DRAKE_VEH:
+                case UNITNAME_SUMMON_TITLE_VEHICLE:
+                case UNITNAME_SUMMON_TITLE_MOUNT:
                     // TODO
                     // EffectSummonVehicle(i);
                     break;
                 default:
-                    sLog.outError("EffectSummonType: Unhandled summon type %u", summon_prop->Type);
+                    sLog.outError("EffectSummonType: Unhandled summon title %u", summon_prop->Title);
                 break;
             }
             break;
@@ -4329,9 +4300,7 @@ void Spell::DoSummon(SpellEffectIndex eff_idx)
     spawnCreature->SetHealth(spawnCreature->GetMaxHealth());
     spawnCreature->SetPower(POWER_MANA, spawnCreature->GetMaxPower(POWER_MANA));
 
-    std::string name = m_caster->GetName();
-    name.append(petTypeSuffix[spawnCreature->getPetType()]);
-    spawnCreature->SetName( name );
+    //spawnCreature->SetName("");                           // generated by client
 
     map->Add((Creature*)spawnCreature);
 
@@ -4675,6 +4644,29 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
     if (!pet_entry)
         return;
 
+    SummonPropertiesEntry const* propEntry = sSummonPropertiesStore.LookupEntry(m_spellInfo->EffectMiscValueB[eff_idx]);
+    if (!propEntry)
+        return;
+
+    PetType petType = propEntry->Title == UNITNAME_SUMMON_TITLE_COMPANION ? PROTECTOR_PET : GUARDIAN_PET;
+
+    // protectors allowed only in single amount
+    if (petType == PROTECTOR_PET)
+    {
+        Pet* old_protector = m_caster->GetProtectorPet();
+
+        // for same pet just despawn
+        if (old_protector && old_protector->GetEntry() == pet_entry)
+        {
+            old_protector->Unsummon(PET_SAVE_AS_DELETED, m_caster);
+            return;
+        }
+
+        // despawn old pet before summon new
+        if (old_protector)
+            old_protector->Unsummon(PET_SAVE_AS_DELETED, m_caster);
+    }
+
     // in another case summon new
     uint32 level = m_caster->getLevel();
 
@@ -4706,7 +4698,7 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
 
     for(int32 count = 0; count < amount; ++count)
     {
-        Pet* spawnCreature = new Pet(GUARDIAN_PET);
+        Pet* spawnCreature = new Pet(petType);
 
         Map *map = m_caster->GetMap();
         uint32 pet_number = sObjectMgr.GeneratePetNumber();
@@ -4751,6 +4743,7 @@ void Spell::DoSummonGuardian(SpellEffectIndex eff_idx, uint32 forceFaction)
         if (duration > 0)
             spawnCreature->SetDuration(duration);
 
+        //spawnCreature->SetName("");                       // generated by client
         spawnCreature->SetOwnerGuid(m_caster->GetObjectGuid());
         spawnCreature->setPowerType(POWER_MANA);
         spawnCreature->SetUInt32Value(UNIT_NPC_FLAGS, spawnCreature->GetCreatureInfo()->npcflag);
@@ -5137,7 +5130,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
         }
 
         if(m_caster->GetTypeId() == TYPEID_PLAYER)
-            ((Player*)m_caster)->RemovePet(OldSummon,(OldSummon->getPetType()==HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT),false);
+            OldSummon->Unsummon(OldSummon->getPetType() == HUNTER_PET ? PET_SAVE_AS_DELETED : PET_SAVE_NOT_IN_SLOT, m_caster);
         else
             return;
     }
@@ -5149,7 +5142,7 @@ void Spell::EffectSummonPet(SpellEffectIndex eff_idx)
         return;
 
     // not error in case fail hunter call pet
-    if(!petentry)
+    if (!petentry)
     {
         delete NewSummon;
         return;
@@ -6319,7 +6312,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     {
                         // Is this all to be done at completion?
                         if (Pet* pPet = m_caster->FindGuardianWithEntry(pSpell->EffectMiscValue[EFFECT_INDEX_0]))
-                            ((Player*)m_caster)->RemovePet(pPet, PET_SAVE_NOT_IN_SLOT);
+                            pPet->Unsummon(PET_SAVE_NOT_IN_SLOT, m_caster);
                     }
                     return;
                 }
@@ -7262,6 +7255,7 @@ void Spell::DoSummonTotem(SpellEffectIndex eff_idx, uint8 slot_dbc)
     if (slot < MAX_TOTEM_SLOT)
         m_caster->_AddTotem(TotemSlot(slot),pTotem);
 
+    //pTotem->SetName("");                                  // generated by client
     pTotem->SetOwner(m_caster);
     pTotem->SetTypeBySummonSpell(m_spellInfo);              // must be after Create call where m_spells initialized
 
@@ -7416,7 +7410,7 @@ void Spell::EffectDismissPet(SpellEffectIndex /*eff_idx*/)
     if(!pet||!pet->isAlive())
         return;
 
-    ((Player*)m_caster)->RemovePet(pet, PET_SAVE_NOT_IN_SLOT);
+    pet->Unsummon(PET_SAVE_NOT_IN_SLOT, m_caster);
 }
 
 void Spell::EffectSummonObject(SpellEffectIndex eff_idx)
@@ -7845,6 +7839,7 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
         return;
     }
 
+    //critter->SetName("");                                 // generated by client
     critter->SetOwnerGuid(m_caster->GetObjectGuid());
     critter->SetCreatorGuid(m_caster->GetObjectGuid());
 
@@ -7862,10 +7857,7 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
     if(duration > 0)
         critter->SetDuration(duration);
 
-    std::string name = player->GetName();
-    name.append(petTypeSuffix[critter->getPetType()]);
-    critter->SetName( name );
-    player->SetMiniPet(critter);
+    player->_SetMiniPet(critter);
 
     map->Add((Creature*)critter);
 }
@@ -8311,7 +8303,7 @@ void Spell::EffectKillCreditPersonal(SpellEffectIndex eff_idx)
     ((Player*)unitTarget)->KilledMonsterCredit(m_spellInfo->EffectMiscValue[eff_idx]);
 }
 
-void Spell::EffectKillCredit(SpellEffectIndex eff_idx)
+void Spell::EffectKillCreditGroup(SpellEffectIndex eff_idx)
 {
     if(!unitTarget || unitTarget->GetTypeId() != TYPEID_PLAYER)
         return;

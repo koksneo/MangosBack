@@ -520,6 +520,7 @@ Player::Player (WorldSession *session): Unit(), m_mover(this), m_camera(this), m
     m_ammoDPS = 0.0f;
 
     m_temporaryUnsummonedPetNumber = 0;
+    m_lastpetnumber = 0;
 
     ////////////////////Rest System/////////////////////
     time_inn_enter=0;
@@ -17827,6 +17828,9 @@ void Player::UpdateDuelFlag(time_t currTime)
 
 void Player::RemovePet(PetSaveMode mode)
 {
+    if (InBattleGround() && mode == PET_SAVE_REAGENTS)
+        mode = PET_SAVE_NOT_IN_SLOT;
+
     if (Pet* pet = GetPet())
         pet->Unsummon(mode, this);
 }

@@ -2200,10 +2200,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         bool isTotalImmune();
         bool CanCaptureTowerPoint();
 
-        // last used pet number (for BG's)
-        uint32 GetLastPetNumber() const { return m_lastpetnumber; }
-        void SetLastPetNumber(uint32 petnumber) { m_lastpetnumber = petnumber; }
-
         bool GetRandomWinner() { return m_IsBGRandomWinner; }
         void SetRandomWinner(bool isWinner);
 
@@ -2646,9 +2642,6 @@ class MANGOS_DLL_SPEC Player : public Unit
         uint64 m_auraUpdateMask;
 
         uint64 m_miniPet;
-
-        // last used pet number (for BG's)
-        uint32 m_lastpetnumber;
 
         // Player summoning
         time_t m_summon_expire;

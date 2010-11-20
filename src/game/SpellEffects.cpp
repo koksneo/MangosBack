@@ -971,7 +971,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                     }
 
                     pGameObj->SetRespawnTime(creatureTarget->GetRespawnTime()-time(NULL));
-                    pGameObj->SetOwnerGUID(m_caster->GetGUID() );
+                    pGameObj->SetOwnerGuid(m_caster->GetObjectGuid() );
                     pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel() );
                     pGameObj->SetSpellId(m_spellInfo->Id);
 
@@ -2617,7 +2617,7 @@ void Spell::EffectDummy(SpellEffectIndex eff_idx)
                 for(Unit::SpellAuraHolderMap::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
                 {
                     if (itr->second->GetSpellProto()->Dispel == DISPEL_DISEASE &&
-                        itr->second->GetCasterGUID() == m_caster->GetGUID())
+                        itr->second->GetCasterGuid() == m_caster->GetObjectGuid())
                     {
                         ++count;
                         // max. 15%
@@ -3977,7 +3977,7 @@ void Spell::EffectSummonChangeItem(SpellEffectIndex eff_idx)
         return;
 
     // ... only to item in own inventory/bank/equip_slot
-    if (m_CastItem->GetOwnerGUID()!=player->GetGUID())
+    if (m_CastItem->GetOwnerGuid() != player->GetObjectGuid())
         return;
 
     uint32 newitemid = m_spellInfo->EffectItemType[eff_idx];
@@ -5511,7 +5511,7 @@ void Spell::EffectWeaponDmg(SpellEffectIndex eff_idx)
                 for(Unit::SpellAuraHolderMap::const_iterator itr = auras.begin(); itr!=auras.end(); ++itr)
                 {
                     if(itr->second->GetSpellProto()->Dispel == DISPEL_DISEASE &&
-                        itr->second->GetCasterGUID() == m_caster->GetGUID())
+                        itr->second->GetCasterGuid() == m_caster->GetObjectGuid())
                         ++count;
                 }
 
@@ -6349,7 +6349,7 @@ void Spell::EffectScriptEffect(SpellEffectIndex eff_idx)
                     {
                         // Is this all to be done at completion?
                         if (Pet* pPet = m_caster->FindGuardianWithEntry(pSpell->EffectMiscValue[EFFECT_INDEX_0]))
-                            pPet->Unsummon(PET_SAVE_NOT_IN_SLOT, m_caster);
+                            pPet->Unsummon(PET_SAVE_AS_DELETED, m_caster);
                     }
                     return;
                 }
@@ -7819,26 +7819,22 @@ void Spell::EffectCharge2(SpellEffectIndex /*eff_idx*/)
 
 void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
 {
-    if(m_caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-    Player* player = (Player*)m_caster;
-
     uint32 pet_entry = m_spellInfo->EffectMiscValue[eff_idx];
     if(!pet_entry)
         return;
 
-    Pet* old_critter = player->GetMiniPet();
+    Pet* old_critter = m_caster->GetMiniPet();
 
-    // for same pet just despawn
-    if(old_critter && old_critter->GetEntry() == pet_entry)
+    // for same pet just despawn (player unsummon command)
+    if (m_caster->GetTypeId() == TYPEID_PLAYER && old_critter && old_critter->GetEntry() == pet_entry)
     {
-        player->RemoveMiniPet();
+        m_caster->RemoveMiniPet();
         return;
     }
 
     // despawn old pet before summon new
-    if(old_critter)
-        player->RemoveMiniPet();
+    if (old_critter)
+        m_caster->RemoveMiniPet();
 
     // summon new pet
     Pet* critter = new Pet(MINI_PET);
@@ -7894,7 +7890,7 @@ void Spell::DoSummonCritter(SpellEffectIndex eff_idx, uint32 forceFaction)
     if(duration > 0)
         critter->SetDuration(duration);
 
-    player->_SetMiniPet(critter);
+    m_caster->SetMiniPet(critter);
 
     map->Add((Creature*)critter);
 }
@@ -8183,7 +8179,7 @@ void Spell::EffectTransmitted(SpellEffectIndex eff_idx)
 
     pGameObj->SetRespawnTime(duration > 0 ? duration/IN_MILLISECONDS : 0);
 
-    pGameObj->SetOwnerGUID(m_caster->GetGUID());
+    pGameObj->SetOwnerGuid(m_caster->GetObjectGuid());
 
     pGameObj->SetUInt32Value(GAMEOBJECT_LEVEL, m_caster->getLevel());
     pGameObj->SetSpellId(m_spellInfo->Id);

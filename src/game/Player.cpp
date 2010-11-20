@@ -1506,9 +1506,6 @@ void Player::SetDeathState(DeathState s)
         //FIXME: is pet dismissed at dying or releasing spirit? if second, add SetDeathState(DEAD) to HandleRepopRequestOpcode and define pet unsummon here with (s == DEAD)
         RemovePet(PET_SAVE_REAGENTS);
 
-        // remove uncontrolled pets
-        RemoveMiniPet();
-
         // save value before aura remove in Unit::SetDeathState
         ressSpellId = GetUInt32Value(PLAYER_SELF_RES_SPELL);
 
@@ -2032,14 +2029,6 @@ void Player::AddToWorld()
 
 void Player::RemoveFromWorld()
 {
-    // cleanup
-    if(IsInWorld())
-    {
-        ///- Release charmed creatures, unsummon totems and remove pets/guardians
-        UnsummonAllTotems();
-        RemoveMiniPet();
-    }
-
     for(int i = PLAYER_SLOT_START; i < PLAYER_SLOT_END; ++i)
     {
         if(m_items[i])
@@ -2387,7 +2376,7 @@ void Player::SetGameMaster(bool on)
         setFaction(35);
         SetFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
 
-        CallForAllControlledUnits(SetGameMasterOnHelper(),true,true,true,false);
+        CallForAllControlledUnits(SetGameMasterOnHelper(), CONTROLLED_PET|CONTROLLED_TOTEMS|CONTROLLED_GUARDIANS|CONTROLLED_CHARM);
 
         SetFFAPvP(false);
         ResetContestedPvP();
@@ -2407,7 +2396,7 @@ void Player::SetGameMaster(bool on)
         setFactionForRace(getRace());
         RemoveFlag(PLAYER_FLAGS, PLAYER_FLAGS_GM);
 
-        CallForAllControlledUnits(SetGameMasterOffHelper(getFaction()),true,true,true,false);
+        CallForAllControlledUnits(SetGameMasterOffHelper(getFaction()), CONTROLLED_PET|CONTROLLED_TOTEMS|CONTROLLED_GUARDIANS|CONTROLLED_CHARM);
 
         // restore FFA PvP Server state
         if(sWorld.IsFFAPvPRealm())
@@ -4269,7 +4258,7 @@ void Player::DeleteFromDB(ObjectGuid playerguid, uint32 accountId, bool updateRe
                                 }
 
                                 Item *pItem = NewItemOrBag(itemProto);
-                                if (!pItem->LoadFromDB(item_guidlow, playerguid.GetRawValue(), fields2))
+                                if (!pItem->LoadFromDB(item_guidlow, fields2, playerguid))
                                 {
                                     pItem->FSetState(ITEM_REMOVED);
                                     pItem->SaveToDB();              // it also deletes item object !
@@ -5154,22 +5143,24 @@ float Player::GetSpellCritFromIntellect()
     return crit*100.0f;
 }
 
-float Player::GetRatingCoefficient(CombatRating cr) const
+float Player::GetRatingMultiplier(CombatRating cr) const
 {
     uint32 level = getLevel();
 
     if (level>GT_MAX_LEVEL) level = GT_MAX_LEVEL;
 
     GtCombatRatingsEntry const *Rating = sGtCombatRatingsStore.LookupEntry(cr*GT_MAX_LEVEL+level-1);
-    if (Rating == NULL)
+    // gtOCTClassCombatRatingScalarStore.dbc starts with 1, CombatRating with zero, so cr+1
+    GtOCTClassCombatRatingScalarEntry const *classRating = sGtOCTClassCombatRatingScalarStore.LookupEntry((getClass()-1)*GT_MAX_RATING+cr+1);
+    if (!Rating || !classRating)
         return 1.0f;                                        // By default use minimum coefficient (not must be called)
 
-    return Rating->ratio;
+    return classRating->ratio / Rating->ratio;
 }
 
 float Player::GetRatingBonusValue(CombatRating cr) const
 {
-    return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr)) / GetRatingCoefficient(cr);
+    return float(GetUInt32Value(PLAYER_FIELD_COMBAT_RATING_1 + cr)) * GetRatingMultiplier(cr);
 }
 
 float Player::GetExpertiseDodgeOrParryReduction(WeaponAttackType attType) const
@@ -5234,20 +5225,20 @@ void Player::ApplyRatingMod(CombatRating cr, int32 value, bool apply)
     {
         case CR_HASTE_MELEE:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = value * GetRatingMultiplier(cr);
             ApplyAttackTimePercentMod(BASE_ATTACK,RatingChange,apply);
             ApplyAttackTimePercentMod(OFF_ATTACK,RatingChange,apply);
             break;
         }
         case CR_HASTE_RANGED:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = value * GetRatingMultiplier(cr);
             ApplyAttackTimePercentMod(RANGED_ATTACK, RatingChange, apply);
             break;
         }
         case CR_HASTE_SPELL:
         {
-            float RatingChange = value / GetRatingCoefficient(cr);
+            float RatingChange = value * GetRatingMultiplier(cr);
             ApplyCastTimePercentMod(RatingChange,apply);
             break;
         }
@@ -6755,7 +6746,7 @@ void Player::UpdateArea(uint32 newArea)
             CastSpell(this, 58730, true); */
     }
 
-    UpdateAreaDependentAuras(newArea);
+    UpdateAreaDependentAuras();
 }
 
 void Player::UpdateZone(uint32 newZone, uint32 newArea)
@@ -6848,7 +6839,8 @@ void Player::UpdateZone(uint32 newZone, uint32 newArea)
     if(GetGroup())
         SetGroupUpdateFlag(GROUP_UPDATE_FLAG_ZONE);
 
-    UpdateZoneDependentAuras(newZone);
+    UpdateZoneDependentAuras();
+    UpdateZoneDependentPets();
 }
 
 //If players are too far way of duel flag... then player loose the duel
@@ -6925,7 +6917,7 @@ void Player::DuelComplete(DuelCompleteType type)
     SpellAuraHolderMap const& vAuras = duel->opponent->GetSpellAuraHolderMap();
     for (SpellAuraHolderMap::const_iterator i = vAuras.begin(); i != vAuras.end(); ++i)
     {
-        if (!i->second->IsPositive() && i->second->GetCasterGUID() == GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
+        if (!i->second->IsPositive() && i->second->GetCasterGuid() == GetObjectGuid() && i->second->GetAuraApplyTime() >= duel->startTime)
             auras2remove.push_back(i->second->GetId());
     }
 
@@ -6936,7 +6928,7 @@ void Player::DuelComplete(DuelCompleteType type)
     SpellAuraHolderMap const& auras = GetSpellAuraHolderMap();
     for (SpellAuraHolderMap::const_iterator i = auras.begin(); i != auras.end(); ++i)
     {
-        if (!i->second->IsPositive() && i->second->GetCasterGUID() == duel->opponent->GetGUID() && i->second->GetAuraApplyTime() >= duel->startTime)
+        if (!i->second->IsPositive() && i->second->GetCasterGuid() == duel->opponent->GetObjectGuid() && i->second->GetAuraApplyTime() >= duel->startTime)
             auras2remove.push_back(i->second->GetId());
     }
     for(size_t i=0; i<auras2remove.size(); ++i)
@@ -7891,7 +7883,7 @@ void Player::SendLoot(ObjectGuid guid, LootType loot_type)
 
             // not check distance for GO in case owned GO (fishing bobber case, for example)
             // And permit out of range GO with no owner in case fishing hole
-            if (!go || (loot_type != LOOT_FISHINGHOLE && (loot_type != LOOT_FISHING || go->GetOwnerGUID() != GetGUID()) && !go->IsWithinDistInMap(this,INTERACTION_DISTANCE)))
+            if (!go || (loot_type != LOOT_FISHINGHOLE && (loot_type != LOOT_FISHING || go->GetOwnerGuid() != GetObjectGuid()) && !go->IsWithinDistInMap(this,INTERACTION_DISTANCE)))
             {
                 SendLootRelease(guid);
                 return;
@@ -10970,9 +10962,9 @@ Item* Player::_StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, boo
         if (bag == INVENTORY_SLOT_BAG_0)
         {
             m_items[slot] = pItem;
-            SetUInt64Value( PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetGUID() );
-            pItem->SetUInt64Value( ITEM_FIELD_CONTAINED, GetGUID() );
-            pItem->SetUInt64Value( ITEM_FIELD_OWNER, GetGUID() );
+            SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetObjectGuid());
+            pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetObjectGuid());
+            pItem->SetGuidValue(ITEM_FIELD_OWNER, GetObjectGuid());
 
             pItem->SetSlot( slot );
             pItem->SetContainer( NULL );
@@ -11029,7 +11021,7 @@ Item* Player::_StoreItem( uint16 pos, Item *pItem, uint32 count, bool clone, boo
             RemoveEnchantmentDurations(pItem);
             RemoveItemDurations(pItem);
 
-            pItem->SetOwnerGUID(GetGUID());                 // prevent error at next SetState in case trade/mail/buy from vendor
+            pItem->SetOwnerGuid(GetObjectGuid());           // prevent error at next SetState in case trade/mail/buy from vendor
             pItem->SetState(ITEM_REMOVED, this);
         }
 
@@ -11139,7 +11131,7 @@ Item* Player::EquipItem( uint16 pos, Item *pItem, bool update )
         RemoveEnchantmentDurations(pItem);
         RemoveItemDurations(pItem);
 
-        pItem->SetOwnerGUID(GetGUID());                     // prevent error at next SetState in case trade/mail/buy from vendor
+        pItem->SetOwnerGuid(GetObjectGuid());               // prevent error at next SetState in case trade/mail/buy from vendor
         pItem->SetState(ITEM_REMOVED, this);
         pItem2->SetState(ITEM_CHANGED, this);
 
@@ -11209,9 +11201,9 @@ void Player::VisualizeItem( uint8 slot, Item *pItem)
     DEBUG_LOG( "STORAGE: EquipItem slot = %u, item = %u", slot, pItem->GetEntry());
 
     m_items[slot] = pItem;
-    SetUInt64Value( PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetGUID() );
-    pItem->SetUInt64Value( ITEM_FIELD_CONTAINED, GetGUID() );
-    pItem->SetUInt64Value( ITEM_FIELD_OWNER, GetGUID() );
+    SetGuidValue(PLAYER_FIELD_INV_SLOT_HEAD + (slot * 2), pItem->GetObjectGuid());
+    pItem->SetGuidValue(ITEM_FIELD_CONTAINED, GetObjectGuid());
+    pItem->SetGuidValue(ITEM_FIELD_OWNER, GetObjectGuid());
     pItem->SetSlot( slot );
     pItem->SetContainer( NULL );
 
@@ -11298,8 +11290,8 @@ void Player::RemoveItem( uint8 bag, uint8 slot, bool update )
             if( pBag )
                 pBag->RemoveItem(slot, update);
         }
-        pItem->SetUInt64Value( ITEM_FIELD_CONTAINED, 0 );
-        // pItem->SetUInt64Value( ITEM_FIELD_OWNER, 0 ); not clear owner at remove (it will be set at store). This used in mail and auction code
+        pItem->SetGuidValue(ITEM_FIELD_CONTAINED, ObjectGuid());
+        // pItem->SetGuidValue(ITEM_FIELD_OWNER, ObjectGuid()); not clear owner at remove (it will be set at store). This used in mail and auction code
         pItem->SetSlot( NULL_SLOT );
         if( IsInWorld() && update )
             pItem->SendCreateUpdateToPlayer( this );
@@ -11336,8 +11328,8 @@ void Player::MoveItemToInventory(ItemPosCountVec const& dest, Item* pItem, bool 
     if(pLastItem == pItem)
     {
         // update owner for last item (this can be original item with wrong owner
-        if(pLastItem->GetOwnerGUID() != GetGUID())
-            pLastItem->SetOwnerGUID(GetGUID());
+        if(pLastItem->GetOwnerGuid() != GetObjectGuid())
+            pLastItem->SetOwnerGuid(GetObjectGuid());
 
         // if this original item then it need create record in inventory
         // in case trade we already have item in other player inventory
@@ -11419,7 +11411,7 @@ void Player::DestroyItem( uint8 bag, uint8 slot, bool update )
         }
 
         //pItem->SetOwnerGUID(0);
-        pItem->SetUInt64Value( ITEM_FIELD_CONTAINED, 0 );
+        pItem->SetGuidValue(ITEM_FIELD_CONTAINED, ObjectGuid());
         pItem->SetSlot( NULL_SLOT );
         pItem->SetState(ITEM_REMOVED, this);
     }
@@ -15796,7 +15788,7 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
         do
         {
             Field *fields = result->Fetch();
-            uint64 caster_guid = fields[0].GetUInt64();
+            ObjectGuid caster_guid = fields[0].GetUInt64();
             uint32 item_lowguid = fields[1].GetUInt64();
             uint32 spellid = fields[2].GetUInt32();
             uint32 stackcount = fields[3].GetUInt32();
@@ -15856,7 +15848,7 @@ void Player::_LoadAuras(QueryResult *result, uint32 timediff)
             if (!holder->IsEmptyHolder())
             {
                 // reset stolen single target auras
-                if (caster_guid != GetGUID() && holder->IsSingleTarget())
+                if (caster_guid != GetObjectGuid() && holder->IsSingleTarget())
                     holder->SetIsSingleTarget(false);
 
                 holder->SetLoadedState(caster_guid, ObjectGuid(HIGHGUID_ITEM, item_lowguid), stackcount, remaincharges);
@@ -15975,7 +15967,7 @@ void Player::_LoadInventory(QueryResult *result, uint32 timediff)
 
             Item *item = NewItemOrBag(proto);
 
-            if(!item->LoadFromDB(item_guid, GetGUID(), fields))
+            if(!item->LoadFromDB(item_guid, fields, GetObjectGuid()))
             {
                 sLog.outError( "Player::_LoadInventory: Player %s has broken item (id: #%u) in inventory, deleted.", GetName(),item_id );
                 CharacterDatabase.PExecute("DELETE FROM character_inventory WHERE item = '%u'", item_guid);
@@ -16064,6 +16056,10 @@ void Player::_LoadInventory(QueryResult *result, uint32 timediff)
             if (success)
             {
                 item->SetState(ITEM_UNCHANGED, this);
+
+                // restore container unchanged state also
+                if (item->GetContainer())
+                    item->GetContainer()->SetState(ITEM_UNCHANGED, this);
 
                 // recharged mana gem
                 if (timediff > 15*MINUTE && proto->ItemLimitCategory ==ITEM_LIMIT_CATEGORY_MANA_GEM)
@@ -16165,7 +16161,7 @@ void Player::_LoadMailedItems(QueryResult *result)
 
         Item *item = NewItemOrBag(proto);
 
-        if(!item->LoadFromDB(item_guid_low, 0, fields))
+        if(!item->LoadFromDB(item_guid_low, fields))
         {
             sLog.outError( "Player::_LoadMailedItems - Item in mail (%u) doesn't exist !!!! - item guid: %u, deleted from mail", mail->messageID, item_guid_low);
             CharacterDatabase.PExecute("DELETE FROM mail_items WHERE item_guid = '%u'", item_guid_low);
@@ -17833,20 +17829,6 @@ void Player::RemovePet(PetSaveMode mode)
 
     if (Pet* pet = GetPet())
         pet->Unsummon(mode, this);
-}
-
-void Player::RemoveMiniPet()
-{
-    if (Pet* pet = GetMiniPet())
-        pet->Unsummon(PET_SAVE_AS_DELETED);
-}
-
-Pet* Player::GetMiniPet() const
-{
-    if (m_miniPetGuid.IsEmpty())
-        return NULL;
-
-    return GetMap()->GetPet(m_miniPetGuid);
 }
 
 void Player::BuildPlayerChat(WorldPacket *data, uint8 msgtype, const std::string& text, uint32 language) const
@@ -20645,23 +20627,23 @@ void Player::SetClientControl(Unit* target, uint8 allowMove)
     GetSession()->SendPacket(&data);
 }
 
-void Player::UpdateZoneDependentAuras( uint32 newZone )
+void Player::UpdateZoneDependentAuras()
 {
     // Some spells applied at enter into zone (with subzones), aura removed in UpdateAreaDependentAuras that called always at zone->area update
-    SpellAreaForAreaMapBounds saBounds = sSpellMgr.GetSpellAreaForAreaMapBounds(newZone);
+    SpellAreaForAreaMapBounds saBounds = sSpellMgr.GetSpellAreaForAreaMapBounds(m_zoneUpdateId);
     for(SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
-        if(itr->second->autocast && itr->second->IsFitToRequirements(this,newZone,0))
+        if(itr->second->autocast && itr->second->IsFitToRequirements(this, m_zoneUpdateId, 0))
             if (!HasAura(itr->second->spellId, EFFECT_INDEX_0))
                 CastSpell(this,itr->second->spellId,true);
 }
 
-void Player::UpdateAreaDependentAuras( uint32 newArea )
+void Player::UpdateAreaDependentAuras()
 {
     // remove auras from spells with area limitations
     for(SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end();)
     {
         // use m_zoneUpdateId for speed: UpdateArea called from UpdateZone or instead UpdateZone in both cases m_zoneUpdateId up-to-date
-        if(sSpellMgr.GetSpellAllowedInLocationError(iter->second->GetSpellProto(),GetMapId(),m_zoneUpdateId,newArea,this) != SPELL_CAST_OK)
+        if(sSpellMgr.GetSpellAllowedInLocationError(iter->second->GetSpellProto(), GetMapId(), m_zoneUpdateId, m_areaUpdateId, this) != SPELL_CAST_OK)
         {
             RemoveSpellAuraHolder(iter->second);
             iter = m_spellAuraHolders.begin();
@@ -20671,11 +20653,33 @@ void Player::UpdateAreaDependentAuras( uint32 newArea )
     }
 
     // some auras applied at subzone enter
-    SpellAreaForAreaMapBounds saBounds = sSpellMgr.GetSpellAreaForAreaMapBounds(newArea);
+    SpellAreaForAreaMapBounds saBounds = sSpellMgr.GetSpellAreaForAreaMapBounds(m_areaUpdateId);
     for(SpellAreaForAreaMap::const_iterator itr = saBounds.first; itr != saBounds.second; ++itr)
-        if(itr->second->autocast && itr->second->IsFitToRequirements(this,m_zoneUpdateId,newArea))
+        if(itr->second->autocast && itr->second->IsFitToRequirements(this, m_zoneUpdateId, m_areaUpdateId))
             if (!HasAura(itr->second->spellId, EFFECT_INDEX_0))
                 CastSpell(this,itr->second->spellId,true);
+}
+
+struct UpdateZoneDependentPetsHelper
+{
+    explicit UpdateZoneDependentPetsHelper(Player* _owner, uint32 zone, uint32 area) : owner(_owner), zone_id(zone), area_id(area) {}
+    void operator()(Unit* unit) const
+    {
+        if (unit->GetTypeId() == TYPEID_UNIT && ((Creature*)unit)->IsPet() && !((Pet*)unit)->IsPermanentPetFor(owner))
+            if (uint32 spell_id = unit->GetUInt32Value(UNIT_CREATED_BY_SPELL))
+                if (SpellEntry const* spellEntry = sSpellStore.LookupEntry(spell_id))
+                    if (sSpellMgr.GetSpellAllowedInLocationError(spellEntry, owner->GetMapId(), zone_id, area_id, owner) != SPELL_CAST_OK)
+                      ((Pet*)unit)->Unsummon(PET_SAVE_AS_DELETED, owner);
+    }
+    Player* owner;
+    uint32 zone_id;
+    uint32 area_id;
+};
+
+void Player::UpdateZoneDependentPets()
+{
+    // check pet (permanent pets ignored), minipet, guardians (including protector)
+    CallForAllControlledUnits(UpdateZoneDependentPetsHelper(this, m_zoneUpdateId, m_areaUpdateId), CONTROLLED_PET|CONTROLLED_GUARDIANS|CONTROLLED_MINIPET);
 }
 
 uint32 Player::GetCorpseReclaimDelay(bool pvp) const

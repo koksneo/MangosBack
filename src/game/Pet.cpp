@@ -724,7 +724,7 @@ void Pet::Unsummon(PetSaveMode mode, Unit* owner /*= NULL*/)
         {
             case MINI_PET:
                 if (p_owner)
-                    p_owner->_SetMiniPet(NULL);
+                    p_owner->SetMiniPet(NULL);
                 break;
             case PROTECTOR_PET:
             case GUARDIAN_PET:

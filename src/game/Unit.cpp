@@ -1872,7 +1872,17 @@ uint32 Unit::CalcArmorReducedDamage(Unit* pVictim, const uint32 damage)
 
     // Apply Player CR_ARMOR_PENETRATION rating and percent talents
     if (GetTypeId()==TYPEID_PLAYER)
-        armor *= 1.0f - ((Player*)this)->GetArmorPenetrationPct() / 100.0f;
+    {
+        float maxArmorPen = 400 + 85 * pVictim->getLevel();
+        if (getLevel() > 59)
+            maxArmorPen += 4.5f * 85 * (pVictim->getLevel()-59);
+        // Cap ignored armor to this value
+        maxArmorPen = std::min(((armor+maxArmorPen)/3), armor);
+        // Also, armor penetration is limited to 100% since 3.1.2, before greater values did
+        // continue to give benefit for targets with more armor than the above cap
+        float armorPenPct = std::min(100.f, ((Player*)this)->GetArmorPenetrationPct());
+        armor -= maxArmorPen * armorPenPct / 100.0f;
+    }
 
     if (armor < 0.0f)
         armor = 0.0f;
@@ -3559,7 +3569,7 @@ void Unit::_UpdateSpells( uint32 time )
             //(*i)->Update( difftime );
             if( !(*ite1)->isSpawned() )
             {
-                (*ite1)->SetOwnerGUID(0);
+                (*ite1)->SetOwnerGuid(ObjectGuid());
                 (*ite1)->SetRespawnTime(0);
                 (*ite1)->Delete();
                 dnext1 = m_gameObj.erase(ite1);
@@ -4262,10 +4272,10 @@ bool Unit::RemoveNoStackAurasDueToAuraHolder(SpellAuraHolder *holder)
         uint32 i_spellId = i_spellProto->Id;
 
         // early checks that spellId is passive non stackable spell
-        if(IsPassiveSpell(i_spellProto))
+        if (IsPassiveSpell(i_spellProto))
         {
             // passive non-stackable spells not stackable only for same caster
-            if(holder->GetCasterGUID()!=i->second->GetCasterGUID())
+            if (holder->GetCasterGuid() != i->second->GetCasterGuid())
                 continue;
 
             // passive non-stackable spells not stackable only with another rank of same spell
@@ -4700,9 +4710,9 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
     // single target auras from other casters
     for (SpellAuraHolderMap::iterator iter = m_spellAuraHolders.begin(); iter != m_spellAuraHolders.end(); )
     {
-        if (iter->second->GetCasterGUID() != GetGUID() && iter->second->IsSingleTarget())
+        if (iter->second->GetCasterGuid() != GetObjectGuid() && iter->second->IsSingleTarget())
         {
-            if(!newPhase)
+            if (!newPhase)
             {
                 RemoveSpellAuraHolder(iter->second);
                 iter = m_spellAuraHolders.begin();
@@ -4711,7 +4721,7 @@ void Unit::RemoveNotOwnSingleTargetAuras(uint32 newPhase)
             else
             {
                 Unit* caster = iter->second->GetCaster();
-                if(!caster || !caster->InSamePhase(newPhase))
+                if (!caster || !caster->InSamePhase(newPhase))
                 {
                     RemoveSpellAuraHolder(iter->second);
                     iter = m_spellAuraHolders.begin();
@@ -5115,9 +5125,9 @@ GameObject* Unit::GetGameObject(uint32 spellId) const
 
 void Unit::AddGameObject(GameObject* gameObj)
 {
-    MANGOS_ASSERT(gameObj && gameObj->GetOwnerGUID()==0);
+    MANGOS_ASSERT(gameObj && gameObj->GetOwnerGuid().IsEmpty());
     m_gameObj.push_back(gameObj);
-    gameObj->SetOwnerGUID(GetGUID());
+    gameObj->SetOwnerGuid(GetObjectGuid());
 
     if ( GetTypeId()==TYPEID_PLAYER && gameObj->GetSpellId() )
     {
@@ -5131,9 +5141,9 @@ void Unit::AddGameObject(GameObject* gameObj)
 
 void Unit::RemoveGameObject(GameObject* gameObj, bool del)
 {
-    MANGOS_ASSERT(gameObj && gameObj->GetOwnerGUID()==GetGUID());
+    MANGOS_ASSERT(gameObj && gameObj->GetOwnerGuid() == GetObjectGuid());
 
-    gameObj->SetOwnerGUID(0);
+    gameObj->SetOwnerGuid(ObjectGuid());
 
     // GO created by some spell
     if (uint32 spellid = gameObj->GetSpellId())
@@ -5169,7 +5179,7 @@ void Unit::RemoveGameObject(uint32 spellid, bool del)
         next = i;
         if(spellid == 0 || (*i)->GetSpellId() == spellid)
         {
-            (*i)->SetOwnerGUID(0);
+            (*i)->SetOwnerGuid(ObjectGuid());
             if(del)
             {
                 (*i)->SetRespawnTime(0);
@@ -5188,7 +5198,7 @@ void Unit::RemoveAllGameObjects()
     // remove references to unit
     for(GameObjectList::iterator i = m_gameObj.begin(); i != m_gameObj.end();)
     {
-        (*i)->SetOwnerGUID(0);
+        (*i)->SetOwnerGuid(ObjectGuid());
         (*i)->SetRespawnTime(0);
         (*i)->Delete();
         i = m_gameObj.erase(i);
@@ -5235,7 +5245,7 @@ void Unit::SendPeriodicAuraLog(SpellPeriodicAuraLogInfo *pInfo)
 
     WorldPacket data(SMSG_PERIODICAURALOG, 30);
     data << aura->GetTarget()->GetPackGUID();
-    data.appendPackGUID(aura->GetCasterGUID());
+    data << aura->GetCasterGuid().WriteAsPacked();
     data << uint32(aura->GetId());                          // spellId
     data << uint32(1);                                      // count
     data << uint32(mod->m_auraname);                        // auraId
@@ -5827,7 +5837,7 @@ struct CombatStopWithPetsHelper
 void Unit::CombatStopWithPets(bool includingCast)
 {
     CombatStop(includingCast);
-    CallForAllControlledUnits(CombatStopWithPetsHelper(includingCast),false,true,true);
+    CallForAllControlledUnits(CombatStopWithPetsHelper(includingCast), CONTROLLED_PET|CONTROLLED_GUARDIANS|CONTROLLED_CHARM);
 }
 
 struct IsAttackingPlayerHelper
@@ -5841,7 +5851,7 @@ bool Unit::isAttackingPlayer() const
     if(hasUnitState(UNIT_STAT_ATTACK_PLAYER))
         return true;
 
-    return CheckAllControlledUnits(IsAttackingPlayerHelper(),true,true,true);
+    return CheckAllControlledUnits(IsAttackingPlayerHelper(), CONTROLLED_PET|CONTROLLED_TOTEMS|CONTROLLED_GUARDIANS|CONTROLLED_CHARM);
 }
 
 void Unit::RemoveAllAttackers()
@@ -5982,6 +5992,22 @@ Pet* Unit::GetPet() const
 Pet* Unit::_GetPet(ObjectGuid guid) const
 {
     return GetMap()->GetPet(guid);
+}
+
+void Unit::RemoveMiniPet()
+{
+    if (Pet* pet = GetMiniPet())
+        pet->Unsummon(PET_SAVE_AS_DELETED, this);
+    else
+        SetCritterGuid(ObjectGuid());
+}
+
+Pet* Unit::GetMiniPet() const
+{
+    if (GetCritterGuid().IsEmpty())
+        return NULL;
+
+    return GetMap()->GetPet(GetCritterGuid());
 }
 
 Unit* Unit::GetCharm() const
@@ -6661,7 +6687,7 @@ uint32 Unit::SpellDamageBonusTaken(Unit *pCaster, SpellEntry const *spellProto, 
     AuraList const& mOwnerTaken = GetAurasByType(SPELL_AURA_MOD_DAMAGE_FROM_CASTER);
     for(AuraList::const_iterator i = mOwnerTaken.begin(); i != mOwnerTaken.end(); ++i)
     {
-        if ((*i)->GetCasterGUID() == pCaster->GetGUID() && (*i)->isAffectedOnSpell(spellProto))
+        if ((*i)->GetCasterGuid() == pCaster->GetObjectGuid() && (*i)->isAffectedOnSpell(spellProto))
             TakenTotalMod *= ((*i)->GetModifier()->m_amount + 100.0f) / 100.0f;
     }
 
@@ -6856,7 +6882,7 @@ bool Unit::IsSpellCrit(Unit *pVictim, SpellEntry const *spellProto, SpellSchoolM
                         if (spellProto->SpellFamilyFlags & UI64LIT(0x0000000040000000))
                         {
                             Aura *aura = pVictim->GetDummyAura(58597);
-                            if (aura && aura->GetCasterGUID() == GetGUID())
+                            if (aura && aura->GetCasterGuid() == GetObjectGuid())
                                 crit_chance+=aura->GetModifier()->m_amount;
                         }
                         // Exorcism
@@ -7065,7 +7091,7 @@ uint32 Unit::SpellHealingBonusDone(Unit *pVictim, SpellEntry const *spellProto, 
                 Unit::AuraList const& RejorRegr = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_HEAL);
                 for(Unit::AuraList::const_iterator i = RejorRegr.begin(); i != RejorRegr.end(); ++i)
                     if ((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID &&
-                        (*i)->GetCasterGUID() == GetGUID())
+                        (*i)->GetCasterGuid() == GetObjectGuid())
                         ++ownHotCount;
 
                 if (ownHotCount)
@@ -7090,7 +7116,7 @@ uint32 Unit::SpellHealingBonusDone(Unit *pVictim, SpellEntry const *spellProto, 
         Unit::AuraList const& RejorRegr = pVictim->GetAurasByType(SPELL_AURA_PERIODIC_HEAL);
         for(Unit::AuraList::const_iterator i = RejorRegr.begin(); i != RejorRegr.end(); ++i)
             if ((*i)->GetSpellProto()->SpellFamilyName == SPELLFAMILY_DRUID &&
-                (*i)->GetCasterGUID() == GetGUID())
+                (*i)->GetCasterGuid() == GetObjectGuid())
                 ++ownHotCount;
 
         if (ownHotCount)
@@ -8310,7 +8336,7 @@ struct UpdateWalkModeHelper
 void Unit::UpdateWalkMode(Unit* source, bool self)
 {
     if (GetTypeId() == TYPEID_PLAYER)
-        ((Player*)this)->CallForAllControlledUnits(UpdateWalkModeHelper(source), false, true, true, true);
+        CallForAllControlledUnits(UpdateWalkModeHelper(source), CONTROLLED_PET|CONTROLLED_GUARDIANS|CONTROLLED_CHARM|CONTROLLED_MINIPET);
     else if (self)
     {
         bool on = source->GetTypeId() == TYPEID_PLAYER
@@ -8329,7 +8355,7 @@ void Unit::UpdateWalkMode(Unit* source, bool self)
         }
     }
     else
-        CallForAllControlledUnits(UpdateWalkModeHelper(source), false, true, true);
+        CallForAllControlledUnits(UpdateWalkModeHelper(source), CONTROLLED_PET|CONTROLLED_GUARDIANS|CONTROLLED_CHARM|CONTROLLED_MINIPET);
 }
 
 void Unit::UpdateSpeed(UnitMoveType mtype, bool forced, float ratio)
@@ -8593,10 +8619,7 @@ void Unit::SetSpeedRate(UnitMoveType mtype, float rate, bool forced)
         SendMessageToSet( &data, true );
     }
 
-    if (GetTypeId() == TYPEID_PLAYER)                       // need include minpet
-        ((Player*)this)->CallForAllControlledUnits(SetSpeedRateHelper(mtype,forced),false,true,true,true);
-    else
-        CallForAllControlledUnits(SetSpeedRateHelper(mtype,forced),false,true,true);
+    CallForAllControlledUnits(SetSpeedRateHelper(mtype,forced), CONTROLLED_PET|CONTROLLED_GUARDIANS|CONTROLLED_CHARM|CONTROLLED_MINIPET);
 }
 
 void Unit::SetHover(bool on)
@@ -8623,6 +8646,7 @@ void Unit::SetDeathState(DeathState s)
     {
         RemoveAllAurasOnDeath();
         RemoveGuardians();
+        RemoveMiniPet();
         UnsummonAllTotems();
 
         // after removing a Fearaura (in RemoveAllAurasOnDeath)
@@ -9627,6 +9651,8 @@ void Unit::RemoveFromWorld()
         Uncharm();
         RemoveNotOwnSingleTargetAuras();
         RemoveGuardians();
+        RemoveMiniPet();
+        UnsummonAllTotems();
         RemoveAllGameObjects();
         RemoveAllDynObjects();
         CleanupDeletedAuras();
@@ -10183,9 +10209,9 @@ void Unit::StopMoving()
     SendHeartBeat(false);
 }
 
-void Unit::SetFeared(bool apply, uint64 const& casterGUID, uint32 spellID, uint32 time)
+void Unit::SetFeared(bool apply, ObjectGuid casterGuid, uint32 spellID, uint32 time)
 {
-    if( apply )
+    if (apply)
     {
         if (HasAuraType(SPELL_AURA_PREVENTS_FLEEING))
             return;
@@ -10193,9 +10219,9 @@ void Unit::SetFeared(bool apply, uint64 const& casterGUID, uint32 spellID, uint3
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_FLEEING);
 
         GetMotionMaster()->MovementExpired(false);
-        CastStop(GetGUID() == casterGUID ? spellID : 0);
+        CastStop(GetObjectGuid() == casterGuid ? spellID : 0);
 
-        Unit* caster = IsInWorld() ?  GetMap()->GetUnit(casterGUID) : NULL;
+        Unit* caster = IsInWorld() ?  GetMap()->GetUnit(casterGuid) : NULL;
 
         GetMotionMaster()->MoveFleeing(caster, time);       // caster==NULL processed in MoveFleeing
     }
@@ -10215,7 +10241,7 @@ void Unit::SetFeared(bool apply, uint64 const& casterGUID, uint32 spellID, uint3
                 GetMotionMaster()->Initialize();
 
             // attack caster if can
-            if (Unit* caster = IsInWorld() ? GetMap()->GetUnit(casterGUID) : NULL)
+            if (Unit* caster = IsInWorld() ? GetMap()->GetUnit(casterGuid) : NULL)
                 if (c->AI())
                     c->AI()->AttackedBy(caster);
         }
@@ -10225,13 +10251,13 @@ void Unit::SetFeared(bool apply, uint64 const& casterGUID, uint32 spellID, uint3
         ((Player*)this)->SetClientControl(this, !apply);
 }
 
-void Unit::SetConfused(bool apply, uint64 const& casterGUID, uint32 spellID)
+void Unit::SetConfused(bool apply, ObjectGuid casterGuid, uint32 spellID)
 {
-    if( apply )
+    if (apply)
     {
         SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_CONFUSED);
 
-        CastStop(GetGUID()==casterGUID ? spellID : 0);
+        CastStop(GetObjectGuid() == casterGuid ? spellID : 0);
 
         GetMotionMaster()->MoveConfused();
     }
@@ -10255,9 +10281,9 @@ void Unit::SetConfused(bool apply, uint64 const& casterGUID, uint32 spellID)
         ((Player*)this)->SetClientControl(this, !apply);
 }
 
-void Unit::SetFeignDeath(bool apply, uint64 const& casterGUID, uint32 /*spellID*/)
+void Unit::SetFeignDeath(bool apply, ObjectGuid casterGuid, uint32 /*spellID*/)
 {
-    if( apply )
+    if (apply)
     {
         /*
         WorldPacket data(SMSG_FEIGN_DEATH_RESISTED, 9);
@@ -10266,7 +10292,7 @@ void Unit::SetFeignDeath(bool apply, uint64 const& casterGUID, uint32 /*spellID*
         SendMessageToSet(&data,true);
         */
 
-        if(GetTypeId() != TYPEID_PLAYER)
+        if (GetTypeId() != TYPEID_PLAYER)
             StopMoving();
         else
             ((Player*)this)->m_movementInfo.SetMovementFlags(MOVEFLAG_NONE);
@@ -10283,7 +10309,7 @@ void Unit::SetFeignDeath(bool apply, uint64 const& casterGUID, uint32 /*spellID*
         RemoveAurasWithInterruptFlags(AURA_INTERRUPT_FLAG_IMMUNE_OR_LOST_SELECTION);
 
         // prevent interrupt message
-        if (casterGUID == GetGUID())
+        if (casterGuid == GetObjectGuid())
             FinishSpell(CURRENT_GENERIC_SPELL,false);
         InterruptNonMeleeSpells(true);
         getHostileRefManager().deleteReferences();
@@ -10847,7 +10873,7 @@ void Unit::SetPvP( bool state )
     else
         RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_PVP);
 
-    CallForAllControlledUnits(SetPvPHelper(state),true,true,true);
+    CallForAllControlledUnits(SetPvPHelper(state), CONTROLLED_PET|CONTROLLED_TOTEMS|CONTROLLED_GUARDIANS|CONTROLLED_CHARM);
 }
 
 struct SetFFAPvPHelper
@@ -10864,7 +10890,7 @@ void Unit::SetFFAPvP( bool state )
     else
         RemoveByteFlag(UNIT_FIELD_BYTES_2, 1, UNIT_BYTE2_FLAG_FFA_PVP);
 
-    CallForAllControlledUnits(SetFFAPvPHelper(state),true,true,true);
+    CallForAllControlledUnits(SetFFAPvPHelper(state), CONTROLLED_PET|CONTROLLED_TOTEMS|CONTROLLED_GUARDIANS|CONTROLLED_CHARM);
 }
 
 void Unit::KnockBackFrom(Unit* target, float horizontalSpeed, float verticalSpeed)
@@ -11026,7 +11052,7 @@ void Unit::StopAttackFaction(uint32 faction_id)
 
     getHostileRefManager().deleteReferencesForFaction(faction_id);
 
-    CallForAllControlledUnits(StopAttackFactionHelper(faction_id),false,true,true);
+    CallForAllControlledUnits(StopAttackFactionHelper(faction_id), CONTROLLED_PET|CONTROLLED_GUARDIANS|CONTROLLED_CHARM);
 }
 
 bool Unit::isIgnoreUnitState(SpellEntry const *spell)

@@ -73,13 +73,12 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
     bool m_bIsRegularMode;
 
     bool m_bIsSplitPhase;
+    bool m_bHasSplitted;
     uint32 m_uiSplit_Timer;
     uint32 m_uiSparkAtHomeCount;
 
     uint32 m_uiStaticOverload_Timer;
     uint32 m_uiBallLightning_Timer;
-
-    uint32 m_uiHealthAmountModifier;
 
     void Reset()
     {
@@ -92,7 +91,7 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
         m_uiStaticOverload_Timer = urand(5000, 6000);
         m_uiBallLightning_Timer = urand(10000, 11000);
 
-        m_uiHealthAmountModifier = 1;
+        m_bHasSplitted = false;
 
         if (m_creature->GetVisibility() == VISIBILITY_OFF)
             m_creature->SetVisibility(VISIBILITY_ON);
@@ -283,9 +282,9 @@ struct MANGOS_DLL_DECL boss_ionarAI : public ScriptedAI
             m_uiBallLightning_Timer -= uiDiff;
 
         // Health check
-        if (m_creature->GetHealthPercent() < float(100 - 20*m_uiHealthAmountModifier))
+        if (m_creature->GetHealthPercent() < 50.0f && !m_bHasSplitted)
         {
-            ++m_uiHealthAmountModifier;
+            m_bHasSplitted = true;
 
             DoScriptText(urand(0, 1) ? SAY_SPLIT_1 : SAY_SPLIT_2, m_creature);
 

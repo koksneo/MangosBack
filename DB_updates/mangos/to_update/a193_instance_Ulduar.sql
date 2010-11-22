@@ -110,3 +110,64 @@ INSERT INTO `reference_loot_template` VALUES
 (33725, 45146, 0, 1, 1, 1, 0, 0, 0),
 (33725, 45144, 0, 1, 1, 1, 0, 0, 0),
 (33725, 45137, 0, 1, 1, 1, 0, 0, 0);
+
+-- ****** XT-002 Deconstructor ******
+UPDATE `creature_template` SET `lootid` = 33293, `mechanic_immune_mask` = 617299839, `lootid` = `entry`, `ScriptName` = "boss_xt_002" WHERE `entry` = 33293;
+UPDATE `creature_template` SET `ScriptName` = "mob_xtheart" WHERE `entry` = 33329;
+UPDATE `creature_template` SET `ScriptName` = "mob_pummeler" WHERE `entry` = 33344;
+UPDATE `creature_template` SET `ScriptName` = "mob_boombot" WHERE `entry` = 33346;
+UPDATE `creature_template` SET `ScriptName` = "mob_voidzone" WHERE `entry` = 34001;
+UPDATE `creature_template` SET `ScriptName` = "mob_lifespark" WHERE `entry` = 34004;
+UPDATE `creature_template` SET `ScriptName` = "mob_scrap_bot" WHERE `entry` = 33343;
+
+-- loot
+DELETE FROM `creature_loot_template` WHERE `entry` IN (33293, 33885);
+INSERT INTO `creature_loot_template` VALUES
+-- 10 man normal
+(33293, 40753, 100, 0, 1, 1, 0, 0, 0),
+(33293, 1, 100, 1, -33294, 2, 0, 0, 0),
+-- 10 man hard mode
+(33293, 45868, 0, 2, 1, 1, 18, 603, 38),
+(33293, 45867, 0, 2, 1, 1, 18, 603, 38),
+(33293, 45869, 0, 2, 1, 1, 18, 603, 38),
+(33293, 45870, 0, 2, 1, 1, 18, 603, 38),
+(33293, 45871, 0, 2, 1, 1, 18, 603, 38),
+-- 25 man normal
+(33885, 45624, 100, 0, 1, 1, 0, 0, 0),
+(33885, 1, 100, 1, -33886, 4, 0, 0, 0),
+-- 25 man hard mode
+(33885, 45445, 0, 2, 1, 1, 18, 603, 38),
+(33885, 45443, 0, 2, 1, 1, 18, 603, 38),
+(33885, 45444, 0, 2, 1, 1, 18, 603, 38),
+(33885, 45446, 0, 2, 1, 1, 18, 603, 38),
+(33885, 45442, 0, 2, 1, 1, 18, 603, 38);
+
+DELETE FROM `reference_loot_template` WHERE `entry` IN (33294, 33886);
+INSERT INTO `reference_loot_template` VALUES
+-- XT10normal
+(33294, 45680, 0, 1, 1, 1, 0, 0, 0),
+(33294, 45694, 0, 1, 1, 1, 0, 0, 0),
+(33294, 45676, 0, 1, 1, 1, 0, 0, 0),
+(33294, 45679, 0, 1, 1, 1, 0, 0, 0),
+(33294, 45687, 0, 1, 1, 1, 0, 0, 0),
+(33294, 45685, 0, 1, 1, 1, 0, 0, 0),
+(33294, 45686, 0, 1, 1, 1, 0, 0, 0),
+(33294, 45677, 0, 1, 1, 1, 0, 0, 0),
+(33294, 45682, 0, 1, 1, 1, 0, 0, 0),
+(33294, 45675, 0, 1, 1, 1, 0, 0, 0),
+-- XT25normal
+(33886, 45260, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45249, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45250, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45248, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45246, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45252, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45253, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45257, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45259, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45258, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45251, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45254, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45247, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45255, 0, 1, 1, 1, 0, 0, 0),
+(33886, 45256, 0, 1, 1, 1, 0, 0, 0);

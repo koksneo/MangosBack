@@ -26,3 +26,18 @@ INSERT INTO `script_texts` VALUES
 (-1603026,'Fires out! Let\'s rebuild those turrets!',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,'1',0,0,'razor extinguish fires'),
 (-1603353,'Harpoon Turret is ready for use!' ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'EMOTE_harpoon'),
 (-1603354,'Razorscale grounded permanently!' ,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'EMOTE_ground');
+
+-- XT-002 Deconstructor
+DELETE FROM `script_texts` WHERE `entry` BETWEEN -1610040 AND -1610030;
+INSERT INTO `script_texts` VALUES
+(-1610030,"New toys? For me? I promise I won't break them this time!",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15724,1,0,0,'XT002 SAY_AGGRO'),
+(-1610031,"So tired. I will rest for just a moment!",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15725,1,0,0,'XT002 SAY_HEART_OPENED'),
+(-1610032,"I'm ready to play!",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15726,1,0,0,'XT002 SAY_HEART_CLOSED'),
+(-1610033,"NO! NO! NO! NO! NO!",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15727,1,0,0,'XT002 SAY_TYMPANIC_TANTRUM'),
+(-1610034,"I... I think I broke it.",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15728,1,0,0,'XT002 SAY_SLAY_1'),
+(-1610035,"I guess it doesn't bend that way.",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15729,1,0,0,'XT002 SAY_SLAY_2'),
+(-1610036,"I'm tired of these toys. I don't want to play anymore!",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15730,1,0,0,'XT002 SAY_BERSERK'),
+(-1610037,"You are bad... Toys... Very... Baaaaad!",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15731,1,0,0,'XT002 SAY_DEATH'),
+(-1610038,"Time for a new game! My old toys will fight my new toys!",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,15732,1,0,0,'XT002 SAY_SUMMON'),
+(-1610039,"XT-002 Deconstructor's heart is exposed and leaking energy.",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'XT002 EMOTE_HEART'),
+(-1610040,"XT-002 Deconstructor consumes a scrap bot to repair himself!",NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,0,3,0,0,'XT002 EMOTE_REPAIR');

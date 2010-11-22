@@ -1516,6 +1516,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 50988:                                 // Glare of the Tribunal (Halls of Stone)
                 case 59870:                                 // Glare of the Tribunal (h) (Halls of Stone)
                 case 62488:                                 // Activate Construct (Ulduar - Ignis encounter)
+                case 63024:                                 // Gravity Bomb (XT-002)
+                case 64234:                                 // Gravity Bomb (h) (XT-002)
+                case 63018:                                 // Searing Light (XT-002)
+                case 65121:                                 // Searing Light (h) (XT-002)
                     unMaxTargets = 1;
                     break;
                 case 28542:                                 // Life Drain
@@ -2264,6 +2268,12 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
 
                 FillRaidOrPartyHealthPriorityTargets(targetUnitMap, m_caster, target, radius, count, true, false, true);
             }
+            // Gravity Bomb, Searing Light
+            else if (m_spellInfo->SpellIconID == 3757 || m_spellInfo->SpellIconID == 3021)
+            {
+                // targets are checked with original caster, which is in fact hostile, not friendly
+                FillAreaTargets(targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_DEST_CENTER, SPELL_TARGETS_HOSTILE);
+            }
             else
             {
                 FillAreaTargets(targetUnitMap, m_targets.m_destX, m_targets.m_destY, radius, PUSH_DEST_CENTER, SPELL_TARGETS_FRIENDLY);
@@ -2722,6 +2732,12 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
             }
             switch(m_spellInfo->Effect[effIndex])
             {
+                case SPELL_EFFECT_SCHOOL_DAMAGE:
+                case SPELL_EFFECT_PULL:
+                {
+                    SetTargetMap(effIndex, m_spellInfo->EffectImplicitTargetB[effIndex], targetUnitMap);
+                    break;
+                }
                 case SPELL_EFFECT_DUMMY:
                 {
                     switch(m_spellInfo->Id)
@@ -2836,6 +2852,25 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                         case SPELL_AURA_ADD_FLAT_MODIFIER:  // some spell mods auras have 0 target modes instead expected TARGET_SELF(1) (and present for other ranks for same spell for example)
                         case SPELL_AURA_ADD_PCT_MODIFIER:
                             targetUnitMap.push_back(m_caster);
+                            break;
+                        case SPELL_AURA_PERIODIC_TRIGGER_SPELL:
+                            switch (m_spellInfo->Id)
+                            {
+                                case 63024:                                 // Gravity Bomb (XT-002)
+                                case 64234:                                 // Gravity Bomb (h) (XT-002)
+                                case 63018:                                 // Searing Light (XT-002)
+                                case 65121:                                 // Searing Light (h) (XT-002)
+                                    if (m_targets.getUnitTarget())
+                                    {
+                                        targetUnitMap.push_back(m_targets.getUnitTarget());
+                                        break;
+                                    }
+
+                                    FillAreaTargets(targetUnitMap, m_caster->GetPositionX(), m_caster->GetPositionY(), radius, PUSH_TARGET_CENTER, SPELL_TARGETS_HOSTILE);
+                                    if (m_caster->getVictim())
+                                    targetUnitMap.push_back(m_caster);
+                                    break;
+                            }
                             break;
                         default:                            // apply to target in other case
                             if (m_targets.getUnitTarget())

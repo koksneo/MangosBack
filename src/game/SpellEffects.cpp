@@ -4558,10 +4558,34 @@ void Spell::EffectDualWield(SpellEffectIndex /*eff_idx*/)
         ((Player*)unitTarget)->SetCanDualWield(true);
 }
 
-void Spell::EffectPull(SpellEffectIndex /*eff_idx*/)
+void Spell::EffectPull(SpellEffectIndex eff_idx)
 {
     // TODO: create a proper pull towards distract spell center for distract
     DEBUG_LOG("WORLD: Spell Effect DUMMY");
+
+    // hotfix!
+    // this needs proper handling
+    // only pulling to caster supported
+
+    if(!unitTarget || unitTarget->IsTaxiFlying())
+        return;
+
+    // Init dest coordinates
+    float x,y,z,o;
+
+    x = m_caster->GetPositionX();
+    y = m_caster->GetPositionY();
+    z = m_caster->GetPositionY();
+    o = unitTarget->GetOrientation();
+
+    uint32 speed_z = m_spellInfo->EffectMiscValue[eff_idx];
+    if (!speed_z)
+        speed_z = 100;
+    uint32 time = m_spellInfo->EffectMiscValueB[eff_idx];
+    if (!time)
+        time = speed_z * 10;
+
+    m_caster->MonsterJump(x, y, z, o, time, speed_z);
 }
 
 void Spell::EffectDistract(SpellEffectIndex /*eff_idx*/)

@@ -737,11 +737,14 @@ void instance_naxxramas::SetChamberCenterCoords(float fX, float fY, float fZ)
     m_fChamberCenterZ = fZ;
 }
 
+// TEMP WORKAROUND
+// play sounds for each player in instance - but no text, since Creature is too far away from players
 void instance_naxxramas::DoTaunt()
 {
-    Creature* pKelThuzad = instance->GetCreature(m_uiKelthuzadGUID);
+    //Creature* pKelThuzad = instance->GetCreature(m_uiKelthuzadGUID);
 
-    if (pKelThuzad && pKelThuzad->isAlive())
+    //if (pKelThuzad && pKelThuzad->isAlive())
+    if (m_auiEncounter[14] != DONE)
     {
         uint8 uiWingsCleared = 0;
 
@@ -757,12 +760,22 @@ void instance_naxxramas::DoTaunt()
         if (m_auiEncounter[12] == DONE)
             ++uiWingsCleared;
 
-        switch(uiWingsCleared)
+        /*switch(uiWingsCleared)
         {
             case 1: DoScriptText(SAY_KELTHUZAD_TAUNT1, pKelThuzad); break;
             case 2: DoScriptText(SAY_KELTHUZAD_TAUNT2, pKelThuzad); break;
             case 3: DoScriptText(SAY_KELTHUZAD_TAUNT3, pKelThuzad); break;
             case 4: DoScriptText(SAY_KELTHUZAD_TAUNT4, pKelThuzad); break;
+        }*/
+
+        Map::PlayerList const &PlayerList = instance->GetPlayers();
+        if (!PlayerList.isEmpty())
+        {
+            for(Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+            {
+                if (Player* pPlr = itr->getSource())
+                    pPlr->PlayDirectSound(SOUND_KELTHUZAD_TAUNT1+uiWingsCleared-1,pPlr);
+            }
         }
     }
 }
@@ -818,6 +831,49 @@ bool AreaTrigger_at_naxxramas(Player* pPlayer, AreaTriggerEntry const* pAt)
     return false;
 }
 
+// Mr Bigglesworth
+// play a sound for all players in instance when slaying Kel's beloved cat ;)
+struct MANGOS_DLL_DECL npc_mr_bigglesworthAI : public ScriptedAI
+{
+    npc_mr_bigglesworthAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        Reset();
+    }
+
+    ScriptedInstance *m_pInstance;
+
+    void Reset(){}
+    void UpdateAI(const uint32 uiDiff){}
+
+    void DamageTaken(Unit* pDoneBy, uint32& uiDamage)
+    {
+        if (uiDamage < m_creature->GetHealth())
+            return;
+
+        if (!m_pInstance)
+            return;
+
+        if (m_pInstance->GetData(TYPE_KELTHUZAD) == DONE)
+            return;
+
+        Map::PlayerList const &PlayerList = m_pInstance->instance->GetPlayers();
+        if (!PlayerList.isEmpty())
+        {
+            for(Map::PlayerList::const_iterator itr = PlayerList.begin(); itr != PlayerList.end(); ++itr)
+            {
+                if (Player* pPlr = itr->getSource())
+                    pPlr->PlayDirectSound(SOUND_KELTHUZAD_MR_BIGGLES,pPlr);
+            }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_mr_bigglesworth(Creature* pCreature)
+{
+    return new npc_mr_bigglesworthAI(pCreature);
+}
+
 void AddSC_instance_naxxramas()
 {
     Script* pNewScript;
@@ -830,5 +886,10 @@ void AddSC_instance_naxxramas()
     pNewScript = new Script;
     pNewScript->Name = "at_naxxramas";
     pNewScript->pAreaTrigger = &AreaTrigger_at_naxxramas;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->GetAI = &GetAI_npc_mr_bigglesworth;
+    pNewScript->Name = "npc_mr_bigglesworth";
     pNewScript->RegisterSelf();
 }

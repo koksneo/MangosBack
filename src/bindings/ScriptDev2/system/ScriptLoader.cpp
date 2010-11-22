@@ -348,6 +348,7 @@ extern void AddSC_boss_sjonnir();
 extern void AddSC_halls_of_stone();
 extern void AddSC_instance_halls_of_stone();
 extern void AddSC_boss_ignis();                             //ulduar
+extern void AddSC_boss_razorscale();
 extern void AddSC_ulduar();
 extern void AddSC_instance_ulduar();
 extern void AddSC_boss_ingvar();                            //utgarde_keep
@@ -801,6 +802,7 @@ void AddScripts()
     AddSC_halls_of_stone();
     AddSC_instance_halls_of_stone();
     AddSC_boss_ignis();                                     //ulduar
+    AddSC_boss_razorscale();
     AddSC_ulduar();
     AddSC_instance_ulduar();
     AddSC_boss_ingvar();                                    //utgarde_keep

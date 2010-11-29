@@ -1927,7 +1927,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 break;
             }
             // Berserk - Sartharion encounter
-            // target dragon bosses only
+            // target dragon mini bosses only
             if (m_spellInfo->Id == 61632)
             {
                 std::list<Unit*> tempTargetUnitMap;
@@ -1937,7 +1937,6 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                     for (UnitList::const_iterator iter = tempTargetUnitMap.begin(); iter != tempTargetUnitMap.end(); ++iter)
                         switch ((*iter)->GetEntry() )
                             {
-                                case 28860:     // Sartharion
                                 case 30452:     // Tenebron
                                 case 30451:     // Shadron
                                 case 30449:     // Vesperon

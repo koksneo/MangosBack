@@ -130,6 +130,7 @@ struct CreatureInfo
     uint32  movementId;
     bool    RegenHealth;
     uint32  equipmentId;
+    uint32  vendorId;
     uint32  MechanicImmuneMask;
     uint32  flags_extra;
     uint32  ScriptID;
@@ -412,6 +413,8 @@ class MANGOS_DLL_SPEC Creature : public Unit
         bool IsTotem() const { return m_subtype == CREATURE_SUBTYPE_TOTEM; }
         bool IsTemporarySummon() const { return m_subtype == CREATURE_SUBTYPE_TEMPORARY_SUMMON; }
 
+        bool IsCorpse() const { return getDeathState() ==  CORPSE; }
+        bool IsDespawned() const { return getDeathState() ==  DEAD; }
         void SetCorpseDelay(uint32 delay) { m_corpseDelay = delay; }
         bool IsRacialLeader() const { return GetCreatureInfo()->RacialLeader; }
         bool IsCivilian() const { return GetCreatureInfo()->flags_extra & CREATURE_FLAG_EXTRA_CIVILIAN; }
@@ -507,6 +510,7 @@ class MANGOS_DLL_SPEC Creature : public Unit
         float GetSpellDamageMod(int32 Rank);
 
         VendorItemData const* GetVendorItems() const;
+        VendorItemData const* GetVendorTemplateItems() const;
         uint32 GetVendorItemCurrentCount(VendorItem const* vItem);
         uint32 UpdateVendorItemCurrentCount(VendorItem const* vItem, uint32 used_count);
 
@@ -521,11 +525,11 @@ class MANGOS_DLL_SPEC Creature : public Unit
         std::string GetScriptName() const;
         uint32 GetScriptId() const;
 
-        void Say(int32 textId, uint32 language, uint64 TargetGuid) { MonsterSay(textId,language,TargetGuid); }
-        void Yell(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYell(textId,language,TargetGuid); }
-        void TextEmote(int32 textId, uint64 TargetGuid, bool IsBossEmote = false) { MonsterTextEmote(textId,TargetGuid,IsBossEmote); }
-        void Whisper(int32 textId, uint64 receiver, bool IsBossWhisper = false) { MonsterWhisper(textId,receiver,IsBossWhisper); }
-        void YellToZone(int32 textId, uint32 language, uint64 TargetGuid) { MonsterYellToZone(textId,language,TargetGuid); }
+        void Say(int32 textId, uint32 language, ObjectGuid targetGuid) { MonsterSay(textId, language, targetGuid); }
+        void Yell(int32 textId, uint32 language, ObjectGuid targetGuid) { MonsterYell(textId, language, targetGuid); }
+        void TextEmote(int32 textId, ObjectGuid targetGuid, bool IsBossEmote = false) { MonsterTextEmote(textId, targetGuid, IsBossEmote); }
+        void Whisper(int32 textId, ObjectGuid targetGuid, bool IsBossWhisper = false) { MonsterWhisper(textId, targetGuid, IsBossWhisper); }
+        void YellToZone(int32 textId, uint32 language, ObjectGuid targetGuid) { MonsterYellToZone(textId, language, targetGuid); }
 
         // overwrite WorldObject function for proper name localization
         const char* GetNameForLocaleIdx(int32 locale_idx) const;

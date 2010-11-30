@@ -454,6 +454,11 @@ inline bool IsAutoRepeatRangedSpell(SpellEntry const* spellInfo)
     return (spellInfo->Attributes & SPELL_ATTR_RANGED) && (spellInfo->AttributesEx2 & SPELL_ATTR_EX2_AUTOREPEAT_FLAG);
 }
 
+inline bool IsSpellRequiresRangedAP(SpellEntry const* spellInfo)
+{
+    return (spellInfo->SpellFamilyName == SPELLFAMILY_HUNTER && spellInfo->DmgClass != SPELL_DAMAGE_CLASS_MELEE);
+}
+
 SpellCastResult GetErrorAtShapeshiftedCast (SpellEntry const *spellInfo, uint32 form);
 
 inline bool IsChanneledSpell(SpellEntry const* spellInfo)
@@ -463,7 +468,7 @@ inline bool IsChanneledSpell(SpellEntry const* spellInfo)
 
 inline bool NeedsComboPoints(SpellEntry const* spellInfo)
 {
-    return (spellInfo->AttributesEx & (SPELL_ATTR_EX_REQ_COMBO_POINTS1 | SPELL_ATTR_EX_REQ_COMBO_POINTS2));
+    return (spellInfo->AttributesEx & (SPELL_ATTR_EX_REQ_TARGET_COMBO_POINTS | SPELL_ATTR_EX_REQ_COMBO_POINTS));
 }
 
 inline SpellSchoolMask GetSpellSchoolMask(SpellEntry const* spellInfo)
@@ -516,7 +521,7 @@ bool IsDiminishingReturnsGroupDurationLimited(DiminishingGroup group);
 DiminishingReturnsType GetDiminishingReturnsGroupType(DiminishingGroup group);
 int32 GetDiminishingReturnsLimitDuration(DiminishingGroup group, SpellEntry const* spellproto);
 
-SpellEntry const* GetSpellEntryByDifficulty(uint32 id, Difficulty difficulty);
+MANGOS_DLL_SPEC SpellEntry const* GetSpellEntryByDifficulty(uint32 id, Difficulty difficulty);
 
 // Spell proc event related declarations (accessed using SpellMgr functions)
 enum ProcFlags
@@ -619,6 +624,7 @@ struct SpellBonusEntry
     float  direct_damage;
     float  dot_damage;
     float  ap_bonus;
+    float  ap_dot_bonus;
 };
 
 typedef UNORDERED_MAP<uint32, SpellProcEventEntry> SpellProcEventMap;
@@ -1025,7 +1031,7 @@ class SpellMgr
             return mSpellScriptTarget.equal_range(spell_id);
         }
 
-        // Spell correctess for client using
+        // Spell correctness for client using
         static bool IsSpellValid(SpellEntry const * spellInfo, Player* pl = NULL, bool msg = true);
 
         SkillLineAbilityMapBounds GetSkillLineAbilityMapBounds(uint32 spell_id) const

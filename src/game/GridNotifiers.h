@@ -58,25 +58,6 @@ namespace MaNGOS
         void Visit(CameraMapType &);
     };
 
-    struct MANGOS_DLL_DECL GridUpdater
-    {
-        GridType &i_grid;
-        uint32 i_timeDiff;
-        GridUpdater(GridType &grid, uint32 diff) : i_grid(grid), i_timeDiff(diff) {}
-
-        template<class T> void updateObjects(GridRefManager<T> &m)
-        {
-            for(typename GridRefManager<T>::iterator iter = m.begin(); iter != m.end(); ++iter)
-                iter->getSource()->Update(i_timeDiff);
-        }
-
-        void Visit(PlayerMapType &m) { updateObjects<Player>(m); }
-        void Visit(CreatureMapType &m){ updateObjects<Creature>(m); }
-        void Visit(GameObjectMapType &m) { updateObjects<GameObject>(m); }
-        void Visit(DynamicObjectMapType &m) { updateObjects<DynamicObject>(m); }
-        void Visit(CorpseMapType &m) { updateObjects<Corpse>(m); }
-    };
-
     struct MANGOS_DLL_DECL MessageDeliverer
     {
         Player &i_player;
@@ -150,7 +131,6 @@ namespace MaNGOS
         Player &i_player;
         PlayerRelocationNotifier(Player &pl) : i_player(pl) {}
         template<class T> void Visit(GridRefManager<T> &) {}
-        void Visit(PlayerMapType &);
         void Visit(CreatureMapType &);
     };
 
@@ -643,8 +623,8 @@ namespace MaNGOS
     {
         public:
             RespawnDo() {}
-            void operator()(Creature* u) const { u->Respawn(); }
-            void operator()(GameObject* u) const { u->Respawn(); }
+            void operator()(Creature* u) const;
+            void operator()(GameObject* u) const;
             void operator()(WorldObject*) const {}
             void operator()(Corpse*) const {}
     };
@@ -1105,7 +1085,7 @@ namespace MaNGOS
             WorldObject const& GetFocusObject() const { return i_obj; }
             bool operator()(Creature* u)
             {
-                if(u->GetEntry() == i_entry && u->isAlive()==i_alive && i_obj.IsWithinDistInMap(u, i_range))
+                if (u->GetEntry() == i_entry && (i_alive && u->isAlive() || !i_alive && u->IsCorpse()) && i_obj.IsWithinDistInMap(u, i_range))
                 {
                     i_range = i_obj.GetDistance(u);         // use found unit range as new range limit for next check
                     return true;
@@ -1185,7 +1165,6 @@ namespace MaNGOS
 
     #ifndef WIN32
     template<> void PlayerRelocationNotifier::Visit<Creature>(CreatureMapType &);
-    template<> void PlayerRelocationNotifier::Visit<Player>(PlayerMapType &);
     template<> void CreatureRelocationNotifier::Visit<Player>(PlayerMapType &);
     template<> void CreatureRelocationNotifier::Visit<Creature>(CreatureMapType &);
     template<> inline void DynamicObjectUpdater::Visit<Creature>(CreatureMapType &);

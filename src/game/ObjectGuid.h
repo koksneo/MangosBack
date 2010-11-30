@@ -72,11 +72,10 @@ enum HighGuid
     HIGHGUID_DYNAMICOBJECT  = 0xF100,                       // blizz F100/F500
     HIGHGUID_CORPSE         = 0xF500,                       // blizz F100/F500 used second variant to resolve conflict with HIGHGUID_DYNAMICOBJECT
     HIGHGUID_MO_TRANSPORT   = 0x1FC0,                       // blizz 1FC0 (for GAMEOBJECT_TYPE_MO_TRANSPORT)
+    HIGHGUID_INSTANCE       = 0x1F42,                       // blizz 1F42/1F44/1F44/1F47
 };
 
 //*** Must be replaced by ObjectGuid use ***
-#define IS_PLAYER_GUID(Guid)         ( GUID_HIPART(Guid) == HIGHGUID_PLAYER && Guid!=0 )
-                                                            // special case for empty guid need check
 #define GUID_HIPART(x)   (uint32)((uint64(x) >> 48) & 0x0000FFFF)
 
 // We have different low and middle part size for different guid types
@@ -92,6 +91,7 @@ inline bool IsGuidHaveEnPart(uint64 const& guid)
         case HIGHGUID_DYNAMICOBJECT:
         case HIGHGUID_CORPSE:
         case HIGHGUID_MO_TRANSPORT:
+        case HIGHGUID_INSTANCE:
             return false;
         case HIGHGUID_GAMEOBJECT:
         case HIGHGUID_TRANSPORT:
@@ -170,6 +170,7 @@ class MANGOS_DLL_SPEC ObjectGuid
         bool IsCorpse()        const { return GetHigh() == HIGHGUID_CORPSE; }
         bool IsTransport()     const { return GetHigh() == HIGHGUID_TRANSPORT; }
         bool IsMOTransport()   const { return GetHigh() == HIGHGUID_MO_TRANSPORT; }
+        bool IsInstance()      const { return GetHigh() == HIGHGUID_INSTANCE; }
 
         static TypeID GetTypeId(HighGuid high)
         {
@@ -186,6 +187,7 @@ class MANGOS_DLL_SPEC ObjectGuid
                 case HIGHGUID_MO_TRANSPORT: return TYPEID_GAMEOBJECT;
                 case HIGHGUID_VEHICLE:      return TYPEID_UNIT;
                 // unknown
+                case HIGHGUID_INSTANCE:
                 default:                    return TYPEID_OBJECT;
             }
         }
@@ -211,6 +213,7 @@ class MANGOS_DLL_SPEC ObjectGuid
                 case HIGHGUID_DYNAMICOBJECT:
                 case HIGHGUID_CORPSE:
                 case HIGHGUID_MO_TRANSPORT:
+                case HIGHGUID_INSTANCE:
                     return false;
                 case HIGHGUID_GAMEOBJECT:
                 case HIGHGUID_TRANSPORT:

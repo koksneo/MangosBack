@@ -31,7 +31,6 @@
 #include "BattleGroundMgr.h"
 #include "MapManager.h"
 #include "InstanceSaveMgr.h"
-#include "MapInstanced.h"
 #include "Util.h"
 #include "LootMgr.h"
 
@@ -53,7 +52,7 @@ void Roll::CalculateCommonVoteMask(uint32 max_enchanting_skill)
 
     ItemPrototype const* itemProto = ObjectMgr::GetItemPrototype(itemid);
 
-    if (itemProto->Flags2 & ITEM_FLAGS2_NEED_ROLL_DISABLED)
+    if (itemProto->Flags2 & ITEM_FLAG2_NEED_ROLL_DISABLED)
         m_commonVoteMask = RollVoteMask(m_commonVoteMask & ~ROLL_VOTE_MASK_NEED);
 
     if (!itemProto->DisenchantID || uint32(itemProto->RequiredDisenchantSkill) > max_enchanting_skill)
@@ -852,6 +851,9 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
                     roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                     --roll->getLoot()->unlootedCount;
                     player->StoreNewItem( dest, roll->itemid, true, item->randomPropertyId);
+                    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, roll->itemid, item->count);
+                    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, roll->getLoot()->loot_type, item->count);
+                    player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, roll->itemid, item->count);
                 }
                 else
                 {
@@ -904,6 +906,9 @@ void Group::CountTheRoll(Rolls::iterator& rollI)
                         roll->getLoot()->NotifyItemRemoved(roll->itemSlot);
                         --roll->getLoot()->unlootedCount;
                         player->StoreNewItem( dest, roll->itemid, true, item->randomPropertyId);
+                        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_ITEM, roll->itemid, item->count);
+                        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_TYPE, roll->getLoot()->loot_type, item->count);
+                        player->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_LOOT_EPIC_ITEM, roll->itemid, item->count);
                     }
                     else
                     {
@@ -1677,7 +1682,7 @@ bool Group::InCombatToInstance(uint32 instanceId)
     return false;
 }
 
-void Group::ResetInstances(uint8 method, bool isRaid, Player* SendMsgTo)
+void Group::ResetInstances(InstanceResetMethod method, bool isRaid, Player* SendMsgTo)
 {
     if(isBGGroup())
         return;

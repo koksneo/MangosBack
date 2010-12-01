@@ -6318,7 +6318,12 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
         for(Unit::AuraList::const_iterator itr = magnetAuras.begin(); itr != magnetAuras.end(); ++itr)
             if(Unit* magnet = (*itr)->GetCaster())
                 if(magnet->IsWithinLOSInMap(this) && magnet->isAlive())
+                {
+                    if ((*itr)->GetSpellProto()->procCharges)
+                        if ((*itr)->GetHolder()->DropAuraCharge())
+                            victim->RemoveSpellAuraHolder((*itr)->GetHolder());
                     return magnet;
+                }
     }
     // Melee && ranged case
     else
@@ -6329,8 +6334,7 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
                 if(magnet->isAlive() && magnet->IsWithinLOSInMap(this))
                     if(roll_chance_i((*i)->GetModifier()->m_amount))
                     {
-                        // Intervene. Probably there should be some generic handling of removing of those auras
-                        if ((*i)->GetId() == 3411)
+                        if ((*i)->GetSpellProto()->procCharges)
                             if ((*i)->GetHolder()->DropAuraCharge())
                                 victim->RemoveSpellAuraHolder((*i)->GetHolder());
                         return magnet;

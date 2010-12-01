@@ -648,6 +648,7 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
                         SpellEntry* pTempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(58835);
                         if (pTempSpell)
                         {
+                            pTempSpell->StackAmount = 1;
                             pTempSpell->procCharges = 1;
                             m_creature->CastSpell(m_creature, pTempSpell, true);
                         }
@@ -931,6 +932,7 @@ struct MANGOS_DLL_DECL dummy_dragonAI : public ScriptedAI
                         SpellEntry* pTempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(uiTempSpell);
                         if (pTempSpell)
                         {
+                            pTempSpell->StackAmount = 1;
                             pTempSpell->procCharges = 1;
                             m_creature->CastSpell(m_creature, pTempSpell, true);
                         }
@@ -986,6 +988,7 @@ struct MANGOS_DLL_DECL dummy_dragonAI : public ScriptedAI
                     SpellEntry* pTempSpell = (SpellEntry*)GetSpellStore()->LookupEntry(57935);
                     if (pTempSpell)
                     {
+                        pTempSpell->StackAmount = 1;
                         pTempSpell->procCharges = 1;
                         m_creature->CastSpell(m_creature, pTempSpell, true);
                     }

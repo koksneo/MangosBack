@@ -61,7 +61,7 @@ FleeingMovementGenerator<T>::_getPoint(T &owner, float &x, float &y, float &z)
     z = owner.GetPositionZ();
 
     float temp_x, temp_y, angle;
-    const Map * _map = owner.GetBaseMap();
+    const TerrainInfo * _map = owner.GetTerrain();
     //primitive path-finding
     for(uint8 i = 0; i < 18; ++i)
     {
@@ -311,7 +311,7 @@ void
 FleeingMovementGenerator<Creature>::_Init(Creature &owner)
 {
     owner.RemoveSplineFlag(SPLINEFLAG_WALKMODE);
-    owner.SetTargetGUID(0);
+    owner.SetTargetGuid(ObjectGuid());
     is_water_ok = owner.CanSwim();
     is_land_ok  = owner.CanWalk();
 }

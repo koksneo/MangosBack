@@ -816,6 +816,12 @@ void BattleGround::EndBattleGround(uint32 winner)
                     plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_WIN_RATED_ARENA, member->personal_rating);
 
                 winner_arena_team->MemberWon(plr,loser_rating);
+
+                if (member)
+                {
+                    plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_PERSONAL_RATING, GetArenaType(), member->personal_rating);
+                    plr->GetAchievementMgr().UpdateAchievementCriteria(ACHIEVEMENT_CRITERIA_TYPE_HIGHEST_TEAM_RATING, GetArenaType(), winner_arena_team->GetStats().rating);
+                }
             }
             else
             {
@@ -1252,7 +1258,7 @@ void BattleGround::AddPlayer(Player *plr)
         }
 
         plr->DestroyConjuredItems(true);
-        plr->RemovePet(NULL, PET_SAVE_NOT_IN_SLOT);
+        plr->RemovePet(PET_SAVE_REAGENTS);
 
         if(GetStatus() == STATUS_WAIT_JOIN)                 // not started yet
         {
@@ -1632,8 +1638,8 @@ void BattleGround::SpawnBGCreature(uint64 const& guid, uint32 respawntime)
     else
     {
         map->Add(obj);
-        obj->SetDeathState(JUST_DIED);
         obj->SetRespawnDelay(respawntime);
+        obj->SetDeathState(JUST_DIED);
         obj->RemoveCorpse();
     }
 }

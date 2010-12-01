@@ -62,7 +62,7 @@ void WorldSession::HandleRepopRequestOpcode( WorldPacket & recv_data )
     }
 
     //this is spirit release confirm?
-    GetPlayer()->RemovePet(NULL,PET_SAVE_NOT_IN_SLOT, true);
+    GetPlayer()->RemovePet(PET_SAVE_REAGENTS);
     GetPlayer()->BuildPlayerRepop();
     GetPlayer()->RepopAtGraveyard();
 }
@@ -382,14 +382,14 @@ void WorldSession::HandleZoneUpdateOpcode( WorldPacket & recv_data )
 void WorldSession::HandleSetTargetOpcode( WorldPacket & recv_data )
 {
     // When this packet send?
-    uint64 guid ;
+    ObjectGuid guid ;
     recv_data >> guid;
 
-    _player->SetTargetGUID(guid);
+    _player->SetTargetGuid(guid);
 
     // update reputation list if need
-    Unit* unit = ObjectAccessor::GetUnit(*_player, guid );
-    if(!unit)
+    Unit* unit = ObjectAccessor::GetUnit(*_player, guid );  // can select group members at diff maps
+    if (!unit)
         return;
 
     if(FactionTemplateEntry const* factionTemplateEntry = sFactionTemplateStore.LookupEntry(unit->getFaction()))
@@ -398,14 +398,14 @@ void WorldSession::HandleSetTargetOpcode( WorldPacket & recv_data )
 
 void WorldSession::HandleSetSelectionOpcode( WorldPacket & recv_data )
 {
-    uint64 guid;
+    ObjectGuid guid;
     recv_data >> guid;
 
-    _player->SetSelection(guid);
+    _player->SetSelectionGuid(guid);
 
     // update reputation list if need
-    Unit* unit = ObjectAccessor::GetUnit(*_player, guid );
-    if(!unit)
+    Unit* unit = ObjectAccessor::GetUnit(*_player, guid );  // can select group members at diff maps
+    if (!unit)
         return;
 
     if(FactionTemplateEntry const* factionTemplateEntry = sFactionTemplateStore.LookupEntry(unit->getFaction()))
@@ -587,10 +587,10 @@ void WorldSession::HandleDelIgnoreOpcode( WorldPacket & recv_data )
 void WorldSession::HandleSetContactNotesOpcode( WorldPacket & recv_data )
 {
     DEBUG_LOG("CMSG_SET_CONTACT_NOTES");
-    uint64 guid;
+    ObjectGuid guid;
     std::string note;
     recv_data >> guid >> note;
-    _player->GetSocial()->SetFriendNote(GUID_LOPART(guid), note);
+    _player->GetSocial()->SetFriendNote(guid.GetCounter(), note);
 }
 
 void WorldSession::HandleBugOpcode( WorldPacket & recv_data )
@@ -619,7 +619,7 @@ void WorldSession::HandleReclaimCorpseOpcode(WorldPacket &recv_data)
 {
     DETAIL_LOG("WORLD: Received CMSG_RECLAIM_CORPSE");
 
-    uint64 guid;
+    ObjectGuid guid;
     recv_data >> guid;
 
     if (GetPlayer()->isAlive())
@@ -656,7 +656,7 @@ void WorldSession::HandleResurrectResponseOpcode(WorldPacket & recv_data)
 {
     DETAIL_LOG("WORLD: Received CMSG_RESURRECT_RESPONSE");
 
-    uint64 guid;
+    ObjectGuid guid;
     uint8 status;
     recv_data >> guid;
     recv_data >> status;
@@ -746,20 +746,22 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
 
     if(!GetPlayer()->isGameMaster())
     {
-        uint32 missingLevel = 0;
+        bool missingItem = false;
+        bool missingLevel = false;
+        bool missingQuest = false;
+
         if(GetPlayer()->getLevel() < at->requiredLevel && !sWorld.getConfig(CONFIG_BOOL_INSTANCE_IGNORE_LEVEL))
-            missingLevel = at->requiredLevel;
+            missingLevel = true;
 
         // must have one or the other, report the first one that's missing
-        uint32 missingItem = 0;
         if(at->requiredItem)
         {
             if(!GetPlayer()->HasItemCount(at->requiredItem, 1) &&
                 (!at->requiredItem2 || !GetPlayer()->HasItemCount(at->requiredItem2, 1)))
-                missingItem = at->requiredItem;
+                missingItem = true;
         }
         else if(at->requiredItem2 && !GetPlayer()->HasItemCount(at->requiredItem2, 1))
-            missingItem = at->requiredItem2;
+            missingItem = true;
 
         MapEntry const* mapEntry = sMapStore.LookupEntry(at->target_mapId);
         if(!mapEntry)
@@ -767,42 +769,41 @@ void WorldSession::HandleAreaTriggerOpcode(WorldPacket & recv_data)
 
         bool isRegularTargetMap = GetPlayer()->GetDifficulty(mapEntry->IsRaid()) == REGULAR_DIFFICULTY;
 
-        uint32 missingKey = 0;
         if (!isRegularTargetMap)
         {
             if(at->heroicKey)
             {
                 if(!GetPlayer()->HasItemCount(at->heroicKey, 1) &&
                     (!at->heroicKey2 || !GetPlayer()->HasItemCount(at->heroicKey2, 1)))
-                    missingKey = at->heroicKey;
+                    missingItem = true;
             }
             else if(at->heroicKey2 && !GetPlayer()->HasItemCount(at->heroicKey2, 1))
-                missingKey = at->heroicKey2;
+                missingItem = true;
         }
 
-        uint32 missingQuest = 0;
-        if (!isRegularTargetMap)
+        if (!isRegularTargetMap && mapEntry->IsDungeon())
         {
             if (at->requiredQuestHeroic && !GetPlayer()->GetQuestRewardStatus(at->requiredQuestHeroic))
-                missingQuest = at->requiredQuestHeroic;
+                missingQuest = true;
         }
         else
         {
-            if(at->requiredQuest && !GetPlayer()->GetQuestRewardStatus(at->requiredQuest))
-                missingQuest = at->requiredQuest;
+            if (at->requiredQuest && !GetPlayer()->GetQuestRewardStatus(at->requiredQuest))
+                missingQuest = true;
         }
 
-        if(missingLevel || missingItem || missingKey || missingQuest)
+        if(missingItem || missingLevel || missingQuest)
         {
-            // TODO: all this is probably wrong
-            if(missingItem)
-                SendAreaTriggerMessage(GetMangosString(LANG_LEVEL_MINREQUIRED_AND_ITEM), at->requiredLevel, ObjectMgr::GetItemPrototype(missingItem)->Name1);
-            else if(missingKey)
-                GetPlayer()->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_DIFFICULTY, isRegularTargetMap ? DUNGEON_DIFFICULTY_NORMAL : DUNGEON_DIFFICULTY_HEROIC);
-            else if(missingQuest)
+            // hack for "Opening of the Dark Portal"
+            if(missingQuest && at->target_mapId == 269)
                 SendAreaTriggerMessage("%s", at->requiredFailedText.c_str());
-            else if(missingLevel)
-                SendAreaTriggerMessage(GetMangosString(LANG_LEVEL_MINREQUIRED), missingLevel);
+            else if(missingQuest && mapEntry->IsContinent())// do not report anything for quest areatriggers
+                return;
+            // hack for TBC heroics
+            else if(missingLevel && !mapEntry->IsRaid() && GetPlayer()->GetDifficulty(false) == DUNGEON_DIFFICULTY_HEROIC && mapEntry->addon == 1)
+                SendAreaTriggerMessage(GetMangosString(LANG_LEVEL_MINREQUIRED), at->requiredLevel);
+            else
+                GetPlayer()->SendTransferAborted(at->target_mapId, TRANSFER_ABORT_DIFFICULTY, GetPlayer()->GetDifficulty(mapEntry->IsRaid()));
             return;
         }
     }
@@ -965,7 +966,7 @@ void WorldSession::HandleMoveTimeSkippedOpcode( WorldPacket & recv_data )
     recv_data >> Unused<uint32>();
 
     /*
-        uint64 guid;
+        ObjectGuid guid;
         uint32 time_skipped;
         recv_data >> guid;
         recv_data >> time_skipped;
@@ -992,7 +993,7 @@ void WorldSession::HandleMoveUnRootAck(WorldPacket& recv_data)
     // no used
     recv_data.rpos(recv_data.wpos());                       // prevent warnings spam
 /*
-    uint64 guid;
+    ObjectGuid guid;
     recv_data >> guid;
 
     // now can skip not our packet
@@ -1016,11 +1017,11 @@ void WorldSession::HandleMoveRootAck(WorldPacket& recv_data)
     // no used
     recv_data.rpos(recv_data.wpos());                       // prevent warnings spam
 /*
-    uint64 guid;
+    ObjectGuid guid;
     recv_data >> guid;
 
     // now can skip not our packet
-    if(_player->GetGUID() != guid)
+    if(_player->GetObjectGuid() != guid)
     {
         recv_data.rpos(recv_data.wpos());                   // prevent warnings spam
         return;
@@ -1075,11 +1076,11 @@ void WorldSession::HandlePlayedTime(WorldPacket& recv_data)
 
 void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
 {
-    uint64 guid;
+    ObjectGuid guid;
     recv_data >> guid;
-    DEBUG_LOG("Inspected guid is (GUID: %u TypeId: %u)", GUID_LOPART(guid), GuidHigh2TypeId(GUID_HIPART(guid)));
+    DEBUG_LOG("Inspected guid is %s", guid.GetString().c_str());
 
-    _player->SetSelection(guid);
+    _player->SetSelectionGuid(guid);
 
     Player *plr = sObjectMgr.GetPlayer(guid);
     if(!plr)                                                // wrong player
@@ -1106,7 +1107,7 @@ void WorldSession::HandleInspectOpcode(WorldPacket& recv_data)
 
 void WorldSession::HandleInspectHonorStatsOpcode(WorldPacket& recv_data)
 {
-    uint64 guid;
+    ObjectGuid guid;
     recv_data >> guid;
 
     Player *player = sObjectMgr.GetPlayer(guid);
@@ -1396,14 +1397,6 @@ void WorldSession::HandleSetDungeonDifficultyOpcode( WorldPacket & recv_data )
     {
         if (pGroup->IsLeader(_player->GetObjectGuid()))
         {
-            //do not let set dungeon difficulty if any one in this group in dungeon
-            Group::MemberSlotList g_members = pGroup->GetMemberSlots();
-            for (Group::member_citerator itr = g_members.begin(); itr != g_members.end(); itr++)
-            {
-                Player *gm_member = sObjectMgr.GetPlayer(itr->guid);
-                if (gm_member && gm_member->GetMap() && gm_member->GetMap()->IsDungeon())
-                    return;
-            }
             // the difficulty is set even if the instances can't be reset
             //_player->SendDungeonDifficulty(true);
             pGroup->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, false, _player);
@@ -1448,14 +1441,6 @@ void WorldSession::HandleSetRaidDifficultyOpcode( WorldPacket & recv_data )
     {
         if (pGroup->IsLeader(_player->GetObjectGuid()))
         {
-            //do not let set dungeon difficulty if any one in this group in dungeon
-            Group::MemberSlotList g_members = pGroup->GetMemberSlots();
-            for (Group::member_citerator itr = g_members.begin(); itr != g_members.end(); itr++)
-            {
-                Player *gm_member = sObjectMgr.GetPlayer(itr->guid);
-                if (gm_member && gm_member->GetMap() && gm_member->GetMap()->IsDungeon())
-                    return;
-            }
             // the difficulty is set even if the instances can't be reset
             //_player->SendDungeonDifficulty(true);
             pGroup->ResetInstances(INSTANCE_RESET_CHANGE_DIFFICULTY, true, _player);

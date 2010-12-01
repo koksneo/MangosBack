@@ -453,7 +453,7 @@ LexicsCutterNoActionOnGM = 1
 #
 #    GameType
 #        Server realm style
-#        0 = NORMAL;1 = PVP; 4 = NORMAL; 6 = RP; 8 = RPPVP
+#        0 = NORMAL; 1 = PVP; 4 = NORMAL; 6 = RP; 8 = RPPVP
 #        also custom type: 16 FFA_PVP (free for all pvp mode like arena PvP in all zones except rest
 #        activated places and sanctuaries)
 #
@@ -1039,8 +1039,8 @@ ListenRange.Yell = 300
 #        Chat protection from creating fake messages using a lot spaces (other invisible symbols),
 #        not applied to addon language messages, but can prevent working old addons
 #        that use normal languages for sending data to another clients.
-#        Default: 0 (disible fake messages preventing)
-#                 1 (enabled fake messages preventing)
+#        Default: 0 (disable fake messages preventing)
+#                 1 (enable fake messages preventing)
 #
 #    ChatStrictLinkChecking.Severity
 #        Check chat messages for ingame links to spells, items, quests, achievements etc.
@@ -1058,7 +1058,7 @@ ListenRange.Yell = 300
 #    ChatFlood.MessageCount
 #        Chat anti-flood protection, haste message count to activate protection
 #        Default: 10
-#                 0 (disible anti-flood protection)
+#                 0 (disable anti-flood protection)
 #
 #    ChatFlood.MessageDelay
 #        Chat anti-flood protection, minimum message delay to count message
@@ -1352,6 +1352,10 @@ Visibility.Distance.Grey.Object = 10
 #         Default: 1 (enabled)
 #                  0 (disabled)
 #
+#    BattleGround.Random.ResetHour
+#        Hour when random bg reset (0..23)
+#        Default: 6
+#
 ###################################################################################################################
 
 Rate.Health = 1
@@ -1443,11 +1447,7 @@ Death.Bones.BattlegroundOrArena = 1
 #    BattleGround.PremadeGroupWaitForMatch
 #        The time in which premade group of 1 faction waits in BG Queue for premade group of other faction
 #        Default: 1800000 (30 minutes)
-#                 0 - disable (not recommended)
-#
-#    BattleGround.Random.ResetHour
-#        Hour when random bg reset (0..23)
-#        Default: 6
+#                 0 - disable premade group matches (group always added to bg team in normal way)
 #
 ###################################################################################################################
 
@@ -1621,81 +1621,81 @@ SOAP.Port = 7878
 ###################################################################################################################
 # MOVEMENT ANTICHEAT
 #
-# Anticheat.Movement.Enable
-# Enable Movement Anticheat
-# Default: 0 - off
-# 1 - on
+#    Anticheat.Movement.Enable
+#        Enable Movement Anticheat
+#        Default: 0 - off
+#                 1 - on
 #
-# Anticheat.Movement.AlarmCount
-# Count alarms. After AlarmCount is exceeded, actions are taken against the player. (default 5)
+#    Anticheat.Movement.AlarmCount
+#        Count alarms. After AlarmCount is exceeded, actions are taken against the player. (default 5)
 #
-# Anticheat.Movement.AlarmTime
-# Reset alarm-count after this milliseconds. (default 5000)
+#    Anticheat.Movement.AlarmTime
+#        Reset alarm-count after this milliseconds. (default 5000)
 #
-# Anticheat.Movement.Kill
-# Enable Kill cheater
-# Default: 0 - off
-# 1 - on
+#    Anticheat.Movement.Kill
+#        Enable Kill cheater
+#        Default: 0 - off
+#                 1 - on
 #
-# Anticheat.Movement.Kick
-# Enable Kick cheater
-# Default: 0 - off
-# 1 - on
+#    Anticheat.Movement.Kick
+#        Enable Kick cheater
+#        Default: 0 - off
+#                 1 - on
 #
-# Anticheat.Movement.BanType
-# Enable Ban cheater
-# Default: 0 - off
-# 1 - Ban Account
-# 2 - Ban IP
-# 3 - Ban Account + IP
+#    Anticheat.Movement.BanType
+#        Enable Ban cheater
+#        Default: 0 - off
+#                 1 - Ban Account
+#                 2 - Ban IP
+#                 3 - Ban Account + IP
 #
-# Anticheat.Movement.Announce
-# Enable Announce cheater
-# Default: 0 - off
-# 1 - on
+#    Anticheat.Movement.Announce
+#        Enable Announce cheater
+#        Default: 0 - off
+#                 1 - on
 #
-# Anticheat.Movement.DetectSpeedHack
-# Turn Speed Check on/off
-# Default: 1 (on)
+#    Anticheat.Movement.DetectSpeedHack
+#        Turn Speed Check on/off
+#        Default: 1 (on)
 #
-# Anticheat.Movement.DetectWaterWalk
-# Turn WaterWalk Check on/off
-# Default: 1 (on)
+#    Anticheat.Movement.DetectWaterWalk
+#        Turn WaterWalk Check on/off
+#        Default: 1 (on)
 #
-# Anticheat.Movement.DetectFlyHack
-# Turn Fly Hack Check on/off
-# Default: 1 (on)
+#    Anticheat.Movement.DetectFlyHack
+#        Turn Fly Hack Check on/off
+#        Default: 1 (on)
 #
-# Anticheat.Movement.DetectMountainHack
-# Turn Speed Check on/off
-# Default: 1 (on)
-# Anticheat.Movement.DetectAirJumpHack
-# Turn Air/Graviti Jump Check on/off
-# Default: 1 (on)
+#    Anticheat.Movement.DetectMountainHack
+#        Turn Speed Check on/off
+#        Default: 1 (on)
+#    Anticheat.Movement.DetectAirJumpHack
+#        Turn Air/Graviti Jump Check on/off
+#        Default: 1 (on)
 #
-# Anticheat.Movement.DetectTeleportHack
-# Turn Teleport Check on/off
-# Default: 1 (on)
+#    Anticheat.Movement.DetectTeleportHack
+#        Turn Teleport Check on/off
+#        Default: 1 (on)
 #
-# Anticheat.Movement.DetectTeleport2PlaneHack
-# Turn Teleport2Plane Check on/off
-# Default: 1 (on)
+#    Anticheat.Movement.DetectTeleport2PlaneHack
+#        Turn Teleport2Plane Check on/off
+#        Default: 1 (on)
 #
-# Anticheat.Movement.BanTime
-# How long the ban should last.
-# Default: 1 Minute - 1m
+#    Anticheat.Movement.BanTime
+#        How long the ban should last.
+#        Default: 1 Minute - 1m
 #
-# Anticheat.Movement.MaxXYT
-# Max units a player is allowed to travel per millisecond.
-# Default: 0.04 (This is ~400% Speed, 0.007 is walk-speed, 310% is 0.0287)
+#    Anticheat.Movement.MaxXYT
+#        Max units a player is allowed to travel per millisecond.
+#        Default: 0.04 (This is ~400% Speed, 0.007 is walk-speed, 310% is 0.0287)
 #
-# Anticheat.Movement.IgnoreSecAfterTeleport
-# After being teleported this number of seconds no cheat is reported.
-# Default: 10 seconds - 10
+#    Anticheat.Movement.IgnoreSecAfterTeleport
+#        After being teleported this number of seconds no cheat is reported.
+#        Default: 10 seconds - 10
 #
-# Anticheat.Movement.GmLevel
-# Only accounts that are below this gm-level or exact at the same, are reported for cheating.
-# Default: Only normal Players - 0
+#    Anticheat.Movement.GmLevel
+#        Only accounts that are below this gm-level or exact at the same, are reported for cheating.
+#        Default: Only normal Players - 0
 #
 ###################################################################################################################
 
@@ -1706,10 +1706,10 @@ Anticheat.Movement.Kill = 0
 Anticheat.Movement.Kick = 0
 Anticheat.Movement.Announce = 0
 Anticheat.Movement.DetectSpeedHack = 1
-Anticheat.Movement.DetectWaterWalk = 0
+Anticheat.Movement.DetectWaterWalk = 1
 Anticheat.Movement.DetectFlyHack = 1
 Anticheat.Movement.DetectMountainHack = 1
-Anticheat.Movement.DetectAirJumpHack = 0
+Anticheat.Movement.DetectAirJumpHack = 1
 Anticheat.Movement.DetectTeleportHack = 1
 Anticheat.Movement.DetectTeleport2PlaneHack = 0
 Anticheat.Movement.BanType = 0

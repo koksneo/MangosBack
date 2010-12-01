@@ -6319,9 +6319,10 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
             if(Unit* magnet = (*itr)->GetCaster())
                 if(magnet->IsWithinLOSInMap(this) && magnet->isAlive())
                 {
-                    if ((*itr)->GetSpellProto()->procCharges)
-                        if ((*itr)->GetHolder()->DropAuraCharge())
-                            victim->RemoveSpellAuraHolder((*itr)->GetHolder());
+                    if (SpellAuraHolder *holder = (*itr)->GetHolder())
+                        if (holder->GetAuraCharges())
+                            if (holder->DropAuraCharge())
+                                victim->RemoveSpellAuraHolder(holder);
                     return magnet;
                 }
     }
@@ -6334,9 +6335,10 @@ Unit* Unit::SelectMagnetTarget(Unit *victim, SpellEntry const *spellInfo)
                 if(magnet->isAlive() && magnet->IsWithinLOSInMap(this))
                     if(roll_chance_i((*i)->GetModifier()->m_amount))
                     {
-                        if ((*i)->GetSpellProto()->procCharges)
-                            if ((*i)->GetHolder()->DropAuraCharge())
-                                victim->RemoveSpellAuraHolder((*i)->GetHolder());
+                        if (SpellAuraHolder *holder = (*i)->GetHolder())
+                            if (holder->GetAuraCharges())
+                                if (holder->DropAuraCharge())
+                                    victim->RemoveSpellAuraHolder(holder);
                         return magnet;
                     }
     }

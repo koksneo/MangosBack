@@ -66,7 +66,8 @@ void Totem::Summon(Unit* owner)
     switch(m_type)
     {
         case TOTEM_PASSIVE:
-            CastSpell(this, GetSpell(), true);
+            for (int i=0; i<MAX_CREATURE_SPELL_DATA_SLOT; ++i)
+                CastSpell(this, m_spells[i], true);
             break;
         case TOTEM_STATUE:
             CastSpell(GetOwner(), GetSpell(), true);
@@ -78,12 +79,14 @@ void Totem::Summon(Unit* owner)
 void Totem::UnSummon()
 {
     CombatStop();
-    RemoveAurasDueToSpell(GetSpell());
+    for (int i=0; i<MAX_CREATURE_SPELL_DATA_SLOT; ++i)
+        RemoveAurasDueToSpell(m_spells[i]);
 
     if (Unit *owner = GetOwner())
     {
         owner->_RemoveTotem(this);
-        owner->RemoveAurasDueToSpell(GetSpell());
+        for (int i=0; i<MAX_CREATURE_SPELL_DATA_SLOT; ++i)
+            owner->RemoveAurasDueToSpell(m_spells[i]);
 
         //remove aura all party members too
         if (owner->GetTypeId() == TYPEID_PLAYER)
@@ -97,7 +100,8 @@ void Totem::UnSummon()
                 {
                     Player* Target = itr->getSource();
                     if(Target && pGroup->SameSubGroup((Player*)owner, Target))
-                        Target->RemoveAurasDueToSpell(GetSpell());
+                        for (int i=0; i<MAX_CREATURE_SPELL_DATA_SLOT; ++i)
+                            Target->RemoveAurasDueToSpell(m_spells[i]);
                 }
             }
         }

@@ -1881,11 +1881,16 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->Id == 46796 && spellInfo_1->Id == 46789) )
                     return false;
             }
-            if (spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
+            else if (spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
             {
                 // Runescroll of Fortitude & Prayer/PW  Fortitude
                 if (spellInfo_1->Id == 72590 && spellInfo_2->SpellVisual[0] == 278)
                     return true;
+            }
+            else if (spellInfo_2->SpellFamilyName == SPELLFAMILY_ROGUE)
+            {
+                if (spellInfo_1->SpellIconID == 2903 && spellInfo_2->SpellIconID == 2903)
+                    return false;
             }
             // Dragonmaw Illusion, Blood Elf Illusion, Human Illusion, Illidari Agent Illusion, Scarlet Crusade Disguise
             if(spellInfo_1->SpellIconID == 1691 && spellInfo_2->SpellIconID == 1691)
@@ -2082,6 +2087,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if (spellInfo_1->SpellIconID == 516 && spellInfo_2->SpellIconID == 516 &&
                     ((spellInfo_1->Category == 44 && spellInfo_2->Category == 0) ||
                     (spellInfo_2->Category == 44 && spellInfo_1->Category == 0)))
+                    return false;
+            }
+            else if (spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
+            {
+                if (spellInfo_1->SpellIconID == 2903 && spellInfo_2->SpellIconID == 2903)
                     return false;
             }
             break;

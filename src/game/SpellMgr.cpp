@@ -2073,6 +2073,11 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                 if ((spellInfo_1->Id == 22842 && spellInfo_2->Id == 62606) ||
                     (spellInfo_2->Id == 22842 && spellInfo_1->Id == 62606))
                     return false;
+
+                // Rejuvenation and Forethought Talisman
+                if (spellInfo_1->SpellIconID == 64 && spellInfo_2->SpellIconID == 3088 ||
+                    spellInfo_2->SpellIconID == 64 && spellInfo_1->SpellIconID == 3088)
+                    return false;
             }
             break;
         case SPELLFAMILY_ROGUE:

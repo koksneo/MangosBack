@@ -332,6 +332,8 @@ extern void AddSC_boss_keristrasza();
 extern void AddSC_boss_ormorok();
 extern void AddSC_boss_telestra();
 extern void AddSC_instance_nexus();
+extern void AddSC_boss_malygos();                           // eye_of_eternity
+extern void AddSC_instance_eye_of_eternity();
 extern void AddSC_boss_sartharion();                        //obsidian_sanctum
 extern void AddSC_instance_obsidian_sanctum();
 extern void AddSC_instance_vault_of_archavon();             //vault_of_archavon
@@ -787,6 +789,8 @@ void AddScripts()
     AddSC_boss_ormorok();
     AddSC_boss_telestra();
     AddSC_instance_nexus();
+    AddSC_boss_malygos();                                   // eye_of_eternity
+    AddSC_instance_eye_of_eternity();
     AddSC_boss_sartharion();                                //obsidian_sanctum
     AddSC_instance_obsidian_sanctum();
 	AddSC_instance_vault_of_archavon();                     //vault_of_archavon

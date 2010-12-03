@@ -263,7 +263,7 @@ struct MANGOS_DLL_DECL npc_demoniac_scryerAI : public ScriptedAI
         float fX, fY;
         m_creature->GetNearPoint2D(fX, fY, 5.0f, fAngle);
 
-        float fZ_Ground = m_creature->GetMap()->GetHeight(fX, fY, MAX_HEIGHT);
+        float fZ_Ground = m_creature->GetMap()->GetTerrain()->GetHeight(fX, fY, MAX_HEIGHT);
 
         uint32 uiTime = TIME_TOTAL - (m_uiSpawnButtressTimer * m_uiButtressCount);
         m_creature->SummonCreature(NPC_BUTTRESS, fX, fY, fZ_Ground, m_creature->GetAngle(fX, fY), TEMPSUMMON_TIMED_DESPAWN, uiTime);

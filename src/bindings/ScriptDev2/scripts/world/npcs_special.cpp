@@ -87,7 +87,7 @@ struct MANGOS_DLL_DECL mob_mirror_imageAI : public ScriptedAI
     {
         if (!bLocked)
         {
-            m_uiCreatorGUID = m_creature->GetCreatorGUID();
+            m_uiCreatorGUID = m_creature->GetCreatorGuid().GetRawValue();
             if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID))
             {
                 fDist = m_creature->GetDistance(pOwner);
@@ -2048,7 +2048,7 @@ struct MANGOS_DLL_DECL mob_ebon_gargoyleAI : public ScriptedAI
         m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX()-5.0f, m_creature->GetPositionY()-5.0f, m_creature->GetPositionZ()-14.0f);
 
         m_bIsReady = false;
-        m_uiCreatorGUID = m_creature->GetCreatorGUID();
+        m_uiCreatorGUID = m_creature->GetCreatorGuid().GetRawValue();
 
         Reset();
     }
@@ -2184,7 +2184,7 @@ struct MANGOS_DLL_DECL mob_risen_ghoulAI : public ScriptedAI
         m_bIsSpawned = false;
         fDist = (m_creature->GetEntry() == ENTRY_AOTD_GHOUL) ? float(urand(1, 5) ) : PET_FOLLOW_DIST;
         fAngle = PET_FOLLOW_ANGLE;
-        m_uiCreatorGUID = m_creature->GetCreatorGUID();
+        m_uiCreatorGUID = m_creature->GetCreatorGuid().GetRawValue();
         if (Unit* pOwner = m_creature->GetMap()->GetUnit(m_uiCreatorGUID) )
             fAngle = m_creature->GetAngle(pOwner);
 

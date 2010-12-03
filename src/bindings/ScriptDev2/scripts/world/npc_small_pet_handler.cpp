@@ -150,7 +150,7 @@ struct MANGOS_DLL_DECL npc_small_pet_handlerAI : public ScriptedAI
             case NPC_MOJO:
                 if (emote == TEXTEMOTE_KISS)
                 {
-                    m_creature->SetTargetGUID(pPlayer->GetGUID());
+                    m_creature->SetTargetGuid(pPlayer->GetObjectGuid());
                     DoScriptText(EMOTE_KISS,m_creature,pPlayer);
                     pPlayer->CastSpell(pPlayer,SPELL_FEELING_FROGGY,true);
                     DoCast(m_creature,SPELL_FROG_LOVE,true);

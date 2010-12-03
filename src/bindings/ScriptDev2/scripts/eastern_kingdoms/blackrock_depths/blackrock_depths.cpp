@@ -142,7 +142,7 @@ struct MANGOS_DLL_DECL mob_machine_bunnyAI : public ScriptedAI
             console->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
             machine->SetGoState(GO_STATE_ACTIVE);
             if (m_pInstance->GetData(DATA_FIRST_TIME) == 0)
-                machine->Say(SAY_MACHINE,0,m_pInstance->GetData64(DATA_GO_MOLE_MACHINE));
+                machine->MonsterSay(SAY_MACHINE,0,m_pInstance->instance->GetCreature(ObjectGuid(m_pInstance->GetData64(DATA_GO_MOLE_MACHINE))));
             m_pInstance->SetData(DATA_SUBMERGE, 0);                                       // Submerged  = false
             m_pInstance->SetData(DATA_FIRST_TIME, 1);                                     // First Time = false
         }else Submerge_Timer -=uiDiff;

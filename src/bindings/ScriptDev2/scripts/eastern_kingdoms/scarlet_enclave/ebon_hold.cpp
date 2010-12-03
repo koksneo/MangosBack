@@ -1177,7 +1177,7 @@ struct MANGOS_DLL_DECL npc_eye_of_acherusAI : public ScriptedAI
         if (uiType != POINT_MOTION_TYPE && uiPointId == 0)
             return;
 
-            m_creature->MonsterTextEmote("The Eye of Acherus is in your control", m_creature->GetGUID(), true);
+            m_creature->MonsterTextEmote("The Eye of Acherus is in your control", m_creature, true);
             m_creature->CastSpell(m_creature, 51890, true);
     }
 
@@ -1190,7 +1190,7 @@ struct MANGOS_DLL_DECL npc_eye_of_acherusAI : public ScriptedAI
                 m_creature->CastSpell(m_creature, 70889, true);
                 m_creature->CastSpell(m_creature, 51892, true);
                 char * text = "The Eye of Acherus launches towards its destination";
-                m_creature->MonsterTextEmote(text, m_creature->GetGUID(), true);
+                m_creature->MonsterTextEmote(text, m_creature, true);
                 m_creature->SetSpeedRate(MOVE_FLIGHT, 6.4f,true);
                 m_creature->GetMotionMaster()->MovePoint(0, 1750.8276f, -5873.788f, 151.2266f);
                 Active = true;
@@ -1245,7 +1245,7 @@ struct MANGOS_DLL_DECL npc_valkyr_battlemaidenAI : public ScriptedAI
             return;
  
         if (uiPointId == OWNER_POINT)
-            if (Player *pPlayer = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGUID()) )
+            if (Player *pPlayer = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGuid()) )
                 DoCastSpellIfCan(pPlayer, SPELL_REVIVE);
     }
  
@@ -2024,7 +2024,7 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                         o = m_creature->GetAngle(x, y) + M_PI_F;
 
                         if (m_pMap)
-                            z = m_pMap->GetHeight(x, y, z, false);
+                            z = m_pMap->GetTerrain()->GetHeight(x, y, z, false);
 
                         if (uiSummon_counter < ENCOUNTER_GHOUL_NUMBER)
                         {
@@ -2053,7 +2053,7 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
                         o = m_creature->GetAngle(x, y) + M_PI_F;
 
                         if (m_pMap)
-                            z = m_pMap->GetHeight(x, y, z, false);
+                            z = m_pMap->GetTerrain()->GetHeight(x, y, z, false);
 
                         if (uiSummon_counter < ENCOUNTER_WARRIOR_NUMBER)
                         {
@@ -3181,7 +3181,7 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
         x += float(urand(0, radius) );
         y += float(urand(0, radius) );
         if (m_pMap)
-           z = m_pMap->GetHeight(x, y, z, false);
+           z = m_pMap->GetTerrain()->GetHeight(x, y, z, false);
     }
 
     uint64 DoSpawnNPC(uint32 uiEntry, bool bDarkSide)
@@ -3194,7 +3194,7 @@ struct MANGOS_DLL_DECL npc_highlord_darion_mograineAI : public npc_escortAI
         z = LightofDawnLoc[0].z + 1.0f;
 
         if (m_pMap)
-            z = m_pMap->GetHeight(x, y, z, false);
+            z = m_pMap->GetTerrain()->GetHeight(x, y, z, false);
 
         if (Creature *pTemp = m_creature->SummonCreature(uiEntry, x, y, z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 900000) )
         {
@@ -3625,7 +3625,7 @@ struct MANGOS_DLL_DECL mob_scarlet_ghoulAI : public ScriptedAI
     {
         m_bIsSpawned = false;
         fDist = (float)urand(1, 5);
-        m_uiCreatorGUID = m_creature->GetCreatorGUID();
+        m_uiCreatorGUID = m_creature->GetCreatorGuid().GetRawValue();
         if (Player* pOwner = m_creature->GetMap()->GetPlayer(m_uiCreatorGUID) )
             fAngle = m_creature->GetAngle(pOwner);
 

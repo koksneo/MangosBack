@@ -247,7 +247,7 @@ struct MANGOS_DLL_DECL instance_dark_portal : public ScriptedInstance
         float x,y,z;
         pSource->GetRandomPoint(pSource->GetPositionX(),pSource->GetPositionY(),pSource->GetPositionZ(),10.0f,x,y,z);
         //normalize Z-level if we can, if rift is not at ground level.
-        z = instance->GetWaterOrGroundLevel(x, y, MAX_HEIGHT);
+        z = instance->GetTerrain()->GetWaterOrGroundLevel(x, y, MAX_HEIGHT);
 
         debug_log("SD2: Instance Dark Portal: Summoning rift boss uiEntry %u.",uiEntry);
 

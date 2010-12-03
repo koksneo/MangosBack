@@ -685,7 +685,7 @@ bool ItemUse_item_tainted_core(Player* pPlayer, Item* pItem, SpellCastTargets co
 
     if (pVashjAI && pVashjAI->m_uiPhase == 2)
     {
-        Unit* target = pPlayer->GetMap()->GetUnit((pPlayer)->GetSelection());
+        Unit* target = pPlayer->GetMap()->GetUnit((pPlayer)->GetSelectionGuid());
         
         if (!target || target->GetTypeId()!=TYPEID_PLAYER)
         {

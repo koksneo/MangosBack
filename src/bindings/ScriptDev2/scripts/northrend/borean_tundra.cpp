@@ -731,7 +731,7 @@ struct MANGOS_DLL_DECL mob_arcane_prisonerAI : public ScriptedAI
             // this will prevent to spawn eventual corpse in the air (cosmetic effect)
             float x,y,z;
             m_creature->GetPosition(x, y, z);
-            z = m_creature->GetMap()->GetHeight(x, y, MAX_HEIGHT, false);
+            z = m_creature->GetMap()->GetTerrain()->GetHeight(x, y, MAX_HEIGHT, false);
             m_creature->Relocate(x, y, z+2);
 
             if (urand(0, 2) < 2)
@@ -741,7 +741,7 @@ struct MANGOS_DLL_DECL mob_arcane_prisonerAI : public ScriptedAI
             }
             else
             {
-                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGUID()))
+                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGuid()))
                 {
                     DoScriptText(SAY_SUCCEDED, m_creature, pPlayer);
                     if (pPlayer->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)

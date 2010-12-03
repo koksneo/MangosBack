@@ -1698,6 +1698,11 @@ struct MANGOS_DLL_DECL mob_fire_cycloneAI : public ScriptedAI
         m_uiRefreshTimer = (urand(1000, 60000));
     }
 
+    void DamageTaken(Unit *pDoneBy, uint32 &uiDamage)
+    {
+        uiDamage = 0;
+    }
+
     void AttackStart(Unit* pWho){}
     void MoveInLineOfSight(Unit* pWho){}
 

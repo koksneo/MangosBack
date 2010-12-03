@@ -86,7 +86,7 @@ void instance_obsidian_sanctum::OnCreatureCreate(Creature* pCreature)
 
 void instance_obsidian_sanctum::SetData(uint32 uiType, uint32 uiData)
 {
-    if (uiType < 1 || uiType > 4)
+    if (uiType < 1 || uiType > 7)
         return;
 
     m_auiEncounter[uiType - 1] = uiData;

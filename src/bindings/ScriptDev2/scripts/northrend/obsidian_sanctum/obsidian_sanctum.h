@@ -7,7 +7,7 @@
 
 enum
 {
-    MAX_ENCOUNTER               = 1,
+    MAX_ENCOUNTER               = 7,
 
     TYPE_SARTHARION_EVENT       = 1,
 
@@ -15,6 +15,11 @@ enum
     TYPE_SARTH_HARD_ONE         = 2,
     TYPE_SARTH_HARD_TWO         = 3,
     TYPE_SARTH_HARD_THREE       = 4,
+
+    // solo fights
+    TYPE_TENEBRON               = 5,
+    TYPE_SHADRON                = 6,
+    TYPE_VESPERON               = 7,
 
     DATA_SARTHARION             = 10,
     DATA_TENEBRON               = 11,

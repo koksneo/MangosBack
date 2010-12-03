@@ -1019,6 +1019,7 @@ struct MANGOS_DLL_DECL dummy_dragonAI : public ScriptedAI
         {
             case NPC_TENEBRON:
             {
+                m_pInstance->SetData(TYPE_TENEBRON, DONE);
                 iTextId = SAY_TENEBRON_DEATH;
                 
                 if (!m_pInstance->m_lEggsGUIDList.empty())
@@ -1029,11 +1030,13 @@ struct MANGOS_DLL_DECL dummy_dragonAI : public ScriptedAI
             }
             case NPC_SHADRON:
             {
+                m_pInstance->SetData(TYPE_SHADRON, DONE);
                 iTextId = SAY_SHADRON_DEATH;
                 break;
             }
             case NPC_VESPERON:
             {
+                m_pInstance->SetData(TYPE_VESPERON, DONE);
                 iTextId = SAY_VESPERON_DEATH;
                 break;
             }
@@ -1116,6 +1119,8 @@ struct MANGOS_DLL_DECL mob_tenebronAI : public dummy_dragonAI
         if (!m_pInstance)
             return;
 
+        m_pInstance->SetData(TYPE_TENEBRON, NOT_STARTED);
+
         if (!m_pInstance->m_lEggsGUIDList.empty())
             for (std::list<uint64>::iterator i = m_pInstance->m_lEggsGUIDList.begin(); i != m_pInstance->m_lEggsGUIDList.end(); i++)
                 if (Creature *pEgg = m_pInstance->instance->GetCreature(*i))
@@ -1133,10 +1138,16 @@ struct MANGOS_DLL_DECL mob_tenebronAI : public dummy_dragonAI
 
     void Aggro(Unit* pWho)
     {
-        if (m_pInstance && m_pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
+        if (!m_pInstance)
+            return;
+
+        if (m_pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
             DoScriptText(SAY_TENEBRON_RESPOND,m_creature);
         else
+        {
+            m_pInstance->SetData(TYPE_TENEBRON, IN_PROGRESS);
             DoScriptText(SAY_TENEBRON_AGGRO,m_creature);
+        }
     }
 
     void KilledUnit(Unit* pVictim)
@@ -1247,16 +1258,26 @@ struct MANGOS_DLL_DECL mob_shadronAI : public dummy_dragonAI
         m_uiCheckTimer = 2000;
 
         if (m_pInstance)
+        {
+            m_pInstance->SetData(TYPE_SHADRON, NOT_STARTED);
+
             if (Creature* pAcolyte = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_ACOL_SHAD)))
                 pAcolyte->DealDamage(pAcolyte, pAcolyte->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        }
     }
 
     void Aggro(Unit* pWho)
     {
-        if (m_pInstance && m_pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
+        if (!m_pInstance)
+            return;
+
+        if (m_pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
             DoScriptText(SAY_SHADRON_RESPOND,m_creature);
         else
+        {
             DoScriptText(SAY_SHADRON_AGGRO,m_creature);
+            m_pInstance->SetData(TYPE_SHADRON, IN_PROGRESS);
+        }
     }
 
     void KilledUnit(Unit* pVictim)
@@ -1347,16 +1368,26 @@ struct MANGOS_DLL_DECL mob_vesperonAI : public dummy_dragonAI
         m_uiCheckTimer = 3000;
 
         if (m_pInstance)
+        {
+            m_pInstance->SetData(TYPE_VESPERON, NOT_STARTED);
+
             if (Creature* pAcolyte = m_pInstance->instance->GetCreature(m_pInstance->GetData64(DATA_ACOL_VESP)))
                 pAcolyte->DealDamage(pAcolyte, pAcolyte->GetHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NORMAL, NULL, false);
+        }
     }
 
     void Aggro(Unit* pWho)
     {
-        if (m_pInstance && m_pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
+        if (!m_pInstance)
+            return;
+
+        if (m_pInstance->GetData(TYPE_SARTHARION_EVENT) == IN_PROGRESS)
             DoScriptText(SAY_VESPERON_RESPOND,m_creature);
         else
+        {
+            m_pInstance->SetData(TYPE_VESPERON, IN_PROGRESS);
             DoScriptText(SAY_VESPERON_AGGRO,m_creature);
+        }
     }
 
     void KilledUnit(Unit* pVictim)

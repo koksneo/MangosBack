@@ -250,7 +250,13 @@ enum
     SPELL_ENRAGE                        = 45111,
     NPC_FREED_GREENGILL_SLAVE           = 25085,
     NPC_DARKSPINE_MYRMIDON              = 25060,
-    NPC_DARKSPINE_SIREN                 = 25073
+    NPC_DARKSPINE_SIREN                 = 25073,
+
+    // Quest "War Is Hell" 11270
+    NPC_FALLEN_COMBATANT_1              = 24009,
+    NPC_FALLEN_COMBATANT_2              = 24010,
+    SPELL_FALLEN_COMBATAN_CREDIT        = 43297,
+    SPELL_BURN_BODY                     = 42793
 };
 
 bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
@@ -664,6 +670,13 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
                 dynamic_cast<Creature*>(pCreatureTarget)->UpdateEntry(NPC_FREED_GREENGILL_SLAVE); // Freed Greengill Slave
 
             pCreatureTarget->CastSpell(pCreatureTarget, SPELL_ENRAGE, true);
+
+            return true;
+        }
+        case SPELL_BURN_BODY:
+        {
+            if (pCreatureTarget->GetEntry() == NPC_FALLEN_COMBATANT_1 || pCreatureTarget->GetEntry() == NPC_FALLEN_COMBATANT_2)
+                pCreatureTarget->CastSpell(pCaster, SPELL_FALLEN_COMBATAN_CREDIT, true);
 
             return true;
         }

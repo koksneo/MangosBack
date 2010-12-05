@@ -1760,12 +1760,18 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
         if (spellInfo_1->EffectApplyAuraName[EFFECT_INDEX_0] == SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE &&
             spellInfo_2->EffectApplyAuraName[EFFECT_INDEX_0] == SPELL_AURA_MOD_TOTAL_STAT_PERCENTAGE)
             return true;
-
-        // Battle Shout and Blessings of Might
-        if (spellInfo_1->EffectApplyAuraName[EFFECT_INDEX_1] == SPELL_AURA_MOD_RANGED_ATTACK_POWER &&
-            spellInfo_2->EffectApplyAuraName[EFFECT_INDEX_1] == SPELL_AURA_MOD_RANGED_ATTACK_POWER)
-            return true;
     }
+
+    // Mangle and Trauma 
+    if (spellInfo_1->EffectApplyAuraName[EFFECT_INDEX_1] == SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT && 
+        spellInfo_1->EffectMiscValue[EFFECT_INDEX_1] == MECHANIC_BLEED &&
+        spellInfo_2->EffectApplyAuraName[EFFECT_INDEX_0] == SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT &&
+        spellInfo_2->EffectMiscValue[EFFECT_INDEX_0] == MECHANIC_BLEED || 
+        spellInfo_2->EffectApplyAuraName[EFFECT_INDEX_1] == SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT && 
+        spellInfo_2->EffectMiscValue[EFFECT_INDEX_1] == MECHANIC_BLEED &&
+        spellInfo_1->EffectApplyAuraName[EFFECT_INDEX_0] == SPELL_AURA_MOD_MECHANIC_DAMAGE_TAKEN_PERCENT &&
+        spellInfo_1->EffectMiscValue[EFFECT_INDEX_0] == MECHANIC_BLEED ) 
+        return true;
 
     // Specific spell family spells
     switch(spellInfo_1->SpellFamilyName)

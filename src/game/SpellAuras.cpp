@@ -1105,6 +1105,11 @@ bool Aura::IsEffectStacking()
         case SPELL_AURA_MOD_PARTY_MAX_HEALTH:
             // Commanding Shout
             return false;
+        // Debuffs
+        case SPELL_AURA_MOD_HEALING_PCT:
+            // Healing taken debuffs
+            if (GetSpellProto()->EffectBasePoints[m_effIndex] < 0)
+                return false;
 
         default:
             return true;

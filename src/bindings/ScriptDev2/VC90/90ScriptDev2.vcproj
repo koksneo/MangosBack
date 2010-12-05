@@ -1848,6 +1848,10 @@
 						>
 					</File>
 					<File
+						RelativePath="..\scripts\northrend\gundrak\boss_eck.cpp"
+						>
+					</File>
+					<File
 						RelativePath="..\scripts\northrend\gundrak\boss_galdarah.cpp"
 						>
 					</File>

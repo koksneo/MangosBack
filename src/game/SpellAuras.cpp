@@ -1092,21 +1092,16 @@ bool Aura::IsEffectStacking()
             if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_SHAMAN && GetSpellProto()->AttributesEx6 & SPELL_ATTR_EX6_UNK26)
                 return false;
             break;
-        case SPELL_AURA_MOD_RESISTANCE_PCT:
-            // Ancestral Healing / Inspiration
-            if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_SHAMAN ||
-                GetSpellProto()->SpellFamilyName == SPELLFAMILY_PRIEST)
+        case SPELL_AURA_MOD_ATTACKER_SPELL_CRIT_CHANCE:                 // Winter's Chill / Improved Scorch
+            if (GetSpellProto()->SpellFamilyName == SPELLFAMILY_MAGE)
                 return false;
             break;
-        // case SPELL_AURA_MOD_HEALING_PCT:
-            // break;
         case SPELL_AURA_MOD_RESISTANCE_EXCLUSIVE:
             return false;
         case SPELL_AURA_MOD_PARTY_MAX_HEALTH:
             // Commanding Shout
             return false;
-        // Debuffs
-        case SPELL_AURA_MOD_HEALING_PCT:
+        case SPELL_AURA_MOD_HEALING_PCT:                                // Mortal Strike / Wound Poison / Aimed Shot / Furious Attacks
             // Healing taken debuffs
             if (GetSpellProto()->EffectBasePoints[m_effIndex] < 0)
                 return false;

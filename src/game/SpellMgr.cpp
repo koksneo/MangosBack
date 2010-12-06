@@ -1991,6 +1991,13 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     (spellInfo_2->Id == 52437 && spellInfo_1->Id == 60503) )
                     return false;
             }
+            else if (spellInfo_2->SpellFamilyName == SPELLFAMILY_ROGUE)
+            {
+                // Sunder Armor and Expose Armor
+                if (spellInfo_1->EffectApplyAuraName[EFFECT_INDEX_0] == SPELL_AURA_MOD_RESISTANCE_PCT &&
+                    spellInfo_2->EffectApplyAuraName[EFFECT_INDEX_0] == SPELL_AURA_MOD_RESISTANCE_PCT)
+                    return true;
+            }
             break;
         case SPELLFAMILY_PRIEST:
             if (spellInfo_2->SpellFamilyName == SPELLFAMILY_PRIEST)
@@ -2099,6 +2106,13 @@ bool SpellMgr::IsNoStackSpellDueToSpell(uint32 spellId_1, uint32 spellId_2) cons
                     ((spellInfo_1->Category == 44 && spellInfo_2->Category == 0) ||
                     (spellInfo_2->Category == 44 && spellInfo_1->Category == 0)))
                     return false;
+            }
+            else if (spellInfo_2->SpellFamilyName == SPELLFAMILY_WARRIOR)
+            {
+                // Sunder Armor and Expose Armor
+                if (spellInfo_1->EffectApplyAuraName[EFFECT_INDEX_0] == SPELL_AURA_MOD_RESISTANCE_PCT &&
+                    spellInfo_2->EffectApplyAuraName[EFFECT_INDEX_0] == SPELL_AURA_MOD_RESISTANCE_PCT)
+                    return true;
             }
             else if (spellInfo_2->SpellFamilyName == SPELLFAMILY_GENERIC)
             {

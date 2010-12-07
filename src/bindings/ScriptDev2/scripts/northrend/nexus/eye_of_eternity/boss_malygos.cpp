@@ -374,6 +374,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
     {
         if (pUnit->GetEntry() == NPC_ARCANE_OVERLOAD && pSpell->Id == SPELL_ARCANE_BOMB_MISSILE)
         {
+            ((Creature*)pUnit)->SetInCombatWithZone();
             pUnit->CastSpell(pUnit, SPELL_ARCANE_BOMB_DAMAGE, true);
             pUnit->CastSpell(pUnit, SPELL_ARCANE_OVERLOAD, false, 0, 0, m_creature->GetGUID());
             pUnit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
@@ -407,13 +408,13 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
         }
     }
 
-    /*void SummonedCreatureJustDied(Creature* pSummoned)
+    void SummonedCreatureJustDied(Creature* pSummoned)
     {
-        if (Creature* pDisk = m_creature->getVictim()->SummonCreature(NPC_HOVER_DISK, pSummoned->GetPositionX(), pSummoned->GetPositionY(), pSummoned->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
+        if (Creature* pDisk = m_creature->getVictim()->SummonCreature(NPC_HOVER_DISK, pSummoned->GetPositionX(), pSummoned->GetPositionY(), FLOOR_Z+1.5f, 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
         {
             pDisk->setFaction(35);
             pDisk->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
-            pDisk->CastSpell(pDisk, SPELL_FLIGHT, true);
+            //pDisk->CastSpell(pDisk, SPELL_FLIGHT, true);
             pDisk->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
         }
         uint32 uiEntry = pSummoned->GetEntry();
@@ -427,7 +428,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 pDisk->CastSpell(pDisk, SPELL_FLIGHT, true);
             }
         }
-    }*/
+    }
 
     bool IsThereAnyAdd()
     {
@@ -841,6 +842,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                         pTempTarget->CastSpell(pTempTarget, SPELL_DESTROY_PLATFORM_PRE, false);
                         pTempTarget->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                     }
+                    // workaround for mounting on dragons - players have to click quickly in order not to fall...
                     Map *pMap = m_creature->GetMap();
                     if (pMap)
                     {
@@ -850,13 +852,13 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                                 if (Player* pPlayer = itr->getSource())
                                     if (Creature* pTemp = pPlayer->SummonCreature(NPC_WYRMREST_SKYTALON, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
                                     {
-                                        if (VehicleKit* pTempVehicle = pTemp->GetVehicleKit())
+                                        /*if (VehicleKit* pTempVehicle = pTemp->GetVehicleKit())
                                         {
                                             pPlayer->EnterVehicle(pTempVehicle, 1);
-                                        }
+                                        }*/
                                         //m_creature->AddThreat(pTemp);  // To not leave combat
-                                        /*pTemp->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
-                                        pTemp->CastSpell(pTemp, SPELL_FLIGHT, true);*/
+                                        pTemp->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
+                                        pTemp->CastSpell(pTemp, SPELL_FLIGHT, true);
                                         /*if (VehicleKit *pVeh = pPlayer->GetVehicle())
                                         {
                                             pVeh->GetBase()->SetMaxHealth(pVeh->GetBase()->GetMaxHealth() + pPlayer->GetMaxHealth()*2);
@@ -868,19 +870,21 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                     m_uiTimer = 15000;//6000;
                 }
 
-                /*Map* pMap = m_creature->GetMap();
+                Map* pMap = m_creature->GetMap();
                 if (pMap)
                 {
                     Map::PlayerList const &lPlayers = pMap->GetPlayers();
                     for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                     {
                         Player* pPlayer = itr->getSource();
-                        if (pPlayer->GetVehicle() && m_uiPhase == PHASE_ADDS)
+                        //if (pPlayer->GetVehicle() && m_uiPhase == PHASE_ADDS)
+                        // workaround - check Z position
+                        if (pPlayer->GetPositionZ() > FLOOR_Z + 7.0f && m_uiPhase == PHASE_ADDS)
                             pPlayer->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, true);
                         else
                             pPlayer->ApplySpellImmune(0, IMMUNITY_SCHOOL, SPELL_SCHOOL_MASK_ARCANE, false);
                     }
-                }*/
+                }
 
                 if (m_uiPhase == PHASE_DRAGONS)
                     return;
@@ -1010,7 +1014,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                                 }
                     }*/
 
-                    m_creature->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, FLOOR_Z);
+                    m_creature->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, FLOOR_Z + 80.0f);
                     DoScriptText(SAY_INTRO_PHASE3, m_creature);
 
                     m_uiSubPhase = SUBPHASE_DESTROY_PLATFORM_3;
@@ -1034,11 +1038,9 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                                 if (Player* pPlayer = itr->getSource())
                                     if (Creature* pTemp = pPlayer->SummonCreature(NPC_WYRMREST_SKYTALON, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
                                     {
-                                        //if (VehicleKit* pTempVehicle = pTemp->GetVehicleKit())
-                                        if (pTemp->IsVehicle())
+                                        if (VehicleKit* pTempVehicle = pTemp->GetVehicleKit())
                                         {
-                                            Vehicle *pTempVehicle = (Vehicle*)pTemp;
-                                            pPlayer->EnterVehicle(pTempVehicle, 0, true);
+                                            pPlayer->EnterVehicle(pTempVehicle, 0);
                                             m_creature->AddThreat(pTemp);  // To not leave combat
                                             pTemp->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
                                             pTemp->CastSpell(pTemp, SPELL_FLIGHT, true);
@@ -1102,7 +1104,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 for (uint8 i = 0; i<=50; ++i)
                 {
                     if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                        //if (pTarget->GetEntry() == NPC_WYRMREST_SKYTALON)
+                        if (pTarget->GetEntry() == NPC_WYRMREST_SKYTALON)
                         {
                             switch (urand(0, 5))
                             {
@@ -1125,7 +1127,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 for (uint8 i = 0; i<=50; ++i)
                 {
                     if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                        //if (pTarget->GetEntry() == NPC_WYRMREST_SKYTALON)
+                        if (pTarget->GetEntry() == NPC_WYRMREST_SKYTALON)
                         {
                             m_uiSubPhase = SUBPHASE_SURGE_OF_POWER;
                             m_uiTimer = 6500;
@@ -1384,7 +1386,8 @@ struct MANGOS_DLL_DECL npc_scion_of_eternityAI : public ScriptedAI
 /*######
 ## npc_hover_disk
 ######*/
-struct MANGOS_DLL_DECL npc_hover_diskAI : public ScriptedAI
+// not used currently
+/*struct MANGOS_DLL_DECL npc_hover_diskAI : public ScriptedAI
 {
     npc_hover_diskAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
@@ -1440,6 +1443,18 @@ struct MANGOS_DLL_DECL npc_hover_diskAI : public ScriptedAI
         else
             m_uiCheckTimer -= uiDiff;
     }
+};
+*/
+/*######
+## npc_arcane_overload
+######*/
+struct MANGOS_DLL_DECL npc_arcane_overloadAI : public ScriptedAI
+{
+    npc_arcane_overloadAI(Creature *pCreature) : ScriptedAI(pCreature){}
+    void Reset(){SetCombatMovement(false);}
+    void MoveInLineOfSight(Unit *pWho){}
+    void AttackStart(Unit *pWho){}
+    void UpdateAI(const uint32 uiDiff){}
 };
 
 /*######
@@ -1568,12 +1583,17 @@ CreatureAI* GetAI_npc_nexus_lord(Creature* pCreature)
 CreatureAI* GetAI_npc_scion_of_eternity(Creature* pCreature)
 {
     return new npc_scion_of_eternityAI(pCreature);
-} 
+}
 
-CreatureAI* GetAI_npc_hover_disk(Creature* pCreature)
+CreatureAI* GetAI_npc_arcane_overload(Creature* pCreature)
+{
+    return new npc_arcane_overloadAI(pCreature);
+}
+
+/*CreatureAI* GetAI_npc_hover_disk(Creature* pCreature)
 {
     return new npc_hover_diskAI(pCreature);
-} 
+}*/
 
 CreatureAI* GetAI_npc_alexstrasza(Creature* pCreature)
 {
@@ -1608,6 +1628,11 @@ void AddSC_boss_malygos()
     newscript->Name = "npc_hover_disk";
     newscript->GetAI = &GetAI_npc_hover_disk;
     newscript->RegisterSelf();*/
+
+    newscript = new Script;
+    newscript->Name = "npc_arcane_overload";
+    newscript->GetAI = &GetAI_npc_arcane_overload;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_alexstrasza";

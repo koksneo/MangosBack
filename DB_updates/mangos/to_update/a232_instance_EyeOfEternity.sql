@@ -6,11 +6,18 @@
 UPDATE instance_template SET ScriptName = 'instance_eye_of_eternity' WHERE map = 616;
 
 -- Update flags for NPCs/Vehicles
-UPDATE creature_template SET flags_extra = flags_extra | 2 WHERE entry = 30090; -- Vortex  'Arcane Overload', 'Hover Disk');
-UPDATE creature_template SET flags_extra = flags_extra | 2, faction_A = 35, faction_H = 35, VehicleEntry = 264 WHERE entry IN (30234, 30248); -- Hover Disk
+UPDATE creature_template SET flags_extra = flags_extra | 2 WHERE entry = 30090; -- Vortex;
+UPDATE creature_template SET flags_extra = flags_extra | 2, faction_A = 35, faction_H = 35, VehicleEntry = 223, unit_flags = 0 WHERE entry IN (30234, 30248); -- Hover Disk
 UPDATE creature_template SET flags_extra = flags_extra | 2, faction_A = 35, faction_H = 35 WHERE entry = 30118; -- Portal (Malygos)
-UPDATE creature_template SET flags_extra = flags_extra | 2 WHERE entry = 30282; -- Arcane Overload
+UPDATE creature_template SET flags_extra = flags_extra | 2, WHERE entry = 30282; -- Arcane Overload
 UPDATE creature_template SET mindmg = 1, maxdmg = 1, dmg_multiplier = 1 WHERE entry = 30592; -- Static Field
+
+-- Hover Disk
+DELETE FROM vehicle_seat_data WHERE seat = 2223;
+INSERT INTO vehicle_seat_data (seat, flags) VALUES
+(2223, 5);
+-- make disk unattackable
+UPDATE vehicle_data SET flags = flags|0x0080|0x0004 WHERE entry = 223;
 
 -- Set scriptnames and some misc data to bosses and GOs
 UPDATE gameobject_template SET flags = 4, data0 = 43 WHERE gameobject_template.entry in (193967, 193905);
@@ -24,7 +31,7 @@ UPDATE creature_template SET ScriptName = 'npc_scion_of_eternity' WHERE entry = 
 UPDATE creature_template SET mechanic_immune_mask = 1072918979 WHERE entry IN (30249, 31751);
 UPDATE creature_template SET faction_A = 14, faction_H = 14, ScriptName = 'npc_power_spark' WHERE entry = 30084; -- Power Spark
 UPDATE creature_template SET faction_A = 14, faction_H = 14 WHERE entry = 32187; -- Power Spark (1)
-UPDATE creature_template SET ScriptName = 'npc_arcane_overload' WHERE entry = 30282; -- Arcane Overload
+UPDATE creature_template SET ScriptName = "npc_arcane_overload" WHERE entry = 30282; -- Arcane Overload
 UPDATE creature_template SET ScriptName = 'npc_alexstrasza' WHERE entry = 32295;
 
 DELETE FROM `spell_script_target` WHERE `entry` IN (56505, 61028);
@@ -34,6 +41,8 @@ INSERT INTO `spell_script_target` VALUES
 
 -- Fix Wyrmrest drakes creature info
 UPDATE creature_template SET minhealth = 100000, maxhealth = 100000 WHERE entry = 32535;
+-- allow drakes to be healed and use proper spell2 entry
+UPDATE vehicle_data SET flags = flags|0x0010, Spell2 = 56092 WHERE entry = 165;
 
 -- Fix Loot caches being not selectable
 UPDATE gameobject_template SET faction = 35, flags = 0 WHERE entry IN (193967, 193905);

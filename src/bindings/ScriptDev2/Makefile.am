@@ -427,6 +427,7 @@ scripts/northrend/ulduar/halls_of_lightning/boss_volkhan.cpp \
 scripts/northrend/ulduar/halls_of_lightning/halls_of_lightning.h \
 scripts/northrend/ulduar/halls_of_lightning/instance_halls_of_lightning.cpp \
 scripts/northrend/ulduar/halls_of_stone/boss_maiden_of_grief.cpp \
+scripts/northrend/ulduar/halls_of_stone/boss_krystallus.cpp \
 scripts/northrend/ulduar/halls_of_stone/boss_sjonnir.cpp \
 scripts/northrend/ulduar/halls_of_stone/halls_of_stone.cpp \
 scripts/northrend/ulduar/halls_of_stone/halls_of_stone.h \

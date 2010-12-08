@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Boss_Maiden_of_Grief
-SD%Complete: 60%
+SD%Complete: 
 SDComment:
 SDCategory: Halls of Stone
 EndScriptData */
@@ -94,7 +94,9 @@ struct MANGOS_DLL_DECL boss_maiden_of_griefAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_MAIDEN, DONE);
+            m_pInstance->SetData(TYPE_GRIEF, DONE);
+        
+        
     }
 
     void UpdateAI(const uint32 uiDiff)

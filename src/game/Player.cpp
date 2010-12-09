@@ -22398,7 +22398,11 @@ void Player::ActivateSpec(uint8 specNum)
     if(specNum >= GetSpecsCount())
         return;
 
-    UnsummonPetTemporaryIfAny();
+    if (getClass() == CLASS_HUNTER || getClass() == CLASS_WARLOCK)
+        UnsummonPetTemporaryIfAny();
+    else if (Pet* pet = GetPet())
+        RemovePet(PET_SAVE_NOT_IN_SLOT);
+
     RemoveAllEnchantments(TEMP_ENCHANTMENT_SLOT);
     SendActionButtons(2);
     ApplyGlyphs(false);

@@ -542,7 +542,7 @@ namespace MaNGOS
             bool operator()(Player* u)
             {
                 if (i_fobj->IsFriendlyTo(u) || u->isAlive() || u->HasAuraType(SPELL_AURA_GHOST) || u->getDeathState()!=CORPSE ||
-                    u->IsTaxiFlying() || !i_fobj->isHonorOrXPTarget(u) || u->GetDisplayId() != u->GetNativeDisplayId() )
+                    u->IsTaxiFlying() || !i_fobj->isHonorOrXPTarget(u))
                     return false;
 
                 return i_fobj->IsWithinDistInMap(u, i_range);
@@ -551,7 +551,7 @@ namespace MaNGOS
             {
                 if (i_fobj->isHonorOrXPTarget(u) || u->GetDisplayId() != u->GetNativeDisplayId() ||
                     u->getDeathState() != CORPSE || u->IsDeadByDefault() || u->IsTaxiFlying() ||
-                    ( u->GetCreatureTypeMask() & (1 << (CREATURE_TYPE_HUMANOID-1)) )==0)
+                    ( u->GetCreatureTypeMask() & CREATURE_TYPEMASK_HUMANOID_OR_UNDEAD) == 0)
                     return false;
 
                 return i_fobj->IsWithinDistInMap(u, i_range);

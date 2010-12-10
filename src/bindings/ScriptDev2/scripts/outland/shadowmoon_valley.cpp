@@ -1326,7 +1326,7 @@ struct MANGOS_DLL_DECL npc_razuunAI : public ScriptedAI
         {
             if(Creature* pDeathBringer = GetClosestCreatureWithEntry(m_creature, NPC_DEATHBRINGER, 100.0f))
             {
-                if(pDeathBringer || pDeathBringer->isAlive())
+                if(pDeathBringer && pDeathBringer->isAlive())
                 {
                     m_uiPlayerGUID = pPlayer->GetGUID();
                     m_uiPhase = 1;

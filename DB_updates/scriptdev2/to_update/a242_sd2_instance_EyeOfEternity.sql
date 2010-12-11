@@ -1,6 +1,6 @@
 -- Eye of Eternity
 -- Fix sound entries for Malygos encounter
-DELETE FROM script_texts WHERE entry BETWEEN -1616035 AND -1616000;
+DELETE FROM script_texts WHERE entry BETWEEN -1616036 AND -1616000;
 INSERT INTO `script_texts` (entry, `content_default`, `sound`, `type`, `language`, `emote`, `comment`) VALUES
 (-1616000, 'Lesser beings, intruding here! A shame that your excess courage does not compensate for your stupidity!', 14512, 1, 0, 0, 'Malygos INTRO 1'),
 (-1616001, 'None but the blue dragonflight are welcome here! Perhaps this is the work of Alexstrasza? Well then, she has sent you to your deaths.', 14513, 1, 0, 0, 'Malygos INTRO 2'),
@@ -36,4 +36,5 @@ INSERT INTO `script_texts` (entry, `content_default`, `sound`, `type`, `language
 (-1616033, 'This resolution pains me deeply, but the destruction, the monumental loss of life had to end. Regardless of Malygos\' recent transgressions, I will mourn his loss. He was once a guardian, a protector. This day, one of the world\'s mightiest has fallen.', 14408, 1, 0, 0, 'Alexstrasza OUTRO 3'),
 (-1616034, 'The red dragonflight will take on the burden of mending the devastation wrought on Azeroth. Return home to your people and rest. Tomorrow will bring you new challenges, and you must be ready to face them. Life...goes on.', 14409, 1, 0, 0, 'Alexstrasza OUTRO 4'),
 -- EMOTES
-(-1616035, 'A Power Spark forms from a nearby rift!', 0, 3, 0, 0, "Malygos EMOTE_POWER_SPARK");
+(-1616035, 'A Power Spark forms from a nearby rift!', 0, 3, 0, 0, "Malygos EMOTE_POWER_SPARK"),
+(-1616036, 'Malygos fixes his eyes on you!', 0, 5, 0, 0, "Malygos EMOTE_SURGE_WHISPER");

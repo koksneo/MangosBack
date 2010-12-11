@@ -12,13 +12,6 @@ UPDATE creature_template SET flags_extra = flags_extra | 2, faction_A = 35, fact
 UPDATE creature_template SET flags_extra = flags_extra | 2 WHERE entry = 30282; -- Arcane Overload
 UPDATE creature_template SET mindmg = 1, maxdmg = 1, dmg_multiplier = 1 WHERE entry = 30592; -- Static Field
 
--- Hover Disk
-DELETE FROM vehicle_seat_data WHERE seat = 2223;
-INSERT INTO vehicle_seat_data (seat, flags) VALUES
-(2223, 5);
--- make disk unattackable
-UPDATE vehicle_data SET flags = flags|0x0080|0x0004 WHERE entry = 223;
-
 -- Set scriptnames and some misc data to bosses and GOs
 UPDATE gameobject_template SET flags = 4, data0 = 43 WHERE gameobject_template.entry in (193967, 193905);
 UPDATE `gameobject_template` SET ScriptName = "go_focusing_iris" WHERE `entry` IN (193958, 193960);
@@ -43,6 +36,12 @@ INSERT INTO `spell_script_target` VALUES
 UPDATE creature_template SET minhealth = 100000, maxhealth = 100000 WHERE entry = 32535;
 -- allow drakes to be healed and use proper spell2 entry
 UPDATE vehicle_data SET flags = flags|0x0010, Spell2 = 56092 WHERE entry = 165;
+-- Hover Disk
+DELETE FROM vehicle_seat_data WHERE seat = 2223;
+INSERT INTO vehicle_seat_data (seat, flags) VALUES
+(2223, 5);
+-- make disk unattackable
+UPDATE vehicle_data SET flags = flags|0x0080|0x0004|0x0008 WHERE entry = 223;
 
 -- Fix Loot caches being not selectable
 UPDATE gameobject_template SET faction = 35, flags = 0 WHERE entry IN (193967, 193905);

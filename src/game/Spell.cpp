@@ -1551,6 +1551,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 31298:                                 // Sleep
                 case 51904:                                 // Limiting the count of Summoned Ghouls
                 case 54522:
+                case 61693:                                 // Arcane Storm (Malygos)
                     unMaxTargets = 3;
                     break;
                 case 30843:                                 // Enfeeble TODO: exclude top threat target from target selection
@@ -1558,6 +1559,7 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 55665:                                 // Life Drain (h)
                 case 67700:                                 // Penetrating Cold (25 man)
                 case 68510:                                 // Penetrating Cold (25 man, heroic)
+                case 61694:                                 // Arcane Storm (25 man) (Malygos)
                     unMaxTargets = 5;
                     break;
                 case 54098:                                 // Poison Bolt Volley (h)
@@ -1875,6 +1877,13 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                         if ((*iter) && !(*iter)->HasAura(m_spellInfo->CalculateSimpleValue(EFFECT_INDEX_2)))
                             targetUnitMap.push_back(*iter);
                 return;
+            }
+            // Arcane Storm (Malygos)
+            // don't target main target (2-3 or 4-5 random targets)
+            else if (m_spellInfo->Id == 61693 || m_spellInfo->Id == 61694)
+            {
+                if (m_caster->getVictim())
+                    targetUnitMap.remove(m_caster->getVictim());
             }
             break;
         case TARGET_AREAEFFECT_INSTANT:

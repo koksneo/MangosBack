@@ -392,11 +392,11 @@ bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
             
             if (Unit* pCaster = pAura->GetCaster())
                 DoScriptText(SAY_SPECIMEN, pCaster);
-
-            Unit* pTarget = pAura->GetTarget();
-            if (pTarget->GetTypeId() == TYPEID_UNIT)
+            
+            
+            if (pAura->GetTarget()->GetTypeId() == TYPEID_UNIT)
             {
-                Creature* pCreature = (Creature*)pTarget;
+                Creature* pCreature = (Creature*)pAura->GetTarget();
 
                 if (pCreature->GetEntry() == NPC_NEXUS_DRAKE_HATCHLING)
                 {
@@ -427,21 +427,21 @@ bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
         }
         case SPELL_FUMPING:
         {
-            if (uiEffIndex == EFFECT_INDEX_2)
+            if (pAura->GetEffIndex() == EFFECT_INDEX_2)
             {
                 switch(urand(0,2))
                 {
                     case 0:
                     {
-                        pCaster->CastSpell(pCreatureTarget, SPELL_SUMMON_HAISHULUD, true);
+                        ((Unit*)pAura->GetCaster())->CastSpell((Creature*)pAura->GetTarget(), SPELL_SUMMON_HAISHULUD, true);
                         break;
                     }
                     case 1:
                     {
                         for (int i = 0; i<2; ++i)
                         {
-                            if (Creature* pSandGnome = pCaster->SummonCreature(NPC_SAND_GNOME, pCreatureTarget->GetPositionX(), pCreatureTarget->GetPositionY(), pCreatureTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
-                                pSandGnome->AI()->AttackStart(pCaster);
+                            if (Creature* pSandGnome = ((Unit*)pAura->GetCaster())->SummonCreature(NPC_SAND_GNOME, ((Creature*)pAura->GetTarget())->GetPositionX(), ((Creature*)pAura->GetTarget())->GetPositionY(), ((Creature*)pAura->GetTarget())->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                                pSandGnome->AI()->AttackStart((Unit*)pAura->GetCaster());
                         }
                         break;
                     }
@@ -449,13 +449,13 @@ bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
                     {
                         for (int i = 0; i<2; ++i)
                         {
-                            if (Creature* pMatureBoneSifter = pCaster->SummonCreature(NPC_MATURE_BONE_SIFTER, pCreatureTarget->GetPositionX(), pCreatureTarget->GetPositionY(), pCreatureTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
-                                pMatureBoneSifter->AI()->AttackStart(pCaster);
+                            if (Creature* pMatureBoneSifter = ((Unit*)pAura->GetCaster())->SummonCreature(NPC_MATURE_BONE_SIFTER, ((Creature*)pAura->GetTarget())->GetPositionX(), ((Creature*)pAura->GetTarget())->GetPositionY(), ((Creature*)pAura->GetTarget())->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                                pMatureBoneSifter->AI()->AttackStart((Unit*)pAura->GetCaster());
                         }
                         break;
                     }
                 }
-                pCreatureTarget->ForcedDespawn();
+                ((Creature*)pAura->GetTarget())->ForcedDespawn();
             }
             return true;
         }

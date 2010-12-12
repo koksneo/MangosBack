@@ -33,9 +33,9 @@ enum Sounds
     SAY_SLAY_2                                  = -1601013,
     SAY_SLAY_3                                  = -1601014,
     SAY_DEATH                                   = -1601015,
-    SAY_SEND_GROUP_1                            = -1601018,
-    SAY_SEND_GROUP_2                            = -1601019,
-    SAY_SEND_GROUP_3                            = -1601020,
+    SAY_SEND_GROUP_1_K                          = -1601018,
+    SAY_SEND_GROUP_2_K                          = -1601019,
+    SAY_SEND_GROUP_3_K                          = -1601020,
     SAY_SWARM_1                                 = -1601016,
     SAY_SWARM_2                                 = -1601017,
     SAY_PREFIGHT_1                              = -1601021,
@@ -152,7 +152,7 @@ struct MANGOS_DLL_DECL boss_krikthirAI : public ScriptedAI
 
         SpawnGroups(0);
         ++m_uiPhase;
-        DoScriptText(SAY_SEND_GROUP_1, m_creature);
+        DoScriptText(SAY_SEND_GROUP_1_K, m_creature);
         if (m_pInstance)
             m_pInstance->SetData(TYPE_KRIKTHIR, IN_PROGRESS);
     }
@@ -240,7 +240,7 @@ struct MANGOS_DLL_DECL boss_krikthirAI : public ScriptedAI
                     if(Creature* pMiniBoss = m_creature->GetMap()->GetCreature(m_uiMiniBossGUID[1]))
                         if(!pMiniBoss->isAlive())  
                         {
-                            DoScriptText(SAY_SEND_GROUP_2, m_creature);
+                            DoScriptText(SAY_SEND_GROUP_2_K, m_creature);
                             SpawnGroups(2);
                             ++m_uiPhase;
                         }
@@ -249,7 +249,7 @@ struct MANGOS_DLL_DECL boss_krikthirAI : public ScriptedAI
                     if(Creature* pMiniBoss = m_creature->GetMap()->GetCreature(m_uiMiniBossGUID[0]))
                         if(!pMiniBoss->isAlive())          
                         {
-                            DoScriptText(SAY_SEND_GROUP_1, m_creature);
+                            DoScriptText(SAY_SEND_GROUP_1_K, m_creature);
                             SpawnGroups(1);
                             ++m_uiPhase;
                         }
@@ -457,7 +457,7 @@ struct MANGOS_DLL_DECL mob_narjilAI : public ScriptedAI
 
     void Aggro(Unit *pWho)
     {
-        DoScriptText(SAY_SEND_GROUP_3, m_creature);
+        DoScriptText(SAY_SEND_GROUP_3_K, m_creature);
     }
 
     void UpdateAI(const uint32 uiDiff) 

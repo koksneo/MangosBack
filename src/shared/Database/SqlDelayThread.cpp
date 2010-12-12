@@ -30,22 +30,21 @@ void SqlDelayThread::run()
     mysql_thread_init();
     #endif
 
-    //lets wait for next async task no more than 2 secs...
-    ACE_Time_Value _time(2);
-
     const uint32 loopSleepms = 10;
+
     const uint32 pingEveryLoop = m_dbEngine->GetPingIntervall()/loopSleepms;
+
     uint32 loopCounter = 0;
     while (m_running)
     {
         // if the running state gets turned off while sleeping
         // empty the queue before exiting
 
-        ACE_Based::Thread::Sleep(loopSleepms);      
-        SqlAsyncTask * s = dynamic_cast<SqlAsyncTask*> (m_sqlQueue.dequeue(/*&_time*/));
-        if(s)
+        ACE_Based::Thread::Sleep(loopSleepms);
+        SqlOperation* s = NULL;
+        while (m_sqlQueue.next(s))
         {
-            s->call();
+            s->Execute(m_dbEngine);
             delete s;
         }
         if((loopCounter++) >= pingEveryLoop)
@@ -63,11 +62,4 @@ void SqlDelayThread::run()
 void SqlDelayThread::Stop()
 {
     m_running = false;
-    m_sqlQueue.queue()->deactivate();
-}
-
-bool SqlDelayThread::Delay(SqlOperation* sql)
-{
-    int res = m_sqlQueue.enqueue(new SqlAsyncTask(m_dbEngine, sql));
-    return (res != -1);
 }

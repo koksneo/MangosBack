@@ -20,7 +20,7 @@
 #define __SQLDELAYTHREAD_H
 
 #include "ace/Thread_Mutex.h"
-#include "ace/Activation_Queue.h"
+#include "LockedQueue.h"
 #include "Threading.h"
 
 
@@ -29,7 +29,7 @@ class SqlOperation;
 
 class SqlDelayThread : public ACE_Based::Runnable
 {
-    typedef ACE_Activation_Queue SqlQueue;
+    typedef ACE_Based::LockedQueue<SqlOperation*, ACE_Thread_Mutex> SqlQueue;
 
     private:
         SqlQueue m_sqlQueue;                                ///< Queue of SQL statements
@@ -41,7 +41,7 @@ class SqlDelayThread : public ACE_Based::Runnable
         SqlDelayThread(Database* db);
 
         ///< Put sql statement to delay queue
-        bool Delay(SqlOperation* sql);
+        bool Delay(SqlOperation* sql) { m_sqlQueue.add(sql); return true; }
 
         virtual void Stop();                                ///< Stop event
         virtual void run();                                 ///< Main Thread loop

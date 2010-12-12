@@ -31,36 +31,29 @@ void SqlStatement::Execute(Database *db)
 
 void SqlTransaction::Execute(Database *db)
 {
-    m_Mutex.acquire(); 
     if(m_queue.empty())
-    {
-        m_Mutex.release();
         return;
-    }
     db->DirectExecute("START TRANSACTION");
     while(!m_queue.empty())
     {
         char *sql = const_cast<char*>(m_queue.front());
+        m_queue.pop();
 
         if(!db->DirectExecute(sql))
         {
             delete [] sql;
-            m_queue.pop();
             db->DirectExecute("ROLLBACK");
             while(!m_queue.empty())
             {
                 delete [] (const_cast<char*>(m_queue.front()));
                 m_queue.pop();
             }
-            m_Mutex.release();
             return;
         }
 
         delete [] sql;
-        m_queue.pop();
     }
     db->DirectExecute("COMMIT");
-    m_Mutex.release();
 }
 
 /// ---- ASYNC QUERIES ----

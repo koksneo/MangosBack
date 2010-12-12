@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Netherstorm
 SD%Complete: 80
-SDComment: Quest support: 10438, 10652 (special flight paths), 10299, 10321, 10322, 10323, 10329, 10330, 10337, 10338, 10365(Shutting Down Manaforge), 10198
+SDComment: Quest support: 10438, 10652 (special flight paths), 10299, 10321, 10322, 10323, 10329, 10330, 10337, 10338, 10365(Shutting Down Manaforge), 10198, 10191, 10924
 SDCategory: Netherstorm
 EndScriptData */
 
@@ -28,10 +28,12 @@ npc_commander_dawnforge
 npc_protectorate_nether_drake
 npc_veronia
 npc_bessy
+npc_maxx_a_million
 EndContentData */
 
 #include "precompiled.h"
 #include "escort_ai.h"
+#include "pet_ai.h"
 
 /*######
 ## npc_manaforge_control_console
@@ -780,6 +782,206 @@ bool GOHello_go_Ethereal_Teleport_pad(Player* pPlayer, GameObject* pGo)
 
 }
 
+/*######
+## npc_maxx_a_million
+######*/
+
+enum
+{
+    QUEST_MARK_V_IS_ALIVE       = 10191,
+    NPC_BOT_SPECIALIST_ALLEY    = 19578,
+    GO_DRAENEI_MACHINE          = 183771,
+
+    SAY_START                   = -1000621,
+    SAY_ALLEY_FAREWELL          = -1000622,
+    SAY_CONTINUE                = -1000623,
+    SAY_ALLEY_FINISH            = -1000624
+};
+
+struct MANGOS_DLL_DECL npc_maxx_a_million_escortAI : public npc_escortAI
+{
+    npc_maxx_a_million_escortAI(Creature* pCreature) : npc_escortAI(pCreature) {Reset();}
+
+    uint8 m_uiSubEvent;
+    uint32 m_uiSubEventTimer;
+    uint64 m_uiAlleyGUID;
+    uint64 m_uiLastDraeneiMachineGUID;
+    void Reset()
+    {
+        if (!HasEscortState(STATE_ESCORT_ESCORTING))
+        {
+            m_uiSubEvent = 0;
+            m_uiSubEventTimer = 0;
+            m_uiAlleyGUID = 0;
+            m_uiLastDraeneiMachineGUID = 0;
+
+            // Reset fields, that were changed on escort-start
+            m_creature->HandleEmote(EMOTE_STATE_STUN);
+            // Faction is reset with npc_escortAI::JustRespawned();
+
+            // Unclear how these flags are set/removed in relation to the faction change at start of escort.
+            // Workaround here, so that the flags are removed during escort (and while not in evade mode)
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE + UNIT_FLAG_PASSIVE);
+        }
+        else
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
+    }
+
+    void WaypointReached(uint32 uiPoint)
+    {
+        switch (uiPoint)
+        {
+            case 1:
+                // turn 90 degrees , towards doorway.
+                m_creature->SetFacingTo(m_creature->GetOrientation() + (M_PI_F/2));
+                DoScriptText(SAY_START, m_creature);
+                m_uiSubEventTimer = 3000;
+                m_uiSubEvent = 1;
+                break;
+            case 7:
+            case 17:
+            case 29:
+                if (GameObject* pMachine = GetClosestGameObjectWithEntry(m_creature, GO_DRAENEI_MACHINE, INTERACTION_DISTANCE))
+                {
+                    m_creature->SetFacingToObject(pMachine);
+                    m_uiLastDraeneiMachineGUID = pMachine->GetGUID();
+                    m_uiSubEvent = 2;
+                    m_uiSubEventTimer = 1000;
+                }
+                else
+                    m_uiLastDraeneiMachineGUID = 0;
+
+                break;
+            case 36:
+                if (Player* pPlayer = GetPlayerForEscort())
+                    pPlayer->GroupEventHappens(QUEST_MARK_V_IS_ALIVE, m_creature);
+
+                if (Creature* pAlley = m_creature->GetMap()->GetCreature(m_uiAlleyGUID))
+                    DoScriptText(SAY_ALLEY_FINISH, pAlley);
+
+                break;
+        }
+    }
+
+    void WaypointStart(uint32 uiPoint)
+    {
+        switch (uiPoint)
+        {
+            case 8:
+            case 18:
+            case 30:
+                DoScriptText(SAY_CONTINUE, m_creature);
+                break;
+        }
+    }
+
+    void UpdateEscortAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() ||  !m_creature->getVictim())
+        {
+            if (m_uiSubEventTimer)
+            {
+                if (m_uiSubEventTimer <= uiDiff)
+                {
+                    switch (m_uiSubEvent)
+                    {
+                        case 1:                             // Wait time before Say
+                            if (Creature* pAlley = GetClosestCreatureWithEntry(m_creature, NPC_BOT_SPECIALIST_ALLEY, INTERACTION_DISTANCE*2))
+                            {
+                                m_uiAlleyGUID = pAlley->GetGUID();
+                                DoScriptText(SAY_ALLEY_FAREWELL, pAlley);
+                            }
+                            m_uiSubEventTimer = 0;
+                            m_uiSubEvent = 0;
+                            break;
+                        case 2:                             // Short wait time after reached WP at machine
+                            m_creature->HandleEmote(EMOTE_ONESHOT_ATTACKUNARMED);
+                            m_uiSubEventTimer = 2000;
+                            m_uiSubEvent = 3;
+                            break;
+                        case 3:                             // Despawn machine after 2s
+                            if (GameObject* pMachine = m_creature->GetMap()->GetGameObject(m_uiLastDraeneiMachineGUID))
+                                pMachine->Use(m_creature);
+
+                            m_uiLastDraeneiMachineGUID = 0;
+                            m_uiSubEventTimer = 0;
+                            m_uiSubEvent = 0;
+                            break;
+                        default:
+                            m_uiSubEventTimer = 0;
+                            break;
+                    }
+                }
+                else
+                    m_uiSubEventTimer -= uiDiff;
+            }
+        }
+        else
+            DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_maxx_a_million(Creature* pCreature)
+{
+    return new npc_maxx_a_million_escortAI(pCreature);
+}
+
+bool QuestAccept_npc_maxx_a_million(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (pQuest->GetQuestId() == QUEST_MARK_V_IS_ALIVE)
+    {
+        if (npc_maxx_a_million_escortAI* pEscortAI = dynamic_cast<npc_maxx_a_million_escortAI*>(pCreature->AI()))
+        {
+            // Set Faction to Escort Faction
+            pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_PASSIVE);
+            // Set emote-state to 0 (is EMOTE_STATE_STUN by default)
+            pCreature->HandleEmote(EMOTE_ONESHOT_NONE);
+            // Remove unit_flags (see comment in JustReachedHome)
+            pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE + UNIT_FLAG_PASSIVE);
+
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest, true);
+        }
+    }
+    return true;
+}
+
+/*######
+## npc_zeppit
+######*/
+
+enum
+{
+    EMOTE_GATHER_BLOOD          = -1000625,
+    NPC_WARP_CHASER             = 18884,
+    SPELL_GATHER_WARP_BLOOD     = 39244,                    // for quest 10924
+};
+
+struct MANGOS_DLL_DECL npc_zeppitAI : public ScriptedPetAI
+{
+    npc_zeppitAI(Creature* pCreature) : ScriptedPetAI(pCreature) { Reset(); }
+
+    void Reset() { }
+
+    void OwnerKilledUnit(Unit* pVictim)
+    {
+        if (pVictim->GetTypeId() == TYPEID_UNIT && pVictim->GetEntry() == NPC_WARP_CHASER)
+        {
+            // Distance not known, be assumed to be ~10 yards, possibly a bit less.
+            if (m_creature->IsWithinDistInMap(pVictim, 10.0f))
+            {
+                DoScriptText(EMOTE_GATHER_BLOOD, m_creature);
+                m_creature->CastSpell(m_creature, SPELL_GATHER_WARP_BLOOD, false);
+            }
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_zeppit(Creature* pCreature)
+{
+    return new npc_zeppitAI(pCreature);
+}
+
+
 void AddSC_netherstorm()
 {
     Script* pNewScript;
@@ -825,5 +1027,16 @@ void AddSC_netherstorm()
     pNewScript = new Script;
     pNewScript->Name = "go_Ethereal_Teleport_pad";
     pNewScript->pGOHello = &GOHello_go_Ethereal_Teleport_pad;
+    pNewScript->RegisterSelf();
+    
+    pNewScript = new Script;
+    pNewScript->Name = "npc_maxx_a_million";
+    pNewScript->GetAI = &GetAI_npc_maxx_a_million;
+    pNewScript->pQuestAccept = &QuestAccept_npc_maxx_a_million;
+    pNewScript->RegisterSelf();
+
+    pNewScript = new Script;
+    pNewScript->Name = "npc_zeppit";
+    pNewScript->GetAI = &GetAI_npc_zeppit;
     pNewScript->RegisterSelf();
 }

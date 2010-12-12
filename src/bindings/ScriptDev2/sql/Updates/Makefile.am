@@ -160,5 +160,47 @@ pkgdata_DATA = \
 	r1828_scriptdev2.sql \
 	r1829_mangos.sql \
 	r1830_scriptdev2.sql \
-	r1831_scriptdev2.sql
-
+	r1831_scriptdev2.sql \
+	r1836_mangos.sql \
+	r1842_scriptdev2.sql \
+	r1843_mangos.sql \
+	r1843_scriptdev2.sql \
+	r1844_mangos.sql \
+	r1845_mangos.sql \
+	r1845_scriptdev2.sql \
+	r1850_mangos.sql \
+	r1850_scriptdev2.sql \
+	r1851_mangos.sql \
+	r1852_scriptdev2.sql \
+	r1853_mangos.sql \
+	r1855_scriptdev2.sql \
+	r1858_scriptdev2.sql \
+	r1859_mangos.sql \
+	r1860_scriptdev2.sql \
+	r1862_mangos.sql \
+	r1863_mangos.sql \
+	r1864_mangos.sql \
+	r1864_scriptdev2.sql \
+	r1865_mangos.sql \
+	r1865_scriptdev2.sql \
+	r1866_scriptdev2.sql \
+	r1868_scriptdev2.sql \
+	r1869_mangos.sql \
+	r1871_mangos.sql \
+	r1875_mangos.sql \
+	r1875_scriptdev2.sql \
+	r1876_mangos.sql \
+	r1876_scriptdev2.sql \
+	r1878_mangos.sql \
+	r1881_mangos.sql \
+	r1882_scriptdev2.sql \
+	r1886_scriptdev2.sql \
+	r1888_mangos.sql \
+	r1888_scriptdev2.sql \
+	r1889_mangos.sql \
+	r1889_scriptdev2.sql \
+	r1890_mangos.sql \
+	r1890_scriptdev2.sql \
+	r1891_mangos.sql \
+	r1899_mangos.sql \
+	r1899_scriptdev2.sql

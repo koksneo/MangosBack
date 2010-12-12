@@ -38,6 +38,8 @@ enum
     SAY_BLAU_SLAY           = -1533049,
     SAY_BLAU_DEATH          = -1533050,
 
+    EMOTE_UNYIELDING_PAIN   = -1533156,                     // NYI
+
     SPELL_MARK_OF_BLAUMEUX  = 28833,
     SPELL_UNYILDING_PAIN    = 57381,
     SPELL_VOIDZONE          = 28863,

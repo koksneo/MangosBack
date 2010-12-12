@@ -16,8 +16,8 @@
 
 /* ScriptData
 SDName: instance_gundrak
-SD%Complete: 0
-SDComment:
+SD%Complete: 80
+SDComment: Reload case for bridge support is missing, achievement support is missing
 SDCategory: Gundrak
 EndScriptData */
 
@@ -175,6 +175,10 @@ void instance_gundrak::Load(const char* chrIn)
     {
         if (m_auiEncounter[i] == IN_PROGRESS)
             m_auiEncounter[i] = NOT_STARTED;
+
+        // TODO: REMOVE when bridge/ collision reloading correctly working
+        if (m_auiEncounter[i] == SPECIAL)
+            m_auiEncounter[i] = DONE;
     }
 
     OUT_LOAD_INST_DATA_COMPLETE;
@@ -182,7 +186,7 @@ void instance_gundrak::Load(const char* chrIn)
 
 void instance_gundrak::SetData(uint32 uiType, uint32 uiData)
 {
-    debug_log("SD2: Instance Gundrak: SetData received for type %u with data %u",uiType,uiData);
+    debug_log("SD2: Instance Gundrak: SetData received for type %u with data %u", uiType, uiData);
 
     switch(uiType)
     {

@@ -158,10 +158,10 @@ CreatureAI* GetAI_boss_trollgore(Creature* pCreature)
 
 void AddSC_boss_trollgore()
 {
-    Script *newscript;
+    Script* pNewScript;
 
-    newscript = new Script;
-    newscript->Name = "boss_trollgore";
-    newscript->GetAI = &GetAI_boss_trollgore;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "boss_trollgore";
+    pNewScript->GetAI = &GetAI_boss_trollgore;
+    pNewScript->RegisterSelf();
 }

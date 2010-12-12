@@ -249,10 +249,10 @@ CreatureAI* GetAI_boss_tharonja(Creature* pCreature)
 
 void AddSC_boss_tharonja()
 {
-    Script *newscript;
+    Script* pNewScript;
 
-    newscript = new Script;
-    newscript->Name = "boss_tharonja";
-    newscript->GetAI = &GetAI_boss_tharonja;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "boss_tharonja";
+    pNewScript->GetAI = &GetAI_boss_tharonja;
+    pNewScript->RegisterSelf();
 }

@@ -36,8 +36,8 @@ float PortalLocation[4][4]=
 
 struct Wave
 {
-    uint32 PortalBoss;                                      //protector of current portal
-    uint32 NextPortalTime;                                  //time to next portal, or 0 if portal boss need to be killed
+    uint32 PortalBoss;                                      // protector of current portal
+    uint32 NextPortalTime;                                  // time to next portal, or 0 if portal boss need to be killed
 };
 
 static Wave RiftWaves[]=
@@ -115,7 +115,7 @@ struct MANGOS_DLL_DECL instance_dark_portal : public ScriptedInstance
             m_uiMedivhGUID = pCreature->GetGUID();
     }
 
-    //what other conditions to check?
+    // what other conditions to check?
     bool CanProgressEvent()
     {
         if (instance->GetPlayers().isEmpty())
@@ -177,7 +177,7 @@ struct MANGOS_DLL_DECL instance_dark_portal : public ScriptedInstance
 
                     if (uiData == DONE)
                     {
-                        //this may be completed further out in the post-event
+                        // this may be completed further out in the post-event
                         debug_log("SD2: Instance Dark Portal: Event completed.");
 
                         Map::PlayerList const& players = instance->GetPlayers();

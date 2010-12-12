@@ -60,12 +60,12 @@ struct MANGOS_DLL_DECL boss_anubarakAI : public ScriptedAI
 {
     boss_anubarakAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (instance_azjol_nerub*)pCreature->GetInstanceData();
         m_bIsRegularMode = pCreature->GetMap()->IsRegularDifficulty();
         Reset();
     }
 
-    ScriptedInstance *m_pInstance;
+    instance_azjol_nerub* m_pInstance;
 
     bool bChanneling;
     bool m_bIsRegularMode;
@@ -262,10 +262,10 @@ CreatureAI* GetAI_boss_anubarak(Creature *pCreature)
 
 void AddSC_boss_anubarak()
 {
-    Script *newscript;
+    Script* pNewScript;
 
-    newscript = new Script;
-    newscript->Name = "boss_anubarak";
-    newscript->GetAI = &GetAI_boss_anubarak;
-    newscript->RegisterSelf();
+    pNewScript = new Script;
+    pNewScript->Name = "boss_anubarak";
+    pNewScript->GetAI = &GetAI_boss_anubarak;
+    pNewScript->RegisterSelf();
 }

@@ -34,6 +34,7 @@ spell 47575
 spell 50706
 spell 45109
 spell 45111
+spell 39246
 EndContentData */
 
 #include "precompiled.h"
@@ -67,7 +68,7 @@ bool EffectDummyGameObj_spell_dummy_go(Unit* pCaster, uint32 uiSpellId, SpellEff
         {
             if (uiEffIndex == EFFECT_INDEX_0)
             {
-                if (pGOTarget->GetEntry() != GO_TASTY_REEF_FISH || pCaster->GetTypeId() != TYPEID_PLAYER)
+                if (pGOTarget->GetRespawnTime() != 0 || pGOTarget->GetEntry() != GO_TASTY_REEF_FISH || pCaster->GetTypeId() != TYPEID_PLAYER)
                     return true;
 
                 if (urand(0, 3))
@@ -81,7 +82,7 @@ bool EffectDummyGameObj_spell_dummy_go(Unit* pCaster, uint32 uiSpellId, SpellEff
                         pShark->AI()->AttackStart(pCaster);
                 }
 
-                pGOTarget->Delete();                        // sends despawn anim + destroy
+                pGOTarget->SetLootState(GO_JUST_DEACTIVATED);
                 return true;
             }
             return true;
@@ -90,7 +91,7 @@ bool EffectDummyGameObj_spell_dummy_go(Unit* pCaster, uint32 uiSpellId, SpellEff
         {
             if (uiEffIndex == EFFECT_INDEX_0)
             {
-                if (pGOTarget->GetEntry() != GO_RED_SNAPPER || pCaster->GetTypeId() != TYPEID_PLAYER)
+                if (pGOTarget->GetRespawnTime() != 0 || pGOTarget->GetEntry() != GO_RED_SNAPPER || pCaster->GetTypeId() != TYPEID_PLAYER)
                     return true;
 
                 if (urand(0, 2))
@@ -104,7 +105,7 @@ bool EffectDummyGameObj_spell_dummy_go(Unit* pCaster, uint32 uiSpellId, SpellEff
                         ((Player*)pCaster)->SendNewItem(pItem, 1, true, false);
                 }
 
-                pGOTarget->Delete();                        // sends despawn anim + destroy
+                pGOTarget->SetLootState(GO_JUST_DEACTIVATED);
                 return true;
             }
             return true;
@@ -256,13 +257,66 @@ enum
     NPC_FALLEN_COMBATANT_1              = 24009,
     NPC_FALLEN_COMBATANT_2              = 24010,
     SPELL_FALLEN_COMBATAN_CREDIT        = 43297,
-    SPELL_BURN_BODY                     = 42793
+    SPELL_BURN_BODY                     = 42793,
+    
+    // quest 14107
+    SPELL_BLESSING_OF_PEACE             = 66719,
+    NPC_FALLEN_HERO_SPIRIT              = 32149,
+    NPC_FALLEN_HERO_SPIRIT_PROXY        = 35055,
+    SAY_BLESS_1                         = -1000594,
+    SAY_BLESS_2                         = -1000595,
+    SAY_BLESS_3                         = -1000596,
+    SAY_BLESS_4                         = -1000597,
+    SAY_BLESS_5                         = -1000598,
+
+    // quest "The Big Bone Worm" 10930
+    SPELL_FUMPING                       = 39246,
+    SPELL_SUMMON_HAISHULUD              = 39248,
+    NPC_SAND_GNOME                      = 22483,
+    NPC_MATURE_BONE_SIFTER              = 22482,
+
+    // quest 12813, by item 40587
+    SPELL_DARKMENDER_TINCTURE           = 52741,
+    SPELL_SUMMON_CORRUPTED_SCARLET      = 54415,
+    NPC_CORPSES_RISE_CREDIT_BUNNY       = 29398
 };
 
 bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
 {
     switch(pAura->GetId())
     {
+        case SPELL_BLESSING_OF_PEACE:
+        {
+            Creature* pCreature = (Creature*)pAura->GetTarget();
+
+            if (!pCreature || pCreature->GetEntry() != NPC_FALLEN_HERO_SPIRIT)
+                return true;
+
+            if (pAura->GetEffIndex() != EFFECT_INDEX_0)
+                return true;
+
+            if (bApply)
+            {
+                switch(urand(0, 4))
+                {
+                    case 0: DoScriptText(SAY_BLESS_1, pCreature); break;
+                    case 1: DoScriptText(SAY_BLESS_2, pCreature); break;
+                    case 2: DoScriptText(SAY_BLESS_3, pCreature); break;
+                    case 3: DoScriptText(SAY_BLESS_4, pCreature); break;
+                    case 4: DoScriptText(SAY_BLESS_5, pCreature); break;
+                }
+            }
+            else
+            {
+                if (Player* pPlayer = (Player*)pAura->GetCaster())
+                {
+                    pPlayer->KilledMonsterCredit(NPC_FALLEN_HERO_SPIRIT_PROXY, pCreature->GetGUID());
+                    pCreature->ForcedDespawn();
+                }
+            }
+
+            return true;
+        }
         case SPELL_HEALING_SALVE:
         {
             if (pAura->GetEffIndex() != EFFECT_INDEX_0)
@@ -348,7 +402,7 @@ bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
                 {
                     pCreature->SetStandState(UNIT_STAND_STATE_SLEEP);
                     pCreature->ForcedDespawn(3000);
-    }
+                }
             }
             return true;
         }
@@ -370,6 +424,40 @@ bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
             }
 
             return false;
+        }
+        case SPELL_FUMPING:
+        {
+            if (uiEffIndex == EFFECT_INDEX_2)
+            {
+                switch(urand(0,2))
+                {
+                    case 0:
+                    {
+                        pCaster->CastSpell(pCreatureTarget, SPELL_SUMMON_HAISHULUD, true);
+                        break;
+                    }
+                    case 1:
+                    {
+                        for (int i = 0; i<2; ++i)
+                        {
+                            if (Creature* pSandGnome = pCaster->SummonCreature(NPC_SAND_GNOME, pCreatureTarget->GetPositionX(), pCreatureTarget->GetPositionY(), pCreatureTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                                pSandGnome->AI()->AttackStart(pCaster);
+                        }
+                        break;
+                    }
+                    case 2:
+                    {
+                        for (int i = 0; i<2; ++i)
+                        {
+                            if (Creature* pMatureBoneSifter = pCaster->SummonCreature(NPC_MATURE_BONE_SIFTER, pCreatureTarget->GetPositionX(), pCreatureTarget->GetPositionY(), pCreatureTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                                pMatureBoneSifter->AI()->AttackStart(pCaster);
+                        }
+                        break;
+                    }
+                }
+                pCreatureTarget->ForcedDespawn();
+            }
+            return true;
         }
     }
 
@@ -407,6 +495,24 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
                 if (pCreatureTarget->GetEntry() == NPC_SICKLY_GAZELLE && ((Player*)pCaster)->GetTeam() == HORDE)
                     pCreatureTarget->UpdateEntry(NPC_CURED_GAZELLE);
 
+                return true;
+            }
+            return true;
+        }
+        case SPELL_DARKMENDER_TINCTURE:
+        {
+            if (uiEffIndex == EFFECT_INDEX_0)
+            {
+                if (pCaster->GetTypeId() != TYPEID_PLAYER)
+                    return true;
+
+                // TODO: find/fix visual for effect, no related spells found doing this
+
+                pCreatureTarget->CastSpell(pCreatureTarget, SPELL_SUMMON_CORRUPTED_SCARLET, true);
+
+                ((Player*)pCaster)->KilledMonsterCredit(NPC_CORPSES_RISE_CREDIT_BUNNY);
+
+                pCreatureTarget->ForcedDespawn();
                 return true;
             }
             return true;

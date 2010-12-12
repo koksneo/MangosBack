@@ -80,7 +80,7 @@ enum
     NPC_UNREL_DEATH_KNIGHT      = 16125,
     NPC_UNREL_RIDER             = 16126,
     NPC_SPECT_TRAINEE           = 16127,
-    NPC_SPECT_DEATH_KNIGTH      = 16148,
+    NPC_SPECT_DEATH_KNIGHT      = 16148,
     NPC_SPECT_RIDER             = 16150,
     NPC_SPECT_HORSE             = 16149,
 
@@ -253,6 +253,7 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
         uint64 m_uiFaerWebGUID;
         uint64 m_uiMaexOuterGUID;
         uint64 m_uiMaexInnerGUID;
+        std::list<uint64> m_lFaerlinaAddGUIDs;
 
         uint64 m_uiGothikGUID;
         uint64 m_uiGothCombatGateGUID;

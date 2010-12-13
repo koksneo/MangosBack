@@ -1651,6 +1651,18 @@ float GameObject::GetObjectBoundingRadius() const
     return DEFAULT_WORLD_OBJECT_SIZE;
 }
 
+void GameObject::DealSiegeDamage(uint32 damage)
+{
+    m_actualHealth -= damage;
+
+    // TODO : there are a lot of thinghts to do here
+    if(m_actualHealth < 0)
+    {
+        m_actualHealth = GetGOInfo()->destructibleBuilding.intactNumHits;
+        SetLootState(GO_JUST_DEACTIVATED);
+    }
+}
+
 bool GameObject::IsInSkillupList(Player* player) const
 {
     return m_SkillupSet.find(player->GetObjectGuid()) != m_SkillupSet.end();

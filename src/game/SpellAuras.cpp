@@ -3039,7 +3039,7 @@ void Aura::HandleAuraMounted(bool apply, bool Real)
         if (minfo)
             display_id = minfo->modelid;
 
-        target->Mount(display_id, GetId());
+        target->Mount(display_id, GetId(), ci->VehicleEntry);
     }
     else
     {
@@ -3746,7 +3746,7 @@ void Aura::HandleModPossess(bool apply, bool Real)
         {
             ((Creature*)target)->AIM_Initialize();
         }
-        else if(target->GetTypeId() == TYPEID_PLAYER)
+        else if(target->GetTypeId() == TYPEID_PLAYER && !target->GetVehicleGUID())
         {
             ((Player*)target)->SetClientControl(target, 0);
         }
@@ -3779,7 +3779,7 @@ void Aura::HandleModPossess(bool apply, bool Real)
 
         target->SetCharmerGuid(ObjectGuid());
 
-        if(target->GetTypeId() == TYPEID_PLAYER)
+        if(target->GetTypeId() == TYPEID_PLAYER &&  !target->GetVehicleGUID())
         {
             ((Player*)target)->setFactionForRace(target->getRace());
             ((Player*)target)->SetClientControl(target, 1);
@@ -4105,10 +4105,13 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
             target->SetStandState(UNIT_STAND_STATE_STAND);// in 1.5 client
         }
 
-        WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8);
-        data << target->GetPackGUID();
-        data << uint32(0);
-        target->SendMessageToSet(&data, true);
+        if(!target->hasUnitState(UNIT_STAT_ON_VEHICLE))
+        {
+            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 8);
+            data << target->GetPackGUID();
+            data << uint32(0);
+            target->SendMessageToSet(&data,true);
+        }
 
         // Summon the Naj'entus Spine GameObject on target if spell is Impaling Spine
         if(GetId() == 39837)
@@ -4158,7 +4161,7 @@ void Aura::HandleAuraModStun(bool apply, bool Real)
         target->clearUnitState(UNIT_STAT_STUNNED);
         target->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_STUNNED);
 
-        if(!target->hasUnitState(UNIT_STAT_ROOT))         // prevent allow move if have also root effect
+        if(!target->hasUnitState(UNIT_STAT_ROOT | UNIT_STAT_ON_VEHICLE))         // prevent allow move if have also root effect
         {
             if(target->getVictim() && target->isAlive())
                 target->SetTargetGuid(target->getVictim()->GetObjectGuid());
@@ -4386,11 +4389,13 @@ void Aura::HandleAuraModRoot(bool apply, bool Real)
 
         if(target->GetTypeId() == TYPEID_PLAYER)
         {
-            WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
-            data << target->GetPackGUID();
-            data << (uint32)2;
-            target->SendMessageToSet(&data, true);
-
+            if(!target->hasUnitState(UNIT_STAT_ON_VEHICLE))
+            {
+                WorldPacket data(SMSG_FORCE_MOVE_ROOT, 10);
+                data << target->GetPackGUID();
+                data << (uint32)2;
+                target->SendMessageToSet(&data,true);
+            }
             //Clear unit movement flags
             ((Player*)target)->m_movementInfo.SetMovementFlags(MOVEFLAG_NONE);
         }
@@ -4428,7 +4433,7 @@ void Aura::HandleAuraModRoot(bool apply, bool Real)
 
         target->clearUnitState(UNIT_STAT_ROOT);
 
-        if(!target->hasUnitState(UNIT_STAT_STUNNED))      // prevent allow move if have also stun effect
+        if(!target->hasUnitState(UNIT_STAT_STUNNED | UNIT_STAT_ON_VEHICLE))      // prevent allow move if have also stun effect
         {
             if(target->getVictim() && target->isAlive())
                 target->SetTargetGuid(target->getVictim()->GetObjectGuid());
@@ -8189,40 +8194,6 @@ void Aura::HandleArenaPreparation(bool apply, bool Real)
         GetTarget()->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PREPARATION);
 }
 
-/**
- * Such auras are applied from a caster(=player) to a vehicle.
- * This has been verified using spell #49256
- */
-void Aura::HandleAuraControlVehicle(bool apply, bool Real)
-{
-    if(!Real)
-        return;
-
-    Unit* target = GetTarget();
-    if (target->GetTypeId() != TYPEID_UNIT || !((Creature*)target)->IsVehicle())
-        return;
-    Vehicle* vehicle = (Vehicle*)target;
-
-    Unit *caster = GetCaster();
-    if (!caster || caster->GetTypeId() != TYPEID_PLAYER)
-        return;
-
-    if (apply)
-    {
-        ((Player*)caster)->RemovePet(PET_SAVE_AS_CURRENT);
-        ((Player*)caster)->EnterVehicle(vehicle);
-    }
-    else
-    {
-        SpellEntry const *spell = GetSpellProto();
-
-        // some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
-        caster->RemoveAurasDueToSpell(spell->Id);
-
-        ((Player*)caster)->ExitVehicle(vehicle);
-    }
-}
-
 void Aura::HandleAuraLinked(bool apply, bool Real)
 {
     if (!Real)
@@ -8240,6 +8211,49 @@ void Aura::HandleAuraLinked(bool apply, bool Real)
         GetTarget()->CastSpell(GetTarget(), linkedSpell, true, NULL, this);
     else
         GetTarget()->RemoveAurasByCasterSpell(linkedSpell, GetCasterGUID());
+}
+
+/**
+ * Such auras are applied from a caster(=player) to a vehicle.
+ * This has been verified using spell #49256
+ */
+void Aura::HandleAuraControlVehicle(bool apply, bool Real)
+{
+     if(!Real)
+         return;
+
+    Unit* target = GetTarget();
+    Unit* caster = GetCaster();
+    if (target->GetTypeId() != TYPEID_UNIT || !((Creature*)target)->IsVehicle())
+        return;
+    Vehicle* vehicle = (Vehicle*)target;
+
+    if(!caster || !vehicle)
+        return;
+
+    // this can happen due to wrong caster/target spell handling
+    // note : SPELL_AURA_CONTROL_VEHICLE can have EffectImplicitTargetA
+    // TARGET_SCRIPT, TARGET_DUELVSPLAYER.. etc
+    if(caster->GetGUID() == vehicle->GetGUID())
+        return;
+
+    if (apply)
+    {
+        if(caster->GetTypeId() == TYPEID_PLAYER)
+        {
+            WorldPacket data(SMSG_ON_CANCEL_EXPECTED_RIDE_VEHICLE_AURA, 0);
+            ((Player*)caster)->GetSession()->SendPacket(&data);
+        }
+        // if we leave and enter again, this will refresh
+        int32 duration = GetSpellMaxDuration(GetSpellProto());
+        if(duration > 0)
+            vehicle->SetSpawnDuration(duration);
+    }
+    else
+    {
+        // some SPELL_AURA_CONTROL_VEHICLE auras have a dummy effect on the player - remove them
+        caster->RemoveAurasDueToSpell(GetId());
+    }
 }
 
 void Aura::HandleAuraAddMechanicAbilities(bool apply, bool Real)
@@ -8503,7 +8517,7 @@ m_permanent(false), m_isRemovedOnShapeLost(true), m_deleted(false), m_in_use(0)
     else
     {
         // remove this assert when not unit casters will be supported
-        MANGOS_ASSERT(caster->GetObjectGuid().IsUnit())
+        MANGOS_ASSERT(caster->GetObjectGuid().IsUnit() || caster->GetObjectGuid().IsVehicle())
         m_casterGuid = caster->GetObjectGuid();
     }
 

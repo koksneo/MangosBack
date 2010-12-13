@@ -119,6 +119,10 @@ namespace MaNGOS
             if( xp_gain == 0 )
                 return 0;
 
+            if(pl->GetTypeId() == TYPEID_PLAYER && pl->GetVehicleGUID())
+                if(!(pl->m_movementInfo.GetVehicleFlags() & VF_GIVE_EXP))
+                    return 0;
+
             if(u->GetTypeId()==TYPEID_UNIT && ((Creature*)u)->IsElite())
                 xp_gain *= 2;
 

@@ -447,6 +447,8 @@ class ChatHandler
         bool HandleReloadSpellThreatsCommand(char* args);
         bool HandleReloadSpellPetAurasCommand(char* args);
         bool HandleReloadSpellDisabledCommand(char* args);
+        bool HandleReloadVehicleDataCommand(char* args);
+        bool HandleReloadVehicleSeatDataCommand(char* args);
 
 		bool HandleReloadMailTemplateCommand(char* args);
 		bool HandleReloadAreaTriggerDevelopCommand(char* args);

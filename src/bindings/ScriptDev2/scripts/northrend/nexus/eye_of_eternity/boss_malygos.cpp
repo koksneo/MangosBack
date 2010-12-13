@@ -403,7 +403,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             pSummoned->ForcedDespawn(30000);
         }
 
-        /*if (uiEntry == NPC_NEXUS_LORD || uiEntry == NPC_SCION_OF_ETERNITY)
+        if (uiEntry == NPC_NEXUS_LORD || uiEntry == NPC_SCION_OF_ETERNITY)
         {
             if (Creature* pDisk = pSummoned->SummonCreature(NPC_HOVER_DISK, pSummoned->GetPositionX(), pSummoned->GetPositionY(), pSummoned->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
             {
@@ -417,7 +417,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                     if (VehicleKit* pDiskVehicle = pDisk->GetVehicleKit())
                         pSummoned->EnterVehicle(pDiskVehicle, 0);
             }
-        }*/
+        }
     }
 
     void SummonedCreatureJustDied(Creature* pSummoned)
@@ -466,7 +466,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
     void DismountPlayers()
     {
         // dismount players
-        /*Map *pMap = m_creature->GetMap();
+        Map *pMap = m_creature->GetMap();
         if (pMap)
         {
             Map::PlayerList const &lPlayers = pMap->GetPlayers();
@@ -474,7 +474,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                     if (Player* pPlayer = itr->getSource())
                         pPlayer->ExitVehicle();
-        }*/
+        }
     }
 
     void AntiMagicShell()
@@ -889,7 +889,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                                     if (Creature* pTemp = m_creature->SummonCreature(NPC_VORTEX, CENTER_X, CENTER_Y, FLOOR_Z - 15.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000))
                                         m_creature->AddThreat(pTemp, 100000.0f);
 
-                                   // pPlayer->ExitVehicle();
+                                    pPlayer->ExitVehicle();
 
                                     if (Creature* pTemp = pPlayer->SummonCreature(NPC_WYRMREST_SKYTALON, pPlayer->GetPositionX(), pPlayer->GetPositionY(), FLOOR_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
                                     {
@@ -1158,7 +1158,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                         if (pTarget->GetTypeId() == TYPEID_PLAYER)
                         {
                             if (m_pInstance){}
-                                /*if (Creature *pVictim = m_pInstance->instance->GetAnyTypeCreature(ObjectGuid(pTarget->GetVehicleGUID())))
+                                if (Creature *pVictim = m_pInstance->instance->GetAnyTypeCreature(ObjectGuid(pTarget->GetVehicleGUID())))
                                 {
                                     m_uiSubPhase = SUBPHASE_SURGE_OF_POWER;
                                     m_uiTimer = 6500;
@@ -1170,7 +1170,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                                     // "Malygos fixes his eyes on you!"
                                     DoScriptText(EMOTE_SURGE_WHISPER, m_creature, pTarget);
                                     break;
-                                }*/
+                                }
                         }
                 }
 
@@ -1397,12 +1397,12 @@ struct MANGOS_DLL_DECL npc_scion_of_eternityAI : public ScriptedAI
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
-                /*if (!pTarget->GetVehicle())
+                if (!pTarget->GetVehicle())
                 {
                     int32 uiDmg = m_bIsRegularMode ? urand(14138, 15862) : urand(16965, 19035);
                     m_creature->CastCustomSpell(pTarget, SPELL_ARCANE_BARRAGE, &uiDmg, 0, 0, true);
                     m_uiArcaneBarrageTimer = urand(4000, 12000);
-                }*/
+                }
             }
         }
         else

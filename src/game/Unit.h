@@ -1527,13 +1527,11 @@ class MANGOS_DLL_SPEC Unit : public WorldObject
         void SendMonsterMove(float x, float y, float z, SplineType type, SplineFlags flags, uint32 Time, Player* player = NULL, ...);
         void SendMonsterMoveWithSpeed(float x, float y, float z, uint32 transitTime = 0, Player* player = NULL);
 
+        template<typename PathElem, typename PathNode>
         void SendMonsterMoveTransport(Unit *vehicle);
-
         virtual bool SetPosition(float x, float y, float z, float orientation, bool teleport = false);
 
-        template<typename PathElem, typename PathNode>
         void SendMonsterMoveByPath(Path<PathElem,PathNode> const& path, uint32 start, uint32 end, SplineFlags flags);
-
         void SendHighestThreatUpdate(HostileReference* pHostileReference);
         void SendThreatClear();
         void SendThreatRemove(HostileReference* pHostileReference);

@@ -1956,8 +1956,19 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                     if (pVictim == this)
                        return SPELL_AURA_PROC_FAILED;
 
-                    basepoints[0] = int32( pVictim->GetMaxHealth() * triggeredByAura->GetModifier()->m_amount / 100 );
-                    pVictim->CastCustomSpell(pVictim, 20267, &basepoints[0], NULL, NULL, true, NULL, triggeredByAura);
+                    // custom cooldown processing
+                    if (Player *pCaster = (Player*)triggeredByAura->GetCaster())
+                    {
+                        if(cooldown && pCaster->HasSpellCooldown(dummySpell->Id))
+                            return SPELL_AURA_PROC_FAILED;
+
+                        basepoints[0] = int32( pVictim->GetMaxHealth() * triggeredByAura->GetModifier()->m_amount / 100 );
+                        pVictim->CastCustomSpell(pVictim, 20267, &basepoints[0], NULL, NULL, true, NULL, triggeredByAura);
+
+                        if (cooldown)
+                            pCaster->AddSpellCooldown(dummySpell->Id, 0, time(NULL) + cooldown);
+                    }
+
                     return SPELL_AURA_PROC_OK;
                 }
                 // Judgement of Wisdom
@@ -1965,9 +1976,19 @@ SpellAuraProcResult Unit::HandleDummyAuraProc(Unit *pVictim, uint32 damage, Aura
                 {
                     if (pVictim->getPowerType() == POWER_MANA)
                     {
-                        // 2% of maximum base mana
-                        basepoints[0] = int32(pVictim->GetCreateMana() * 2 / 100);
-                        pVictim->CastCustomSpell(pVictim, 20268, &basepoints[0], NULL, NULL, true, NULL, triggeredByAura);
+                        // custom cooldown processing
+                        if (Player *pCaster = (Player*)triggeredByAura->GetCaster())
+                        {
+                            if(cooldown && pCaster->HasSpellCooldown(dummySpell->Id))
+                                return SPELL_AURA_PROC_FAILED;
+
+                            // 2% of maximum base mana
+                            basepoints[0] = int32(pVictim->GetCreateMana() * 2 / 100);
+                            pVictim->CastCustomSpell(pVictim, 20268, &basepoints[0], NULL, NULL, true, NULL, triggeredByAura);
+
+                            if (cooldown)
+                                pCaster->AddSpellCooldown(dummySpell->Id, 0, time(NULL) + cooldown);
+                        }
                     }
                     return SPELL_AURA_PROC_OK;
                 }

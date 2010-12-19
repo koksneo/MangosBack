@@ -4390,12 +4390,8 @@ void Spell::EffectSummonType(SpellEffectIndex eff_idx)
             if(prop_id == 1562) // 3 uncontrolable instead of one controllable :/
                 DoSummonGuardian(eff_idx, summon_prop->FactionId);
             else
-            {
-                DoSummon(eff_idx); // summon controllable Spirit Wolf
-                // HACK: summon second one as a guardian
-                damage = 1;
-                DoSummonGuardian(eff_idx, summon_prop->FactionId);
-            }
+                DoSummon(eff_idx);
+
             break;
         }
         case SUMMON_PROP_GROUP_CONTROLLABLE:

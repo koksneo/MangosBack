@@ -1975,7 +1975,7 @@ struct MANGOS_DLL_DECL mob_winter_revelerAI : public ScriptedAI
 
         if (uiEmote == TEXTEMOTE_KISS)
         {
-            if (!pPlayer->HasAura(SPELL_MISTLETOE))
+            if (!pPlayer->HasAura(SPELL_MISTLETOE_DEBUFF))
             {
                 m_creature->CastSpell(pPlayer,SPELL_MISTLETOE_DEBUFF,true);
 

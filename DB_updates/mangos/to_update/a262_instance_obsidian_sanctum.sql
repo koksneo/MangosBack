@@ -14,6 +14,9 @@ UPDATE `creature_template` SET `ScriptName` = "mob_twilight_whelp" WHERE `entry`
 UPDATE `creature_template` SET `ScriptName` = "mob_fire_cyclone" WHERE `entry` = 30648;
 UPDATE `creature_template` SET `ScriptName` = "mob_flame_tsunami" WHERE `entry` = 30616;
 
+-- fix speed of tsunami
+UPDATE `creature_template` SET speed_walk = 23 WHERE entry = 30616;
+
 -- fix flying animation
 UPDATE creature_template SET InhabitType = 3 WHERE entry IN (30451, 31520, 30452, 31534, 30449, 31535);
 

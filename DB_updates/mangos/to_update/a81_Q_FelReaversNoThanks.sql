@@ -5,9 +5,9 @@ CompleteScript=10850
 WHERE entry=10850;
 
 DELETE from quest_end_scripts where id =10850;
-INSERT INTO quest_end_scripts VALUES
-(10850,0,8,22293,0,0,0,0,0,0,0,0,0),
-(10850,0,7,10855,15,0,0,0,0,0,0,0,0);
+INSERT INTO quest_end_scripts (id,delay,command,datalong,datalong2) VALUES
+(10850,0,8,22293,0),
+(10850,0,7,10855,15);
 
 -- Legion Fel Cannon (21233)
 UPDATE creature_template SET AIName='EventAI' WHERE entry=21233;

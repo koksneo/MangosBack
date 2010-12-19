@@ -1,338 +1,75 @@
-
-
-
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<!-- ViewVC :: http://www.viewvc.org/ -->
-<head>
-<title>SourceForge.net Repository - [scriptdev2] Log of /sql/Updates/r1866_scriptdev2.sql</title>
-<meta name="generator" content="ViewVC 1.1.6" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="description" content="The world's largest development and download repository of Open Source code and applications" />
-<meta name="keywords" content="Open Source, Development, Developers, Projects, Downloads, OSTG, VA Software, SF.net, SourceForge" />
-<title>SourceForge.net Repository - scriptdev2 Index of /</title>
-<link rel="shortcut icon" href="http://a.fsdn.com/con/img/favicon.ico" />
-<link rel="stylesheet" href="http://a.fsdn.com/con/css/sf.min.css?1256826599" type="text/css" />
-<link rel="stylesheet" href="/viewvc-static/styles.css" type="text/css" />
-<style type="text/css"> .short-head #hd { background-position:0 -247px; } #hd .yui-b { height:47px; margin:0 auto; position:relative; text-align:left; width:74.923em; } pre.vc_log { margin:1em; }</style>
-
-<!-- BEGIN: AdSolution-Tag 4.2: Global-Code [PLACE IN HTML-HEAD-AREA!] -->
-<!-- DoubleClick Random Number -->
-<script language="JavaScript" type="text/javascript">
-dfp_ord=Math.random()*10000000000000000;
-dfp_tile = 1;
-</script>
-<!-- End DoubleClick Random Number -->
-<script type="text/javascript">
-var google_page_url = 'http://sourceforge.net/projects/scriptdev2/';
-var sourceforge_project_name = 'scriptdev2';
-var sourceforge_project_description = '';
-</script>
-<!-- END: AdSolution-Tag 4.2: Global-Code -->
-<!-- after META tags -->
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-</head>
-<body class="short-head">
-<!--[if IE 7]><div id="ie7only"><![endif]-->
-<!--[if IE 6]><div id="ie6only"><![endif]-->
-<!--[if IE]><div id="ieonly"><![endif]-->
-<div id="doc3">
-<div id="hd">
-<div class="yui-b">
-<div class="yui-gc">
-<div class="yui-u first">
-<a href="http://sourceforge.net/" class="logo">Find and develop open source software</a>
-</div>
-<div class="yui-u">
-<div class="search">
-<form action="http://sourceforge.net/search/" method="get" name="searchform" id="searchform">
-<input type="hidden" name="type_of_search" value="soft" />
-<input type="text" class="text clear hint" name="words" id="words" value="enter keyword" />
-<span class="yui-button yui-push-button default"><span class="first-child"><button type="submit" value="Search">Search</button></span></span>
-</form>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div id="bd" class="inner-bd">
-<div id="doc4" class="yui-t6">
-<div id="breadcrumbs">
-
-<a href="http://sourceforge.net/">SourceForge.net</a>
-&gt; <a href="http://sourceforge.net/softwaremap/">Find Software</a>
-&gt; <a href="http://sourceforge.net/projects/scriptdev2/">scriptdev2</a>
-&gt; SCM Repositories
-
-
-<a href="/viewvc/scriptdev2/">
-
-
-&gt; scriptdev2
-
-
-</a>
-
-
-
-<a href="/viewvc/scriptdev2/sql/">
-
-
-&gt; sql
-
-
-</a>
-
-
-
-<a href="/viewvc/scriptdev2/sql/Updates/">
-
-
-&gt; Updates
-
-
-</a>
-
-
-
-
-&gt; r1866_scriptdev2.sql
-
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
-
-<div id="project_nav_container">
-<small><div>
-
-<a href="/viewvc/scriptdev2/sql/Updates/"><img src="/viewvc-static/images/back_small.png" width="16" height="16" alt="Parent Directory" /> Parent Directory</a>
-
-| <a href="/viewvc/scriptdev2/sql/Updates/r1866_scriptdev2.sql?view=log"><img src="/viewvc-static/images/log.png" width="16" height="16" alt="Revision Log" /> Revision Log</a>
-
-
-
-
-</div>
-</small>
-<h1>SCM Repositories - <a href="http://sourceforge.net/projects/scriptdev2">scriptdev2</a></h1>
-</div>
-<hr class="clear">
-<div class="yui-b">
-<div id="fad83">
-<!-- DoubleClick Ad Tag -->
-<script type="text/javascript">
-//<![CDATA[
-document.write('<script src="http://ad.doubleclick.net/adj/ostg.sourceforge/pg_viewvc_p88_shortrec;pg=viewvc;tile='+dfp_tile+';tpc=scriptdev2;ord='+dfp_ord+'?" type="text/javascript"><\/script>');
-dfp_tile++;
-//]]>
-</script>
-<!-- End DoubleClick Ad Tag -->
-</div>
-</div>
-<div id="yui-main">
-<div class="yui-b sfBox">
-<table class="auto">
-
-
-
-<tr>
-<td>Links to HEAD:</td>
-<td>
-
-(<a href="/viewvc/scriptdev2/sql/Updates/r1866_scriptdev2.sql?revision=1913&amp;view=markup">view</a>)
-(<a href="/viewvc/scriptdev2/sql/Updates/r1866_scriptdev2.sql?revision=1913">download</a>)
-(<a href="/viewvc/scriptdev2/sql/Updates/r1866_scriptdev2.sql?revision=1913&amp;content-type=text%2Fplain">as text</a>)
-(<a href="/viewvc/scriptdev2/sql/Updates/r1866_scriptdev2.sql?annotate=1913">annotate</a>)
-mime-type: text/x-sql
-</td>
-</tr>
-
-
-
-<tr>
-<td>Sticky Revision:</td>
-<td><form method="get" action="/viewvc/scriptdev2" style="display: inline">
-<div style="display: inline">
-<input type="hidden" name="orig_pathtype" value="FILE"/><input type="hidden" name="orig_view" value="log"/><input type="hidden" name="orig_path" value="sql/Updates/r1866_scriptdev2.sql"/><input type="hidden" name="view" value="redirect_pathrev"/>
-
-<input type="text" name="pathrev" value="" size="6"/>
-
-<input type="submit" value="Set" />
-</div>
-</form>
-
-</td>
-</tr>
-</table>
- 
-
-
-</div>
-</div>
-<hr class="clear">
-<div>
-
-
-
-
-
-
-<div>
-<hr />
-
-<a name="rev1866"></a>
-
-
-Revision <a href="/viewvc/scriptdev2?view=revision&amp;revision=1866"><strong>1866</strong></a> -
-
-
-(<a href="/viewvc/scriptdev2/sql/Updates/r1866_scriptdev2.sql?revision=1866&amp;view=markup">view</a>)
-
-
-(<a href="/viewvc/scriptdev2/sql/Updates/r1866_scriptdev2.sql?revision=1866">download</a>)
-(<a href="/viewvc/scriptdev2/sql/Updates/r1866_scriptdev2.sql?revision=1866&amp;content-type=text%2Fplain">as text</a>)
-(<a href="/viewvc/scriptdev2/sql/Updates/r1866_scriptdev2.sql?annotate=1866">annotate</a>)
-
-
-
-- <a href="/viewvc/scriptdev2/sql/Updates/r1866_scriptdev2.sql?r1=1866&amp;view=log">[select for diffs]</a>
-
-
-
-
-<br />
-
-Added
-
-<em>Sat Nov 13 18:42:59 2010 UTC</em>
-(5 weeks ago)
-by <em>nofantasy</em>
-
-
-
-
-
-
-
-<br />File length: 8520 byte(s)
-
-
-
-
-
-
-
-
-
-
-
-<pre class="vc_log">Add texts related to pit_of_saron. Patch by Schmooooozerd</pre>
-</div>
-
- 
-
-
-
- <div class="sfBox">
-<hr class="clear"/>
-<a name="diff"></a>
-This form allows you to request diffs between any two revisions of this file.
-For each of the two "sides" of the diff,
-
-enter a numeric revision.
-
-<form method="get" action="/viewvc/scriptdev2/sql/Updates/r1866_scriptdev2.sql" id="diff_select">
-<table cellpadding="2" cellspacing="0" class="auto">
-<tr>
-<td>&nbsp;</td>
-<td>
-
-<input type="hidden" name="view" value="diff"/>
-
-Diffs between
-
-<input type="text" size="12" name="r1"
-value="1866" />
-
-and
-
-<input type="text" size="12" name="r2" value="1866" />
-
-</td>
-</tr>
-<tr>
-<td>&nbsp;</td>
-<td>
-Type of Diff should be a
-<select name="diff_format" onchange="submit()">
-<option value="h" selected="selected">Colored Diff</option>
-<option value="l" >Long Colored Diff</option>
-<option value="f" >Full Colored Diff</option>
-<option value="u" >Unidiff</option>
-<option value="c" >Context Diff</option>
-<option value="s" >Side by Side</option>
-</select>
-<input type="submit" value=" Get Diffs " />
-</td>
-</tr>
-</table>
-</form>
-</div>
-
-
-<form method="get" action="/viewvc/scriptdev2/sql/Updates/r1866_scriptdev2.sql">
-<div>
-<hr />
-<a name="logsort"></a>
-<input type="hidden" name="view" value="log"/>
-Sort log by:
-<select name="logsort" onchange="submit()">
-<option value="cvs" >Not sorted</option>
-<option value="date" >Commit date</option>
-<option value="rev" >Revision</option>
-</select>
-<input type="submit" value=" Sort " />
-</div>
-</form>
-
-
-<br />
-</div>
-</div>
-</div>
-<div id="ft">
-<div class="yui-b">
-<div class="yui-gb">
-<div class="yui-u first" style="text-align: center;"> <a href="http://p.sf.net/sourceforge/support">SourceForge Help<a/> </div>
-<div class="yui-u" style="text-align: center;"> <strong><a href="/viewvc-static/help_log.html">ViewVC Help</a></strong> </div>
-<div class="yui-u" style="text-align: center;"> <a href="http://viewvc.tigris.org/">Powered by ViewVC 1.1.6</a> </div>
-</div>
-<p class="copyright">Copyright &copy; 2010 <a title="Network which provides and promotes Open Source software downloads, development, discussion and news." href="http://geek.net">Geeknet, Inc.</a> All rights reserved. <a href="http://p.sf.net/sourceforge/terms">Terms of Use</a></p>
-</div>
-</div>
-</div>
-<!--[if IE]></div><![endif]-->
-<!--[if IE 6]></div><![endif]-->
-<!--[if IE 7]></div><![endif]-->
-<script type="text/javascript">
-var pageTracker = _gat._getTracker("UA-32013-37");
-pageTracker._setDomainName(".sourceforge.net");
-pageTracker._trackPageview();
-</script>
-</body>
-</html>
-
-
+DELETE FROM script_texts WHERE entry BETWEEN -1658067 AND -1658001;
+INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
+(-1658001,'Intruders have entered the masters domain. Signal the alarms!',16747,1,0,0,'tyrannus SAY_TYRANNUS_INTRO_1'),
+(-1658002,'Heroes of the Alliance, attack!',16626,1,0,0,'jaina SAY_JAINA_INTRO_1'),
+(-1658003,'Soldiers of the Horde, attack!',17045,1,0,0,'sylvanas SAY_SYLVANAS_INTRO_1'),
+(-1658004,'Hrmph, fodder. Not even fit to labor in the quarry. Relish these final moments for soon you will be nothing more than mindless undead.',16748,1,0,0,'tyrannus SAY_TYRANNUS_INTRO_2'),
+(-1658005,'Your last waking memory will be of agonizing pain.',16749,1,0,0,'tyrannus SAY_TYRANNUS_INTRO_3'),
+(-1658006,'No! You monster!',16627,1,0,0,'jaina SAY_JAINA_INTRO_2'),
+(-1658007,'Pathetic weaklings!',17046,1,0,0,'sylvanas SAY_SYLVANAS_INTRO_2'),
+(-1658008,'Minions, destroy these interlopers!',16751,1,0,0,'tyrannus SAY_TYRANNUS_INTRO_4'),
+(-1658009,'I do what I must. Please forgive me, noble soldiers.',16628,1,0,0,'jaina SAY_JAINA_INTRO_3'),
+(-1658010,'You will have to make your way across this quarry on your own.',16629,0,0,0,'jaina SAY_JAINA_INTRO_4'),
+(-1658011,'You will have to battle your way through this cesspit on your own.',17047,0,0,0,'sylvanas SAY_SYLVANAS_INTRO_3'),
+(-1658012,'Free any Alliance slaves that you come across. We will most certainly need their assistance in battling Tyrannus. I will gather reinforcements and join you on the other side of the quarry.',16630,0,0,0,'jaina SAY_JAINA_INTRO_5'),
+(-1658013,'Free any Horde slaves that you come across. We will most certainly need their assistance in battling Tyrannus. I will gather reinforcements and join you on the other side of the quarry.',17048,0,0,0,'sylvanas SAY_SYLVANAS_INTRO_4'),
+
+(-1658014,'Tiny creatures under feet, you bring Garfrost something good to eat!',16912,1,0,0,'garfrost SAY_AGGRO'),
+(-1658015,'Will save for snack. For later.',16913,1,0,0,'garfrost SAY_SLAY_1'),
+(-1658016,'That one maybe not so good to eat now. Stupid Garfrost! BAD! BAD!',16914,1,0,0,'garfrost SAY_BOULDER_HIT'),
+(-1658017,'Garfrost hope giant underpants clean. Save boss great shame. For later.',16915,1,0,0,'garfrost SAY_DEATH'),
+(-1658018,'Axe too weak. Garfrost make better and CRUSH YOU!',16916,1,0,0,'garfrost SAY_FORGE_1'),
+(-1658019,'That one maybe not so good to eat now. Stupid Garfrost! BAD! BAD!',16917,1,0,0,'garfrost SAY_FORGE_2'),
+(-1658020,'Another shall take his place. You waste your time.',16752,1,0,0,'tyrannus SAY_TYRANNUS_GARFROST'),
+(-1658021,'The forgemaster is dead! Get geared up men, we have a Scourgelord to kill.',0,1,0,0,'victus_or_ironskull SAY_GENERAL_GARFROST'),
+(-1658022,'%s hurls a massive saronite boulder at you!',0,5,0,0,'garfrost EMOTE_THROW_SARONITE'), -- TODO emote only displayed to target
+(-1658023,'%s casts Deep Freeze at $N.',0,3,0,0,'garfrost EMOTE_DEEP_FREEZE'),
+
+(-1658024,'Our work must not be interrupted! Ick! Take care of them!',16926,1,0,0,'krick SAY_AGGRO'),
+(-1658025,'Ooh...We could probably use these parts!',16927,1,0,0,'krick SAY_SLAY_1'),
+(-1658026,'Arms and legs are in short supply...Thanks for your contribution!',16928,1,0,0,'krick SAY_SLAY_2'),
+(-1658027,'Enough moving around! Hold still while I blow them all up!',16929,1,0,0,'krick SAY_ORDER_STOP'),
+(-1658028,'Quickly! Poison them all while they\'re still close!',16930,1,0,0,'krick SAY_ORDER_BLOW'),
+(-1658029,'No! That one! That one! Get that one!',16931,1,0,0,'krick SAY_TARGET_1'),
+(-1658030,'I\'ve changed my mind...go get that one instead!',16932,1,0,0,'krick SAY_TARGET_2'),
+(-1658031,'What are you attacking him for? The dangerous one is over there,fool!',16933,1,0,0,'krick SAY_TARGET_3'),
+(-1658032,'%s begins rapidly conjuring explosive mines!',0,3,0,0,'krick EMOTE_KRICK_MINES'),
+(-1658033,'%s begins to unleash a toxic poison cloud!',0,3,0,0,'ick EMOTE_ICK_POISON'),
+(-1658034,'%s is chasing you!',0,5,0,0,'ick EMOTE_ICK_CHASING'), -- TODO emote type?
+
+(-1658035,'Wait! Stop! Don\'t kill me, please! I\'ll tell you everything!',16934,1,0,0,'krick SAY_OUTRO_1'),
+(-1658036,'I\'m not so naive as to believe your appeal for clemency, but I will listen.',16611,1,0,0,'jaina SAY_JAINA_KRICK_1'),
+(-1658037,'Why should the Banshee Queen spare your miserable life?',17033,1,0,0,'sylvanas SAY_SYLVANAS_KRICK_1'),
+(-1658038,'What you seek is in the master\'s lair, but you must destroy Tyrannus to gain entry. Within the Halls of Reflection you will find Frostmourne. It... it holds the truth.',16935,1,0,0,'krick SAY_OUTRO_2'),
+(-1658039,'Frostmourne lies unguarded? Impossible!',16612,1,0,0,'jaina SAY_JAINA_KRICK_2'),
+(-1658040,'Frostmourne? The Lich King is never without his blade! If you are lying to me...',17034,1,0,0,'sylvanas SAY_SYLVANAS_KRICK_2'),
+(-1658041,'I swear it is true! Please, don\'t kill me!!',16936,1,0,0,'krick SAY_OUTRO_3'),
+(-1658042,'Worthless gnat! Death is all that awaits you!',16753,1,0,0,'tyrannus SAY_TYRANNUS_KRICK_1'),
+(-1658043,'Urg... no!!',16937,1,0,0,'krick SAY_OUTRO_4'),
+(-1658044,'Do not think that I shall permit you entry into my master\'s sanctum so easily. Pursue me if you dare.',16754,1,0,0,'tyrannus SAY_TYRANNUS_KRICK_2'),
+(-1658045,'What a cruel end. Come, heroes. We must see if the gnome\'s story is true. If we can separate Arthas from Frostmourne, we might have a chance at stopping him.',16613,1,0,0,'jaina SAY_JAINA_KRICK_3'),
+(-1658046,'A fitting end for a traitor. Come, we must free the slaves and see what is within the Lich King\'s chamber for ourselves.',17035,1,0,0,'sylvanas SAY_SYLVANAS_KRICK_3'),
+
+(-1658047,'Your pursuit shall be in vain, adventurers, for the Lich King has placed an army of undead at my command! Behold!',16755,1,0,0,'tyrannus SAY_TYRANNUS_AMBUSH_1'),
+(-1658048,'Persistent whelps! You will not reach the entrance of my lord\'s lair! Soldiers, destroy them!',16756,1,0,0,'tyrannus SAY_TYRANNUS_AMBUSH_2'),
+(-1658049,'Rimefang! Trap them within the tunnel! Bury them alive!',16757,1,0,0,'tyrannus SAY_GAUNTLET'),
+
+(-1658050,'Alas, brave, brave adventurers, your meddling has reached its end. Do you hear the clatter of bone and steel coming up the tunnel behind you? That is the sound of your impending demise.',16758,1,0,0,'tyrannus SAY_PREFIGHT_1'),
+(-1658051,'Heroes! We will hold off the undead as long as we can, even to our dying breath. Deal with the Scourgelord!',0,1,0,0,'victus_or_ironskull SAY_GENERAL_TRASH'),
+(-1658052,'Ha, such an amusing gesture from the rabble. When I have finished with you, my master\'s blade will feast upon your souls. Die!',16759,1,0,0,'tyrannus SAY_PREFIGHT_2'),
+(-1658053,'I shall not fail The Lich King! Come and meet your end!',16760,1,0,0,'tyrannus SAY_AGGRO'),
+(-1658054,'Such a shameful display...',16761,1,0,0,'tyrannus SAY_SLAY_1'),
+(-1658055,'Perhaps you should have stayed in the mountains!',16762,1,0,0,'tyrannus SAY_SLAY_2'),
+(-1658056,'Impossible! Rimefang...Warn...',16763,1,0,0,'tyrannus SAY_DEATH'),
+(-1658057,'Rimefang, destroy this fool!',16764,1,0,0,'tyrannus SAY_MARK'),
+(-1658058,'Power... overwhelming!',16765,1,0,0,'tyrannus SAY_SMASH'),
+(-1658059,'The frostwyrm %s gazes at $N and readies an icy attack!',0,3,0,0,'rimefang EMOTE_RIMEFANG_ICEBOLT'),
+(-1658060,'%s roars and swells with dark might!',0,3,0,0,'tyrannus EMOTE_SMASH'),
+
+(-1658061,'Brave champions, we owe you our lives, our freedom... Though it be a tiny gesture in the face of this enormous debt, I pledge that from this day forth, all will know of your deeds, and the blazing path of light you cut through the shadow of this dark citadel.',0,1,0,0,'victus_or_ironskull SAY_GENERAL_OUTRO_1'),
+(-1658062,'This day will stand as a testament not only to your valor, but to the fact that no foe, not even the Lich King himself, can stand when Alliance and Horde set aside their differences and ---',0,1,0,0,'victus_or_ironskull SAY_GENERAL_OUTRO_2'),
+(-1658063,'Heroes, to me!',16614,0,0,0,'jaina SAY_JAINA_OUTRO_1'),
+(-1658064,'Take cover behind me! Quickly!',17037,0,0,0,'sylvanas SAY_SYLVANAS_OUTRO_1'),
+(-1658065,'The Frost Queen is gone. We must keep moving - our objective is near.',16615,0,0,0,'jaina SAY_JAINA_OUTRO_2'),
+(-1658066,'I... I could not save them... Damn you, Arthas! DAMN YOU!',16616,0,0,0,'jaina SAY_JAINA_OUTRO_3'),
+(-1658067,'I thought he\'d never shut up. At last, Sindragosa silenced that long-winded fool. To the Halls of Reflection, champions! Our objective is near... I can sense it.',17036,0,0,0,'sylvanas SAY_SYLVANAS_OUTRO_2');

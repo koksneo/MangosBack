@@ -1,338 +1,83 @@
-
-
-
-
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<!-- ViewVC :: http://www.viewvc.org/ -->
-<head>
-<title>SourceForge.net Repository - [scriptdev2] Log of /sql/Updates/r1868_scriptdev2.sql</title>
-<meta name="generator" content="ViewVC 1.1.6" />
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-<meta name="description" content="The world's largest development and download repository of Open Source code and applications" />
-<meta name="keywords" content="Open Source, Development, Developers, Projects, Downloads, OSTG, VA Software, SF.net, SourceForge" />
-<title>SourceForge.net Repository - scriptdev2 Index of /</title>
-<link rel="shortcut icon" href="http://a.fsdn.com/con/img/favicon.ico" />
-<link rel="stylesheet" href="http://a.fsdn.com/con/css/sf.min.css?1256826599" type="text/css" />
-<link rel="stylesheet" href="/viewvc-static/styles.css" type="text/css" />
-<style type="text/css"> .short-head #hd { background-position:0 -247px; } #hd .yui-b { height:47px; margin:0 auto; position:relative; text-align:left; width:74.923em; } pre.vc_log { margin:1em; }</style>
-
-<!-- BEGIN: AdSolution-Tag 4.2: Global-Code [PLACE IN HTML-HEAD-AREA!] -->
-<!-- DoubleClick Random Number -->
-<script language="JavaScript" type="text/javascript">
-dfp_ord=Math.random()*10000000000000000;
-dfp_tile = 1;
-</script>
-<!-- End DoubleClick Random Number -->
-<script type="text/javascript">
-var google_page_url = 'http://sourceforge.net/projects/scriptdev2/';
-var sourceforge_project_name = 'scriptdev2';
-var sourceforge_project_description = '';
-</script>
-<!-- END: AdSolution-Tag 4.2: Global-Code -->
-<!-- after META tags -->
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-</head>
-<body class="short-head">
-<!--[if IE 7]><div id="ie7only"><![endif]-->
-<!--[if IE 6]><div id="ie6only"><![endif]-->
-<!--[if IE]><div id="ieonly"><![endif]-->
-<div id="doc3">
-<div id="hd">
-<div class="yui-b">
-<div class="yui-gc">
-<div class="yui-u first">
-<a href="http://sourceforge.net/" class="logo">Find and develop open source software</a>
-</div>
-<div class="yui-u">
-<div class="search">
-<form action="http://sourceforge.net/search/" method="get" name="searchform" id="searchform">
-<input type="hidden" name="type_of_search" value="soft" />
-<input type="text" class="text clear hint" name="words" id="words" value="enter keyword" />
-<span class="yui-button yui-push-button default"><span class="first-child"><button type="submit" value="Search">Search</button></span></span>
-</form>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div id="bd" class="inner-bd">
-<div id="doc4" class="yui-t6">
-<div id="breadcrumbs">
-
-<a href="http://sourceforge.net/">SourceForge.net</a>
-&gt; <a href="http://sourceforge.net/softwaremap/">Find Software</a>
-&gt; <a href="http://sourceforge.net/projects/scriptdev2/">scriptdev2</a>
-&gt; SCM Repositories
-
-
-<a href="/viewvc/scriptdev2/">
-
-
-&gt; scriptdev2
-
-
-</a>
-
-
-
-<a href="/viewvc/scriptdev2/sql/">
-
-
-&gt; sql
-
-
-</a>
-
-
-
-<a href="/viewvc/scriptdev2/sql/Updates/">
-
-
-&gt; Updates
-
-
-</a>
-
-
-
-
-&gt; r1868_scriptdev2.sql
-
-
-
-
-</div>
-
-
-
-
-
-
-
-
-
-
-<div id="project_nav_container">
-<small><div>
-
-<a href="/viewvc/scriptdev2/sql/Updates/"><img src="/viewvc-static/images/back_small.png" width="16" height="16" alt="Parent Directory" /> Parent Directory</a>
-
-| <a href="/viewvc/scriptdev2/sql/Updates/r1868_scriptdev2.sql?view=log"><img src="/viewvc-static/images/log.png" width="16" height="16" alt="Revision Log" /> Revision Log</a>
-
-
-
-
-</div>
-</small>
-<h1>SCM Repositories - <a href="http://sourceforge.net/projects/scriptdev2">scriptdev2</a></h1>
-</div>
-<hr class="clear">
-<div class="yui-b">
-<div id="fad83">
-<!-- DoubleClick Ad Tag -->
-<script type="text/javascript">
-//<![CDATA[
-document.write('<script src="http://ad.doubleclick.net/adj/ostg.sourceforge/pg_viewvc_p88_shortrec;pg=viewvc;tile='+dfp_tile+';tpc=scriptdev2;ord='+dfp_ord+'?" type="text/javascript"><\/script>');
-dfp_tile++;
-//]]>
-</script>
-<!-- End DoubleClick Ad Tag -->
-</div>
-</div>
-<div id="yui-main">
-<div class="yui-b sfBox">
-<table class="auto">
-
-
-
-<tr>
-<td>Links to HEAD:</td>
-<td>
-
-(<a href="/viewvc/scriptdev2/sql/Updates/r1868_scriptdev2.sql?revision=1913&amp;view=markup">view</a>)
-(<a href="/viewvc/scriptdev2/sql/Updates/r1868_scriptdev2.sql?revision=1913">download</a>)
-(<a href="/viewvc/scriptdev2/sql/Updates/r1868_scriptdev2.sql?revision=1913&amp;content-type=text%2Fplain">as text</a>)
-(<a href="/viewvc/scriptdev2/sql/Updates/r1868_scriptdev2.sql?annotate=1913">annotate</a>)
-mime-type: text/x-sql
-</td>
-</tr>
-
-
-
-<tr>
-<td>Sticky Revision:</td>
-<td><form method="get" action="/viewvc/scriptdev2" style="display: inline">
-<div style="display: inline">
-<input type="hidden" name="orig_pathtype" value="FILE"/><input type="hidden" name="orig_view" value="log"/><input type="hidden" name="orig_path" value="sql/Updates/r1868_scriptdev2.sql"/><input type="hidden" name="view" value="redirect_pathrev"/>
-
-<input type="text" name="pathrev" value="" size="6"/>
-
-<input type="submit" value="Set" />
-</div>
-</form>
-
-</td>
-</tr>
-</table>
- 
-
-
-</div>
-</div>
-<hr class="clear">
-<div>
-
-
-
-
-
-
-<div>
-<hr />
-
-<a name="rev1868"></a>
-
-
-Revision <a href="/viewvc/scriptdev2?view=revision&amp;revision=1868"><strong>1868</strong></a> -
-
-
-(<a href="/viewvc/scriptdev2/sql/Updates/r1868_scriptdev2.sql?revision=1868&amp;view=markup">view</a>)
-
-
-(<a href="/viewvc/scriptdev2/sql/Updates/r1868_scriptdev2.sql?revision=1868">download</a>)
-(<a href="/viewvc/scriptdev2/sql/Updates/r1868_scriptdev2.sql?revision=1868&amp;content-type=text%2Fplain">as text</a>)
-(<a href="/viewvc/scriptdev2/sql/Updates/r1868_scriptdev2.sql?annotate=1868">annotate</a>)
-
-
-
-- <a href="/viewvc/scriptdev2/sql/Updates/r1868_scriptdev2.sql?r1=1868&amp;view=log">[select for diffs]</a>
-
-
-
-
-<br />
-
-Added
-
-<em>Sat Nov 13 19:10:29 2010 UTC</em>
-(5 weeks ago)
-by <em>nofantasy</em>
-
-
-
-
-
-
-
-<br />File length: 9239 byte(s)
-
-
-
-
-
-
-
-
-
-
-
-<pre class="vc_log">Add texts related to trial_of_the_crusader instance, patch by Schmoozerd</pre>
-</div>
-
- 
-
-
-
- <div class="sfBox">
-<hr class="clear"/>
-<a name="diff"></a>
-This form allows you to request diffs between any two revisions of this file.
-For each of the two "sides" of the diff,
-
-enter a numeric revision.
-
-<form method="get" action="/viewvc/scriptdev2/sql/Updates/r1868_scriptdev2.sql" id="diff_select">
-<table cellpadding="2" cellspacing="0" class="auto">
-<tr>
-<td>&nbsp;</td>
-<td>
-
-<input type="hidden" name="view" value="diff"/>
-
-Diffs between
-
-<input type="text" size="12" name="r1"
-value="1868" />
-
-and
-
-<input type="text" size="12" name="r2" value="1868" />
-
-</td>
-</tr>
-<tr>
-<td>&nbsp;</td>
-<td>
-Type of Diff should be a
-<select name="diff_format" onchange="submit()">
-<option value="h" selected="selected">Colored Diff</option>
-<option value="l" >Long Colored Diff</option>
-<option value="f" >Full Colored Diff</option>
-<option value="u" >Unidiff</option>
-<option value="c" >Context Diff</option>
-<option value="s" >Side by Side</option>
-</select>
-<input type="submit" value=" Get Diffs " />
-</td>
-</tr>
-</table>
-</form>
-</div>
-
-
-<form method="get" action="/viewvc/scriptdev2/sql/Updates/r1868_scriptdev2.sql">
-<div>
-<hr />
-<a name="logsort"></a>
-<input type="hidden" name="view" value="log"/>
-Sort log by:
-<select name="logsort" onchange="submit()">
-<option value="cvs" >Not sorted</option>
-<option value="date" >Commit date</option>
-<option value="rev" >Revision</option>
-</select>
-<input type="submit" value=" Sort " />
-</div>
-</form>
-
-
-<br />
-</div>
-</div>
-</div>
-<div id="ft">
-<div class="yui-b">
-<div class="yui-gb">
-<div class="yui-u first" style="text-align: center;"> <a href="http://p.sf.net/sourceforge/support">SourceForge Help<a/> </div>
-<div class="yui-u" style="text-align: center;"> <strong><a href="/viewvc-static/help_log.html">ViewVC Help</a></strong> </div>
-<div class="yui-u" style="text-align: center;"> <a href="http://viewvc.tigris.org/">Powered by ViewVC 1.1.6</a> </div>
-</div>
-<p class="copyright">Copyright &copy; 2010 <a title="Network which provides and promotes Open Source software downloads, development, discussion and news." href="http://geek.net">Geeknet, Inc.</a> All rights reserved. <a href="http://p.sf.net/sourceforge/terms">Terms of Use</a></p>
-</div>
-</div>
-</div>
-<!--[if IE]></div><![endif]-->
-<!--[if IE 6]></div><![endif]-->
-<!--[if IE 7]></div><![endif]-->
-<script type="text/javascript">
-var pageTracker = _gat._getTracker("UA-32013-37");
-pageTracker._setDomainName(".sourceforge.net");
-pageTracker._trackPageview();
-</script>
-</body>
-</html>
-
-
+DELETE FROM script_texts WHERE entry BETWEEN -1649070 AND -1649000;
+INSERT INTO script_texts (entry,content_default,sound,type,language,emote,comment) VALUES
+(-1649000,'Welcome champions, you have heard the call of the argent crusade and you have boldly answered. It is here in the crusaders coliseum that you will face your greatest challenges. Those of you who survive the rigors of the coliseum will join the Argent Crusade on it''s marsh to ice crown citadel.',16036,1,0,0,'tirion SAY_TIRION_RAID_INTRO_LONG'),
+(-1649001,'Welcome to the trials of the crusader. Only the most powerful combatants of azeroth are allowed to undergo these trials. You are among the worthy few.',16053,1,0,0,'tirion SAY_RAID_TRIALS_INTRO'),
+
+(-1649002,'Hailing from the deepest, darkest carverns of the storm peaks, Gormok the Impaler! Battle on, heroes!',16038,1,0,0,'tirion SAY_TIRION_BEAST_1'),
+(-1649003,'Your beast will be no match for my champions Tirion.',16069,1,0,0,'varian SAY_VARIAN_BEAST_1'),
+(-1649004,'I have seen more worthy challenges in the ring of blood, you waste our time paladin.',16026,1,0,0,'garrosh SAY_GARROSH_BEAST_1'),
+(-1649005,'Steel yourselves, heroes, for the twin terrors Acidmaw and Dreadscale. Enter the arena!',16039,1,0,0,'tirion SAY_TIRION_BEAST_2'),
+(-1649006,'The air freezes with the introduction of our next combatant, Icehowl! Kill or be killed, champions!',16040,1,0,0,'tirion SAY_TIRION_BEAST_3'),
+(-1649007,'The monstrous menagerie has been vanquished!',16041,1,0,0,'tirion SAY_TIRION_BEAST_SLAY'),
+(-1649008,'Tragic... They fought valiantly, but the beasts of Northrend triumphed. Let us observe a moment of silence for our fallen heroes.',16042,1,0,0,'tirion SAY_TIRION_BEAST_WIPE'),
+
+(-1649009,'Grand Warlock Wilfred Fizzlebang will summon forth your next challenge. Stand by for his entry!',16043,1,0,0,'tirion SAY_TIRION_JARAXXUS_INTRO_1'),
+(-1649010,'Thank you, Highlord! Now challengers, I will begin the ritual of summoning! When I am done, a fearsome Doomguard will appear!',16268,1,0,0,'wilfred SAY_WILFRED_JARAXXUS_INTRO_1'),
+(-1649011,'Prepare for oblivion!',16269,1,0,0,'wilfred SAY_WILFRED_JARAXXUS_INTRO_2'),
+(-1649012,'Ah ha! Behold the absolute power of Wilfred Fizzlebang, master summoner! You are bound to ME, demon!',16270,1,0,0,'wilfred SAY_WILFRED_JARAXXUS_INTRO_3'),
+(-1649013,'Trifling gnome, your arrogance will be your undoing!',16143,1,0,0,'jaraxxus SAY_JARAXXUS_JARAXXAS_INTRO_1'),
+(-1649014,'But I''m in charge her-',16271,1,0,0,'wilfred SAY_WILFRED_DEATH'),
+(-1649015,'Quickly, heroes! Destroy the demon lord before it can open a portal to its twisted demonic realm!',16044,1,0,0,'tirion SAY_TIRION_JARAXXUS_INTRO_2'),
+(-1649016,'The loss of Wilfred Fizzlebang, while unfortunate, should be a lesson to those that dare dabble in dark magic. Alas, you are victorious and must now face the next challenge.',16045,1,0,0,'tirion SAY_TIRION_JARAXXUS_EXIT_1'),
+(-1649017,'Treacherous Alliance dogs! You summon a demon lord against warriors of the Horde!? Your deaths will be swift!',16021,1,0,0,'garrosh SAY_GARROSH_JARAXXUS_EXIT_1'),
+(-1649018,'The Alliance doesn''t need the help of a demon lord to deal with Horde filth. Come, pig!',16064,1,0,0,'varian SAY_VARIAN_JARAXXUS_SLAY'),
+(-1649019,'Everyone, calm down! Compose yourselves! There is no conspiracy at play here. The warlock acted on his own volition - outside of influences from the Alliance. The tournament must go on!',16046,1,0,0,'tirion SAY_TIRION_JARAXXUS_EXIT_2'),
+
+(-1649020,'The next battle will be against the Argent Crusade''s most powerful knights! Only by defeating them will you be deemed worthy...',16047,1,0,0,'tirion SAY_TIRION_PVP_INTRO_1'),
+(-1649021,'The Horde demands justice! We challenge the Alliance. Allow us to battle in place of your knights, paladin. We will show these dogs what it means to insult the Horde!',16023,1,0,0,'garrosh SAY_GARROSH_PVP_A_INTRO_1'),
+(-1649022,'Our honor has been besmirched! They make wild claims and false accusations against us. I demand justice! Allow my champions to fight in place of your knights, Tirion. We challenge the Horde!',16066,1,0,0,'varian SAY_VARIAN_PVP_H_INTRO_1'),
+(-1649023,'Very well, I will allow it. Fight with honor!',16048,1,0,0,'tirion SAY_TIRION_PVP_INTRO_2'),
+(-1649024,'Fight for the glory of the Alliance, heroes! Honor your king and your people!',16065,1,0,0,'varian SAY_VARIAN_PVP_A_INTRO_2'),
+(-1649025,'Show them no mercy, Horde champions! LOK''TAR OGAR!',16022,1,0,0,'garrosh SAY_GARROSH_PVP_H_INTRO_2'),
+(-1649026,'Glory to the alliance.',16067,1,0,0,'varian SAY_VARIAN_PVP_A_WIN'),
+(-1649027,'That was just a taste of what the future brings. FOR THE HORDE!',16024,1,0,0,'garrosh SAY_GARROSH_PVP_H_WIN'),
+(-1649028,'A shallow and tragic victory. We are weaker as a whole from the losses suffered today. Who but the Lich King could benefit from such foolishness? Great warriors have lost their lives. And for what? The true threat looms ahead - the Lich King awaits us all in death.',16049,1,0,0,'tirion SAY_TIRION_PVP_WIN'),
+
+(-1649029,'Only by working together will you overcome the final challenge. From the depths of Icecrown come two of the Scourge''s most powerful lieutenants: fearsome val''kyr, winged harbingers of the Lich King!',16050,1,0,0,'tirion SAY_TIRION_TWINS_INTRO'),
+(-1649030,'Let the games begin!',16037,1,0,0,'tirion SAY_RAID_INTRO_SHORT'),
+(-1649031,'Not even the lich king''s most powerful minions could stand against the alliance. All hail our victors.',16068,1,0,0,'varian SAY_VARIAN_TWINS_A_WIN'),
+(-1649032,'Do you still question the might of the Horde, paladin? We will take on all comers!',16025,1,0,0,'garrosh SAY_GARROSH_TWINS_H_WIN'),
+(-1649033,'A mighty blow has been dealt to the Lich King! You have proven yourselves able bodied champions of the Argent Crusade. Together we will strike at Icecrown Citadel and destroy what remains of the Scourge! There is no challenge that we cannot face united!',16051,1,0,0,'tirion SAY_TIRION_TWINS_WIN'),
+
+(-1649034,'You will have your challenge, Fordring.',16321,1,0,0,'lich_king SAY_LKING_ANUB_INTRO_1'),
+(-1649035,'Arthas! You are hopelessly outnumbered! Lay down Frostmourne and I will grant you a just death.',16052,1,0,0,'tirion SAY_TIRION_ABUN_INTRO_1'),
+(-1649036,'The Nerubians built an empire beneath the frozen wastes of Northrend. An empire that you so foolishly built your structures upon. MY EMPIRE.',16322,1,0,0,'lich_king SAY_LKING_ANUB_INTRO_2'),
+(-1649037,'The souls of your fallen champions will be mine, Fordring.',16323,1,0,0,'lich_king SAY_LKING_ANUB_INTRO_3'),
+(-1649038,'Ahhh... Our guests arrived, just as the master promised.',16235,1,0,0,'anubarak SAY_ANUB_ANUB_INTRO_1'),
+
+(-1649039,'%s glares at $N and lets out a bellowing roar!',0,3,0,0,'icehowl EMOTE_MASSIVE_CRASH'),
+
+(-1649040,'You face Jaraxxus, eredar lord of the Burning Legion!',16144,1,0,0,'jaraxxus SAY_AGGRO'),
+(-1649041,'Insignificant gnat!',16145,1,0,0,'jaraxxus SAY_SLAY_1'),
+(-1649042,'Banished to the Nether!',16146,1,0,0,'jaraxxus SAY_SLAY_2'),
+(-1649043,'Another will take my place. Your world is doomed.',16147,1,0,0,'jaraxxus SAY_DEATH'),
+(-1649044,'<SD2 Text missing>',16148,1,0,0,'jaraxxus SAY_BERSERK'), -- TODO, just some laughing
+(-1649045,'Flesh from bone!',16149,1,0,0,'jaraxxus SAY_INCINERATE'),
+(-1649046,'Come forth, sister! Your master calls!',16150,1,0,0,'jaraxxus SAY_MISTRESS'),
+(-1649047,'Inferno!',16151,1,0,0,'jaraxxus SAY_INFERNO'),
+
+(-1649048,'Weakling!',16017,1,0,0,'garrosh SAY_GARROSH_PVP_A_SLAY_1'),
+(-1649049,'Pathetic!',16018,1,0,0,'garrosh SAY_GARROSH_PVP_A_SLAY_2'),
+(-1649050,'Overpowered.',16019,1,0,0,'garrosh SAY_GARROSH_PVP_A_SLAY_3'),
+(-1649051,'Lok''tar!',16020,1,0,0,'garrosh SAY_GARROSH_PVP_A_SLAY_4'),
+(-1649052,'Hah!',16060,1,0,0,'varian SAY_VARIAN_PVP_H_SLAY_1'),
+(-1649053,'Hardly a challenge!',16061,1,0,0,'varian SAY_VARIAN_PVP_H_SLAY_2'),
+(-1649054,'Worthless scrub.',16062,1,0,0,'varian SAY_VARIAN_PVP_H_SLAY_3'),
+(-1649055,'Is this the best the Horde has to offer?',16063,1,0,0,'varian SAY_VARIAN_PVP_H_SLAY_4'),
+
+(-1649056,'In the name of our dark master. For the Lich King. You. Will. Die.',16272,1,0,0,'twin_valkyr SAY_AGGRO'),
+(-1649057,'You are finished!',16273,1,0,0,'twin_valkyr SAY_BERSERK'),
+(-1649058,'Chaos!',16274,1,0,0,'twin_valkyr SAY_COLORSWITCH'),
+(-1649059,'The Scourge cannot be stopped...',16275,1,0,0,'twin_valkyr SAY_DEATH'),
+(-1649060,'You have been measured, and found wanting!',16276,1,0,0,'twin_valkyr SAY_SLAY_1'),
+(-1649061,'Unworthy!',16277,1,0,0,'twin_valkyr SAY_SLAY_2'),
+(-1649062,'Let the dark consume you!',16278,1,0,0,'twin_valkyr SAY_TO_BLACK'),
+(-1649063,'Let the light consume you!',16279,1,0,0,'twin_valkyr SAY_TO_WHITE'),
+
+(-1649064,'This place will serve as your tomb!',16234,1,0,0,'anubarak SAY_AGGRO'),
+(-1649065,'F-lakkh shir!',16236,1,0,0,'anubarak SAY_SLAY_1'),
+(-1649066,'Another soul to sate the host.',16237,1,0,0,'anubarak SAY_SLAY_2'),
+(-1649067,'I have failed you, master...',16238,1,0,0,'anubarak SAY_DEATH'),
+(-1649068,'<SD2 Text missing>',16239,1,0,0,'anubarak SAY_BERSERK'),
+(-1649069,'Auum na-l ak-k-k-k, isshhh. Rise, minions. Devour...',16240,1,0,0,'anubarak SAY_SUBMERGE'),
+(-1649070,'The swarm shall overtake you!',16241,1,0,0,'anubarak SAY_LEECHING_SWARM');

@@ -1,9 +1,9 @@
 # Quest: Plan B (11658)
 
 DELETE from spell_scripts WHERE id=45713;
-INSERT into spell_scripts VALUES
-(45713,0,17,34842,1,0,0,0,0,0,0,0,0),
-(45713,1,18,5,0,0,0,0,0,0,0,0,0);
+INSERT into spell_scripts (id,delay,command,datalong,datalong2) VALUES
+(45713,0,17,34842,1),
+(45713,1,18,5,0);
 
 DELETE from npc_spellclick_spells WHERE npc_entry IN(25343,25342);
 INSERT into npc_spellclick_spells VALUES

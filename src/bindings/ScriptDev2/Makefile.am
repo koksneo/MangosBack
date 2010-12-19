@@ -206,7 +206,6 @@ scripts/eastern_kingdoms/sunwell_plateau/instance_sunwell_plateau.cpp \
 scripts/eastern_kingdoms/sunwell_plateau/sunwell_plateau.h \
 scripts/eastern_kingdoms/sunwell_plateau/boss_muru_entropius.cpp \
 scripts/eastern_kingdoms/sunwell_plateau/boss_kiljaden.cpp \
-scripts/eastern_kingdoms/uldaman/boss_ironaya.cpp \
 scripts/eastern_kingdoms/uldaman/boss_archaedas.cpp \
 scripts/eastern_kingdoms/uldaman/uldaman.cpp \
 scripts/eastern_kingdoms/uldaman/uldaman.h \
@@ -326,7 +325,10 @@ scripts/kalimdor/temple_of_ahnqiraj/temple_of_ahnqiraj.h \
 scripts/kalimdor/wailing_caverns/wailing_caverns.cpp \
 scripts/kalimdor/wailing_caverns/instance_wailing_caverns.cpp \
 scripts/kalimdor/wailing_caverns/wailing_caverns.h \
+scripts/kalimdor/zulfarrak/boss_zumrah.cpp \
+scripts/kalimdor/zulfarrak/instance_zulfarrak.cpp \
 scripts/kalimdor/zulfarrak/zulfarrak.cpp \
+scripts/kalimdor/zulfarrak/zulfarrak.h \
 scripts/northrend/borean_tundra.cpp \
 scripts/northrend/dalaran.cpp \
 scripts/northrend/dragonblight.cpp \
@@ -365,6 +367,7 @@ scripts/northrend/draktharon_keep/boss_novos.cpp \
 scripts/northrend/draktharon_keep/boss_tharonja.cpp \
 scripts/northrend/draktharon_keep/boss_trollgore.cpp \
 scripts/northrend/draktharon_keep/instance_draktharon_keep.cpp \
+scripts/northrend/draktharon_keep/instance_draktharon_keep.h \
 scripts/northrend/gundrak/boss_colossus.cpp \
 scripts/northrend/gundrak/boss_galdarah.cpp \
 scripts/northrend/gundrak/boss_eck.cpp \
@@ -420,9 +423,9 @@ scripts/northrend/nexus/nexus/boss_ormorok.cpp \
 scripts/northrend/nexus/nexus/boss_telestra.cpp \
 scripts/northrend/nexus/nexus/nexus.h \
 scripts/northrend/nexus/nexus/instance_nexus.cpp \
-scripts/northrend/nexus/nexus/boss_malygos.cpp \
-scripts/northrend/nexus/nexus/instance_eye_of_eternity.cpp \
-scripts/northrend/nexus/nexus/eye_of_eternity.h \
+scripts/northrend/nexus/eye_of_eternity/boss_malygos.cpp \
+scripts/northrend/nexus/eye_of_eternity/instance_eye_of_eternity.cpp \
+scripts/northrend/nexus/eye_of_eternity/eye_of_eternity.h \
 scripts/northrend/obsidian_sanctum/boss_sartharion.cpp \
 scripts/northrend/obsidian_sanctum/instance_obsidian_sanctum.cpp \
 scripts/northrend/obsidian_sanctum/obsidian_sanctum.h \

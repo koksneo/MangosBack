@@ -12,7 +12,7 @@ INSERT into db_script_string (entry,content_default) VALUES
 (2000008013,'NOOOOOOOoooooooooo!');
 
 DELETE from spell_scripts WHERE id=43365;
-INSERT into spell_scripts VALUES
+INSERT into spell_scripts (id,delay,command,datalong,datalong2,datalong3,datalong4,data_flags,dataint,x,y,z,o) VALUES
 (43365,1,10,27959,30000,0,0,0,0,3035.99, -5092.22,722.615,0.771381),
 (43365,1,0,1,27959,15,0,0x02,2000008010,0,0,0,0),
 (43365,4,0,1,27959,15,0,0x02,2000008011,0,0,0,0),

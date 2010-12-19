@@ -1952,7 +1952,10 @@ bool GossipSelect_npc_locksmith(Player* pPlayer, Creature* pCreature, uint32 uiS
 
 enum WinterReveler
 {
-    SPELL_MISTLETOE             = 26218
+    SPELL_HOLLY                 = 26207,
+    SPELL_MISTLETOE             = 26206,
+    SPELL_SNOWFLAKES            = 45036,
+    SPELL_MISTLETOE_DEBUFF      = 26218
 };
 
 struct MANGOS_DLL_DECL mob_winter_revelerAI : public ScriptedAI
@@ -1972,8 +1975,18 @@ struct MANGOS_DLL_DECL mob_winter_revelerAI : public ScriptedAI
 
         if (uiEmote == TEXTEMOTE_KISS)
         {
-            if (!pPlayer->HasAura(SPELL_MISTLETOE))
-                m_creature->CastSpell(pPlayer,SPELL_MISTLETOE,true);
+            if (!pPlayer->HasAura(SPELL_MISTLETOE_DEBUFF))
+            {
+                m_creature->CastSpell(pPlayer,SPELL_MISTLETOE_DEBUFF,true);
+
+                switch(urand(0,2))
+                {
+                    case 0: m_creature->CastSpell(pPlayer,SPELL_HOLLY,true); break;
+                    case 1: m_creature->CastSpell(pPlayer,SPELL_SNOWFLAKES,true); break;
+                    case 2: m_creature->CastSpell(pPlayer,SPELL_MISTLETOE,true); break;
+                    default: break;
+                } 
+            }
         }
     }
 
@@ -1993,6 +2006,7 @@ CreatureAI* GetAI_mob_winter_reveler(Creature* pCreature)
 {
     return new mob_winter_revelerAI(pCreature);
 }
+
 
 /*######
 ## npc_experience_eliminator

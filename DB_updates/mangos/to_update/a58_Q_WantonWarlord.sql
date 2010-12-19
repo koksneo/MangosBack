@@ -1,8 +1,8 @@
 -- Support for quest Wanton Warlord (12151)
 
 DELETE FROM event_scripts WHERE id=17767;
-INSERT INTO event_scripts VALUES
-(17767,2,10,27002,3000000,0,0,0,0,2759.51,415.489,68.9819,2.84202);
+INSERT INTO event_scripts (id,delay,command,datalong,datalong2,x,y,z,o) VALUES
+(17767,2,10,27002,3000000,2759.51,415.489,68.9819,2.84202);
 
 DELETE FROM creature_ai_scripts WHERE creature_id=27002;
 INSERT INTO creature_ai_scripts VALUES

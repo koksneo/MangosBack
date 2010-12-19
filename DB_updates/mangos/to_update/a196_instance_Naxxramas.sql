@@ -242,7 +242,7 @@ WHERE entry = 29912;
 
 -- Force Obedience focus on Understudy
 DELETE FROM spell_script_target WHERE entry = 55479;
-INSERT INTO spell_Script_target VALUES
+INSERT INTO spell_script_target VALUES
 (55479,1,16803);
 
 -- Force Hopeless focus on Understudies

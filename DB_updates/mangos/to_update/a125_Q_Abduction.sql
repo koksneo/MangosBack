@@ -1,6 +1,6 @@
 # Quest: Abduction (11590)
 
-UPATE creature_template SET ScriptName='npc_beryl_sorcerer' WHERE entry=25316;
+UPDATE creature_template SET ScriptName='npc_beryl_sorcerer' WHERE entry=25316;
 UPDATE creature_template SET
 minhealth=6387,
 maxhealth=7185,

@@ -280,7 +280,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
         m_uiEnrageTimer = 600000;
         m_uiArcaneBreathTimer = urand(13000, 16000);
         m_uiArcaneStormTimer = urand(10000, 15000);
-        m_uiVortexTimer = 60000;
+        m_uiVortexTimer = urand(30000, 40000);
         m_uiPowerSparkTimer = urand(20000, 30000);
         m_uiDeepBreathTimer = 65000;
         m_uiShellTimer = 0;
@@ -293,12 +293,12 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
         m_uiWP = 0;
         m_uiSpeechCount = 0;
         m_uiSpeechTimer = 15000;
-        m_creature->SetSpeedRate(MOVE_RUN, 2.85714f);
-        m_creature->SetSpeedRate(MOVE_WALK, 6.0f);
-        m_creature->SetSpeedRate(MOVE_FLIGHT, 2.0f);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
         m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->SetSpeedRate(MOVE_RUN, 2.85714f);
+        m_creature->SetSpeedRate(MOVE_WALK, 3.0f);
+        m_creature->SetSpeedRate(MOVE_FLIGHT, 2.0f);
         m_creature->GetMotionMaster()->Clear();
 
         DespawnCreatures(NPC_POWER_SPARK);
@@ -403,7 +403,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             pSummoned->ForcedDespawn(30000);
         }
 
-        if (uiEntry == NPC_NEXUS_LORD || uiEntry == NPC_SCION_OF_ETERNITY)
+        /*if (uiEntry == NPC_NEXUS_LORD || uiEntry == NPC_SCION_OF_ETERNITY)
         {
             if (Creature* pDisk = pSummoned->SummonCreature(NPC_HOVER_DISK, pSummoned->GetPositionX(), pSummoned->GetPositionY(), pSummoned->GetPositionZ(), 0, TEMPSUMMON_CORPSE_DESPAWN, 0))
             {
@@ -417,7 +417,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                     if (VehicleKit* pDiskVehicle = pDisk->GetVehicleKit())
                         pSummoned->EnterVehicle(pDiskVehicle, 0);
             }
-        }
+        }*/
     }
 
     void SummonedCreatureJustDied(Creature* pSummoned)
@@ -738,12 +738,14 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                     }
                     else if (m_uiVortexPhase == MAX_VORTEX+9)
                     {
-                        m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
-                        m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
                         m_uiSubPhase = 0;
                         m_creature->GetMotionMaster()->Clear();
+                        m_creature->GetMap()->CreatureRelocation(m_creature, CENTER_X, CENTER_Y, FLOOR_Z, 0);
+                        m_creature->SendMonsterMove(CENTER_X, CENTER_Y, FLOOR_Z, SPLINETYPE_NORMAL , m_creature->GetSplineFlags(), 1000);
                         if (Unit* pTarget = m_creature->getVictim())
                             m_creature->GetMotionMaster()->MoveChase(pTarget);
+                        m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
+                        m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
                         // Arcane Breath on 25man - right after Vortex subphase
                         if (!m_bIsRegularMode)
                             m_uiArcaneBreathTimer = 1000;
@@ -1157,7 +1159,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                         //if (pTarget->GetEntry() == NPC_WYRMREST_SKYTALON)
                         if (pTarget->GetTypeId() == TYPEID_PLAYER)
                         {
-                            if (m_pInstance){}
+                            if (m_pInstance)
                                 if (Creature *pVictim = m_pInstance->instance->GetAnyTypeCreature(ObjectGuid(pTarget->GetVehicleGUID())))
                                 {
                                     m_uiSubPhase = SUBPHASE_SURGE_OF_POWER;
@@ -1177,7 +1179,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 m_uiSurgeOfPowerTimer = urand(5000, 15000);
             }
             else
-                m_uiSurgeOfPowerTimer -= uiDiff;    
+                m_uiSurgeOfPowerTimer -= uiDiff;
         }
 
         DoMeleeAttackIfReady();
@@ -1207,6 +1209,7 @@ struct MANGOS_DLL_DECL npc_power_sparkAI : public ScriptedAI
 
         SetCombatMovement(false);
         m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->SetSpeedRate(MOVE_WALK, 2.2f, true);
         m_creature->CastSpell(m_creature, SPELL_POWER_SPARK_VISUAL, false);
     }
 
@@ -1294,10 +1297,10 @@ struct MANGOS_DLL_DECL npc_nexus_lordAI : public ScriptedAI
     void Reset()
     {
         m_uiCheckTimer = 0;
-        m_fTargetOldX = 0.0f;
+        /*m_fTargetOldX = 0.0f;
         m_fTargetOldY = 0.0f;
         m_fVehicleOldX = 0.0f;
-        m_fVehicleOldY = 0.0f;
+        m_fVehicleOldY = 0.0f;*/
         m_uiArcaneShockTimer = urand(8000, 9000);
         m_uiHasteTimer = urand(10000, 12000);
         m_bCanAttack = false;

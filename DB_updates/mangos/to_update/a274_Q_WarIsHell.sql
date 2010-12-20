@@ -8,4 +8,4 @@ INSERT INTO spell_script_target (entry, TYPE, targetEntry)VALUES
 ('42793', '1', '24009'),
 ('42793', '1', '24010');
 
-UPDATE creature_template SET ScriptName='mob_combatant' WHERE entry IN(24009,24010);
+UPDATE creature_template SET ScriptName='spell_dummy_npc' WHERE entry IN(24009,24010);

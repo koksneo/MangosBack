@@ -176,7 +176,7 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
             pSource->MonsterTextEmote(iTextEntry, pTarget);
             break;
         case CHAT_TYPE_BOSS_EMOTE:
-            pSource->MonsterTextEmote(iTextEntry, pTarget);
+            pSource->MonsterTextEmote(iTextEntry, pTarget, true);
             break;
         case CHAT_TYPE_WHISPER:
         {

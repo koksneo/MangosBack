@@ -1559,9 +1559,10 @@ void Spell::SetTargetMap(SpellEffectIndex effIndex, uint32 targetMode, UnitList&
                 case 55665:                                 // Life Drain (h)
                 case 67700:                                 // Penetrating Cold (25 man)
                 case 68510:                                 // Penetrating Cold (25 man, heroic)
-                case 61694:                                 // Arcane Storm (25 man) (Malygos)
                     unMaxTargets = 5;
                     break;
+                case 61694:                                 // Arcane Storm (25 man) (Malygos)
+                    unMaxTargets = 7;
                 case 54098:                                 // Poison Bolt Volley (h)
                 case 54835:                                 // Curse of the Plaguebringer (h)
                     unMaxTargets = 10;

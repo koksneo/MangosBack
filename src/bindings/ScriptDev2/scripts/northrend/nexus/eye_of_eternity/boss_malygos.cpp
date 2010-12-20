@@ -280,7 +280,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
         m_uiEnrageTimer = 600000;
         m_uiArcaneBreathTimer = urand(13000, 16000);
         m_uiArcaneStormTimer = urand(10000, 15000);
-        m_uiVortexTimer = 60000;
+        m_uiVortexTimer = urand(30000, 40000);
         m_uiPowerSparkTimer = urand(20000, 30000);
         m_uiDeepBreathTimer = 65000;
         m_uiShellTimer = 0;
@@ -293,12 +293,12 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
         m_uiWP = 0;
         m_uiSpeechCount = 0;
         m_uiSpeechTimer = 15000;
-        m_creature->SetSpeedRate(MOVE_RUN, 2.85714f);
-        m_creature->SetSpeedRate(MOVE_WALK, 6.0f);
-        m_creature->SetSpeedRate(MOVE_FLIGHT, 2.0f);
         m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, UNIT_BYTE1_FLAG_ALWAYS_STAND | UNIT_BYTE1_FLAG_UNK_2);
         m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->SetSpeedRate(MOVE_RUN, 2.85714f);
+        m_creature->SetSpeedRate(MOVE_WALK, 3.0f);
+        m_creature->SetSpeedRate(MOVE_FLIGHT, 2.0f);
         m_creature->GetMotionMaster()->Clear();
 
         DespawnCreatures(NPC_POWER_SPARK);
@@ -463,10 +463,10 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             (*iter)->ForcedDespawn();
     }
 
-    void DismountPlayers()
+    /*void DismountPlayers()
     {
         // dismount players
-        /*Map *pMap = m_creature->GetMap();
+        Map *pMap = m_creature->GetMap();
         if (pMap)
         {
             Map::PlayerList const &lPlayers = pMap->GetPlayers();
@@ -474,8 +474,8 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                     if (Player* pPlayer = itr->getSource())
                         pPlayer->ExitVehicle();
-        }*/
-    }
+        }
+    }*/
 
     void AntiMagicShell()
     {
@@ -603,7 +603,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                         m_uiPortalNeedResTimer = 0;
                     }
                     m_creature->GetMotionMaster()->Clear();
-                    m_creature->GetMotionMaster()->MovePoint(POINT_ID_WAYPOINT, WPs[m_uiWP].x, WPs[m_uiWP].y, AIR_Z);
+                    m_creature->GetMotionMaster()->MovePoint(POINT_ID_WAYPOINT, WPs[m_uiWP].x, WPs[m_uiWP].y, AIR_Z, false);
                     m_bReadyForWPMove = false;
                     ++m_uiWP;
                     if (m_uiWP == 4)
@@ -738,12 +738,15 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                     }
                     else if (m_uiVortexPhase == MAX_VORTEX+9)
                     {
-                        m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
-                        m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
                         m_uiSubPhase = 0;
                         m_creature->GetMotionMaster()->Clear();
+                        //m_creature->GetMotionMaster()->MovePoint(POINT_ID_AFTER_VORTEX, CENTER_X, CENTER_Y, FLOOR_Z, false);
+                        m_creature->GetMap()->CreatureRelocation(m_creature, CENTER_X, CENTER_Y, FLOOR_Z, 0);
+                        m_creature->SendMonsterMove(CENTER_X, CENTER_Y, FLOOR_Z, SPLINETYPE_NORMAL , m_creature->GetSplineFlags(), 1000);
                         if (Unit* pTarget = m_creature->getVictim())
                             m_creature->GetMotionMaster()->MoveChase(pTarget);
+                        m_creature->SetByteValue(UNIT_FIELD_BYTES_1, 3, 0);
+                        m_creature->RemoveSplineFlag(SPLINEFLAG_FLYING);
                         // Arcane Breath on 25man - right after Vortex subphase
                         if (!m_bIsRegularMode)
                             m_uiArcaneBreathTimer = 1000;
@@ -794,7 +797,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
                 SetCombatMovement(false);
                 m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MovePoint(POINT_ID_VORTEX_AIR, CENTER_X, CENTER_Y, AIR_Z);
+                m_creature->GetMotionMaster()->MovePoint(POINT_ID_VORTEX_AIR, CENTER_X, CENTER_Y, AIR_Z, false);
                 m_uiSubPhase = SUBPHASE_VORTEX;
                 m_uiVortexPhase = 0;
                 m_uiVortexTimer = 60000;
@@ -830,7 +833,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                     m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
                     SetCombatMovement(false);
                     m_creature->GetMotionMaster()->Clear();
-                    m_creature->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, AIR_Z);
+                    m_creature->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, AIR_Z, false);
                     m_bReadyForWPMove = false;
                     m_uiTimer = 23000;
                     return;
@@ -849,7 +852,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                     m_creature->SetSpeedRate(MOVE_RUN, 6.0f);
                     m_creature->GetMotionMaster()->Clear();
                     m_uiWP = urand(0, 3);
-                    m_creature->GetMotionMaster()->MovePoint(POINT_ID_PHASE_2_WP, WPs[m_uiWP].x, WPs[m_uiWP].y, AIR_Z);
+                    m_creature->GetMotionMaster()->MovePoint(POINT_ID_PHASE_2_WP, WPs[m_uiWP].x, WPs[m_uiWP].y, AIR_Z, false);
                     m_uiTimer = 15000;
                 }
                 else
@@ -889,7 +892,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                                     if (Creature* pTemp = m_creature->SummonCreature(NPC_VORTEX, CENTER_X, CENTER_Y, FLOOR_Z - 15.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000))
                                         m_creature->AddThreat(pTemp, 100000.0f);
 
-                                   // pPlayer->ExitVehicle();
+                                    //pPlayer->ExitVehicle();
 
                                     if (Creature* pTemp = pPlayer->SummonCreature(NPC_WYRMREST_SKYTALON, pPlayer->GetPositionX(), pPlayer->GetPositionY(), FLOOR_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
                                     {
@@ -936,12 +939,12 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                     if (m_uiSubPhase == SUBPHASE_DEEP_BREATH)
                     {
                         m_uiWP = urand(0, 3);
-                        m_creature->GetMotionMaster()->MovePoint(POINT_ID_PHASE_2_WP, WPs[m_uiWP].x, WPs[m_uiWP].y, AIR_Z);
+                        m_creature->GetMotionMaster()->MovePoint(POINT_ID_PHASE_2_WP, WPs[m_uiWP].x, WPs[m_uiWP].y, AIR_Z, false);
                     }
                     else
                     {
                         float fAng = M_PI/4 + m_creature->GetAngle(CENTER_X, CENTER_Y);
-                        m_creature->GetMotionMaster()->MovePoint(POINT_ID_PHASE_2_WP, CENTER_X-80.0f*cos(fAng), CENTER_Y-80.0f*sin(fAng), AIR_Z);
+                        m_creature->GetMotionMaster()->MovePoint(POINT_ID_PHASE_2_WP, CENTER_X-80.0f*cos(fAng), CENTER_Y-80.0f*sin(fAng), AIR_Z, false);
                     }
                     m_uiSubPhase = 0;
                     m_bReadyForWPMove = false;
@@ -972,7 +975,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             if (m_uiDeepBreathTimer <= uiDiff)
             {
                 m_creature->GetMotionMaster()->Clear();
-                m_creature->GetMotionMaster()->MovePoint(POINT_ID_DEEP_BREATH, CENTER_X, CENTER_Y, AIR_Z);
+                m_creature->GetMotionMaster()->MovePoint(POINT_ID_DEEP_BREATH, CENTER_X, CENTER_Y, AIR_Z, false);
                 m_bReadyForWPMove = false;
                 m_uiTimer = 20000;
                 m_uiDeepBreathTimer = 63000;
@@ -1045,7 +1048,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                                 }
                     }*/
 
-                    m_creature->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, FLOOR_Z + 80.0f);
+                    m_creature->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, FLOOR_Z + 80.0f, false);
                     DoScriptText(SAY_INTRO_PHASE3, m_creature);
 
                     m_uiSubPhase = SUBPHASE_DESTROY_PLATFORM_3;
@@ -1149,7 +1152,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             else
                 m_uiStaticFieldTimer -= uiDiff;
 
-            if (m_uiSurgeOfPowerTimer <= uiDiff)
+            /*if (m_uiSurgeOfPowerTimer <= uiDiff)
             {
                 for (uint8 i = 0; i<=50; ++i)
                 {
@@ -1157,8 +1160,8 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                         //if (pTarget->GetEntry() == NPC_WYRMREST_SKYTALON)
                         if (pTarget->GetTypeId() == TYPEID_PLAYER)
                         {
-                            if (m_pInstance){}
-                                /*if (Creature *pVictim = m_pInstance->instance->GetAnyTypeCreature(ObjectGuid(pTarget->GetVehicleGUID())))
+                            if (m_pInstance)
+                                if (Creature *pVictim = m_pInstance->instance->GetAnyTypeCreature(ObjectGuid(pTarget->GetVehicleGUID())))
                                 {
                                     m_uiSubPhase = SUBPHASE_SURGE_OF_POWER;
                                     m_uiTimer = 6500;
@@ -1170,14 +1173,14 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                                     // "Malygos fixes his eyes on you!"
                                     DoScriptText(EMOTE_SURGE_WHISPER, m_creature, pTarget);
                                     break;
-                                }*/
+                                }
                         }
                 }
 
                 m_uiSurgeOfPowerTimer = urand(5000, 15000);
             }
             else
-                m_uiSurgeOfPowerTimer -= uiDiff;    
+                m_uiSurgeOfPowerTimer -= uiDiff;*/
         }
 
         DoMeleeAttackIfReady();
@@ -1207,6 +1210,7 @@ struct MANGOS_DLL_DECL npc_power_sparkAI : public ScriptedAI
 
         SetCombatMovement(false);
         m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->SetSpeedRate(MOVE_WALK, 2.2f, true);
         m_creature->CastSpell(m_creature, SPELL_POWER_SPARK_VISUAL, false);
     }
 
@@ -1255,7 +1259,7 @@ struct MANGOS_DLL_DECL npc_power_sparkAI : public ScriptedAI
                             m_creature->ForcedDespawn(100);
                         }
                         else
-                            m_creature->GetMotionMaster()->MovePoint(0, pMalygos->GetPositionX(), pMalygos->GetPositionY(), pMalygos->GetPositionZ());
+                            m_creature->GetMotionMaster()->MovePoint(0, pMalygos->GetPositionX(), pMalygos->GetPositionY(), pMalygos->GetPositionZ(), false);
                     }
                     else
                         m_creature->StopMoving();
@@ -1294,16 +1298,16 @@ struct MANGOS_DLL_DECL npc_nexus_lordAI : public ScriptedAI
     void Reset()
     {
         m_uiCheckTimer = 0;
-        m_fTargetOldX = 0.0f;
+        /*m_fTargetOldX = 0.0f;
         m_fTargetOldY = 0.0f;
         m_fVehicleOldX = 0.0f;
-        m_fVehicleOldY = 0.0f;
+        m_fVehicleOldY = 0.0f;*/
         m_uiArcaneShockTimer = urand(8000, 9000);
         m_uiHasteTimer = urand(10000, 12000);
         m_bCanAttack = false;
 
         m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
-        m_creature->GetMotionMaster()->MovePoint(1, urand(PLATFORM_MIN_X, PLATFORM_MAX_X), urand(PLATFORM_MIN_Y, PLATFORM_MAX_Y), FLOOR_Z);
+        m_creature->GetMotionMaster()->MovePoint(1, urand(PLATFORM_MIN_X, PLATFORM_MAX_X), urand(PLATFORM_MIN_Y, PLATFORM_MAX_Y), FLOOR_Z, false);
 
         // creature should be mounted on Hover Disc
     }
@@ -1397,12 +1401,12 @@ struct MANGOS_DLL_DECL npc_scion_of_eternityAI : public ScriptedAI
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
-                /*if (!pTarget->GetVehicle())
-                {
+                //if (!pTarget->GetVehicle())
+                //{
                     int32 uiDmg = m_bIsRegularMode ? urand(14138, 15862) : urand(16965, 19035);
                     m_creature->CastCustomSpell(pTarget, SPELL_ARCANE_BARRAGE, &uiDmg, 0, 0, true);
                     m_uiArcaneBarrageTimer = urand(4000, 12000);
-                }*/
+                //}
             }
         }
         else
@@ -1411,7 +1415,7 @@ struct MANGOS_DLL_DECL npc_scion_of_eternityAI : public ScriptedAI
         // move around the platform
         if (m_uiMoveTimer < uiDiff)
         {
-            m_creature->GetMotionMaster()->MovePoint(0, urand(PLATFORM_MIN_X, PLATFORM_MAX_X), urand(PLATFORM_MIN_Y, PLATFORM_MAX_Y), FLOOR_Z+10.0f+urand(0, 10));
+            m_creature->GetMotionMaster()->MovePoint(0, urand(PLATFORM_MIN_X, PLATFORM_MAX_X), urand(PLATFORM_MIN_Y, PLATFORM_MAX_Y), FLOOR_Z+10.0f+urand(0, 10), false);
             m_uiMoveTimer = 4000;
         }
         else m_uiMoveTimer -= uiDiff;
@@ -1596,7 +1600,7 @@ bool GOHello_go_focusing_iris(Player* pPlayer, GameObject* pGo)
 
             pMalygos->GetMotionMaster()->Clear();
             float fAng = pMalygos->GetAngle(CENTER_X, CENTER_Y);
-            pMalygos->GetMotionMaster()->MovePoint(POINT_ID_LAND, CENTER_X-40.76f*cos(fAng), CENTER_Y-40.76f*sin(fAng), FLOOR_Z+7.0f);
+            pMalygos->GetMotionMaster()->MovePoint(POINT_ID_LAND, CENTER_X-40.76f*cos(fAng), CENTER_Y-40.76f*sin(fAng), FLOOR_Z+7.0f, false);
         }
     
     return false;

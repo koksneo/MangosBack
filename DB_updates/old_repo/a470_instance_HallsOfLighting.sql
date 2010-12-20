@@ -14,10 +14,10 @@ INSERT INTO `creature` (`guid`, `id`, `map`, `spawnMask`, `phaseMask`, `modelid`
 ('126863','29240','602','3','1','26065','0','1259.45','71.4089','33.5055','3.10451','3600','5','0','52132','20405','0','1');
 
 DELETE FROM `creature_addon` WHERE guid IN (SELECT `guid` FROM `creature` WHERE id IN (28586,29240));
-INSERT INTO `creature_addon` (`guid`, `mount`, `bytes1`, `bytes2`, `emote`, `moveflags`, `auras`) VALUES
-('126863','0','0','1','0','0','52097 0'),
-('126864','0','0','1','0','0','52097 0'),
-('126981','0','0','1','0','0','52097 0');*/
+INSERT INTO `creature_addon` (`guid`, `mount`, `bytes1`, `b2_0_sheath`, `b2_1_pvp_state`, `emote`, `moveflags`, `auras`) VALUES
+('126863','0','0','1','0','0','0','52097 0'),
+('126864','0','0','1','0','0','0','52097 0'),
+('126981','0','0','1','0','0','0','52097 0');*/
 
 #################### General Bjarngrim #########################################################################
 
@@ -73,7 +73,7 @@ WHERE entry IN (28926,31867);
 ##################################################################################################################
 
 -- Add Emblem of Heroisms
-INSERT INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `lootcondition`, `condition_value1`, `condition_value2`) VALUES
+REPLACE INTO `creature_loot_template` (`entry`, `item`, `ChanceOrQuestChance`, `groupid`, `mincountOrRef`, `maxcount`, `lootcondition`, `condition_value1`, `condition_value2`) VALUES
 (31533, 40752, 100, 0, 1, 1, 0, 0, 0),
 (31536, 40752, 100, 0, 1, 1, 0, 0, 0),
 (31537, 40752, 100, 5, 1, 1, 0, 0, 0),

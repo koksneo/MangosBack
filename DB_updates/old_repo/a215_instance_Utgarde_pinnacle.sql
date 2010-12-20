@@ -35,11 +35,10 @@ faction_A = 14,
 faction_H = 14,
 minlevel = 82,
 maxlevel = 82,
-modelid_A = 11686,
-modelid_H = 11686,
+modelid_1 = 11686,
+modelid_2 = 11686,
 flags_extra = flags_extra &~128 &~2,
 unit_flags = unit_flags|2|33554432,
-speed = 0.15,
 AIName = ''
 WHERE entry IN (30808,27339);
 
@@ -81,8 +80,8 @@ UPDATE creature_template SET ScriptName = 'mob_ymiron_add' WHERE entry IN (27386
 UPDATE creature_template SET
 unit_flags = unit_flags|2|33554432,
 flags_extra = flags_extra &~128 |2,
-modelid_A = 11686,
-modelid_H = 11686,
+modelid_1 = 11686,
+modelid_2 = 11686,
 AIName = 'EventAI'
 WHERE entry IN (27392,30757);
 

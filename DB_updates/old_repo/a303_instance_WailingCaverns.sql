@@ -1,6 +1,5 @@
--- Wailing Caverns Encounters (TYPE_ data) adjusted to ACID 3.0.4
-DELETE FROM creature_ai_scripts WHERE id IN (3671,3669,3670,3673,3654) AND (action1_type = 34 OR action2_type = 34 OR action3_type = 34);
-INSERT INTO creature_ai_scripts (`id`,`creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `comment`)  VALUES
+-- Wailing Caverns Encounters
+REPLACE INTO creature_ai_scripts (`id`,`creature_id`, `event_type`, `event_inverse_phase_mask`, `event_chance`, `event_flags`, `event_param1`, `event_param2`, `event_param3`, `event_param4`, `action1_type`, `action1_param1`, `action1_param2`, `action1_param3`, `comment`)  VALUES
 ('366916','3669','7','0','100','2','0','0','0','0','34','1','0','0','Lord Cobrahn - Data Type 0 on Evade'),
 ('366917','3669','4','0','100','2','0','0','0','0','34','1','1','0','Lord Cobrahn - Data Type 1 on Aggro'),
 ('366918','3669','6','0','100','2','0','0','0','0','34','1','3','0','Lord Cobrahn - Data Type 2 on Death'),
@@ -29,7 +28,7 @@ DELETE FROM npc_gossip WHERE npc_guid = 18675;
 INSERT INTO npc_gossip VALUES
 (18675,698);
 
-UPDATE instance_template SET script = 'instance_wailing_caverns' WHERE map = 43;
+UPDATE instance_template SET ScriptName = 'instance_wailing_caverns' WHERE map = 43;
 
 -- disciple of naralex
 UPDATE creature_template SET ScriptName = 'npc_disciple_of_naralex' WHERE entry = 3678;

@@ -22,8 +22,8 @@ INSERT INTO creature VALUES
 
 -- Aponi Brightmane
 DELETE FROM creature_addon WHERE guid = 9000007;
-INSERT INTO creature_addon VALUES
-(9000007,0,1,0,0,0,'');
+INSERT INTO creature_addon (guid,mount,bytes1) VALUES
+(9000007,0,1);
 
 -- Lok'lira the Crone
 UPDATE creature_template SET
@@ -52,8 +52,8 @@ INSERT INTO creature VALUES
 
 -- Drom Frostgrip
 DELETE FROM creature_addon WHERE guid = 9000009;
-INSERT INTO creature_addon VALUES
-(9000009,0,7,0,0,0,'');
+INSERT INTO creature_addon (guid,mount,bytes1) VALUES
+(9000009,0,7);
 
 -- The Iron Watcher
 UPDATE creature_template SET 

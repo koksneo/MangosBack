@@ -680,6 +680,11 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 {
                     if (m_uiVortexPhase == 3)
                     {
+                        // hack for vortex aura - dont allow removing aura by clicking on its icon
+                        SpellEntry *pSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_VORTEX_DMG_AURA);
+                        if (pSpell)
+                            pSpell->Attributes |= SPELL_ATTR_CANT_CANCEL;
+
                         Creature* pVortex = m_creature->SummonCreature(NPC_VORTEX, VORTEX_FARSIGHT_X, VORTEX_FARSIGHT_Y, VORTEX_FARSIGHT_Z, VORTEX_FARSIGHT_O, TEMPSUMMON_TIMED_DESPAWN, 15000);
                         Map* pMap = m_creature->GetMap();
                         if (pMap && pVortex)
@@ -694,7 +699,10 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                                 //Crash the server in group update far members, dunno why
                                 //I will try to use this again, maybe I have fix...
                                 itr->getSource()->GetCamera().SetView(pVortex);
-                                itr->getSource()->CastSpell(itr->getSource(), SPELL_VORTEX_DMG_AURA, true);
+                                if (pSpell)
+                                    itr->getSource()->CastSpell(itr->getSource(), pSpell, true);
+                                else
+                                    itr->getSource()->CastSpell(itr->getSource(), SPELL_VORTEX_DMG_AURA, true);
                             }
                         }
                         //DoCast(m_creature, SPELL_VORTEX);

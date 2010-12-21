@@ -347,31 +347,31 @@ UPDATE quest_template SET PrevQuestId = 0,PrevQuestId = 13794 WHERE entry = 1384
 
 -- Among the Champions
 UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13811, RequiredRaces = 690 WHERE entry = 13811;
-UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13811, SkillOrClass = -6, RequiredRaces = 690 WHERE entry = 13814;
+UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13811, MinLevel= 81, RequiredRaces = 690 WHERE entry = 13814;
 -- Battle Before The Citadel
 UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13862, RequiredRaces = 690 WHERE entry = 13862;
-UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13862, SkillOrClass = -6, RequiredRaces = 690 WHERE entry = 13863;
+UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13862, MinLevel= 81, RequiredRaces = 690 WHERE entry = 13863;
 -- Taking Battle To The Enemy
 UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13810, RequiredRaces = 690 WHERE entry = 13810;
-UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13810, SkillOrClass = -6, RequiredRaces = 690 WHERE entry = 13813;
+UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13810, MinLevel= 81, RequiredRaces = 690 WHERE entry = 13813;
 -- Threat From Above
 UPDATE quest_template SET PrevQuestId = 13664, ExclusiveGroup = 13809, RequiredRaces = 690 WHERE entry = 13809;
-UPDATE quest_template SET PrevQuestId = 13664, ExclusiveGroup = 13809, SkillOrClass = -6, RequiredRaces = 690 WHERE entry = 13812;
+UPDATE quest_template SET PrevQuestId = 13664, ExclusiveGroup = 13809, MinLevel= 81, RequiredRaces = 690 WHERE entry = 13812;
 
 -- Alliance:
 
 -- Among the Champions
 UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13790, RequiredRaces = 1101 WHERE entry = 13790;
-UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13790, SkillOrClass = -6, RequiredRaces = 1101 WHERE entry = 13793;
+UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13790, MinLevel= 81, RequiredRaces = 1101 WHERE entry = 13793;
 -- Battle Before The Citadel
 UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13861, RequiredRaces = 1101 WHERE entry = 13861;
-UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13861, SkillOrClass = -6, RequiredRaces = 1101 WHERE entry = 13864;
+UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13861, MinLevel= 81, RequiredRaces = 1101 WHERE entry = 13864;
 -- Taking Battle To The Enemy
 UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13789, RequiredRaces = 1101 WHERE entry = 13789;
-UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13789, SkillOrClass = -6, RequiredRaces = 1101 WHERE entry = 13791;
+UPDATE quest_template SET PrevQuestId = 13794, ExclusiveGroup = 13789, MinLevel= 81, RequiredRaces = 1101 WHERE entry = 13791;
 -- Threat From Above
 UPDATE quest_template SET PrevQuestId = 13664, ExclusiveGroup = 13682, RequiredRaces = 1101 WHERE entry = 13682;
-UPDATE quest_template SET PrevQuestId = 13664, ExclusiveGroup = 13682, SkillOrClass = -6, RequiredRaces = 1101 WHERE entry = 13788;                                                              
+UPDATE quest_template SET PrevQuestId = 13664, ExclusiveGroup = 13682, MinLevel= 81, RequiredRaces = 1101 WHERE entry = 13788;                                                              
 
 -- The Fate Of The Fallen
 UPDATE quest_template SET PrevQuestId = 13794 WHERE entry = 14107;

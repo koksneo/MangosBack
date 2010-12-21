@@ -315,12 +315,30 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
 
         m_lSparkPortalGUIDList.clear();
 
-        DismountPlayers();
+        //DismountPlayers();
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_MALYGOS, NOT_STARTED);
 
         SetCombatMovement(true);
+    }
+
+    void EnterEvadeMode()
+    {
+        if (m_uiPhase == PHASE_DRAGONS && m_uiSubPhase <= SUBPHASE_DESTROY_PLATFORM_4)
+            return;
+
+        m_creature->RemoveAllAuras();
+        m_creature->DeleteThreatList();
+        m_creature->CombatStop(true);
+        m_creature->LoadCreatureAddon();
+
+        if (m_creature->isAlive())
+            m_creature->GetMotionMaster()->MoveTargetedHome();
+
+        m_creature->SetLootRecipient(NULL);
+
+        Reset();
     }
 
     void Aggro(Unit* pWho)
@@ -334,7 +352,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 if (*itr)
                     m_lSparkPortalGUIDList.push_back((*itr)->GetGUID());
 
-        DismountPlayers();
+        //DismountPlayers();
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_MALYGOS, IN_PROGRESS);
@@ -657,9 +675,6 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
 
             return;
         }
-        
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
 
         if (m_uiEnrageTimer <= uiDiff)
         {
@@ -674,12 +689,20 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
 
         if (m_uiPhase == PHASE_FLOOR)
         {
+            if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+                return;
+
             if (m_uiSubPhase == SUBPHASE_VORTEX)
             {
                 if (m_uiVortexPhase > 0 && m_uiTimer <= uiDiff)
                 {
                     if (m_uiVortexPhase == 3)
                     {
+                        // hack for vortex aura - dont allow removing aura by clicking on its icon
+                        SpellEntry *pSpell = (SpellEntry*)GetSpellStore()->LookupEntry(SPELL_VORTEX_DMG_AURA);
+                        if (pSpell)
+                            pSpell->Attributes |= SPELL_ATTR_CANT_CANCEL;
+
                         Creature* pVortex = m_creature->SummonCreature(NPC_VORTEX, VORTEX_FARSIGHT_X, VORTEX_FARSIGHT_Y, VORTEX_FARSIGHT_Z, VORTEX_FARSIGHT_O, TEMPSUMMON_TIMED_DESPAWN, 15000);
                         Map* pMap = m_creature->GetMap();
                         if (pMap && pVortex)
@@ -694,7 +717,10 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                                 //Crash the server in group update far members, dunno why
                                 //I will try to use this again, maybe I have fix...
                                 itr->getSource()->GetCamera().SetView(pVortex);
-                                itr->getSource()->CastSpell(itr->getSource(), SPELL_VORTEX_DMG_AURA, true);
+                                if (pSpell)
+                                    itr->getSource()->CastSpell(itr->getSource(), pSpell, true);
+                                else
+                                    itr->getSource()->CastSpell(itr->getSource(), SPELL_VORTEX_DMG_AURA, true);
                             }
                         }
                         //DoCast(m_creature, SPELL_VORTEX);
@@ -844,6 +870,9 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
         }
         else if (m_uiPhase == PHASE_ADDS)
         {
+            if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+                return;
+
             if (m_uiSubPhase == SUBPHASE_TALK)
             {
                 if (m_uiTimer <= uiDiff)
@@ -865,6 +894,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 if (!IsThereAnyAdd())
                 {
                     m_creature->StopMoving();
+                    m_creature->GetMotionMaster()->MovePoint(0, CENTER_X, CENTER_Y, m_creature->GetPositionZ());
                     m_uiPhase = PHASE_DRAGONS;
                     m_uiSubPhase = SUBPHASE_DESTROY_PLATFORM_1;
                     DoScriptText(SAY_END_PHASE2, m_creature);
@@ -887,10 +917,6 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                             for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
                                 if (Player* pPlayer = itr->getSource())
                                 {
-                                    // keep combat state
-                                    if (Creature* pTemp = m_creature->SummonCreature(NPC_VORTEX, CENTER_X, CENTER_Y, FLOOR_Z - 15.0f, 0.0f, TEMPSUMMON_TIMED_DESPAWN, 30000))
-                                        m_creature->AddThreat(pTemp, 100000.0f);
-
                                     pPlayer->ExitVehicle();
 
                                     if (Creature* pTemp = pPlayer->SummonCreature(NPC_WYRMREST_SKYTALON, pPlayer->GetPositionX(), pPlayer->GetPositionY(), FLOOR_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 20000))
@@ -1102,10 +1128,13 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 return;
             }
 
+            if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+                return;
+
             if (m_uiSubPhase == SUBPHASE_SURGE_OF_POWER)
             {
                 if (m_uiTimer <= uiDiff)
-                    m_uiSubPhase = 0;
+                    m_uiSubPhase = 36;
                 else
                     m_uiTimer -= uiDiff;
 
@@ -1561,6 +1590,7 @@ struct MANGOS_DLL_DECL npc_alexstraszaAI : public ScriptedAI
                 case 4:
                     if(Creature *pTarget = m_creature->SummonCreature(NPC_ALEXSTRASZAS_GIFT, 806.0f, 1324.0f, FLOOR_Z, 0, TEMPSUMMON_TIMED_DESPAWN, 10000))
                     {
+                        m_creature->SetFacingToObject(pTarget);
                         pTarget->SetDisplayId(MODEL_ID_INVISIBLE);
                         DoCast(m_creature, SPELL_ALEXSTRASZAS_GIFT_BEAM);
                         m_uiTimer = 3000;

@@ -19,12 +19,12 @@ UPDATE creature_template SET `ScriptName` = 'mob_deathcloud' WHERE `entry` = 257
 -- Muru and Entropius
 UPDATE `creature_template` SET `lootid` = entry, `ScriptName` = 'boss_muru' WHERE `entry` = 25741;
 -- Dark Fiend
-UPDATE `creature_template` SET `faction_A` = '14', `faction_H` = '14', `speed` = '0.6', `ScriptName` = 'dark_fiend' WHERE `entry` = 25744; 
+UPDATE `creature_template` SET `faction_A` = '14', `faction_H` = '14', `ScriptName` = 'dark_fiend' WHERE `entry` = 25744; 
 -- Void Sentinel
 UPDATE `creature_template` SET  `AIName` = '', `ScriptName` = 'mob_voidsentinel' WHERE `entry` = 25772; 
 UPDATE `creature_template` SET `minmana` = '10000', `maxmana` = '10000' WHERE `entry` IN (25798, 25772);
 -- Singularity
-UPDATE creature_template SET `faction_A` = '14', `faction_H` = '14', `speed` = '1', `rank` = '1', `AIName` = '', `ScriptName` = 'mob_singularity' WHERE `entry` = 25855; 
+UPDATE creature_template SET `faction_A` = '14', `faction_H` = '14', `rank` = '1', `AIName` = '', `ScriptName` = 'mob_singularity' WHERE `entry` = 25855; 
 
 -- SWP KILJAEDEN
 

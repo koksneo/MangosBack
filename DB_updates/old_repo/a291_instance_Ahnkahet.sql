@@ -27,7 +27,7 @@ WHERE entry IN (29309,31456,31469,29308,29310,31465,30385,31474,30258,31463);
 ######################  Elder Nadox   ##################################################################
 
 -- Ahn-Kahet::Nadox 29309 31456
-UPDATE creature_template SET `mechanic_immune_mask` = '1073463287' WHERE `entry` IN (29309,31456);
+UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask|1073463287 WHERE entry IN (29309,31456);
 -- limit XP gained on Elder Nadox Adds
 UPDATE creature_template SET flags_extra = flags_extra | 2048 WHERE entry IN (30176,30178,31441,31448);
 
@@ -39,11 +39,11 @@ maxlevel = 82 WHERE entry = 31448;
 ######################  Prince Taldaram ################################################################
 -- Flame Sphere
 UPDATE creature_template SET 
-`minlevel` = 80, 
-`maxlevel` = 80,
-`AIName` = '',
-`Scriptname` = 'mob_flame_sphere',
-WHERE `entry` IN (30106,31686,31687);
+minlevel = 80, 
+maxlevel = 80,
+AIName = '',
+Scriptname = 'mob_flame_sphere'
+WHERE entry IN (30106,31686,31687);
 
 -- Taldaram - delete blue beam aura
 DELETE FROM creature_addon WHERE guid IN (SELECT guid FROM creature WHERE id IN (29308,31469));
@@ -84,16 +84,16 @@ WHERE entry IN (30385,30114);
 
 #####################   Amanitar   #####################################################################
 DELETE FROM creature_template_addon WHERE entry IN (30391,31461,30435,31462);
-INSERT INTO creature_template_addon VALUES
+INSERT INTO creature_template_addon (entry,auras) VALUES
 -- healthy mushroom (Putid mushroom visual(morph), healthy mushroom visual)
-(30391,0,0,0,0,0,'31690 0 56740 0'),
-(31461,0,0,0,0,0,'31690 0 56740 0'),
+(30391,'31690 0 56740 0'),
+(31461,'31690 0 56740 0'),
 -- posionous mushroom
-(30435,0,0,0,0,0,'31690 0 56741 0'),
-(31462,0,0,0,0,0,'31690 0 56741 0');
+(30435,'31690 0 56741 0'),
+(31462,'31690 0 56741 0');
 
 UPDATE creature_template SET
-modelid_A = 26981, -- invisilbe model
+modelid_1 = 26981, -- invisilbe model
 flags_extra = flags_extra | 64 -- no XP at kill
 WHERE entry IN (30435,30391,31461,31462);
 
@@ -105,10 +105,10 @@ WHERE entry IN (30391,30435);
 -- Amanitar heroic only spawn
 REPLACE INTO creature VALUES ('151232','30258','619','2','1','0','0','344.183','-868.576','-77.5017','6.00132','88600','0','0','431392','0','0','0');
 
-/*
+
 -- Ahn-Kahet::Volazj2931131464
-UPDATE creature_template SET `mechanic_immune_mask` = mechanic_immune_mask|1073463287 WHERE `entry` IN (29311,31464);
+UPDATE creature_template SET mechanic_immune_mask = mechanic_immune_mask|1073463287 WHERE entry IN (29311,31464);
 
 -- Ahn-Kahet::twisted Visage 30625
-UPDATE creature_template SET `mindmg` = '500', `maxdmg` = '1000', `baseattacktime` = '2000', `minhealth` = '8000', `maxhealth` = '8000' WHERE `entry` IN (30625);
--- Insert heroic creature? */
+UPDATE creature_template SET mindmg = '500', maxdmg = '1000', baseattacktime = '2000', minhealth = '8000', maxhealth = '8000' WHERE entry IN (30625);
+-- Insert heroic creature?

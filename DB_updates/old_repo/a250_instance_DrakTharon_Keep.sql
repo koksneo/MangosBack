@@ -26,7 +26,7 @@ INSERT INTO creature_questrelation VALUES
 INSERT INTO creature_involvedrelation VALUES
 (30534,13023);
 
-INSERT INTO game_event_creature VALUES
+REPLACE INTO game_event_creature VALUES
 (9000048,7),
 (9000049,7);
 
@@ -294,14 +294,14 @@ WHERE entry = 27754;
 -- Trollgore Summon Target (hax)
 DELETE FROM creature_template WHERE entry = 40003;
 INSERT INTO `creature_template` VALUES 
-('40003','0','0','0','0','0','169','0','11686','0','Trollgore Summon Target','','','0','1','1','1','1','0','0','0','35','35','0','1','0.1','1','0','0','0','0','1','2000','0','1','33554434','0','0','0','0','0','0','0','0','0','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','4','1','1','0','0','0','0','0','0','0','0','1','0','0','130','');
+(40003, 0, 0, 0, 0, 0, 169, 0, 11686, 0, 'Trollgore Summon Target', '', '', 0, 1, 1, 1, 1, 0, 0, 7, 35, 35, 0, 1, 1.14286, 0.1, 1, 2, 2, 0, 24, 7.5, 2000, 0, 1, 33554434, 0, 0, 0, 0, 0, 0, 1, 1, 0, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 4, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 130, '');
 -- Trollgore Summon Target
 DELETE FROM creature WHERE id = 40003;
 INSERT INTO `creature` VALUES
 ('9000875','40003','600','3','1','0','0','-262.336','-660.278','26.5184','3.13495','25','0','0','1','0','0','0');
 
 -- Trollgore at the foot of the steps
-DELETE FROM creature_where guid = 127422;
+DELETE FROM creature where guid = 127422;
 INSERT INTO creature VALUES
 ('127422','26630','600','3','1','0','0','-294.981','-659.024','10.9238','3.14124','3600','5','0','431392','0','0','0');
 
@@ -314,13 +314,6 @@ INSERT INTO creature_ai_scripts VALUES
 
 -- Drakari Invader "C"
 DELETE FROM creature_template_addon WHERE entry = 27754;
-INSERT INTO creature_template_addon VALUES
-(27754,0,7,1,0,0,NULL);
+INSERT INTO creature_template_addon (entry,mount,bytes1,b2_0_sheath) VALUES
+(27754,0,7,1);
 
-######################### King Dred  #################################
-
-UPDATE creature_template SET ScriptName = 'boss_dred' WHERE entry = 27483;
-
-DELETE FROM script_texts WHERE entry = -1999797;
-INSERT INTO script_texts (`entry`, `content_default`, `type`, `comment`) VALUES
-(-1999797,'%s rises his talon menacingly!',3,'RAID_EMOTE_RISE_TALOON');

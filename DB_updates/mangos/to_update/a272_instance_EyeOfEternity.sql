@@ -27,7 +27,7 @@ UPDATE creature_template SET faction_A = 14, faction_H = 14 WHERE entry = 32187;
 UPDATE creature_template SET ScriptName = "npc_arcane_overload" WHERE entry = 30282; -- Arcane Overload
 UPDATE creature_template SET ScriptName = 'npc_alexstrasza' WHERE entry = 32295;
 UPDATE `creature_template` SET speed_walk = 1 WHERE entry IN (30084, 32187); -- speed of power sparks
-UPDATE `creature_template` SET InhabitType = 4 WHERE entry = 32295; -- Alexstrasza fly
+UPDATE `creature_template` SET InhabitType = 4 WHERE entry IN (32448, 32295); -- Alexstrasza and gift bunny npc fly
 
 DELETE FROM `spell_script_target` WHERE `entry` IN (56505, 61028);
 INSERT INTO `spell_script_target` VALUES

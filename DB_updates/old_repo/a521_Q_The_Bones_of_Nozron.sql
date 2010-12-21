@@ -14,9 +14,9 @@ INSERT INTO creature_ai_texts (entry,content_default,type,comment) VALUES
 (-282564,'Once he has done so, tell him to Ieave this land in peace. He does not belong here.',0,'Voice of Nozronn fifth text');
 
 DELETE FROM event_scripts WHERE id=18481;
-INSERT INTO event_scripts VALUES
-(18481,0,10,28256,300000,0,0,0,0,5202.92,5782.97,-71.5886,0.547677),
-(18481,22,8,28256,0,0,0,0,0,0,0,0,0); 
+INSERT INTO event_scripts (id,delay,command,datalong,datalong2,x,y,z,o) VALUES
+(18481,0,10,28256,300000,5202.92,5782.97,-71.5886,0.547677),
+(18481,22,8,28256,0,0,0,0,0); 
 
 DELETE FROM creature_ai_scripts WHERE id IN(2825600,2825601,2825602,2825603,2825604,2825605);
 INSERT INTO creature_ai_scripts VALUES

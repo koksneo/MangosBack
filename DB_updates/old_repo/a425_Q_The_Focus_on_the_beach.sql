@@ -9,8 +9,8 @@ INSERT INTO creature VALUES
 -- Acid support for trigger (26773)
 UPDATE creature_template SET 
 AIName='EventAI',
-modelid_A=11686,
-modelid_H=11686
+modelid_1=11686,
+modelid_2=11686
 WHERE entry=26773;
 
 DELETE FROM creature_ai_scripts WHERE id=2677301;

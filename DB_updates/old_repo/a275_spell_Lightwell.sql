@@ -8,11 +8,11 @@ INSERT INTO npc_spellclick_spells VALUES
 (31883,60123,0,0,0,2); -- rank 6
 
 DELETE FROM creature_template_addon WHERE entry IN (31897,31896,31895,31894,31893,31883);
-INSERT INTO creature_template_addon VALUES
-(31883,0,0,0,0,0,'59907 0'),
-(31893,0,0,0,0,0,'59907 0'),
-(31894,0,0,0,0,0,'59907 0'),
-(31895,0,0,0,0,0,'59907 0'),
-(31896,0,0,0,0,0,'59907 0'),
-(31897,0,0,0,0,0,'59907 0');
+INSERT INTO creature_template_addon (entry,auras) VALUES
+(31883,'59907 0'),
+(31893,'59907 0'),
+(31894,'59907 0'),
+(31895,'59907 0'),
+(31896,'59907 0'),
+(31897,'59907 0');
 

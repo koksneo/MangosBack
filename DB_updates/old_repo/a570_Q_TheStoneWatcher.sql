@@ -19,17 +19,17 @@ INSERT INTO gossip_menu_option VALUES
 (20008,0,0,'I will return when I have the plates of Uldum.?',1,1,0,0,20008,0,0,NULL, 0,0,0, 0,0,0, 0,0,0);
 
 DELETE FROM gossip_menu WHERE entry BETWEEN 20003 AND 20008;
-INSERT INTO gossip_menu VALUES
-(20003,1674, 0,0,0, 0,0,0),
-(20004,1675, 0,0,0, 0,0,0),
-(20005,1676, 0,0,0, 0,0,0),
-(20006,1677, 0,0,0, 0,0,0),
-(20007,1678, 0,0,0, 0,0,0),
-(20008,1679, 0,0,0, 0,0,0);
+INSERT INTO gossip_menu (entry,text_id) VALUES
+(20003,1674),
+(20004,1675),
+(20005,1676),
+(20006,1677),
+(20007,1678),
+(20008,1679);
 
 DELETE FROM gossip_scripts WHERE id = 20008;
-INSERT INTO gossip_scripts VALUES
-(20008,0,7,2954,0,0,0,0,0, 0,0,0,0);
+INSERT INTO gossip_scripts (id,delay,command,datalong) VALUES
+(20008,0,7,2954);
 
 -- Spawn is static, no need to summon by Script
 UPDATE quest_template SET CompleteScript = 0 WHERE entry IN (2946,2966);
@@ -52,17 +52,17 @@ INSERT INTO gossip_menu_option VALUES
 (20008,0,0,'I will return when I have the plates of Uldum.?',1,1,0,0,20008,0,0,NULL, 0,0,0, 0,0,0, 0,0,0);
 
 DELETE FROM gossip_menu WHERE entry BETWEEN 20003 AND 20008;
-INSERT INTO gossip_menu VALUES
-(20003,1674, 0,0,0, 0,0,0),
-(20004,1675, 0,0,0, 0,0,0),
-(20005,1676, 0,0,0, 0,0,0),
-(20006,1677, 0,0,0, 0,0,0),
-(20007,1678, 0,0,0, 0,0,0),
-(20008,1679, 0,0,0, 0,0,0);
+INSERT INTO gossip_menu (entry,text_id) VALUES
+(20003,1674),
+(20004,1675),
+(20005,1676),
+(20006,1677),
+(20007,1678),
+(20008,1679);
 
 DELETE FROM gossip_scripts WHERE id = 20008;
-INSERT INTO gossip_scripts VALUES
-(20008,0,7,2954,0,0,0,0,0, 0,0,0,0);
+INSERT INTO gossip_scripts (id,delay,command,datalong) VALUES
+(20008,0,7,2954);
 
 DELETE FROM creature WHERE id = 7918;
 INSERT INTO `creature` VALUES

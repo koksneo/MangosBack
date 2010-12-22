@@ -728,7 +728,7 @@ struct CreatureDisplayInfoExtraEntry
 {
     uint32      DisplayExtraId;                             // 0        CreatureDisplayInfoEntry::m_extendedDisplayInfoID
     uint32      Race;                                       // 1
-                                                            // 2        unknown, 0/1
+    //uint32      Gender;                                   // 2        Model gender, exist not small amount cases when query creature data return different gender from used model, so can't be replacement for model gender field.
                                                             // 3-7      unknown, 0..~2x
     //uint32      Equipment[11]                             // 8-18     equipped static items EQUIPMENT_SLOT_HEAD..EQUIPMENT_SLOT_HANDS, client show its by self
                                                             // 19       unknown, 0/1
@@ -1179,7 +1179,7 @@ struct MapEntry
             MapID==209 || MapID==269 || MapID==309 ||       // TanarisInstance, CavernsOfTime, Zul'gurub
             MapID==509 || MapID==534 || MapID==560 ||       // AhnQiraj, HyjalPast, HillsbradPast
             MapID==568 || MapID==580 || MapID==595 ||       // ZulAman, Sunwell Plateau, Culling of Stratholme
-            MapID==615 || MapID==616;                       // Obsidian Sanctum, Eye Of Eternity
+            MapID==603 || MapID==615 || MapID==616;         // Ulduar, The Obsidian Sanctum, The Eye Of Eternity
     }
 
     bool IsContinent() const

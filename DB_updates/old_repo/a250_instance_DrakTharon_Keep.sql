@@ -317,3 +317,6 @@ DELETE FROM creature_template_addon WHERE entry = 27754;
 INSERT INTO creature_template_addon (entry,mount,bytes1,b2_0_sheath) VALUES
 (27754,0,7,1);
 
+UPDATE creature_template SET ScriptName = 'boss_dred' WHERE entry = 27483;
+
+

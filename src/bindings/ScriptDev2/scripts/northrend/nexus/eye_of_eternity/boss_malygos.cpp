@@ -1405,7 +1405,7 @@ struct MANGOS_DLL_DECL npc_scion_of_eternityAI : public ScriptedAI
 
     void Reset()
     {
-        m_uiMoveTimer = 4000;
+        m_uiMoveTimer = 0;
         m_uiArcaneBarrageTimer = urand(4000, 12000);
         m_creature->SetSpeedRate(MOVE_FLIGHT, 3.0f, true);
         m_creature->SetSpeedRate(MOVE_RUN, 3.0f, true);

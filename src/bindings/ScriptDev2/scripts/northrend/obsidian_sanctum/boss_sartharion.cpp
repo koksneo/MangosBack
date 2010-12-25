@@ -1865,7 +1865,7 @@ struct MANGOS_DLL_DECL mob_flame_tsunamiAI : public ScriptedAI
             int8 uiDirection = 1;
             if (m_creature->GetPositionX() > 3240.0f)
                 uiDirection = -1;
-            m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX()+uiDirection*86.5f, m_creature->GetPositionY(), m_creature->GetPositionZ());
+            m_creature->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX()+uiDirection*86.5f, m_creature->GetPositionY(), m_creature->GetPositionZ(), false);
             m_uiMovementStartTimer = 30000;
         }
         else

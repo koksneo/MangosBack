@@ -6,11 +6,11 @@
 UPDATE instance_template SET ScriptName = 'instance_eye_of_eternity' WHERE map = 616;
 
 -- Update flags for NPCs/Vehicles
-UPDATE creature_template SET flags_extra = flags_extra | 2 WHERE entry = 30090; -- Vortex;
+UPDATE creature_template SET InhabitType = 4, flags_extra = flags_extra | 2 WHERE entry = 30090; -- Vortex;
 UPDATE creature_template SET flags_extra = flags_extra | 2, faction_A = 35, faction_H = 35, VehicleEntry = 223, unit_flags = 0 WHERE entry IN (30234, 30248); -- Hover Disk
-UPDATE creature_template SET flags_extra = flags_extra | 2, faction_A = 35, faction_H = 35 WHERE entry = 30118; -- Portal (Malygos)
+UPDATE creature_template SET flags_extra = flags_extra | 2, faction_A = 35, faction_H = 35, InhabitType = 4 WHERE entry = 30118; -- Portal (Malygos)
 UPDATE creature_template SET flags_extra = flags_extra | 2 WHERE entry = 30282; -- Arcane Overload
-UPDATE creature_template SET mindmg = 1, maxdmg = 1, dmg_multiplier = 1 WHERE entry = 30592; -- Static Field
+UPDATE creature_template SET mindmg = 1, maxdmg = 1, dmg_multiplier = 1, InhabitType = 4 WHERE entry = 30592; -- Static Field
 
 -- Set scriptnames and some misc data to bosses and GOs
 UPDATE gameobject_template SET flags = 4, data0 = 43 WHERE gameobject_template.entry in (193967, 193905);

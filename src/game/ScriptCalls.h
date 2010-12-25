@@ -21,14 +21,18 @@
 
 #include "Common.h"
 #include "ObjectMgr.h"
-#include "DBCEnums.h"
+#include "ScriptMgr.h"
+#include "DBCStructure.h"
 
+class Aura;
 class Creature;
 class CreatureAI;
 class GameObject;
 class Item;
+class Object;
 class Player;
 class Quest;
+class Unit;
 class SpellCastTargets;
 class Map;
 class InstanceData;
@@ -36,7 +40,7 @@ class InstanceData;
 bool LoadScriptingModule(char const* libName = "");
 void UnloadScriptingModule();
 
-typedef void(MANGOS_IMPORT * scriptCallScriptsInit) (const ObjectMgr::ScriptNameMap &scriptNames);
+typedef void(MANGOS_IMPORT * scriptCallScriptsInit) (ScriptMgr::ScriptNameMap const& scriptNames);
 typedef void(MANGOS_IMPORT * scriptCallScriptsFree) ();
 typedef char const* (MANGOS_IMPORT * scriptCallScriptsVersion) ();
 

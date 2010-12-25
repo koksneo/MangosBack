@@ -69,6 +69,9 @@ enum eScriptCommand
     SCRIPT_COMMAND_SET_RUN                  = 25,           // source=any, target=creature
                                                             // datalong= bool 0=off, 1=on
                                                             // datalong2=creature entry, datalong3=search radius
+    SCRIPT_COMMAND_SEND_MAIL				= 26,			// source=any, target=creature
+                                                            // datalong= bool 0=off, 1=on
+                                                            // datalong2=creature entry, datalong3=search radius
 };
 
 #define MAX_TEXT_ID 4                                       // used for SCRIPT_COMMAND_TALK
@@ -245,6 +248,13 @@ struct ScriptInfo
             uint32 creatureEntry;                           // datalong2
             uint32 searchRadius;                            // datalong3
         } run;
+
+        struct												// SCRIPT_COMMAND_SEND_MAIL (26)
+        {
+            uint32 mail_id;									// datalong
+            uint32 type;									// datalong2 (3 - Creature | 4 - Object)
+            uint32 guidOrEntry;								// datalong3 guid or entry from datalong2
+        } sendMail;
 
         struct
         {

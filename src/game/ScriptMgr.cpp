@@ -474,6 +474,31 @@ void ScriptMgr::LoadScripts(ScriptMapMap& scripts, const char* tablename)
 
                 break;
             }
+			case SCRIPT_COMMAND_SEND_MAIL:
+			{
+				if ( !sObjectMgr.GetMailTemplate(tmp.sendMail.mail_id) )
+				{
+					sLog.outErrorDb("Table `%s` column datalong(mail_id) is not valid (mail_id: %u) for record id %u",
+					tablename, tmp.sendMail.mail_id, tmp.id);
+					continue;
+				}
+					
+				if ( tmp.sendMail.type != 3 && tmp.sendMail.type != 4 )
+				{
+					sLog.outErrorDb("Table '%s' Invalid value datalong2 in record id %u (only 3 or 4)",
+					tablename, tmp.id);
+					continue;
+				}
+					
+				if ( !tmp.sendMail.guidOrEntry )
+				{
+					sLog.outErrorDb("Table '%s' empty value datalong3 in record id %u (only 3 or 4)",
+					tablename, tmp.id);
+					continue;
+				}
+					
+					break;
+				}
         }
 
         if (scripts.find(tmp.id) == scripts.end())

@@ -33,6 +33,7 @@ npc_letoll
 npc_mana_bomb_exp_trigger
 go_mana_bomb
 npc_skyguard_handler_deesak
+npc_skywing
 npc_slim
 go_veil_skith_cage
 npc_captive_child
@@ -479,6 +480,130 @@ bool GossipSelect_npc_skyguard_handler_deesak(Player* pPlayer, Creature* pCreatu
 }
 
 /*######
+## npc_skywing
+######*/
+enum Skywing
+{
+    QUEST_SKYWING               = 10898,
+
+    NPC_LUANGA                  = 18533,
+
+    SKYWING_MORPHED             = 20602,
+
+    EMOTE_QUEST_START           = -1799985,
+    EMOTE_BEFORE_TREE           = -1799984,
+    EMOTE_AT_THE_TOP            = -1799983,
+    EMOTE_JUMP                  = -1799982,
+    EMOTE_ATTACKING_LUANGA      = -1799981,
+    SAY_TRANSFORM               = -1799980,
+};
+
+//Luanga the Imprisoner spawn point
+float LuangaSpawn[4] = {-3507.16f, 4084.08f, 93.9535f, 2.51317f};
+
+
+struct MANGOS_DLL_DECL npc_skywingAI : public npc_escortAI
+{
+    npc_skywingAI(Creature* pCreature) : npc_escortAI(pCreature){Reset();}
+
+    int32 m_uiEvent_Timer;
+    uint64 LuangaGUID;
+    bool LuangaAlive;
+
+    void Reset() 
+    {}
+
+    void WaypointReached(uint32 uiPointId)
+    {
+        switch(uiPointId)
+        {
+            case 18: 
+                DoScriptText(EMOTE_BEFORE_TREE,m_creature); 
+                break;
+            case 54: 
+                if (Player* pPlayer = GetPlayerForEscort())
+                    DoScriptText(EMOTE_AT_THE_TOP,m_creature,pPlayer);
+                break;
+            case 68:
+                DoScriptText(EMOTE_JUMP,m_creature);
+                break;
+            case 81:
+                if (Creature* Luanga = m_creature->SummonCreature(NPC_LUANGA, LuangaSpawn[0], LuangaSpawn[1], LuangaSpawn[2], LuangaSpawn[3], TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 60000))
+                {
+                    LuangaGUID = Luanga->GetGUID();
+                    LuangaAlive = true;
+                }
+                else
+                {
+                    error_log("SD2: NPC Skywing couldn't summon NPC Luanga the Imprisoner (entry %u) during escort, so abording!",NPC_LUANGA);
+                    m_creature->ForcedDespawn();
+                }
+                break;
+            case 87:
+                SetEscortPaused(true);
+                if (Creature* Luanga = m_creature->GetMap()->GetCreature(LuangaGUID))
+                    m_creature->Attack(Luanga,true);
+                break;
+
+            default: break;
+        }
+    }
+
+    void Aggro(Unit* pWho)
+    {
+        if (!pWho)
+            return;
+
+        if (pWho->GetTypeId() == TYPEID_UNIT && pWho->GetEntry() == NPC_LUANGA)
+            DoScriptText(EMOTE_ATTACKING_LUANGA,m_creature,pWho);
+    }
+
+    void UpdateEscortAI(const uint32 uiDiff)
+    {
+        // in case there is no KilledUnit() in escortAI i have to handle this here
+        // maybe somebone smarter than me will implement it somehow else
+        // if Luanga was not spawned or is already dead there is no need to check fourther conditions
+        if (LuangaAlive)
+            if (Creature* Luanga = m_creature->GetMap()->GetCreature(LuangaGUID))
+                if (Luanga->isDead())
+                {
+                    m_creature->SetDisplayId(SKYWING_MORPHED);
+
+                    if (Player* pPlayer = GetPlayerForEscort())
+                    {
+                        DoScriptText(SAY_TRANSFORM,m_creature,pPlayer);
+                        pPlayer->GroupEventHappens(QUEST_SKYWING,pPlayer);
+                    }
+                    LuangaAlive = false;
+                }
+
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+        DoMeleeAttackIfReady();
+    }
+};
+
+bool QuestAccept_npc_skywing(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (pQuest->GetQuestId() == QUEST_SKYWING)
+    {
+        if (npc_skywingAI* pEscortAI = dynamic_cast<npc_skywingAI*>(pCreature->AI()))
+        {
+            DoScriptText(EMOTE_QUEST_START,pCreature,pPlayer);
+            pCreature->setFaction(FACTION_ESCORT_N_NEUTRAL_PASSIVE);
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest, true);
+            
+            ((npc_skywingAI*)pCreature->AI())->LuangaGUID = 0;
+        }
+    }
+    return true;
+}
+CreatureAI* GetAI_npc_skywing(Creature* pCreature)
+{
+    return new npc_skywingAI(pCreature);
+}
+
+/*######
 ## npc_hungry_nether_ray
 ######*/
 
@@ -913,6 +1038,149 @@ bool GossipSelect_npc_slim(Player* pPlayer, Creature* pCreature, uint32 uiSender
     return true;
 }
 
+/*##################
+## npc_isla_starmane
+####################
+
+ToDo:
+* find missing texts
+*/
+
+enum isla_starmane
+{
+    SPELL_ENTANGLING_ROOTS              = 33844,
+    SPELL_MOONFIRE                      = 15798,
+    SPELL_WRATH                         = 9739,
+
+    SAY_QUEST_COMPLETE                  = -1999774,
+
+    QUEST_ESCAPE_FROM_FOREWING_POINT_A  = 10051,
+    QUEST_ESCAPE_FROM_FOREWING_POINT_H  = 10052,
+
+    GO_CAGE                             = 182794
+};
+
+struct MANGOS_DLL_DECL npc_isla_starmaneAI : public npc_escortAI
+{
+    npc_isla_starmaneAI(Creature* pCreature) : npc_escortAI(pCreature)
+    {
+        m_uiCageGUID = 0;
+        Reset();
+    }
+
+    uint64 m_uiCageGUID;
+    uint32 m_uiEntanglingRootsTimer;
+    uint32 m_uiMoonfireTimer;
+    uint32 m_uiWrathTimer;
+
+    void Reset()
+    {
+        m_uiEntanglingRootsTimer = 0;
+        m_uiMoonfireTimer = 4000;
+        m_uiWrathTimer = 5000;
+    }
+
+    void AttackStart(Unit* pWho)
+    {
+        if (!pWho)
+            return;
+
+        if (m_creature->Attack(pWho, true))
+        {
+            m_creature->AddThreat(pWho);
+            m_creature->SetInCombatWith(pWho);
+            pWho->SetInCombatWith(m_creature);
+
+            if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == POINT_MOTION_TYPE)
+                m_creature->GetMotionMaster()->MovementExpired();
+
+            m_creature->GetMotionMaster()->Clear(false);
+            m_creature->GetMotionMaster()->MoveChase(pWho, 10.0f);
+        }
+    }
+          
+    void WaypointReached(uint32 uiPointId)
+    {
+        Player* pPlayer = GetPlayerForEscort();
+        if (!pPlayer)
+            return;
+
+        switch(uiPointId)
+        {
+            case 1:
+                m_creature->SetFacingToObject(pPlayer);
+                if (GameObject* pCage = m_creature->GetMap()->GetGameObject(m_uiCageGUID))
+                    pCage->SetGoState(GO_STATE_READY);
+                break;
+            case 41:
+                m_creature->SetFacingToObject(pPlayer);
+                DoScriptText(SAY_QUEST_COMPLETE, m_creature, pPlayer);
+                pPlayer->GroupEventHappens(pPlayer->GetTeam() == ALLIANCE ? QUEST_ESCAPE_FROM_FOREWING_POINT_A : QUEST_ESCAPE_FROM_FOREWING_POINT_H, m_creature);
+                SetEscortPaused(true);
+                break;
+
+            default: break;
+        }
+    }
+
+    void UpdateEscortAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (m_uiEntanglingRootsTimer <= uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_ENTANGLING_ROOTS, (CAST_AURA_NOT_PRESENT | CAST_INTERRUPT_PREVIOUS));
+            m_uiEntanglingRootsTimer = 7000;
+        }
+        else
+            m_uiEntanglingRootsTimer -= uiDiff;
+
+        if (m_uiMoonfireTimer <= uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_MOONFIRE);
+            m_uiMoonfireTimer = 12000;
+        }
+        else
+            m_uiMoonfireTimer -= uiDiff;
+
+        if (m_uiWrathTimer <= uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_WRATH);
+            m_uiWrathTimer = 7000;
+        }
+        else
+            m_uiWrathTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+bool QuestAccept_npc_isla_starmane(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (!pPlayer || !pQuest)
+        return false;
+
+    if (pQuest->GetQuestId() == (pPlayer->GetTeam() == ALLIANCE ? QUEST_ESCAPE_FROM_FOREWING_POINT_A : QUEST_ESCAPE_FROM_FOREWING_POINT_H))
+    {
+        if (npc_isla_starmaneAI* pEscortAI = dynamic_cast<npc_isla_starmaneAI*>(pCreature->AI()))
+        {
+            pEscortAI->Start(false, pPlayer->GetGUID(), pQuest, true);
+            if (GameObject* pCage = GetClosestGameObjectWithEntry(pCreature, GO_CAGE, INTERACTION_DISTANCE))
+            {
+                pCage->SetGoState(GO_STATE_ACTIVE);
+                ((npc_isla_starmaneAI*)pCreature->AI())->m_uiCageGUID = pCage->GetGUID();
+            }
+        }
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_isla_starmane(Creature* pCreature)
+{
+    return new npc_isla_starmaneAI(pCreature);
+}
+
 /*#####
 ## go_veil_skith_cage & npc_captive_child
 #####*/
@@ -972,6 +1240,12 @@ CreatureAI* GetAI_npc_captive_child(Creature* pCreature)
 void AddSC_terokkar_forest()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "npc_isla_starmane";
+    newscript->GetAI = &GetAI_npc_isla_starmane;
+    newscript->pQuestAccept = &QuestAccept_npc_isla_starmane;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "mob_unkor_the_ruthless";
@@ -1034,11 +1308,17 @@ void AddSC_terokkar_forest()
     newscript->RegisterSelf();
 
     newscript = new Script;
+    newscript->Name = "npc_skywing";
+    newscript->GetAI = &GetAI_npc_skywing;
+    newscript->pQuestAccept = &QuestAccept_npc_skywing;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
     newscript->Name = "npc_slim";
     newscript->pGossipHello =  &GossipHello_npc_slim;
     newscript->pGossipSelect = &GossipSelect_npc_slim;
     newscript->RegisterSelf();
-
+    
     newscript = new Script;
     newscript->Name = "go_veil_skith_cage";
     newscript->pGOHello =  &GOHello_veil_skith_cage;
@@ -1048,4 +1328,5 @@ void AddSC_terokkar_forest()
     newscript->Name = "npc_captive_child";
     newscript->GetAI = &GetAI_npc_captive_child;
     newscript->RegisterSelf();
+
 }

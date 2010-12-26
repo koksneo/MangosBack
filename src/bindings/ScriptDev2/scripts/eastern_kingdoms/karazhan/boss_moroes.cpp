@@ -64,7 +64,7 @@ struct MANGOS_DLL_DECL boss_moroesAI : public ScriptedAI
     boss_moroesAI(Creature* pCreature) : ScriptedAI(pCreature)
     {
         m_bFirstTime = true;
-        m_pInstance  = (ScriptedInstance*)pCreature->GetInstanceData();
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
         Reset();
     }
 
@@ -166,7 +166,7 @@ struct MANGOS_DLL_DECL boss_moroesAI : public ScriptedAI
             uint8 i = 0;
             for(std::vector<uint32>::iterator itr = vAddList.begin(); itr != vAddList.end(); ++itr, ++i)
             {
-                if (Creature* pCreature = m_creature->SummonCreature(*itr, afLocations[i][0], afLocations[i][1], afLocations[i][2], afLocations[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
+                if (Creature* pCreature = m_creature->SummonCreature(*itr, afLocations[i][0], afLocations[i][1], afLocations[i][2], afLocations[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 7*DAY*IN_MILLISECONDS))
                 {
                     m_auiAddGUID[i] = pCreature->GetGUID();
                     m_auiAddId[i]   = *itr;
@@ -182,23 +182,23 @@ struct MANGOS_DLL_DECL boss_moroesAI : public ScriptedAI
                 if (Creature* pCreature = m_creature->GetMap()->GetCreature(m_auiAddGUID[i]))
                 {
                     if (!pCreature->isAlive())              // Exists but is dead
-                    {
-                        pCreature->Respawn();
-                        pCreature->AI()->EnterEvadeMode();
-                    }
+                        {
+                            pCreature->Respawn();
+                            pCreature->AI()->EnterEvadeMode();
+                        }
                     else if (!pCreature->IsInEvadeMode())   // Exists and is alive
                     {
-                        pCreature->AI()->EnterEvadeMode();
-                    }
-                }
-                else
-                {                                           // Does not exist
-                    if (Creature* pCreature = m_creature->SummonCreature(m_auiAddId[i], afLocations[i][0], afLocations[i][1], afLocations[i][2], afLocations[i][3], TEMPSUMMON_CORPSE_TIMED_DESPAWN, 10000))
-                        m_auiAddGUID[i] = pCreature->GetGUID();
+                            pCreature->AI()->EnterEvadeMode();
                 }
             }
+                else
+                {                                           // Does not exist
+                    if (Creature* pCreature = m_creature->SummonCreature(m_auiAddId[i], afLocations[i][0], afLocations[i][1], afLocations[i][2], afLocations[i][3], TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS))
+                        m_auiAddGUID[i] = pCreature->GetGUID();
         }
     }
+            }
+        }
 
     void AddsAttack()
     {
@@ -247,7 +247,7 @@ struct MANGOS_DLL_DECL boss_moroesAI : public ScriptedAI
 
         if (!m_bEnrage)
         {
-            // Cast Vanish, then Garrote random victim
+            //Cast Vanish, then Garrote random victim
             if (m_uiVanish_Timer < uiDiff)
             {
                 m_creature->setFaction(35);
@@ -275,7 +275,7 @@ struct MANGOS_DLL_DECL boss_moroesAI : public ScriptedAI
                     m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                     m_creature->AI()->AttackStart(m_creature->getVictim());
                     m_bInVanish = false;
-                }
+            }
                 else
                     m_uiWait_Timer -= uiDiff;
             }
@@ -314,7 +314,7 @@ struct MANGOS_DLL_DECL boss_moroesAI : public ScriptedAI
                     DoCastSpellIfCan(pTarget, SPELL_BLIND);
 
                 m_uiBlind_Timer = 40000;
-            }
+        }
             else
                 m_uiBlind_Timer -= uiDiff;
         }
@@ -412,7 +412,7 @@ struct MANGOS_DLL_DECL boss_baroness_dorothea_millstipeAI : public boss_moroes_g
         m_uiMindFlay_Timer       = 1000;
         m_uiShadowWordPain_Timer = 6000;
 
-        DoCastSpellIfCan(m_creature, SPELL_SHADOWFORM, CAST_TRIGGERED);
+        DoCastSpellIfCan(m_creature,SPELL_SHADOWFORM, CAST_TRIGGERED);
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -424,7 +424,7 @@ struct MANGOS_DLL_DECL boss_baroness_dorothea_millstipeAI : public boss_moroes_g
 
         if (m_uiMindFlay_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_MINDFLY);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_MINDFLY);
             m_uiMindFlay_Timer = 12000;                     //3sec channeled
         }
         else
@@ -448,7 +448,7 @@ struct MANGOS_DLL_DECL boss_baroness_dorothea_millstipeAI : public boss_moroes_g
                 DoCastSpellIfCan(pTarget, SPELL_SWPAIN);
                 m_uiShadowWordPain_Timer = 7000;
             }
-        }
+    }
         else
             m_uiShadowWordPain_Timer -= uiDiff;
     }
@@ -486,7 +486,7 @@ struct MANGOS_DLL_DECL boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
 
         if (m_uiSealOfCommand_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature, SPELL_SEALOFCOMMAND);
+            DoCastSpellIfCan(m_creature,SPELL_SEALOFCOMMAND);
             m_uiSealOfCommand_Timer      = 32000;
             m_uiJudgementOfCommand_Timer = 29000;
         }
@@ -495,7 +495,7 @@ struct MANGOS_DLL_DECL boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
 
         if (m_uiJudgementOfCommand_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_JUDGEMENTOFCOMMAND);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_JUDGEMENTOFCOMMAND);
             m_uiJudgementOfCommand_Timer = m_uiSealOfCommand_Timer + 29000;
         }
         else
@@ -503,9 +503,9 @@ struct MANGOS_DLL_DECL boss_baron_rafe_dreugerAI : public boss_moroes_guestAI
 
         if (m_uiHammerOfJustice_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_HAMMEROFJUSTICE);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_HAMMEROFJUSTICE);
             m_uiHammerOfJustice_Timer = 12000;
-        }
+    }
         else
             m_uiHammerOfJustice_Timer -= uiDiff;
     }
@@ -522,7 +522,7 @@ enum
 struct MANGOS_DLL_DECL boss_lady_catriona_von_indiAI : public boss_moroes_guestAI
 {
     //Holy Priest
-    boss_lady_catriona_von_indiAI(Creature* pCreature) : boss_moroes_guestAI(pCreature) { Reset(); }
+    boss_lady_catriona_von_indiAI(Creature* pCreature) : boss_moroes_guestAI(pCreature) {Reset();}
 
     uint32 m_uiDispelMagic_Timer;
     uint32 m_uiGreaterHeal_Timer;
@@ -546,7 +546,7 @@ struct MANGOS_DLL_DECL boss_lady_catriona_von_indiAI : public boss_moroes_guestA
 
         if (m_uiPowerWordShield_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature, SPELL_PWSHIELD);
+            DoCastSpellIfCan(m_creature,SPELL_PWSHIELD);
             m_uiPowerWordShield_Timer = 15000;
         }
         else
@@ -562,19 +562,19 @@ struct MANGOS_DLL_DECL boss_lady_catriona_von_indiAI : public boss_moroes_guestA
 
         if (m_uiHolyFire_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_HOLYFIRE);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_HOLYFIRE);
             m_uiHolyFire_Timer = 22000;
-        }
-        else
+            }
+            else
             m_uiHolyFire_Timer -= uiDiff;
 
         if (m_uiDispelMagic_Timer < uiDiff)
-        {
+            {
             if (Unit* pTarget = urand(0, 1) ? SelectTarget() : m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                DoCastSpellIfCan(pTarget, SPELL_DISPELMAGIC);
+                    DoCastSpellIfCan(pTarget, SPELL_DISPELMAGIC);
 
             m_uiDispelMagic_Timer = 25000;
-        }
+    }
         else
             m_uiDispelMagic_Timer -= uiDiff;
     }
@@ -591,7 +591,7 @@ enum
 struct MANGOS_DLL_DECL boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
 {
     //Holy Pally
-    boss_lady_keira_berrybuckAI(Creature* pCreature) : boss_moroes_guestAI(pCreature) { Reset(); }
+    boss_lady_keira_berrybuckAI(Creature* pCreature) : boss_moroes_guestAI(pCreature) {Reset();}
 
     uint32 m_uiCleanse_Timer;
     uint32 m_uiGreaterBless_Timer;
@@ -615,7 +615,7 @@ struct MANGOS_DLL_DECL boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
 
         if (m_uiDivineShield_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature, SPELL_DIVINESHIELD);
+            DoCastSpellIfCan(m_creature,SPELL_DIVINESHIELD);
             m_uiDivineShield_Timer = 31000;
         }
         else
@@ -641,7 +641,7 @@ struct MANGOS_DLL_DECL boss_lady_keira_berrybuckAI : public boss_moroes_guestAI
         {
             DoCastSpellIfCan(SelectTarget(), SPELL_CLEANSE);
             m_uiCleanse_Timer = 10000;
-        }
+    }
         else
             m_uiCleanse_Timer -= uiDiff;
     }
@@ -679,7 +679,7 @@ struct MANGOS_DLL_DECL boss_lord_robin_darisAI : public boss_moroes_guestAI
 
         if (m_uiHamstring_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_HAMSTRING);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_HAMSTRING);
             m_uiHamstring_Timer = 12000;
         }
         else
@@ -695,9 +695,9 @@ struct MANGOS_DLL_DECL boss_lord_robin_darisAI : public boss_moroes_guestAI
 
         if (m_uiWhirlWind_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature, SPELL_WHIRLWIND);
+            DoCastSpellIfCan(m_creature,SPELL_WHIRLWIND);
             m_uiWhirlWind_Timer = 21000;
-        }
+    }
         else
             m_uiWhirlWind_Timer -= uiDiff;
     }
@@ -714,7 +714,7 @@ enum
 struct MANGOS_DLL_DECL boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
 {
     //Arms Warr
-    boss_lord_crispin_ferenceAI(Creature* pCreature) : boss_moroes_guestAI(pCreature) { Reset(); }
+    boss_lord_crispin_ferenceAI(Creature* pCreature) : boss_moroes_guestAI(pCreature) {Reset();}
 
     uint32 m_uiDisarm_Timer;
     uint32 m_uiHeroicStrike_Timer;
@@ -738,7 +738,7 @@ struct MANGOS_DLL_DECL boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
 
         if (m_uiDisarm_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_DISARM);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_DISARM);
             m_uiDisarm_Timer = 12000;
         }
         else
@@ -746,13 +746,13 @@ struct MANGOS_DLL_DECL boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
 
         if (m_uiHeroicStrike_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_HEROICSTRIKE);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_HEROICSTRIKE);
             m_uiHeroicStrike_Timer = 10000;
         }else m_uiHeroicStrike_Timer -= uiDiff;
 
         if (m_uiShieldBash_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_SHIELDBASH);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_SHIELDBASH);
             m_uiShieldBash_Timer = 13000;
         }
         else
@@ -760,9 +760,9 @@ struct MANGOS_DLL_DECL boss_lord_crispin_ferenceAI : public boss_moroes_guestAI
 
         if (m_uiShieldWall_Timer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature, SPELL_SHIELDWALL);
+            DoCastSpellIfCan(m_creature,SPELL_SHIELDWALL);
             m_uiShieldWall_Timer = 21000;
-        }
+    }
         else
             m_uiShieldWall_Timer -= uiDiff;
     }
@@ -805,7 +805,7 @@ CreatureAI* GetAI_lord_crispin_ference(Creature* pCreature)
 
 void AddSC_boss_moroes()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "boss_moroes";

@@ -125,7 +125,7 @@ void SystemMgr::LoadScriptTextsCustom()
             bar.step();
             Field* pFields = pResult->Fetch();
             StringTextData pTemp;
-
+		
             int32 iId              = pFields[0].GetInt32();
             pTemp.uiSoundId        = pFields[1].GetUInt32();
             pTemp.uiType           = pFields[2].GetUInt32();
@@ -240,3 +240,53 @@ void SystemMgr::LoadScriptWaypoints()
         outstring_log(">> Loaded 0 Script Waypoints. DB table `script_waypoint` is empty.");
     }
 }
+
+// ------------------------------
+void SystemMgr::LoadCustomFix()
+{
+	outstring_log("SD2: Loading custom fix table....");
+	QueryResult* pResult = SD2Database.PQuery("SELECT custom_id, value FROM custom_fix");
+	outstring_log("SD2: Loading custom fix additional data...");
+
+	// 	is results
+	if(pResult)
+	{
+		barGoLink bar(pResult->GetRowCount());
+        uint32 uiCount = 0;
+
+		do
+		{
+			bar.step();
+            Field* pFields = pResult->Fetch();
+            CustomFixData pTemp;
+			
+			int32 iId = pFields[0].GetInt32();
+			pTemp.uiCustomId = iId;
+			pTemp.uiValue = pFields[1].GetInt32();
+
+			if(!pTemp.uiValue || pTemp.uiValue == 0)
+			{
+				error_db_log("SD2: Table[custom_fix], value is empty custom_id[%i]", pTemp.uiCustomId);
+			}
+
+			m_mCustomFixMap[iId] = pTemp;
+			++uiCount;
+		}
+		while(pResult->NextRow());
+		
+		delete pResult;
+
+		outstring_log("");
+        outstring_log(">> Loaded %u additional custom fix data.", uiCount);
+
+	}// 	no results
+	else
+	{
+		barGoLink bar(1);
+        bar.step();
+        outstring_log("");
+        outstring_log(">> Loaded 0 additional custom fix data. DB table `custom_fix` is empty.");
+	}
+
+}
+// ------------------------------

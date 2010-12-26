@@ -15,137 +15,215 @@
  */
 
 /* ScriptData
-SDName: instance_draktharon_keep
-SD%Complete: 50%
+SDName: Instance_Draktharon_Keep
+SD%Complete: 20%
 SDComment:
-SDCategory: Drak'Tharon Keep
+SDCategory: Utgarde Keep
 EndScriptData */
 
 #include "precompiled.h"
-#include "draktharon_keep.h"
+#include "instance_draktharon_keep.h"
 
-instance_draktharon_keep::instance_draktharon_keep(Map* pMap) : ScriptedInstance(pMap),
-    m_uiDreadAddsKilled(0),
-    m_bNovosAddGrounded(false),
-    m_bTrollgoreConsume(true)
+/* m_auiEncounters:
+1 - TYPE_TROLLGORE
+2 - TYPE_NOVOS
+3 - TYPE_DREK
+4 - TYPE_THARONJA
+
+helper encounters:
+5 - TYPE_CRYSTAL_EVENT - related to 4 Ritual Crystals around boss_novos
+*/
+
+struct MANGOS_DLL_DECL instance_draktharon_keep : public ScriptedInstance
 {
-    Initialize();
-}
+    instance_draktharon_keep(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
 
-void instance_draktharon_keep::Initialize()
-{
-    memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-}
+    uint32 m_auiEncounter[MAX_ENCOUNTER];
+    uint32 CrystalCounter;
+    std::string strInstData;
 
-void instance_draktharon_keep::OnCreatureEnterCombat(Creature* pCreature)
-{
-    if (pCreature->GetEntry() == NPC_KING_DRED)
-        SetData(TYPE_KING_DRED, IN_PROGRESS);
-}
+    uint64 m_uiTrollgoreGUID;
+    uint64 m_uiNovosGUID;
+    uint64 m_uiDrekGUID;
+    uint64 m_uiTharonjaGUID;
 
-void instance_draktharon_keep::OnCreatureEvade(Creature* pCreature)
-{
-    if (pCreature->GetEntry() == NPC_KING_DRED)
-        SetData(TYPE_KING_DRED, FAIL);
-}
+    uint64 m_uiRitualCrystalGUID[CRYSTAL_NUMBER];
 
-void instance_draktharon_keep::OnCreatureDeath(Creature* pCreature)
-{
-    if ((pCreature->GetEntry() == NPC_DRAKKARI_GUTRIPPER || pCreature->GetEntry() == NPC_DRAKKARI_SCYTHECLAW) && m_auiEncounter[TYPE_KING_DRED] == IN_PROGRESS)
-        m_uiDreadAddsKilled++;
-
-    if (pCreature->GetEntry() == NPC_KING_DRED)
-        SetData(TYPE_KING_DRED, DONE);
-}
-
-bool instance_draktharon_keep::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 /* = 0*/)
-{
-    switch (uiCriteriaId)
+    void Initialize()
     {
-        case ACHIEV_CRIT_BETTER_OFF_DREAD: return m_uiDreadAddsKilled >= 6;
-        case ACHIEV_CRIT_OH_NOVOS:         return !m_bNovosAddGrounded;
-        case ACHIEV_CRIT_CONSUME_JUNCTION: return m_bTrollgoreConsume;
-        default:
-            return false;
-    }
-}
+        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
 
-void instance_draktharon_keep::SetData(uint32 uiType, uint32 uiData)
-{
-    switch(uiType)
-    {
-        case TYPE_TROLLGORE:
-            if (uiData == IN_PROGRESS)
-                m_bTrollgoreConsume = true;
-            if (uiData == SPECIAL)
-                m_bTrollgoreConsume = false;
-            m_auiEncounter[uiType] = uiData;
-            break;
-        case TYPE_NOVOS:
-            if (uiData == IN_PROGRESS)
-                m_bNovosAddGrounded = false;
-            if (uiData == SPECIAL)
-                m_bNovosAddGrounded = true;
-            m_auiEncounter[uiType] = uiData;
-            break;
-        case TYPE_KING_DRED:
-            if (uiData == IN_PROGRESS)
-                m_uiDreadAddsKilled = 0;
-            m_auiEncounter[uiType] = uiData;
-            break;
-        case TYPE_THARONJA:
-            m_auiEncounter[uiType] = uiData;
-            break;
+        m_uiTrollgoreGUID = 0;
+        m_uiNovosGUID = 0;
+        m_uiDrekGUID = 0;
+        m_uiTharonjaGUID = 0;
+        CrystalCounter = 0;
+        for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
+        {
+            m_uiRitualCrystalGUID[i] = 0;
+        }
+            
     }
 
-    if (uiData == DONE)
+    void OnCreatureCreate(Creature* pCreature)
     {
-        OUT_SAVE_INST_DATA;
-
-        std::ostringstream saveStream;
-        saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
-
-        strInstData = saveStream.str();
-
-        SaveToDB();
-        OUT_SAVE_INST_DATA_COMPLETE;
-    }
-}
-
-void instance_draktharon_keep::Load(const char* chrIn)
-{
-    if (!chrIn)
-    {
-        OUT_LOAD_INST_DATA_FAIL;
-        return;
+        switch(pCreature->GetEntry())
+        {
+            case 26630: m_uiTrollgoreGUID = pCreature->GetGUID(); break;
+            case 26631: m_uiNovosGUID = pCreature->GetGUID(); break;
+            case 27483: m_uiDrekGUID = pCreature->GetGUID(); break;
+            case 26632: m_uiTharonjaGUID = pCreature->GetGUID(); break;
+        }
     }
 
-    OUT_LOAD_INST_DATA(chrIn);
-
-    std::istringstream loadStream(chrIn);
-    loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
-
-    for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+    void OnObjectCreate(GameObject* pGo)
     {
-        if (m_auiEncounter[i] == IN_PROGRESS)
-            m_auiEncounter[i] = NOT_STARTED;
+        switch(pGo->GetEntry())
+        {
+            case GO_RITUAL_CRYSTAL_SW:
+            case GO_RITUAL_CRYSTAL_SE:
+            case GO_RITUAL_CRYSTAL_NW:
+            case GO_RITUAL_CRYSTAL_NE:
+                for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
+                {
+                    if (m_uiRitualCrystalGUID[i] == 0)
+                    {
+                        m_uiRitualCrystalGUID[i] = pGo->GetGUID();
+                        break;
+                    }
+                }
+        }
     }
 
-    OUT_LOAD_INST_DATA_COMPLETE;
-}
-
-uint32 instance_draktharon_keep::GetData(uint32 uiType)
-{
-    switch(uiType)
+    uint64 GetData64(uint32 uiData)
     {
-        case TYPE_TROLLGORE: return m_auiEncounter[uiType];
-        case TYPE_NOVOS:     return m_auiEncounter[uiType];
-        case TYPE_KING_DRED: return m_auiEncounter[uiType];
-        case TYPE_THARONJA:  return m_auiEncounter[uiType];
-        default:
-            return 0;
+        switch(uiData)
+        {
+            case DATA_TROLLGORE:
+                return m_uiTrollgoreGUID;
+            case DATA_NOVOS:
+                return m_uiNovosGUID;
+            case DATA_DREK:
+                return m_uiDrekGUID;
+            case DATA_THARONJA:
+                return m_uiTharonjaGUID;
+        }
+        return 0;
     }
-}
+
+    uint32 GetData(uint32 uiData)
+    {
+        switch(uiData)
+        {
+            case TYPE_TROLLGORE:        return m_auiEncounter[0];
+            case TYPE_NOVOS:            return m_auiEncounter[1];
+            case TYPE_DREK:             return m_auiEncounter[2];
+            case TYPE_THARONJA:         return m_auiEncounter[3];
+            case TYPE_CRYSTAL_EVENT:    return m_auiEncounter[4];        
+        }
+        return 0;
+    }
+
+    void SetData(uint32 uiType, uint32 uiData)
+    {
+        switch(uiType)
+        {
+            case TYPE_TROLLGORE:
+                m_auiEncounter[0] = uiData;
+                break;
+            case TYPE_NOVOS:
+                m_auiEncounter[1] = uiData;
+                break;
+            case TYPE_DREK:
+                m_auiEncounter[2] = uiData;
+                break;
+            case TYPE_THARONJA:
+                m_auiEncounter[3] = uiData;
+                break;
+            case TYPE_CRYSTAL_EVENT:
+                if (uiData == NOT_STARTED)
+                {
+                    CrystalCounter = 0;
+                    for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
+                    {
+                        if (GameObject* pGo = instance->GetGameObject(m_uiRitualCrystalGUID[i]))
+                        {
+                            pGo->SetGoState(GO_STATE_ACTIVE);
+                            if (Creature* pCreature = GetClosestCreatureWithEntry(pGo, NPC_CRYSTAL_CHANNEL_TARGET, INTERACTION_DISTANCE))
+                                pCreature->InterruptNonMeleeSpells(false);
+                        }
+                    }
+                }
+                if (uiData == IN_PROGRESS)
+                {
+                    for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
+                    {
+                        if (GameObject* pGo = instance->GetGameObject(m_uiRitualCrystalGUID[i]))
+                            if (Creature* pCreature = GetClosestCreatureWithEntry(pGo, NPC_CRYSTAL_CHANNEL_TARGET, INTERACTION_DISTANCE))
+                                pCreature->CastSpell(pCreature, SPELL_BEAM_CHANNELING, false);
+                    }
+                }
+                if (uiData == SPECIAL)
+                {
+                    ++ CrystalCounter;
+                    for (uint8 i = 0; i < CRYSTAL_NUMBER; ++i)
+                    {
+                        GameObject* pGo = instance->GetGameObject(m_uiRitualCrystalGUID[i]);
+                        if (pGo && pGo->GetGoState() == GO_STATE_ACTIVE)
+                        {
+                            pGo->SetGoState(GO_STATE_READY);
+                            if (Creature* pCreature = GetClosestCreatureWithEntry(pGo, NPC_CRYSTAL_CHANNEL_TARGET, INTERACTION_DISTANCE))
+                                pCreature->InterruptNonMeleeSpells(false);
+                            break;
+                        }
+                    }
+                }
+                if (CrystalCounter >= CRYSTAL_NUMBER)
+                    uiData = DONE;
+                m_auiEncounter[4] = uiData;
+        }
+
+        if (uiData == DONE)
+        {
+            OUT_SAVE_INST_DATA;
+
+            std::ostringstream saveStream;
+            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " " << m_auiEncounter[3];
+
+            strInstData = saveStream.str();
+
+            SaveToDB();
+            OUT_SAVE_INST_DATA_COMPLETE;
+        }
+    }
+
+    const char* Save()
+    {
+        return strInstData.c_str();
+    }
+
+    void Load(const char* in)
+    {
+        if (!in)
+        {
+            OUT_LOAD_INST_DATA_FAIL;
+            return;
+        }
+
+        OUT_LOAD_INST_DATA(in);
+
+        std::istringstream loadStream(in);
+        loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
+
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        {
+            if (m_auiEncounter[i] == IN_PROGRESS)
+                m_auiEncounter[i] = NOT_STARTED;
+        }
+
+        OUT_LOAD_INST_DATA_COMPLETE;
+    }
+};
 
 InstanceData* GetInstanceData_instance_draktharon_keep(Map* pMap)
 {
@@ -154,10 +232,9 @@ InstanceData* GetInstanceData_instance_draktharon_keep(Map* pMap)
 
 void AddSC_instance_draktharon_keep()
 {
-    Script* pNewScript;
-
-    pNewScript = new Script;
-    pNewScript->Name = "instance_draktharon_keep";
-    pNewScript->GetInstanceData = &GetInstanceData_instance_draktharon_keep;
-    pNewScript->RegisterSelf();
+    Script *newscript;
+    newscript = new Script;
+    newscript->Name = "instance_draktharon_keep";
+    newscript->GetInstanceData = GetInstanceData_instance_draktharon_keep;
+    newscript->RegisterSelf();
 }

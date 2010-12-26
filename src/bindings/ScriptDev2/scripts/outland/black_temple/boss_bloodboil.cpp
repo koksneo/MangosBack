@@ -52,6 +52,13 @@ EndScriptData */
 #define SPELL_BERSERK            45078
 #define SPELL_ENRAGE             27680
 
+/*class MANGOS_DLL_DECL Bloodboil : public Aura
+{
+    public:
+        Bloodboil(SpellEntry *spellInfo, SpellEffectIndex effIndex, int32 *bp, Unit *target, Unit *caster) : Aura(spellInfo, effIndex, bp, target, caster, NULL)
+            {}
+};*/
+
 struct MANGOS_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
 {
     boss_gurtogg_bloodboilAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -158,24 +165,23 @@ struct MANGOS_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
         targets.resize(5);
 
         //Aura each player in the targets list with Bloodboil. Aura code copied+pasted from Aura command in Level3.cpp
-        /*SpellEntry const *spellInfo = GetSpellStore()->LookupEntry(SPELL_BLOODBOIL);
+        SpellEntry *spellInfo = (SpellEntry *)GetSpellStore()->LookupEntry(SPELL_BLOODBOIL);
         if (spellInfo)
         {
             for(std::list<Unit *>::iterator itr = targets.begin(); itr != targets.end(); ++itr)
             {
                 Unit* target = *itr;
                 if (!target) return;
-                for(uint32 i = 0;i<3; ++i)
+                for(uint8 i = 0; i< MAX_EFFECT_INDEX; ++i)
                 {
-                    uint8 eff = spellInfo->Effect[i];
-                    if (eff>=TOTAL_SPELL_EFFECTS)
+                    uint8 eff = spellInfo->Effect[SpellEffectIndex(i)];
+                    if (eff >= TOTAL_SPELL_EFFECTS)
                         continue;
 
-                    Aura *Aur = new Aura(spellInfo, i, NULL, target);
-                    target->AddAura(Aur);
+                    /*target->AddAura(new Bloodboil(spellInfo, SpellEffectIndex(i), NULL, target, target));*/
                 }
             }
-        }*/
+    }
     }
 
     void RevertThreatOnTarget(uint64 guid)
@@ -246,8 +252,8 @@ struct MANGOS_DLL_DECL boss_gurtogg_bloodboilAI : public ScriptedAI
             {
                 if (BloodboilCount < 5)                     // Only cast it five times.
                 {
-                    //CastBloodboil(); // Causes issues on windows, so is commented out.
-                    DoCastSpellIfCan(m_creature->getVictim(), SPELL_BLOODBOIL);
+                    CastBloodboil(); // Causes issues on windows, so is commented out.
+                    //DoSpellCastIfCan(m_creature->getVictim(), SPELL_BLOODBOIL);
                     ++BloodboilCount;
                     BloodboilTimer = 10000*BloodboilCount;
                 }

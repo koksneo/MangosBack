@@ -16,7 +16,7 @@
 
 /* ScriptData
 SDName: Instance_Obsidian_Sanctum
-SD%Complete: 80%
+SD%Complete: 90%
 SDComment:
 SDCategory: Obsidian Sanctum
 EndScriptData */
@@ -28,80 +28,131 @@ EndScriptData */
 0 - Sartharion
 */
 
-struct MANGOS_DLL_DECL instance_obsidian_sanctum : public ScriptedInstance
+instance_obsidian_sanctum::instance_obsidian_sanctum(Map* pMap) : ScriptedInstance(pMap)
 {
-    instance_obsidian_sanctum(Map* pMap) : ScriptedInstance(pMap) {Initialize();};
-
-    uint32 m_auiEncounter[MAX_ENCOUNTER];
-    uint64 m_uiSartharionGUID;
-    uint64 m_uiTenebronGUID;
-    uint64 m_uiShadronGUID;
-    uint64 m_uiVesperonGUID;
-
-    void Initialize()
-    {
-        memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
-
-        m_uiSartharionGUID = 0;
-        m_uiTenebronGUID   = 0;
-        m_uiShadronGUID    = 0;
-        m_uiVesperonGUID   = 0;
-    }
-
-    void OnCreatureCreate(Creature* pCreature)
-    {
-        switch(pCreature->GetEntry())
-        {
-            case NPC_SARTHARION:
-                m_uiSartharionGUID = pCreature->GetGUID();
-                break;
-            //three dragons below set to active state once created.
-            //we must expect bigger raid to encounter main boss, and then three dragons must be active due to grid differences
-            case NPC_TENEBRON:
-                m_uiTenebronGUID = pCreature->GetGUID();
-                pCreature->SetActiveObjectState(true);
-                break;
-            case NPC_SHADRON:
-                m_uiShadronGUID = pCreature->GetGUID();
-                pCreature->SetActiveObjectState(true);
-                break;
-            case NPC_VESPERON:
-                m_uiVesperonGUID = pCreature->GetGUID();
-                pCreature->SetActiveObjectState(true);
-                break;
-        }
-    }
-
-    void SetData(uint32 uiType, uint32 uiData)
-    {
-        if (uiType == TYPE_SARTHARION_EVENT)
-            m_auiEncounter[0] = uiData;
-    }
-
-    uint32 GetData(uint32 uiType)
-    {
-        if (uiType == TYPE_SARTHARION_EVENT)
-            return m_auiEncounter[0];
-
-        return 0;
-    }
-
-    uint64 GetData64(uint32 uiData)
-    {
-        switch(uiData)
-        {
-            case DATA_SARTHARION:
-                return m_uiSartharionGUID;
-            case DATA_TENEBRON:
-                return m_uiTenebronGUID;
-            case DATA_SHADRON:
-                return m_uiShadronGUID;
-            case DATA_VESPERON:
-                return m_uiVesperonGUID;
-        }
-        return 0;
-    }
+    Initialize();
 };
+
+void instance_obsidian_sanctum::Initialize()
+{
+    memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+    m_uiSartharionGUID = 0;
+    m_uiTenebronGUID   = 0;
+    m_uiShadronGUID    = 0;
+    m_uiVesperonGUID   = 0;
+
+    m_uiAcolyteShadronGUID  = 0;
+    m_uiAcolyteVesperonGUID = 0;
+
+    m_lTrashMobsGUIDlist.clear();
+    m_lTrashMobsGUIDlist.clear();
+    m_lEggsGUIDList.clear();
+    m_lWhelpsGUIDList.clear();
+    m_lBlazesGUIDList.clear();
+    //m_lHitByVolcanoGUIDList.clear();
+}
+
+void instance_obsidian_sanctum::OnCreatureCreate(Creature* pCreature)
+{
+    switch(pCreature->GetEntry())
+    {
+        case NPC_SARTHARION:
+            m_uiSartharionGUID = pCreature->GetGUID();
+            break;
+        //three dragons below set to active state once created.
+        //we must expect bigger raid to encounter main boss, and then three dragons must be active due to grid differences
+        case NPC_TENEBRON:
+            m_uiTenebronGUID = pCreature->GetGUID();
+            pCreature->SetActiveObjectState(true);
+            break;
+        case NPC_SHADRON:
+            m_uiShadronGUID = pCreature->GetGUID();
+            pCreature->SetActiveObjectState(true);
+            break;
+        case NPC_VESPERON:
+            m_uiVesperonGUID = pCreature->GetGUID();
+            pCreature->SetActiveObjectState(true);
+            break;
+        // trash mobs aggro when Sartharion is engaged
+        case NPC_ONYX_BROOD_GENERAL:
+        case NPC_ONYX_BLAZE_MISTRESS:
+        case NPC_ONYX_FLIGHT_CAPTAIN:
+        case NPC_ONYX_SANCTUM_GUARDIAN:
+            m_lTrashMobsGUIDlist.push_back(pCreature->GetGUID());
+            break;
+    }
+}
+
+void instance_obsidian_sanctum::SetData(uint32 uiType, uint32 uiData)
+{
+    if (uiType < 1 || uiType > 7)
+        return;
+
+    m_auiEncounter[uiType - 1] = uiData;
+}
+
+uint32 instance_obsidian_sanctum::GetData(uint32 uiType)
+{
+    return m_auiEncounter[uiType - 1];
+}
+
+uint64 instance_obsidian_sanctum::GetData64(uint32 uiData)
+{
+    switch(uiData)
+    {
+        case DATA_SARTHARION:
+            return m_uiSartharionGUID;
+        case DATA_TENEBRON:
+            return m_uiTenebronGUID;
+        case DATA_SHADRON:
+            return m_uiShadronGUID;
+        case DATA_VESPERON:
+            return m_uiVesperonGUID;
+        case DATA_ACOL_SHAD:
+            return m_uiAcolyteShadronGUID;
+        case DATA_ACOL_VESP:
+            return m_uiAcolyteVesperonGUID;
+    }
+    return 0;
+}
+
+bool instance_obsidian_sanctum::CheckConditionCriteriaMeet(Player const* pSource, uint32 uiMapId, uint32 uiInstanceConditionId)
+{
+    return (GetData(uiInstanceConditionId) == DONE);
+}
+
+/*bool instance_obsidian_sanctum::CheckAchievementCriteriaMeet(uint32 uiCriteriaId, Player const* pSource, Unit const* pTarget, uint32 uiMiscValue1 = 0)
+{
+    if (uiCriteriaId > 2048)
+        return (GetData(uiMiscValue1) == DONE);
+
+    switch (uiCriteriaId)
+    {
+        case ACHIEV_CRIT_VOLCANO_10:
+            if (instance->IsRegularDifficulty())
+            {
+                for (std::list<uint64>::iterator i = m_lHitByVolcanoGUIDList.begin(); i != m_lHitByVolcanoGUIDList.end(); i++)
+                    if (pSource->GetGUID() == *i)
+                        return false;
+
+                return true;
+            }
+            break;
+        case ACHIEV_CRIT_VOLCANO_25:
+            if (!instance->IsRegularDifficulty())
+            {
+                for (std::list<uint64>::iterator i = m_lHitByVolcanoGUIDList.begin(); i != m_lHitByVolcanoGUIDList.end(); i++)
+                    if (pSource->GetGUID() == *i)
+                        return false;
+
+                return true;
+            }
+            break;
+    }
+
+    return false;
+}*/
 
 InstanceData* GetInstanceData_instance_obsidian_sanctum(Map* pMap)
 {

@@ -214,11 +214,11 @@ struct MANGOS_DLL_DECL boss_high_astromancer_solarianAI : public ScriptedAI
                 //Solarian casts Arcane Missiles on on random targets in the raid.
                 if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 {
-                    if (!m_creature->HasInArc(2.5f, target))
-                        target = m_creature->getVictim();
+                if (target && !m_creature->HasInArc(2.5f, target))
+                    target = m_creature->getVictim();
 
-                    if (target)
-                        DoCastSpellIfCan(target, SPELL_ARCANE_MISSILES);
+                if (target)
+                    DoCastSpellIfCan(target, SPELL_ARCANE_MISSILES);
                 }
 
                 ArcaneMissiles_Timer = 3000;
@@ -426,9 +426,9 @@ struct MANGOS_DLL_DECL mob_solarium_priestAI : public ScriptedAI
                     break;
             }
 
-            if (target)
+            if (m_creature->isAlive() && (m_creature->GetHealth()/m_creature->GetMaxHealth()) <= 0.9)
             {
-                DoCastSpellIfCan(target,SPELL_SOLARIUM_GREAT_HEAL);
+                DoCastSpellIfCan(m_creature, SPELL_SOLARIUM_GREAT_HEAL);
                 healTimer = 9000;
             }
         } else healTimer -= diff;

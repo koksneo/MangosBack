@@ -60,6 +60,13 @@ struct StringTextData
     uint32 uiLanguage;
     uint32 uiEmote;
 };
+// -------------
+struct CustomFixData
+{
+	uint32 uiCustomId;
+	uint32 uiValue;
+};
+// -------------
 
 #define pSystemMgr SystemMgr::Instance()
 
@@ -74,6 +81,9 @@ class SystemMgr
         //Maps and lists
         typedef UNORDERED_MAP<int32, StringTextData> TextDataMap;
         typedef UNORDERED_MAP<uint32, std::vector<ScriptPointMove> > PointMoveMap;
+		// -------------------------
+		typedef UNORDERED_MAP<int32, CustomFixData> CustomFixMap;
+		// -------------------------
 
         //Database
         void LoadVersion();
@@ -81,6 +91,10 @@ class SystemMgr
         void LoadScriptTextsCustom();
         void LoadScriptGossipTexts();
         void LoadScriptWaypoints();
+
+		// -------------------------------
+		void LoadCustomFix();
+		// -------------------------------
 
         //Retrive from storage
         StringTextData const* GetTextData(int32 uiTextId) const
@@ -105,9 +119,24 @@ class SystemMgr
             return itr->second;
         }
 
+		// -----------------------------------
+		CustomFixData const* GetCustomFixData(int32 uiFixId) const
+		{
+			CustomFixMap::const_iterator itr = m_mCustomFixMap.find(uiFixId);
+
+			if (itr == m_mCustomFixMap.end())
+				return NULL;
+			
+			return &itr->second;
+		}
+		// -----------------------------------
+
     protected:
         TextDataMap     m_mTextDataMap;                     //additional data for text strings
         PointMoveMap    m_mPointMoveMap;                    //coordinates for waypoints
+		// ---------------------------------
+		CustomFixMap	m_mCustomFixMap;					// custom fix table
+		// ---------------------------------
 };
 
 #endif

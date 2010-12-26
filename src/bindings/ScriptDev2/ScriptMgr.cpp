@@ -40,6 +40,9 @@ void LoadDatabase()
         pSystemMgr.LoadScriptTextsCustom();
         pSystemMgr.LoadScriptGossipTexts();
         pSystemMgr.LoadScriptWaypoints();
+		// ----------------------------
+		pSystemMgr.LoadCustomFix();
+		// ----------------------------
     }
     else
     {
@@ -198,6 +201,34 @@ void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget)
             break;
     }
 }
+
+// ---------------------------------
+int GetCustomFix(int32 uId)
+{
+	if(!uId)
+	{
+		error_log("SD2: GetCustomFix - uId is empty");
+		return NULL;
+	}
+
+	const CustomFixData* pData = pSystemMgr.GetCustomFixData(uId);
+
+	if(!pData)
+	{
+		error_log("SD2: GetCustomFix - not find value for id %i", uId);
+		return NULL;
+	}
+
+	if(!pData->uiCustomId)
+	{
+		error_log("SD2: GetCustomFix - value is empty for custom_id %i", uId);
+		return NULL;
+	}
+
+	return pData->uiValue;
+
+}
+// --------------------------------
 
 //*********************************
 //*** Functions used internally ***

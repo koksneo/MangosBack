@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_algalon
 SD%Complete: 0%
-SDComment:
+SDComment: Placeholder
 SDCategory: Ulduar
 EndScriptData */
 

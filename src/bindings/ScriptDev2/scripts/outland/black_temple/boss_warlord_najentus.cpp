@@ -45,7 +45,9 @@ enum
     SPELL_IMPALING_SPINE            = 39837,
     SPELL_CREATE_NAJENTUS_SPINE     = 39956,
     SPELL_HURL_SPINE                = 39948,
-    SPELL_BERSERK                   = 26662
+    SPELL_BERSERK                   = 26662,
+
+    ITEM_NAJENTUS_SPINE                = 32408
 };
 
 struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
@@ -64,12 +66,16 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
     uint32 m_uiTidalShieldTimer;
     uint32 m_uiImpalingSpineTimer;
 
-    bool m_bIsShielded;
+    bool IsShielded()
+    {
+        if (m_creature->HasAura(SPELL_TIDAL_SHIELD))
+            return true;
+        else
+            return false;
+    }
 
     void Reset()
     {
-        m_bIsShielded = false;
-
         m_uiNeedleSpineTimer = 10000;
         m_uiEnrageTimer = MINUTE*8*IN_MILLISECONDS;
         m_uiSpecialYellTimer = urand(45000, 120000);
@@ -80,7 +86,10 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
     void JustReachedHome()
     {
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_NAJENTUS, NOT_STARTED);
+            m_pInstance->DestroyItemFromAllPlayers(ITEM_NAJENTUS_SPINE);
+    }
     }
 
     void KilledUnit(Unit *victim)
@@ -91,14 +100,17 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
     void JustDied(Unit *victim)
     {
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_NAJENTUS, DONE);
+            m_pInstance->DestroyItemFromAllPlayers(ITEM_NAJENTUS_SPINE);
+        }
 
         DoScriptText(SAY_DEATH, m_creature);
     }
 
     void SpellHit(Unit *caster, const SpellEntry *spell)
     {
-        if (m_bIsShielded)
+        if (IsShielded() == true)
         {
             if (spell->Id == SPELL_HURL_SPINE)
             {
@@ -106,7 +118,6 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
                     m_creature->RemoveAurasDueToSpell(SPELL_TIDAL_SHIELD);
 
                 DoCastSpellIfCan(m_creature->getVictim(), SPELL_TIDAL_BURST);
-                m_bIsShielded = false;
             }
         }
     }
@@ -114,7 +125,10 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
     void Aggro(Unit* pWho)
     {
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_NAJENTUS, IN_PROGRESS);
+            m_pInstance->DestroyItemFromAllPlayers(ITEM_NAJENTUS_SPINE);
+        }
 
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -136,7 +150,7 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
             m_uiEnrageTimer = MINUTE*8*IN_MILLISECONDS;
         }else m_uiEnrageTimer -= diff;
 
-        if (m_bIsShielded)
+        if (IsShielded() == true)
         {
             m_creature->GetMotionMaster()->Clear(false);
             m_creature->GetMotionMaster()->MoveIdle();
@@ -155,7 +169,7 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
                     target = m_creature->getVictim();
 
                 DoCastSpellIfCan(target, SPELL_NEEDLE_SPINE);
-                target->CastSpell(target, SPELL_NEEDLE_AOE, false);
+                DoCast(target, SPELL_NEEDLE_AOE);
             }
 
             m_uiNeedleSpineTimer = 3000;
@@ -191,7 +205,6 @@ struct MANGOS_DLL_DECL boss_najentusAI : public ScriptedAI
             m_creature->GetMotionMaster()->Clear(false);
             m_creature->GetMotionMaster()->MoveIdle();
 
-            m_bIsShielded = true;
             m_uiTidalShieldTimer = 60000;
         }else m_uiTidalShieldTimer -= diff;
 

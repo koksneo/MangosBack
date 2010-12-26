@@ -55,7 +55,7 @@ enum
 
     SPELL_BLASTNOVA             = 30616,
     SPELL_CLEAVE                = 30619,
-    SPELL_QUAKE_TRIGGER         = 30576,                    // must be cast with 30561 as the proc spell
+
     SPELL_QUAKE_KNOCKBACK       = 30571,
 
     SPELL_BLAZE_TRAP            = 30542,
@@ -406,9 +406,8 @@ struct MANGOS_DLL_DECL boss_magtheridonAI : public ScriptedAI
             // to avoid blastnova interruption
             if (!m_creature->IsNonMeleeSpellCasted(false))
             {
-                int32 i = SPELL_QUAKE_KNOCKBACK;
-                m_creature->CastCustomSpell(m_creature, SPELL_QUAKE_TRIGGER, &i, 0, 0, false);
-                m_uiQuake_Timer = 50000;
+                DoCast(m_creature,SPELL_QUAKE_KNOCKBACK);
+                m_uiQuake_Timer = 7000;
             }
         }
         else

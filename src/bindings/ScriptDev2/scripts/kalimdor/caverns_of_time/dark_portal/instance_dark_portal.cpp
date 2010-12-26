@@ -244,14 +244,14 @@ struct MANGOS_DLL_DECL instance_dark_portal : public ScriptedInstance
         if (uiEntry == RIFT_BOSS)
             uiEntry = RandRiftBoss();
 
-        float x, y, z;
-        pSource->GetRandomPoint(pSource->GetPositionX(), pSource->GetPositionY(), pSource->GetPositionZ(), 10.0f, x, y, z);
-        // uncomment the following if something doesn't work correctly, otherwise just delete
-        // pSource->UpdateAllowedPositionZ(x, y, z);
+        float x,y,z;
+        pSource->GetRandomPoint(pSource->GetPositionX(),pSource->GetPositionY(),pSource->GetPositionZ(),10.0f,x,y,z);
+        //normalize Z-level if we can, if rift is not at ground level.
+        z = instance->GetTerrain()->GetWaterOrGroundLevel(x, y, MAX_HEIGHT);
 
-        debug_log("SD2: Instance Dark Portal: Summoning rift boss uiEntry %u.", uiEntry);
+        debug_log("SD2: Instance Dark Portal: Summoning rift boss uiEntry %u.",uiEntry);
 
-        if (Creature* pSummoned = pSource->SummonCreature(uiEntry, x, y, z, pSource->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 600000))
+        if (Creature* pSummoned = pSource->SummonCreature(uiEntry,x,y,z,pSource->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN,600000))
             return pSummoned;
 
         debug_log("SD2: Instance Dark Portal: what just happened there? No boss, no loot, no fun...");

@@ -51,6 +51,7 @@ enum
     SPELL_LIGHTNING_BOLT            = 42024,
     SPELL_AKAMA_SOUL_CHANNEL        = 40447,
     SPELL_AKAMA_SOUL_RETRIEVE       = 40902,
+    SPELL_PORTAL_VISUAL                = 33340,
 
     NPC_AKAMA                       = 22990,
     NPC_ASH_CHANNELER               = 23421,
@@ -60,6 +61,7 @@ enum
     NPC_ASH_ELEMENTAL               = 23523,
     NPC_ASH_ROGUE                   = 23318,
     NPC_ASH_SPIRITBIND              = 23524,
+    NPC_PORTAL                        = 23920,
 
     //akama's phases (used as point id's)
     //PHASE_CHANNEL                   = 1,
@@ -138,7 +140,7 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
     uint32 m_uiReduceHealthTimer;
     uint32 m_uiSummonTimer;
     uint32 m_uiResetTimer;
-    uint32 m_uiDefenderTimer;                                   // They are on a flat 15 second timer, independant of the other summon creature timer.
+    uint32 m_uiDefenderTimer;    // They are on a flat 15 second timer, independant of the other summon creature timer.
 
     bool m_bIsBanished;
     bool m_bHasKilledAkama;
@@ -151,7 +153,7 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
         m_uiSummonTimer = 10000;
         m_uiReduceHealthTimer = 0;
         m_uiResetTimer = 60000;
-        m_uiDefenderTimer = 15000;
+        m_uiDefenderTimer = 10000;
 
         m_bIsBanished = true;
         m_bHasKilledAkama = false;
@@ -218,21 +220,6 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
 
                 --m_uiDeathCount;
                 ++m_uiSorcererCount;
-            }
-        }
-        else
-        {
-            int iSize = (sizeof(m_auiRandSpawnEntry) / sizeof(uint32));
-
-            for(uint8 i = 0; i < iSize; ++i)
-            {
-                if (Creature* pSpawn = m_creature->SummonCreature(m_auiRandSpawnEntry[i],
-                    m_afSpawnLoc[uiRand].m_fX, m_afSpawnLoc[uiRand].m_fY, m_afSpawnLoc[uiRand].m_fZ, m_afSpawnLoc[uiRand].m_fO,
-                    TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
-                {
-                    pSpawn->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
-                    pSpawn->GetMotionMaster()->MovePoint(0, LOC_RAND_TO_CENTER_X, LOC_RAND_TO_CENTER_Y, LOC_RAND_TO_CENTER_Z);
-                }
             }
         }
     }
@@ -319,16 +306,35 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
             if (m_uiDefenderTimer < uiDiff)
             {
                 uint32 uiRand = sizeof(m_afSpawnLoc)/sizeof(Location);
-
-                if (Creature* pDefender = m_creature->SummonCreature(NPC_ASH_DEFENDER,
-                    m_afSpawnLoc[uiRand].m_fX, m_afSpawnLoc[uiRand].m_fY, m_afSpawnLoc[uiRand].m_fZ, m_afSpawnLoc[uiRand].m_fO,
-                    TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
+            // left spawns
+                if (Creature* pDefender = m_creature->SummonCreature(NPC_ASH_DEFENDER, 498.652740f, 461.728119f, LOC_LOW_Z, 0.0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
                 {
                     if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_AKAMA_SHADE)))
                         pDefender->AI()->AttackStart(pAkama);
                 }
-
-                m_uiDefenderTimer = 15000;
+                for(uint8 i = 0; i < 4; ++i)
+                {
+                    if (Creature* pSpawn = m_creature->SummonCreature(m_auiRandSpawnEntry[i], 498.652740f, 461.728119f, LOC_LOW_Z,0.0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
+                    {
+                        if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_AKAMA_SHADE)))
+                            pSpawn->AI()->AttackStart(pAkama);
+                    }
+                }    
+            // right spawns                
+                if (Creature* pDefender2 = m_creature->SummonCreature(NPC_ASH_DEFENDER, 498.505003f, 339.619324f, LOC_LOW_Z, 0.0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
+                {
+                    if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_AKAMA_SHADE)))
+                        pDefender2->AI()->AttackStart(pAkama);
+                }
+                for(uint8 i = 0; i < 4; ++i)
+                {
+                    if (Creature* pSpawn2 = m_creature->SummonCreature(m_auiRandSpawnEntry[i], 498.505003f, 339.619324f, LOC_LOW_Z,0.0,TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 25000))
+                    {
+                        if (Creature* pAkama = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_AKAMA_SHADE)))
+                            pSpawn2->AI()->AttackStart(pAkama);
+                    }
+                }    
+                m_uiDefenderTimer = 35000;
             }
             else
                 m_uiDefenderTimer -= uiDiff;
@@ -336,7 +342,7 @@ struct MANGOS_DLL_DECL boss_shade_of_akamaAI : public ScriptedAI
             if (m_uiSummonTimer < uiDiff)
             {
                 SummonCreature();
-                m_uiSummonTimer = 35000;
+                m_uiSummonTimer = 25000;
             }
             else
                 m_uiSummonTimer -= uiDiff;
@@ -472,6 +478,11 @@ struct MANGOS_DLL_DECL npc_akamaAI : public ScriptedAI
 
             pShade->SetUInt32Value(UNIT_NPC_EMOTESTATE, EMOTE_STATE_NONE);
             pShade->SetUInt64Value(UNIT_FIELD_TARGET, m_creature->GetGUID());
+            
+            Creature* portal = NULL;
+            portal = m_creature->SummonCreature(NPC_PORTAL, 498.652740f, 461.728119f, LOC_LOW_Z, 0.0f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 20000000);
+                if (portal)
+                    portal->CastSpell(portal,SPELL_PORTAL_VISUAL,false);
 
             pShade->SetInCombatWithZone();
 

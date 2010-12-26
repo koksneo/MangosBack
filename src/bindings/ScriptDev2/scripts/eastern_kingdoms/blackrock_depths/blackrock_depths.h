@@ -34,7 +34,14 @@ enum
     DATA_GO_BAR_KEG_TRAP    = 25,
     DATA_GO_BAR_DOOR        = 26,
     DATA_GO_CHALICE         = 27,
-    DATA_GO_TOMB_EXIT       = 28
+    DATA_GO_TOMB_EXIT       = 28,
+
+    DATA_GO_MOLE_MACHINE    = 29,
+    DATA_GO_MOLE_CONSOLE    = 30,
+    DATA_SUBMERGE           = 31,
+    DATA_FIRST_TIME         = 32,
+
+    DATA_GO_MINIONSUMMONER  = 33
 };
 
 #endif

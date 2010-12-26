@@ -16,8 +16,9 @@
 
 /* ScriptData
 SDName: boss_eck
-SD%Complete: 80%
-SDComment: Timers need improval, Spring Spells are not clear.
+SDAuthor: 
+SD%Complete: 0
+SDComment: 
 SDCategory: Gundrak
 EndScriptData */
 
@@ -26,130 +27,179 @@ EndScriptData */
 
 enum
 {
-    SPELL_ECK_BITE            = 55813,
-    SPELL_ECK_SPIT            = 55814,
-    SPELL_ECK_SPRING          = 55815,
-    SPELL_ECK_BERSERK         = 55816,
-    SPELL_ECK_RESIDUE         = 55817,
-    SPELL_ECK_SPRING_ALT      = 55837,                      // Purpose unknown
-};
+//texts are currently missing
 
-/*######
-## boss_eck
-######*/
+    SPELL_ECK_SPIT                            = 55814,
+    SPELL_ECK_BITE                            = 55813,
+    SPELL_ECK_SPRING                          = 55815,
+    SPELL_ECK_BERSERK                         = 55816,
+    SPELL_ECK_RESIDUE                         = 55817,
+    NPC_RUIN_DWELLER                          = 29920
+    
+};
 
 struct MANGOS_DLL_DECL boss_eckAI : public ScriptedAI
 {
-    boss_eckAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_eckAI(Creature *pCreature) : ScriptedAI(pCreature)
     {
-        m_pInstance = (instance_gundrak*)pCreature->GetInstanceData();
+        m_pInstance = ((ScriptedInstance*)pCreature->GetInstanceData());
         Reset();
     }
 
-    instance_gundrak* m_pInstance;
-    bool m_bIsBerserk;
+    ScriptedInstance *m_pInstance;
 
-    uint32 m_uiSpitTimer;
-    uint32 m_uiSpringTimer;
-    uint32 m_uiBiteTimer;
-    uint32 m_uiBerserkTimer;
+    uint32 m_uiSpit_Timer;
+    uint32 m_uiBite_Timer;
+    uint32 m_uiSpring_Timer;
+    uint32 m_uiBerserk_Timer;
+    uint32 m_uiVisible_Timer;
+    bool   m_bIsVisible;
+    bool   m_bIsBerserk;
+
+    std::list<Creature*> lEckAdds;
 
     void Reset()
     {
-        m_uiSpitTimer = urand(10000, 20000);
-        m_uiSpringTimer = urand(15000, 25000);
-        m_uiBiteTimer = urand(5000, 15000);
-        m_uiBerserkTimer = urand(60000, 90000);             // Enrange at 20% HP or after 60-90 seconds
-        m_bIsBerserk = false;
+        m_uiSpit_Timer = 7000;
+        m_uiBite_Timer =3000;
+        m_uiSpring_Timer = 10000;
+        m_uiBerserk_Timer = 50000;
+        m_uiVisible_Timer = 5000;
+        m_bIsVisible = false;
+        m_bIsBerserk=false;
+
+        if(m_pInstance)
+           m_pInstance->SetData(TYPE_ECK, NOT_STARTED);
+
+        ChangeState(true);
+        RespawnAdds();
+    }
+
+    void ChangeState(bool bOriginal)
+    {
+        if(bOriginal)
+        {
+            m_creature->SetVisibility(VISIBILITY_OFF);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        }    
+        else 
+        {
+            m_creature->SetVisibility(VISIBILITY_ON);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+        }
+    }
+
+    void RespawnAdds()
+    {
+         GetCreatureListWithEntryInGrid(lEckAdds, m_creature, NPC_RUIN_DWELLER, 100.0f);
+          for (std::list<Creature*>::const_iterator i = lEckAdds.begin(); i != lEckAdds.end(); i++){
+              if (*i)
+              {
+                     if((*i)->isDead()) 
+                        (*i)->Respawn();
+              }
+          }
     }
 
     void Aggro(Unit* pWho)
     {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_ECK, IN_PROGRESS);
+       // DoScriptText(SAY_AGGRO, m_creature);
+       if(m_pInstance)
+          m_pInstance->SetData(TYPE_ECK, IN_PROGRESS);
+    }
+
+    void JustReachedHome()
+    {
+        if(m_pInstance)
+           m_pInstance->SetData(TYPE_ECK, NOT_STARTED);
+        ChangeState(true);
+        RespawnAdds();
     }
 
     void JustDied(Unit* pKiller)
     {
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_ECK, DONE);
+           m_pInstance->SetData(TYPE_ECK, DONE);   
     }
 
-    void JustReachedHome()
-    {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_ECK, FAIL);
-    }
-
-    // As the Eck Spite spell has no dummy or similar effect, applying the residue aura has to be done with spellHitTarget
-    void SpellHitTarget (Unit* pUnit, const SpellEntry* pSpellEntry)
+    void SpellHitTarget(Unit* pUnit, const SpellEntry* pSpellEntry)
     {
         if (pSpellEntry->Id == SPELL_ECK_SPIT && pUnit->GetTypeId() == TYPEID_PLAYER && !pUnit->HasAura(SPELL_ECK_RESIDUE))
             pUnit->CastSpell(pUnit, SPELL_ECK_RESIDUE, true);
     }
-
+    
     void UpdateAI(const uint32 uiDiff)
     {
+        if(!m_bIsVisible)
+        {
+            if(m_uiVisible_Timer < uiDiff)
+            {
+                if(m_pInstance->GetData(TYPE_ECK) == SPECIAL)
+                {
+                    ChangeState(false);
+                    m_bIsVisible=true;
+                }
+                else m_uiVisible_Timer=5000;
+
+            }
+            else m_uiVisible_Timer -= uiDiff;
+        }
+
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_uiSpitTimer < uiDiff)
+        if (m_uiSpit_Timer < uiDiff)
         {
-            if (DoCastSpellIfCan(m_creature, SPELL_ECK_SPIT) == CAST_OK)
-                m_uiSpitTimer = urand(10000, 20000);
+            DoCast(m_creature->getVictim(), SPELL_ECK_SPIT );
+            m_uiSpit_Timer = 7000;
         }
-        else
-            m_uiSpitTimer -= uiDiff;
+        else m_uiSpit_Timer -= uiDiff;
 
-        if (m_uiSpringTimer < uiDiff)
+        if (m_uiBite_Timer < uiDiff)
         {
-            Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1);
-            if (!pTarget)
-                pTarget = m_creature->getVictim();
+            DoCast(m_creature->getVictim(), SPELL_ECK_BITE );
+            m_uiBite_Timer = 3000;
+        }
+        else m_uiBite_Timer -= uiDiff;
 
-            if (DoCastSpellIfCan(pTarget, SPELL_ECK_SPRING) == CAST_OK)
-            {
+        if (m_uiSpring_Timer < uiDiff)
+        {
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0)){
+                DoCast(pTarget, SPELL_ECK_SPRING );
                 DoResetThreat();
-                m_uiSpringTimer = urand(15000, 25000);
-            }
+                m_creature->AddThreat(pTarget, 100.0f);
+                }
+            m_uiSpring_Timer = 10000;
         }
-        else
-            m_uiSpringTimer -= uiDiff;
+        else m_uiSpring_Timer -= uiDiff;
 
-        if (m_uiBiteTimer < uiDiff)
+        if (!m_bIsBerserk) 
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_ECK_BITE);
-            m_uiBiteTimer = urand(5000, 15000);
-        }
-        else
-            m_uiBiteTimer -= uiDiff;
-
-        if (!m_bIsBerserk)                                  // Go into Berserk after time, or when below 20% health
-        {
-            if (m_creature->GetHealthPercent() <= 20.0f || m_uiBerserkTimer < uiDiff)
+            if (m_creature->GetHealthPercent() <= 20.0f || m_uiBerserk_Timer < uiDiff)
             {
-                if (DoCastSpellIfCan(m_creature, SPELL_ECK_BERSERK) == CAST_OK)
-                    m_bIsBerserk = true;
+                DoCast(m_creature->getVictim(), SPELL_ECK_BERSERK );
+                m_uiBerserk_Timer = 0;
+                m_bIsBerserk = true;
             }
-            else
-                m_uiBerserkTimer -= uiDiff;
+            else m_uiBerserk_Timer -= uiDiff;
         }
-
         DoMeleeAttackIfReady();
     }
 };
 
 CreatureAI* GetAI_boss_eck(Creature* pCreature)
 {
-    return new boss_eckAI(pCreature);
+    return new boss_eckAI (pCreature);
 }
 
 void AddSC_boss_eck()
 {
-    Script* pNewScript;
+    Script *newscript;
 
-    pNewScript = new Script;
-    pNewScript->Name = "boss_eck";
-    pNewScript->GetAI = &GetAI_boss_eck;
-    pNewScript->RegisterSelf();
+    newscript = new Script;
+    newscript->Name = "boss_eck";
+    newscript->GetAI = &GetAI_boss_eck;
+    newscript->RegisterSelf();
 }

@@ -58,7 +58,11 @@ enum
     GO_THRONE_ROOM          = 170575,
 
     GO_SPECTRAL_CHALICE     = 164869,
-    GO_CHEST_SEVEN          = 169243
+    GO_CHEST_SEVEN          = 169243,
+
+    GO_MOLE_MACHINE         = 186880,
+    GO_MOLE_CONSOLE         = 188498,
+    GO_MINIONSUMMONER       = 188508
 };
 
 struct MANGOS_DLL_DECL instance_blackrock_depths : public ScriptedInstance
@@ -67,6 +71,8 @@ struct MANGOS_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 
     uint32 m_auiEncounter[MAX_ENCOUNTER];
     std::string strInstData;
+    uint32 m_uiFirstTime;
+    uint32 m_uiSubmerged;
 
     uint64 m_uiEmperorGUID;
     uint64 m_uiPrincessGUID;
@@ -100,11 +106,18 @@ struct MANGOS_DLL_DECL instance_blackrock_depths : public ScriptedInstance
     uint64 m_uiSpectralChaliceGUID;
     uint64 m_uiSevensChestGUID;
 
+    uint64 m_uiMoleMachineGUID;
+    uint64 m_uiMoleConsoleGUID;
+    uint64 m_uiMinionSummonerGUID;
+
     uint32 m_uiBarAleCount;
 
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
+
+        m_uiFirstTime = 0;
+        m_uiSubmerged = 0;
 
         m_uiEmperorGUID = 0;
         m_uiPrincessGUID = 0;
@@ -137,6 +150,10 @@ struct MANGOS_DLL_DECL instance_blackrock_depths : public ScriptedInstance
 
         m_uiSpectralChaliceGUID = 0;
         m_uiSevensChestGUID = 0;
+
+        m_uiMoleMachineGUID = 0;
+        m_uiMoleConsoleGUID = 0;
+        m_uiMinionSummonerGUID = 0;
 
         m_uiBarAleCount = 0;
     }
@@ -181,6 +198,9 @@ struct MANGOS_DLL_DECL instance_blackrock_depths : public ScriptedInstance
             case GO_THRONE_ROOM: m_uiGoThroneGUID = pGo->GetGUID(); break;
             case GO_SPECTRAL_CHALICE: m_uiSpectralChaliceGUID = pGo->GetGUID(); break;
             case GO_CHEST_SEVEN: m_uiSevensChestGUID = pGo->GetGUID(); break;
+            case GO_MOLE_MACHINE: m_uiMoleMachineGUID = pGo->GetGUID(); break;
+            case GO_MOLE_CONSOLE: m_uiMoleConsoleGUID = pGo->GetGUID(); break;
+            case GO_MINIONSUMMONER: m_uiMinionSummonerGUID = pGo->GetGUID(); break;
         }
     }
 
@@ -247,6 +267,11 @@ struct MANGOS_DLL_DECL instance_blackrock_depths : public ScriptedInstance
                 }
                 m_auiEncounter[5] = uiData;
                 break;
+
+            case DATA_FIRST_TIME:
+                m_uiFirstTime = uiData; break;
+            case DATA_SUBMERGE:
+                m_uiSubmerged = uiData; break;
         }
 
         if (uiData == DONE)
@@ -283,6 +308,11 @@ struct MANGOS_DLL_DECL instance_blackrock_depths : public ScriptedInstance
                 return m_auiEncounter[4];
             case TYPE_IRON_HALL:
                 return m_auiEncounter[5];
+                
+            case DATA_FIRST_TIME:
+                return m_uiFirstTime;
+            case DATA_SUBMERGE:
+                return m_uiSubmerged;
         }
         return 0;
     }
@@ -331,6 +361,14 @@ struct MANGOS_DLL_DECL instance_blackrock_depths : public ScriptedInstance
                 return m_uiSpectralChaliceGUID;
             case DATA_GO_TOMB_EXIT:
                 return m_uiGoTombExitGUID;
+            
+            case DATA_GO_MOLE_MACHINE:
+                return m_uiMoleMachineGUID;
+            case DATA_GO_MOLE_CONSOLE:
+                return m_uiMoleConsoleGUID;
+            case DATA_GO_MINIONSUMMONER:
+                return m_uiMinionSummonerGUID;
+
         }
         return 0;
     }

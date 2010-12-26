@@ -63,6 +63,7 @@ enum
     SPELL_SUMMON_GLOBULE_2          = 37858,
     SPELL_SUMMON_GLOBULE_3          = 37860,
     SPELL_SUMMON_GLOBULE_4          = 37861,
+    SPELL_CRAVANIOUS_BITE            = 41932,
 
     NPC_WATER_GLOBULE               = 21913,
     NPC_TIDEWALKER_LURKER           = 21920
@@ -125,7 +126,12 @@ struct MANGOS_DLL_DECL boss_morogrim_tidewalkerAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_MOROGRIM_EVENT, DONE);
+        {
+            if (GameObject* pGo = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(DATA_MOROGRIM_GEN)))
+                pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+
+            m_pInstance->SetData(TYPE_MOROGRIM_EVENT, SPECIAL);
+        }
     }
 
     void JustSummoned(Creature* pSummoned)
@@ -292,6 +298,45 @@ struct MANGOS_DLL_DECL mob_water_globuleAI : public ScriptedAI
     }
 };
 
+
+struct MANGOS_DLL_DECL mob_tidewalker_lurkerAI : public ScriptedAI
+{
+    mob_tidewalker_lurkerAI(Creature* pCreature) : ScriptedAI(pCreature) 
+    { 
+        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        Reset();
+    }
+
+    ScriptedInstance* m_pInstance;
+    
+    // timers
+    uint32 m_uiCarnivorousBite_Timer;
+
+    void Reset()
+    {
+        m_uiCarnivorousBite_Timer = 6000;
+
+        if (m_pInstance && m_pInstance->GetData(TYPE_MOROGRIM_EVENT) != IN_PROGRESS)
+            m_creature->ForcedDespawn();
+    }
+
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            m_creature->ForcedDespawn();
+
+        if (m_uiCarnivorousBite_Timer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_CRAVANIOUS_BITE, CAST_AURA_NOT_PRESENT);        
+            m_uiCarnivorousBite_Timer = 5000;
+        }
+        else
+            m_uiCarnivorousBite_Timer -= uiDiff;
+    }
+};
+
 CreatureAI* GetAI_boss_morogrim_tidewalker(Creature* pCreature)
 {
     return new boss_morogrim_tidewalkerAI (pCreature);
@@ -299,6 +344,11 @@ CreatureAI* GetAI_boss_morogrim_tidewalker(Creature* pCreature)
 CreatureAI* GetAI_mob_water_globule(Creature* pCreature)
 {
     return new mob_water_globuleAI (pCreature);
+}
+
+CreatureAI* GetAI_mob_tidewalker_lurker(Creature* pCreature)
+{
+    return new mob_tidewalker_lurkerAI (pCreature);
 }
 
 void AddSC_boss_morogrim_tidewalker()
@@ -313,5 +363,10 @@ void AddSC_boss_morogrim_tidewalker()
     newscript = new Script;
     newscript->Name = "mob_water_globule";
     newscript->GetAI = &GetAI_mob_water_globule;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_tidewalker_lurker";
+    newscript->GetAI = &GetAI_mob_tidewalker_lurker;
     newscript->RegisterSelf();
 }

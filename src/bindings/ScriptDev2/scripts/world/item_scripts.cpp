@@ -97,7 +97,18 @@ bool ItemUse_item_gor_dreks_ointment(Player* pPlayer, Item* pItem, const SpellCa
 
     return false;
 }
+/*#####
+# item_fishing_chair
+#####*/
 
+bool ItemUse_item_fishing_chair(Player* pPlayer, Item* _Item, SpellCastTargets const& targets)
+{
+    if ((pPlayer->GetMapId() == 530) || (pPlayer->GetMapId() == 0) || (pPlayer->GetMapId() == 1))
+        return false;
+    else
+    pPlayer->SendEquipError(EQUIP_ERR_CANT_DO_RIGHT_NOW,_Item,NULL);
+    return true;
+}
 /*#####
 # item_petrov_cluster_bombs
 #####*/
@@ -127,9 +138,34 @@ bool ItemUse_item_petrov_cluster_bombs(Player* pPlayer, Item* pItem, const Spell
     return false;
 }
 
+enum
+{
+    SPELL_OFFER_JUNGLE_PUNCH = 51962
+};
+
+bool ItemUse_item_jungle_punch_sample(Player* pPlayer, Item* pItem, const SpellCastTargets &pTargets)
+{
+    Unit* pTarget = pPlayer->GetMap()->GetUnit(pPlayer->GetTargetGuid());
+    if (pTarget && pTarget->GetTypeId() == TYPEID_UNIT)
+    {
+        pPlayer->CastSpell(pTarget, SPELL_OFFER_JUNGLE_PUNCH, false);
+        return true;
+    }
+    else
+    {
+        pPlayer->SendEquipError(EQUIP_ERR_NONE, pItem, NULL);
+        return true;
+    }
+}
+
 void AddSC_item_scripts()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "item_jungle_punch_sample";
+    newscript->pItemUse = &ItemUse_item_jungle_punch_sample;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "item_arcane_charges";
@@ -147,7 +183,12 @@ void AddSC_item_scripts()
     newscript->RegisterSelf();
 
     newscript = new Script;
+    newscript->Name = "item_fishing_chair";
+    newscript->pItemUse = &ItemUse_item_fishing_chair;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
     newscript->Name = "item_petrov_cluster_bombs";
     newscript->pItemUse = &ItemUse_item_petrov_cluster_bombs;
-    newscript->RegisterSelf();
+    newscript->RegisterSelf();  
 }

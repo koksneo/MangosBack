@@ -22,7 +22,3 @@ SDCategory: Icecrown Citadel
 EndScriptData */
 
 #include "precompiled.h"
-
-void AddSC_blood_prince_council()
-{
-}

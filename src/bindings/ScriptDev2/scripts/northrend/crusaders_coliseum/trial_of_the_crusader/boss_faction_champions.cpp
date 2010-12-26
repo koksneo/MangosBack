@@ -36,7 +36,3 @@ enum
     SAY_VARIAN_PVP_H_SLAY_3             = -1649054,
     SAY_VARIAN_PVP_H_SLAY_4             = -1649055,
 };
-
-void AddSC_boss_faction_champions()
-{
-}

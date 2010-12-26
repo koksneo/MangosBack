@@ -115,12 +115,15 @@ struct MANGOS_DLL_DECL npc_volcanoAI : public ScriptedAI
     uint32 FireballTimer;
     uint32 GeyserTimer;
 
+    bool Flags;
+
     void Reset()
     {
+        Flags = false;
         CheckTimer = 1000;
         SupremusGUID = 0;
         FireballTimer = 500;
-        GeyserTimer = 0;
+        GeyserTimer = 2500;
     }
 
     void AttackStart(Unit* who) {}
@@ -129,6 +132,13 @@ struct MANGOS_DLL_DECL npc_volcanoAI : public ScriptedAI
 
     void UpdateAI(const uint32 diff)
     {
+        if (!Flags)
+        {
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            Flags = true;
+        }
+
         if (CheckTimer < diff)
         {
             if (SupremusGUID)
@@ -323,16 +333,9 @@ struct MANGOS_DLL_DECL boss_supremusAI : public ScriptedAI
 
                 if (target)
                 {
-                    if (Creature* pVolcano = SummonCreature(CREATURE_VOLCANO, target))
-                    {
+					DoScriptText(EMOTE_GROUND_CRACK, m_creature);
                         DoCastSpellIfCan(target, SPELL_VOLCANIC_ERUPTION);
-
-                        if (npc_volcanoAI* pVolcanoAI = dynamic_cast<npc_volcanoAI*>(pVolcano->AI()))
-                            pVolcanoAI->SetSupremusGUID(m_creature->GetGUID());
-                    }
-
-                    DoScriptText(EMOTE_GROUND_CRACK, m_creature);
-                    SummonVolcanoTimer = 10000;
+                    SummonVolcanoTimer = 15000;
                 }
             }else SummonVolcanoTimer -= diff;
         }

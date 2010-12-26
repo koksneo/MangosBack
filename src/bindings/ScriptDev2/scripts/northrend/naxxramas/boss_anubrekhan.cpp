@@ -50,6 +50,7 @@ enum
 
     SPELL_SELF_SPAWN_5          = 29105,                    //This spawns 5 corpse scarabs ontop of us (most likely the pPlayer casts this on death)
     SPELL_SELF_SPAWN_10         = 28864,                    //This is used by the crypt guards when they die
+    SPELL_BERSERK               = 26662,
 
     NPC_CRYPT_GUARD             = 16573
 };
@@ -65,18 +66,35 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
     }
 
     instance_naxxramas* m_pInstance;
+
+    std::list<uint64> m_lCryptGuardList;
     bool m_bIsRegularMode;
+    bool m_bHasTaunted;
+    bool m_bBerserking;
+    bool m_bCanSummonNextGuard;
 
     uint32 m_uiImpaleTimer;
     uint32 m_uiLocustSwarmTimer;
     uint32 m_uiSummonTimer;
-    bool   m_bHasTaunted;
+    uint32 m_uiBerserkTimer;
 
     void Reset()
     {
         m_uiImpaleTimer = 15000;                            // 15 seconds
         m_uiLocustSwarmTimer = urand(80000, 120000);        // Random time between 80 seconds and 2 minutes for initial cast
-        m_uiSummonTimer = m_uiLocustSwarmTimer + 45000;     // 45 seconds after initial locust swarm
+        m_uiSummonTimer = 30000;    						// 30 seconds 
+        m_uiBerserkTimer = 300000;
+        m_bBerserking = false;
+        m_bCanSummonNextGuard = false;
+        DespawnGuards();
+
+        // Summon Guards only on initial spawn, else guards will be resummoned on JustReachedHome()
+        if (m_pInstance && m_pInstance->GetData(TYPE_ANUB_REKHAN) == NOT_STARTED)
+        {
+            m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()+10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS);
+            if (!m_bIsRegularMode)
+                m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()-10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS);
+        }
     }
 
     void KilledUnit(Unit* pVictim)
@@ -102,6 +120,19 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
 
         if (m_pInstance)
             m_pInstance->SetData(TYPE_ANUB_REKHAN, IN_PROGRESS);
+        
+        if(m_lCryptGuardList.empty())
+            return;
+
+        for(std::list<uint64>::iterator itr = m_lCryptGuardList.begin(); itr != m_lCryptGuardList.end(); ++itr)
+        {
+            Creature* pCryptGuard = m_creature->GetMap()->GetCreature(*itr);
+            if (pCryptGuard && pCryptGuard->isAlive() && pWho->isInAccessablePlaceFor(pCryptGuard) && pCryptGuard->IsHostileTo(pWho) && pCryptGuard->AI())
+            {
+                pCryptGuard->AddThreat(pWho,0.0f);
+                pCryptGuard->AI()->AttackStart(pWho);
+            }
+        }
     }
 
     void JustDied(Unit* pKiller)
@@ -113,7 +144,12 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
     void JustReachedHome()
     {
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_ANUB_REKHAN, FAIL);
+            m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()+10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS);
+            if (!m_bIsRegularMode)
+                m_creature->SummonCreature(NPC_CRYPT_GUARD, m_creature->GetPositionX(), m_creature->GetPositionY()-10, m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS);
+        }
     }
 
     void MoveInLineOfSight(Unit* pWho)
@@ -134,10 +170,37 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         ScriptedAI::MoveInLineOfSight(pWho);
     }
 
+    void DespawnGuards()
+    {
+        if (m_lCryptGuardList.empty())
+            return;
+
+        for(std::list<uint64>::iterator itr = m_lCryptGuardList.begin(); itr != m_lCryptGuardList.end(); ++itr)
+        {
+            Creature* pTemp = m_creature->GetMap()->GetCreature(*itr);
+            if (pTemp && pTemp->isAlive())
+                pTemp->ForcedDespawn();
+        }
+        m_lCryptGuardList.clear();
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        m_lCryptGuardList.push_back(pSummoned->GetGUID());
+        pSummoned->SetRespawnTime(WEEK);
+        pSummoned->SetRespawnDelay(WEEK);
+    }
+
     void UpdateAI(const uint32 uiDiff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
+
+        if (!m_bBerserking && m_uiBerserkTimer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature, SPELL_BERSERK);
+            m_bBerserking = true;
+        }else m_uiBerserkTimer -= uiDiff;
 
         // Impale
         if (m_uiImpaleTimer < uiDiff)
@@ -159,19 +222,39 @@ struct MANGOS_DLL_DECL boss_anubrekhanAI : public ScriptedAI
         if (m_uiLocustSwarmTimer < uiDiff)
         {
             DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_LOCUSTSWARM :SPELL_LOCUSTSWARM_H);
-            m_uiLocustSwarmTimer = 90000;
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+            {
+                Creature* pTemp = m_creature->SummonCreature(NPC_CRYPT_GUARD, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                if (pTemp && pTemp->AI() && pTemp->IsHostileTo(pTarget) && pTarget->isInAccessablePlaceFor(pTemp))
+                {
+                    pTemp->AddThreat(pTarget);
+                    pTemp->AI()->AttackStart(pTarget);
+                }
+                m_uiSummonTimer = 30000; // 30 sec after initial locust swarm
+                m_bCanSummonNextGuard = true;
+            }
+            m_uiLocustSwarmTimer = urand(90000, 120000);
         }
         else
             m_uiLocustSwarmTimer -= uiDiff;
 
         // Summon
-        /*if (m_uiSummonTimer < uiDiff)
+        if (m_bCanSummonNextGuard)
         {
-            DoCastSpellIfCan(m_creature, SPELL_SUMMONGUARD);
-            Summon_Timer = 45000;
+            if (m_uiSummonTimer <= uiDiff)
+            {
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                {
+                    Creature* pTemp = m_creature->SummonCreature(NPC_CRYPT_GUARD, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ(), 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000);
+                    if (pTemp && pTemp->AI() && pTemp->IsHostileTo(pTarget) && pTarget->isInAccessablePlaceFor(pTemp))
+                    {
+                        pTemp->AddThreat(pTarget);
+                        pTemp->AI()->AttackStart(pTarget);
+                    }
+                }
+                m_bCanSummonNextGuard = false;
+            } else m_uiSummonTimer -= uiDiff;
         }
-        else
-            m_uiSummonTimer -= uiDiff;*/
 
         DoMeleeAttackIfReady();
     }

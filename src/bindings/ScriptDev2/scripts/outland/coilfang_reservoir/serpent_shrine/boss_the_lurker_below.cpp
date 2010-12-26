@@ -1,4 +1,4 @@
-/* Copyright (C) 2006 - 2010 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
+/* Copyright (C) 2006 - 2009 ScriptDev2 <https://scriptdev2.svn.sourceforge.net/>
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation; either version 2 of the License, or
@@ -15,9 +15,9 @@
  */
 
 /* ScriptData
-SDName: boss_the_lurker_below
-SD%Complete: 5
-SDComment: Timers from ACID, only placeholder quality, Spout unused, submerge phase missing
+SDName: BOSS LURKER THE BELOW
+SD%Complete: 90%
+SDComment: Spout need core support.
 SDCategory: Coilfang Resevoir, Serpent Shrine Cavern
 EndScriptData */
 
@@ -26,127 +26,260 @@ EndScriptData */
 
 enum
 {
-    SPELL_LURKER_SPAWN_TRIGGER      = 54587,
-    SPELL_WHIRL                     = 37363,
-    SPELL_GEYSER                    = 37478,
-    SPELL_SPOUT                     = 37433,                // TODO should sweep the room 360degrees, related spells 37429 37430 37431
-    SPELL_WATERBOLT                 = 37138,                // TODO is used when no enemy in melee range (unknown if on random or top-most aggro holder in this case
+    SPELL_WHIRL          = 37660,   // 37363 original   // 37660 
+    SPELL_GEYSER         = 37478,   // 
+    SPELL_SPOUT          = 37433,   // 42835 without  mechanic 360*
+    SPELL_WATER_BOLT     = 37138,   // working correctly
+
+    MOBID_COILFANG_GUARDIAN = 21873,
+    MOBID_COILFANG_AMBUSHER = 21865,
+    MOBID_COILFANG_FRENZY = 21508,
 };
 
-enum Phases
+float AddPos[9][3] = 
 {
-    PHASE_EMERGEING             = 0,                        // TODO unused for now
-    PHASE_NORMAL                = 1,
-    PHASE_SPOUT                 = 2,
-    PHASE_SUBMERGED             = 3,
+    {2.855381f, -459.823914f, -19.182686f},        //MOVE_AMBUSHER_1 X, Y, Z
+    {12.4f, -466.042267f, -19.182686f},            //MOVE_AMBUSHER_2 X, Y, Z
+    {51.366653f, -460.836060f, -19.182686f},    //MOVE_AMBUSHER_3 X, Y, Z
+    {62.597980f, -457.433044f, -19.182686f},    //MOVE_AMBUSHER_4 X, Y, Z
+    {77.607452f, -384.302765f, -19.182686f},    //MOVE_AMBUSHER_5 X, Y, Z
+    {63.897900f, -378.984924f, -19.182686f},    //MOVE_AMBUSHER_6 X, Y, Z
+    {34.447250f, -387.333618f, -19.182686f},    //MOVE_GUARDIAN_1 X, Y, Z
+    {14.388216f, -423.468018f, -19.625271f},    //MOVE_GUARDIAN_2 X, Y, Z
+    {42.471519f, -445.115295f, -19.769423f}     //MOVE_GUARDIAN_3 X, Y, Z
 };
 
-// TODO This boss should infact be a Scripted_NoMovementAI, but selecting only melee targets is not supported yet, change when implemented
 struct MANGOS_DLL_DECL boss_the_lurker_belowAI : public ScriptedAI
 {
-    boss_the_lurker_belowAI(Creature* pCreature) : ScriptedAI(pCreature)
+    boss_the_lurker_belowAI(Creature *c) : ScriptedAI(c)
     {
-        m_pInstance = (ScriptedInstance*)pCreature->GetInstanceData();
+        pInstance = ((ScriptedInstance*)c->GetInstanceData());
         Reset();
     }
+    
+    ScriptedInstance* pInstance;
 
-    ScriptedInstance* m_pInstance;
+    uint32 WhirlTimer;
+    uint32 GeyserTimer;
+    uint32 SpoutTimer;
+    uint32 Phase1Timer;
+    uint32 Phase2Timer;
+    uint32 BugTimer;
+    uint32 WaterBoltTimer;
+    uint32 CoilfangFrenzyTimer;
+    Creature* Summoned;
 
-    Phases m_uiPhase;
-
-    uint32 m_uiWhirlTimer;
-    uint32 m_uiGeyserTimer;
+    bool SpoutNow;
+    bool Spawned;
+    bool Phase1;
 
     void Reset()
     {
-        m_uiPhase = PHASE_NORMAL;
+      if (pInstance)
+          pInstance->SetData(TYPE_THELURKER_EVENT, NOT_STARTED);
 
-        m_uiWhirlTimer = 19500;
-        m_uiGeyserTimer = 49700;
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+        WhirlTimer = 90000;     // 18s after spout
+        GeyserTimer = 10000;    // random timer -> youtube
+        BugTimer = 5000;
+        SpoutTimer = 35000;     // every 45s phase1 , 1s when swithing to phase 1
+        WaterBoltTimer = 3000;
+        CoilfangFrenzyTimer = 1000;
+
+        Phase1Timer = 180000;   // after 1 minute from start phase2
+        Phase2Timer = 120000;   // after 2 minutes 
+
+        SpoutNow = false;
+        Spawned  = true;
+        Phase1 = true;
     }
 
-    void JustReachedHome()
+    void Aggro(Unit *who)
     {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_THELURKER_EVENT, NOT_STARTED);
-
-        m_creature->ForcedDespawn();
+        if (pInstance)
+            pInstance->SetData(TYPE_THELURKER_EVENT, IN_PROGRESS);
     }
 
-    void JustDied(Unit* pVictim)
+    void AttackStart(Unit *who)
     {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_THELURKER_EVENT, DONE);
-    }
-
-    void UpdateAI(const uint32 uiDiff)
-    {
-        // Return since we have no target
-        // Unclear if we will use this selecting for spout-alike situations
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+        if (who == m_creature)
             return;
 
-        switch (m_uiPhase)
+        if (m_creature->Attack(who, true))
         {
-            case PHASE_NORMAL:
-                if (m_uiWhirlTimer < uiDiff)
-                {
-                    if (DoCastSpellIfCan(m_creature, SPELL_WHIRL) == CAST_OK)
-                        m_uiWhirlTimer = urand(15000, 30000);
-                }
-                else
-                    m_uiWhirlTimer -= uiDiff;
+            m_creature->SetInCombatWith(who);
+            who->SetInCombatWith(m_creature);
+        }
+    }
 
-                if (m_uiGeyserTimer < uiDiff)
-                {
-                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                        if (DoCastSpellIfCan(pTarget, SPELL_GEYSER) == CAST_OK)
-                            m_uiGeyserTimer = urand(49700, 60000);
-                }
-                else
-                    m_uiGeyserTimer -= uiDiff;
+    void JustDied(Unit *victim)
+    {
+        if (pInstance)
+        {
+            if (GameObject* pGo = m_creature->GetMap()->GetGameObject(pInstance->GetData64(DATA_LURKER_GEN)))
+                pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
 
-                DoMeleeAttackIfReady();
-                break;
+            pInstance->SetData(TYPE_THELURKER_EVENT, SPECIAL);
+        }
+
+        Spawned = true;
+    }
+
+    void SummonAdd(uint32 entry, float x, float y, float z)
+    {
+        Summoned = m_creature->SummonCreature(entry, x, y, z, 0, TEMPSUMMON_TIMED_DESPAWN, 180000);
+        Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0);
+        if(pTarget && Summoned->AI())
+            Summoned->AI()->AttackStart(pTarget);
+    }
+
+    void UpdateAI(const uint32 diff)
+    {
+
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() )
+           return;
+
+        m_creature->GetMotionMaster()->Clear(false);
+
+        //Phase Switcher
+         if (Phase2Timer < diff)
+        {
+            Phase1 = false;
+            Spawned = false;
+            Phase2Timer = 180000;
+        }Phase2Timer -= diff;
+
+        if (Phase1Timer < diff)
+        {
+            SpoutNow = true;
+            Phase1 = true;
+            Phase1Timer = 180000;
+        }Phase1Timer -= diff;
+
+        //Phase 1
+        if (Phase1)
+        {
+            m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+
+            if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() )
+                return;
+
+            m_creature->GetMotionMaster()->Clear(false);
+
+            // anty ranged high aggro
+            if(BugTimer < diff)
+            {
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                    if(!m_creature->IsWithinDistInMap(pTarget, 3))
+                        DoResetThreat();
+                BugTimer = 5000;
+            }BugTimer -= diff;
+
+            // when switching 2phase 1 cast spout
+            if (SpoutNow)
+            {
+                DoCast(m_creature->getVictim(), SPELL_SPOUT);
+                SpoutNow = false;
+                WhirlTimer = 14000;
+            }
+
+            if (SpoutTimer < diff)
+            {
+                DoCast(m_creature->getVictim(), SPELL_SPOUT);
+                SpoutTimer = 35000;
+                WhirlTimer = 14000;
+            }
+            else
+                SpoutTimer -= diff; 
+                
+            // inwater Coilfang Frenzy Summon
+            if (CoilfangFrenzyTimer < diff)
+            {
+                Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0);
+                if(pTarget && !m_creature->IsWithinDistInMap(pTarget, 3))
+                    if(pTarget->IsInWater())
+                        SummonAdd(MOBID_COILFANG_FRENZY, pTarget->GetPositionX(), pTarget->GetPositionY(), pTarget->GetPositionZ());
+
+                CoilfangFrenzyTimer = 1000;
+            }else CoilfangFrenzyTimer -= diff;
+
+            if (WhirlTimer < diff)
+            {
+                DoCast(m_creature, SPELL_WHIRL);
+                WhirlTimer = 90000;
+            }WhirlTimer -= diff;
+
+            if(GeyserTimer < diff)
+            {
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                    DoCastSpellIfCan(pTarget, SPELL_GEYSER);
+                GeyserTimer = urand(10000, 15000);
+            }GeyserTimer -= diff;
+
+            //melee range checker
+            if(WaterBoltTimer < diff)
+            {
+                Unit* target = NULL;
+                int i = 0;
+                bool meleeTarget = false;
+                target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0);
+                if (!target)
+                    target = m_creature->getVictim();
+
+                while (target)
+                {
+                    if( m_creature->IsWithinDistInMap(target, 3))
+                    {
+                        meleeTarget = true;
+                        break;
+                    }
+                    target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,i);
+                    i++;
+                }
+
+                if(!meleeTarget)
+                {
+                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                        DoCastSpellIfCan(pTarget,SPELL_WATER_BOLT);
+                    else
+                        DoCast(m_creature->getVictim(),SPELL_WATER_BOLT);
+                    WaterBoltTimer = 3000;
+                } else DoMeleeAttackIfReady();
+                    
+            }else WaterBoltTimer -= diff;
+
+            DoMeleeAttackIfReady();
+        }
+
+        //Phase 2
+        if(!Spawned)
+        {
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+            SummonAdd(MOBID_COILFANG_AMBUSHER,AddPos[0][0],AddPos[0][1],AddPos[0][2]);
+            SummonAdd(MOBID_COILFANG_AMBUSHER,AddPos[1][0],AddPos[1][1],AddPos[1][2]);
+            SummonAdd(MOBID_COILFANG_AMBUSHER,AddPos[2][0],AddPos[2][1],AddPos[2][2]);
+            SummonAdd(MOBID_COILFANG_AMBUSHER,AddPos[3][0],AddPos[3][1],AddPos[3][2]);
+            SummonAdd(MOBID_COILFANG_AMBUSHER,AddPos[4][0],AddPos[4][1],AddPos[4][2]);
+            SummonAdd(MOBID_COILFANG_AMBUSHER,AddPos[5][0],AddPos[5][1],AddPos[5][2]);
+            SummonAdd(MOBID_COILFANG_GUARDIAN,AddPos[6][0],AddPos[6][1],AddPos[6][2]);
+            SummonAdd(MOBID_COILFANG_GUARDIAN,AddPos[7][0],AddPos[7][1],AddPos[7][2]);
+            SummonAdd(MOBID_COILFANG_GUARDIAN,AddPos[8][0],AddPos[8][1],AddPos[8][2]);
+            Spawned = true;
         }
     }
 };
 
-CreatureAI* GetAI_boss_the_lurker_below(Creature* pCreature)
+CreatureAI* GetAI_boss_the_lurker_below(Creature *_Creature)
 {
-    return new boss_the_lurker_belowAI(pCreature);
-}
-
-// Cast the spell that should summon the Lurker-Below
-bool GOHello_go_strange_pool(Player* pPlayer, GameObject* pGo)
-{
-    // There is some chance to fish The Lurker Below, sources are from 20s to 10minutes, average 5min => 20 tries, hence 5%
-    if (urand(0,99) < 5)
-    {
-        if (ScriptedInstance* pInstance = (ScriptedInstance*)pGo->GetInstanceData())
-        {
-            if (pInstance->GetData(TYPE_THELURKER_EVENT) == NOT_STARTED)
-            {
-                pPlayer->CastSpell(pPlayer, SPELL_LURKER_SPAWN_TRIGGER, true);
-                pInstance->SetData(TYPE_THELURKER_EVENT, IN_PROGRESS);
-                return true;
-            }
-        }
-    }
-    return false;
+    return new boss_the_lurker_belowAI (_Creature);
 }
 
 void AddSC_boss_the_lurker_below()
 {
-    Script* pNewScript;
-
-    pNewScript = new Script;
-    pNewScript->Name = "boss_the_lurker_below";
-    pNewScript->GetAI = &GetAI_boss_the_lurker_below;
-    pNewScript->RegisterSelf();
-
-    pNewScript = new Script;
-    pNewScript->Name = "go_strange_pool";
-    pNewScript->pGOHello = &GOHello_go_strange_pool;
-    pNewScript->RegisterSelf();
+    Script *newscript;
+    newscript = new Script;
+    newscript->Name = "boss_the_lurker_below";
+    newscript->GetAI = &GetAI_boss_the_lurker_below;
+    newscript->RegisterSelf();
 }

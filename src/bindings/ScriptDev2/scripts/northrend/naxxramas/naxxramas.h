@@ -7,13 +7,18 @@
 
 enum
 {
-    MAX_ENCOUNTER               = 15,
+    MAX_ENCOUNTER               = 19,
 
     // Kel'Thuzad's taunts after killing Wing Bosses
     SAY_KELTHUZAD_TAUNT1        = -1533090,
     SAY_KELTHUZAD_TAUNT2        = -1533091,
     SAY_KELTHUZAD_TAUNT3        = -1533092,
     SAY_KELTHUZAD_TAUNT4        = -1533093,
+    SOUND_KELTHUZAD_TAUNT1      = 14463,
+    //SOUND_KELTHUZAD_TAUNT2    = 14464,
+    //SOUND_KELTHUZAD_TAUNT3    = 14465,
+    //SOUND_KELTHUZAD_TAUNT4    = 14466,
+    SOUND_KELTHUZAD_MR_BIGGLES  = 14484,
 
     TYPE_ANUB_REKHAN            = 1,
     TYPE_FAERLINA               = 2,
@@ -34,26 +39,39 @@ enum
     TYPE_STALAGG                = 14,
     TYPE_FEUGEN                 = 15,
 
+    // Patchwerk
+    NPC_PATCHWORK_GOLEM         = 16017,
+    NPC_BILE_RETCHER            = 16018,
+    NPC_MAD_SCIENTIST           = 16020,
+    NPC_LIVING_MONSTROSITY      = 16021,
+    NPC_SURGICAL_ASSIST         = 16022,
+
     TYPE_SAPPHIRON              = 16,
     TYPE_KELTHUZAD              = 17,
 
+    TYPE_ZELIEK                 = 18,
+    TYPE_THANE                  = 19,
+    TYPE_BLAUMEUX               = 20,
+    TYPE_RIVENDARE              = 21,
+
     NPC_ANUB_REKHAN             = 15956,
     NPC_FAERLINA                = 15953,
+    NPC_NAXXRAMAS_FOLLOWER      = 16505,
+    NPC_NAXXRAMAS_WORSHIPPER    = 16506,
 
     NPC_THADDIUS                = 15928,
     NPC_STALAGG                 = 15929,
     NPC_FEUGEN                  = 15930,
 
+    NPC_UNDERSTUDY              = 16803,
     NPC_ZELIEK                  = 16063,
     NPC_THANE                   = 16064,
     NPC_BLAUMEUX                = 16065,
     NPC_RIVENDARE               = 30549,
+    NPC_HORSEMEN_TAP_LIST       = 32575,
 
+    NPC_SAPPHIRON               = 15989,
     NPC_KELTHUZAD               = 15990,
-
-    // Faerlina
-    NPC_NAXXRAMAS_FOLLOWER      = 16505,
-    NPC_NAXXRAMAS_WORSHIPPER    = 16506,
 
     // Gothik
     NPC_GOTHIK                  = 16060,
@@ -106,6 +124,7 @@ enum
     // Frostwyrm Lair
     GO_KELTHUZAD_WATERFALL_DOOR = 181225,                   // exit, open after sapphiron is dead
     GO_KELTHUZAD_EXIT_DOOR      = 181228,
+    GO_SAPPHIRON_BIRTH          = 181356,
 
     // Eyes
     GO_ARAC_EYE_RAMP            = 181212,
@@ -121,7 +140,17 @@ enum
 
     AREATRIGGER_FROSTWYRM       = 4120,                    //not needed here, but AT to be scripted
     AREATRIGGER_KELTHUZAD       = 4112,
-    AREATRIGGER_GOTHIK          = 4116
+    AREATRIGGER_GOTHIK          = 4116,
+    AREATRIGGER_SAPPHIRON_BIRTH = 4167
+};
+
+enum ChamberArea
+{
+    TOP_MOST        = 0,
+    MIDDLE_UPPER    = 1,
+    MIDDLE_LOWER    = 2,
+    BOTTOM_LOWEST   = 3,
+    TOTAL_AREAS     = 4
 };
 
 struct GothTrigger
@@ -147,20 +176,37 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
         uint32 GetData(uint32 uiType);
         uint64 GetData64(uint32 uiData);
 
+        void SwitchDoor(uint32 uiData, uint64 doorGUID);
+
         const char* Save() { return strInstData.c_str(); }
         void Load(const char* chrIn);
 
-        // goth
+        // heigan
+        void ActivateAreaFissures(ChamberArea AreaNo);
+
+        // faerlina
+        std::list<uint64> lFaelinasAdds;
+
+        // ravozious
+        std::list<uint64> lUnderstudyGUID;
+
+        // patchwerk
+        std::list<uint64> lPatchwerkAreaMobs;
+
+        // gothik
+        std::list<uint64> lGothikDeathAdds;
+        std::list<uint64> lGothikLiveAdds;
         void SetGothTriggers();
         Creature* GetClosestAnchorForGoth(Creature* pSource, bool bRightSide);
         void GetGothSummonPointCreatures(std::list<Creature*> &lList, bool bRightSide);
         bool IsInRightSideGothArea(Unit* pUnit);
+        Unit* SelectRandomTargetOnSide(bool bRight, const WorldObject & object);
 
         // kel
         void SetChamberCenterCoords(float fX, float fY, float fZ);
         void GetChamberCenterCoords(float &fX, float &fY, float &fZ) { fX = m_fChamberCenterX; fY = m_fChamberCenterY; fZ = m_fChamberCenterZ; }
         void DoTaunt();
-        
+
     protected:
         uint32 m_auiEncounter[MAX_ENCOUNTER];
         std::string strInstData;
@@ -178,16 +224,24 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
         uint64 m_uiAnubRekhanGUID;
         uint64 m_uiFaerlinanGUID;
 
+        uint64 m_uiHeiganGUID;
+        // table contains 4 lists of fissures related to Heigan encounter.
+        // each list groups fissures from different area of his chamber
+        std::list<uint64> lFissuresGUIDs[4];
+
         uint64 m_uiZeliekGUID;
         uint64 m_uiThaneGUID;
         uint64 m_uiBlaumeuxGUID;
         uint64 m_uiRivendareGUID;
+        uint64 m_uiHorsemenTapListGUID;
 
         uint64 m_uiThaddiusGUID;
         uint64 m_uiStalaggGUID;
         uint64 m_uiFeugenGUID;
 
         uint64 m_uiKelthuzadGUID;
+        uint64 m_uiSapphironGUID;
+        uint64 m_uiSapphironBirthGUID;
 
         uint64 m_uiPathExitDoorGUID;
         uint64 m_uiGlutExitDoorGUID;
@@ -219,7 +273,6 @@ class MANGOS_DLL_DECL instance_naxxramas : public ScriptedInstance
 
         uint64 m_uiKelthuzadDoorGUID;
         uint64 m_uiKelthuzadExitDoorGUID;
-
         float m_fChamberCenterX;
         float m_fChamberCenterY;
         float m_fChamberCenterZ;

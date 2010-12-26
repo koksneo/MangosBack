@@ -113,7 +113,7 @@ struct MANGOS_DLL_DECL boss_chrono_lord_dejaAI : public ScriptedAI
         if (ArcaneDischarge_Timer < diff)
         {
             if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                DoCastSpellIfCan(target, m_bIsRegularMode ? SPELL_ARCANE_DISCHARGE : H_SPELL_ARCANE_DISCHARGE);
+            DoCastSpellIfCan(target, m_bIsRegularMode ? SPELL_ARCANE_DISCHARGE : H_SPELL_ARCANE_DISCHARGE);
 
             ArcaneDischarge_Timer = urand(20000, 30000);
         }else ArcaneDischarge_Timer -= diff;

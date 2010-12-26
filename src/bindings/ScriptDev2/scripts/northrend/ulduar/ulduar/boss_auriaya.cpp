@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_auriaya
 SD%Complete: 0%
-SDComment:
+SDComment: Placeholder
 SDCategory: Ulduar
 EndScriptData */
 

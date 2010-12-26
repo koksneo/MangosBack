@@ -179,7 +179,7 @@ struct MANGOS_DLL_DECL boss_skarvaldAI : public boss_s_and_d_dummyAI
     void Reset()
     {
         m_uiYellDelayTimer = 0;
-        m_uiChargeTimer = urand(2000, 6000);
+        m_uiChargeTimer = 10000;
         m_uiEnrageTimer = 15000;
         m_uiStoneStrikeTimer = 8000;
     }
@@ -218,7 +218,7 @@ struct MANGOS_DLL_DECL boss_skarvaldAI : public boss_s_and_d_dummyAI
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
                 DoCastSpellIfCan(pTarget, SPELL_CHARGE);
 
-            m_uiChargeTimer = urand(8000, 16000);
+            m_uiChargeTimer = 10000;
         }
         else
             m_uiChargeTimer -= uiDiff;
@@ -262,9 +262,9 @@ struct MANGOS_DLL_DECL boss_dalronnAI : public boss_s_and_d_dummyAI
 
     void Reset()
     {
-        m_uiDebilitateTimer = urand(5000, 10000);
-        m_uiShadowBoltTimer = urand(2500, 6000);
-        m_uiSkeletonTimer = urand(25000, 35000);
+        m_uiDebilitateTimer = urand(22000, 26000);
+        m_uiShadowBoltTimer = urand(2500, 5000);
+        m_uiSkeletonTimer = urand(20000, 25000);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -282,7 +282,7 @@ struct MANGOS_DLL_DECL boss_dalronnAI : public boss_s_and_d_dummyAI
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_DEBILITATE : SPELL_DEBILITATE_H);
 
-            m_uiDebilitateTimer = urand(12000, 20000);
+            m_uiDebilitateTimer = urand(22000, 26000);
         }
         else
             m_uiDebilitateTimer -= uiDiff;
@@ -292,7 +292,7 @@ struct MANGOS_DLL_DECL boss_dalronnAI : public boss_s_and_d_dummyAI
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_SHADOW_BOLT : SPELL_SHADOW_BOLT_H);
 
-            m_uiShadowBoltTimer = urand(3000, 6000);
+            m_uiShadowBoltTimer = urand(3000, 5000);
         }
         else
             m_uiShadowBoltTimer -= uiDiff;
@@ -304,7 +304,7 @@ struct MANGOS_DLL_DECL boss_dalronnAI : public boss_s_and_d_dummyAI
                 if (!m_creature->FindGuardianWithEntry(NPC_SKELETAL))
                     DoCastSpellIfCan(m_creature, SPELL_SUMMON_SKELETONS);
 
-                m_uiSkeletonTimer = 30000;
+                m_uiSkeletonTimer = urand(20000, 25000);
             }
             else
                 m_uiSkeletonTimer -= uiDiff;

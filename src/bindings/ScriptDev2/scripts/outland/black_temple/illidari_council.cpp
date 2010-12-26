@@ -539,7 +539,9 @@ struct MANGOS_DLL_DECL boss_gathios_the_shattererAI : public boss_illidari_counc
 
 struct MANGOS_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_councilAI
 {
-    boss_high_nethermancer_zerevorAI(Creature* pCreature) : boss_illidari_councilAI(pCreature) { Reset(); }
+    boss_high_nethermancer_zerevorAI(Creature* pCreature) : boss_illidari_councilAI(pCreature) { 
+        Reset();
+    }
 
     uint32 BlizzardTimer;
     uint32 FlamestrikeTimer;
@@ -558,6 +560,8 @@ struct MANGOS_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_c
         Cooldown = 0;
     }
 
+    void MoveInLineOfSight(Unit *victim) {}
+    
     void KilledUnit(Unit *victim)
     {
         DoScriptText(SAY_ZERE_SLAY, m_creature);
@@ -572,6 +576,13 @@ struct MANGOS_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_c
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
+
+        Unit *who = m_creature->getVictim();
+        if(!who->IsInRange(m_creature, 0.0f, 15.0f, true)){
+            m_creature->CanFreeMove();
+        } else {
+            m_creature->StopMoving();
+        }
 
         if (Cooldown)
         {
@@ -632,7 +643,9 @@ struct MANGOS_DLL_DECL boss_high_nethermancer_zerevorAI : public boss_illidari_c
 
 struct MANGOS_DLL_DECL boss_lady_malandeAI : public boss_illidari_councilAI
 {
-    boss_lady_malandeAI(Creature* pCreature) : boss_illidari_councilAI(pCreature) { Reset(); }
+    boss_lady_malandeAI(Creature* pCreature) : boss_illidari_councilAI(pCreature) { 
+        Reset(); 
+    }
 
     uint32 EmpoweredSmiteTimer;
     uint32 CircleOfHealingTimer;
@@ -777,7 +790,7 @@ struct MANGOS_DLL_DECL boss_veras_darkshadowAI : public boss_illidari_councilAI
                 DoCastSpellIfCan(target, SPELL_DEADLY_POISON);
                 m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 DoResetThreat();
-                m_creature->AddThreat(target, 3000.0f);     // Make Veras attack his target for a while, he will cast Envenom 4 seconds after.
+                if (target) m_creature->AddThreat(target, 3000.0f);     // Make Veras attack his target for a while, he will cast Envenom 4 seconds after.
                 DeadlyPoisonTimer += 6000;
                 VanishTimer = 90000;
                 AppearEnvenomTimer = 4000;

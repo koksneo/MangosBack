@@ -7,6 +7,7 @@
 
 #include "CreatureAI.h"
 #include "Creature.h"
+#include "Util.h"
 
 //Spell targets used by SelectSpell
 enum SelectTarget

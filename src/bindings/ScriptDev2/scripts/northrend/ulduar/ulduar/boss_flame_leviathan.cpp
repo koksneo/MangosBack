@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_flame_leviathan
 SD%Complete: 0%
-SDComment:
+SDComment: Placeholder
 SDCategory: Ulduar
 EndScriptData */
 

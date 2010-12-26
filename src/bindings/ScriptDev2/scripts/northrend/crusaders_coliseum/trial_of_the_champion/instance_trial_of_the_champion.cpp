@@ -29,7 +29,3 @@ EndScriptData */
 1 - Argent Champion
 2 - Black Knight
 */
-
-void AddSC_instance_trial_of_the_champion()
-{
-}

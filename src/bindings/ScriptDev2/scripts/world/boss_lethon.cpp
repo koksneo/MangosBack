@@ -22,7 +22,3 @@ SDCategory: Bosses
 EndScriptData */
 
 #include "precompiled.h"
-
-void AddSC_boss_lethon()
-{
-}

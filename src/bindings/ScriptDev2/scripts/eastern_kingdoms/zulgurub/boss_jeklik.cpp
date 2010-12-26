@@ -179,12 +179,11 @@ struct MANGOS_DLL_DECL boss_jeklikAI : public ScriptedAI
 
                 if (SpawnFlyingBats_Timer < diff)
                 {
-                    Unit *target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0);
-
-                    Creature* FlyingBat = m_creature->SummonCreature(14965, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()+15, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
-                    if (FlyingBat)
+                    if (Unit *target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                     {
-                        if (target)
+
+                        Creature* FlyingBat = m_creature->SummonCreature(14965, target->GetPositionX(), target->GetPositionY(), target->GetPositionZ()+15, 0, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 15000);
+                        if (FlyingBat)
                             FlyingBat->AI()->AttackStart(target);
                     }
 

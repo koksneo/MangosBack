@@ -30,6 +30,126 @@ EndContentData */
 #include "precompiled.h"
 
 /*######
+## npc_eitrigg
+######*/
+enum Eitrigg
+{
+    QUEST_EITRIGG_WISDOM            = 4941,
+
+    GOSSIP_TEXTID_EITRIGG_0         = 3573,
+    GOSSIP_TEXTID_EITRIGG_1         = 3574,
+    GOSSIP_TEXTID_EITRIGG_2         = 3575,
+    GOSSIP_TEXTID_EITRIGG_3         = 3576,
+    GOSSIP_TEXTID_EITRIGG_4         = 3577,
+    GOSSIP_TEXTID_EITRIGG_5         = 3578,
+    GOSSIP_TEXTID_EITRIGG_6         = 3579,
+    GOSSIP_TEXTID_EITRIGG_7         = 3580,
+
+    EMOTE_BOW                       = -1999899
+};
+
+#define GOSSIP_ITEM_EITRIGG_0       "Hello, Eitrigg. I bring news from Blackrock Spire."
+#define GOSSIP_ITEM_EITRIGG_1       "There is only one Warchief, Eitrigg!"
+#define GOSSIP_ITEM_EITRIGG_2       "What do you mean?"
+#define GOSSIP_ITEM_EITRIGG_3       "Hearthglen?? But..."
+#define GOSSIP_ITEM_EITRIGG_4       "I will take you up on that offer, Eitrigg."
+#define GOSSIP_ITEM_EITRIGG_5       "Ah, so that is how they pushed the Dark Iron to the lower parts of the Spire."
+#define GOSSIP_ITEM_EITRIGG_6       "Perhaps there exists a way?"
+#define GOSSIP_ITEM_EITRIGG_7       "As you wish, Eitrigg."
+
+struct MANGOS_DLL_DECL npc_eitriggAI : public ScriptedAI
+{
+    npc_eitriggAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+
+    bool bCanEmote;
+    uint32 m_uiEmote_Delay;
+
+    void Reset()
+    {
+        bCanEmote = false;
+        m_uiEmote_Delay = 2000;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (bCanEmote)
+        {
+            if (m_uiEmote_Delay <= uiDiff)
+            {
+                DoScriptText(EMOTE_BOW,m_creature);
+                bCanEmote = false;
+                m_uiEmote_Delay = 2000;
+            }else m_uiEmote_Delay -= uiDiff;
+        }
+    }
+};
+
+CreatureAI* GetAI_npc_eitrigg(Creature* pCreature)
+{
+    return new npc_eitriggAI(pCreature);
+}
+
+bool GossipHello_npc_eitrigg(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if (pPlayer->GetQuestStatus(QUEST_EITRIGG_WISDOM) == QUEST_STATUS_INCOMPLETE)
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_EITRIGG_0, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+1);
+
+    pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_EITRIGG_0, pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_npc_eitrigg(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    switch(uiAction)
+    {
+        case GOSSIP_ACTION_INFO_DEF+1:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_EITRIGG_1, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+2);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_EITRIGG_1, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+2:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_EITRIGG_2, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+3);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_EITRIGG_2, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+3:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_EITRIGG_3, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+4);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_EITRIGG_3, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+4:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_EITRIGG_4, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+5);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_EITRIGG_4, pCreature->GetGUID());
+            // Untill TextEmote for creature will be propper handled this part is excluded
+            // pCreature->TextEmote(TEXTEMOTE_LAUGH,pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+5:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_EITRIGG_5, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+6);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_EITRIGG_5, pCreature->GetGUID());
+            // Emote Bow - need some delay after default gossip emote
+            if (pCreature->AI())
+                ((npc_eitriggAI*)pCreature->AI())->bCanEmote = true;            
+            break;
+        case GOSSIP_ACTION_INFO_DEF+6:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_EITRIGG_6, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+7);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_EITRIGG_6, pCreature->GetGUID());
+            // Untill TextEmote for creature will be propper handled this part is excluded
+            // pCreature->TextEmote(TEXTEMOTE_SIGH,pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+7:
+            pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_ITEM_EITRIGG_7, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF+8);
+            pPlayer->SEND_GOSSIP_MENU(GOSSIP_TEXTID_EITRIGG_7, pCreature->GetGUID());
+            break;
+        case GOSSIP_ACTION_INFO_DEF+8:
+            pPlayer->CLOSE_GOSSIP_MENU();
+            pPlayer->AreaExploredOrEventHappens(QUEST_EITRIGG_WISDOM);
+            break;
+    }
+    return true;
+}
+
+
+/*######
 ## npc_neeru_fireblade
 ######*/
 
@@ -170,16 +290,25 @@ struct MANGOS_DLL_DECL npc_thrall_warchiefAI : public ScriptedAI
     uint32 ChainLightning_Timer;
     uint32 Shock_Timer;
 
+    bool CalledHelp;
+
     void Reset()
     {
         ChainLightning_Timer = 2000;
         Shock_Timer = 8000;
+        CalledHelp = false;
     }
 
     void UpdateAI(const uint32 diff)
     {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim() || m_creature->isInCombat())
             return;
+
+        if (!CalledHelp)
+        {
+            m_creature->CallForHelp(50);
+            CalledHelp = true;
+        }
 
         if (ChainLightning_Timer < diff)
         {
@@ -252,6 +381,13 @@ bool GossipSelect_npc_thrall_warchief(Player* pPlayer, Creature* pCreature, uint
 void AddSC_orgrimmar()
 {
     Script *newscript;
+
+    newscript = new Script;
+    newscript->Name = "npc_eitrigg";
+    newscript->GetAI = &GetAI_npc_eitrigg;
+    newscript->pGossipHello = &GossipHello_npc_eitrigg;
+    newscript->pGossipSelect = &GossipSelect_npc_eitrigg;
+    newscript->RegisterSelf();
 
     newscript = new Script;
     newscript->Name = "npc_neeru_fireblade";

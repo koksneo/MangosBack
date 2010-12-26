@@ -27,28 +27,27 @@ EndScriptData */
 enum
 {
     SAY_GREET                   = -1533009,
-    SAY_AGGRO_1                 = -1533010,
-    SAY_AGGRO_2                 = -1533011,
-    SAY_AGGRO_3                 = -1533012,
-    SAY_AGGRO_4                 = -1533013,
-    SAY_SLAY_1                  = -1533014,
-    SAY_SLAY_2                  = -1533015,
+    SAY_AGGRO                   = -1533010,
+    SAY_FRENZY1                 = -1533011,
+    SAY_FRENZY2                 = -1533012,
+    SAY_FRENZY3                 = -1533013,
+    SAY_SLAY1                   = -1533014,
+    SAY_SLAY2                   = -1533015,
     SAY_DEATH                   = -1533016,
+    EMOTE_FRENZY                = -1999776,
+    EMOTE_WIDOWS_EMBRACE        = -1999775,
 
-    EMOTE_BOSS_GENERIC_FRENZY   = -1000005,
-
-    // SOUND_RANDOM_AGGRO       = 8955,                     // soundId containing the 4 aggro sounds, we not using this
+    //SOUND_RANDOM_FRENZY        = 8955,                             //soundId containing the 4 aggro sounds, we not using this
 
     SPELL_POSIONBOLT_VOLLEY     = 28796,
     SPELL_POSIONBOLT_VOLLEY_H   = 54098,
-    SPELL_ENRAGE                = 28798,
-    SPELL_ENRAGE_H              = 54100,
-    SPELL_RAIN_OF_FIRE          = 28794,
-    SPELL_RAIN_OF_FIRE_H        = 54099,
+    SPELL_FRENZY                = 28798,
+    SPELL_FRENZY_H              = 54100,
     SPELL_WIDOWS_EMBRACE        = 28732,
     SPELL_WIDOWS_EMBRACE_H      = 54097,
+    SPELL_RAIN_OF_FIRE          = 28794,                            //Not sure if targeted AoEs work if casted directly upon a pPlayer
+    SPELL_RAIN_OF_FIRE_H        = 54099
 };
-
 struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
 {
     boss_faerlinaAI(Creature* pCreature) : ScriptedAI(pCreature)
@@ -64,28 +63,49 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
 
     uint32 m_uiPoisonBoltVolleyTimer;
     uint32 m_uiRainOfFireTimer;
-    uint32 m_uiEnrageTimer;
+    uint32 m_uiFrenzyTimer;
     bool   m_bHasTaunted;
 
     void Reset()
     {
         m_uiPoisonBoltVolleyTimer = 8000;
         m_uiRainOfFireTimer = 16000;
-        m_uiEnrageTimer = 60000;
+        m_uiFrenzyTimer = 60000;
+    }
+
+    void SpellHit(Unit* pCaster, const SpellEntry* pSpell)
+    {
+        if (!pSpell)
+            return;
+
+        if (pSpell->Id == (m_bIsRegularMode ? SPELL_WIDOWS_EMBRACE : SPELL_WIDOWS_EMBRACE_H))
+        {
+            DoScriptText(EMOTE_WIDOWS_EMBRACE, m_creature);
+            if (m_creature->HasAura(m_bIsRegularMode ? SPELL_FRENZY : SPELL_FRENZY_H))
+            {
+                m_creature->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_FRENZY : SPELL_FRENZY_H);
+                m_uiFrenzyTimer = 60000;
+            }
+            else
+                m_uiFrenzyTimer = 30000;
+        }
     }
 
     void Aggro(Unit* pWho)
     {
-        switch(urand(0, 3))
-        {
-            case 0: DoScriptText(SAY_AGGRO_1, m_creature); break;
-            case 1: DoScriptText(SAY_AGGRO_2, m_creature); break;
-            case 2: DoScriptText(SAY_AGGRO_3, m_creature); break;
-            case 3: DoScriptText(SAY_AGGRO_4, m_creature); break;
-        }
 
+        DoScriptText(SAY_AGGRO, m_creature);
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_FAERLINA, IN_PROGRESS);
+
+            for (std::list<uint64>::iterator itr = m_pInstance->lFaelinasAdds.begin(); itr != m_pInstance->lFaelinasAdds.end(); ++itr)
+            {
+                Creature* pAdd = m_creature->GetMap()->GetCreature(*itr);
+                if (pAdd && !pAdd->isInCombat() && pAdd->AI())
+                    pAdd->AI()->AttackStart(pWho);
+            }
+        }
     }
 
     void MoveInLineOfSight(Unit* pWho)
@@ -101,7 +121,7 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
 
     void KilledUnit(Unit* pVictim)
     {
-        DoScriptText(urand(0, 1) ? SAY_SLAY_1 : SAY_SLAY_2, m_creature);
+        DoScriptText(urand(0, 1) ? SAY_SLAY1 : SAY_SLAY2, m_creature);
     }
 
     void JustDied(Unit* pKiller)
@@ -115,35 +135,14 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
     void JustReachedHome()
     {
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_FAERLINA, FAIL);
-    }
-
-    // Widow's Embrace prevents frenzy and poison bolt, if it removes frenzy, next frenzy is sceduled in 60s
-    // It is likely that this _should_ be handled with some dummy aura(s) - but couldn't find any
-    void SpellHit(Unit* pCaster, const SpellEntry* pSpellEntry)
-    {
-        // Check if we hit with Widow's Embrave
-        if (pSpellEntry->Id == SPELL_WIDOWS_EMBRACE || pSpellEntry->Id == SPELL_WIDOWS_EMBRACE_H)
         {
-            bool bIsFrenzyRemove = false;
-
-            // If we remove the Frenzy, the Enrage Timer is reseted to 60s
-            if (m_creature->HasAura(m_bIsRegularMode ? SPELL_ENRAGE : SPELL_ENRAGE_H))
+            m_pInstance->SetData(TYPE_FAERLINA, FAIL);
+            for (std::list<uint64>::iterator itr = m_pInstance->lFaelinasAdds.begin(); itr != m_pInstance->lFaelinasAdds.end(); ++itr)
             {
-                m_uiEnrageTimer = 60000;
-                m_creature->RemoveAurasDueToSpell(m_bIsRegularMode ? SPELL_ENRAGE : SPELL_ENRAGE_H);
-
-                bIsFrenzyRemove = true;
+                Creature* pAdd = m_creature->GetMap()->GetCreature(*itr);
+                if (pAdd && !pAdd->isAlive())
+                    pAdd->Respawn();
             }
-
-            // Achievement 'Momma said Knock you out': If we removed OR delayed the frenzy, the criteria is failed
-            if ((bIsFrenzyRemove || m_uiEnrageTimer < 30000) && m_pInstance)
-                m_pInstance->SetData(TYPE_FAERLINA, SPECIAL);
-
-            // In any case we prevent Frenzy and Poison Bolt Volley for Widow's Embrace Duration (30s)
-            // We do this be setting the timers to at least bigger than 30s
-            m_uiEnrageTimer = std::max(m_uiEnrageTimer, (uint32)30000);
-            m_uiPoisonBoltVolleyTimer = std::max(m_uiPoisonBoltVolleyTimer, urand(33000, 38000));
         }
     }
 
@@ -155,8 +154,9 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         // Poison Bolt Volley
         if (m_uiPoisonBoltVolleyTimer < uiDiff)
         {
-            if (DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_POSIONBOLT_VOLLEY : SPELL_POSIONBOLT_VOLLEY_H) == CAST_OK)
-                m_uiPoisonBoltVolleyTimer = 11000;
+            if (!m_creature->HasAura(m_bIsRegularMode ? SPELL_WIDOWS_EMBRACE : SPELL_WIDOWS_EMBRACE_H))
+                DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_POSIONBOLT_VOLLEY : SPELL_POSIONBOLT_VOLLEY_H);
+            m_uiPoisonBoltVolleyTimer = 11000;
         }
         else
             m_uiPoisonBoltVolleyTimer -= uiDiff;
@@ -165,25 +165,30 @@ struct MANGOS_DLL_DECL boss_faerlinaAI : public ScriptedAI
         if (m_uiRainOfFireTimer < uiDiff)
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-            {
-                if (DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_RAIN_OF_FIRE : SPELL_RAIN_OF_FIRE_H) == CAST_OK)
-                    m_uiRainOfFireTimer = 16000;
-            }
+                DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_RAIN_OF_FIRE : SPELL_RAIN_OF_FIRE_H);
+
+            m_uiRainOfFireTimer = 16000;
         }
         else
             m_uiRainOfFireTimer -= uiDiff;
 
-        // Enrage Timer
-        if (m_uiEnrageTimer < uiDiff)
+        //Frenzy_Timer
+        if (m_uiFrenzyTimer < uiDiff)
         {
-            if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_ENRAGE : SPELL_ENRAGE_H) == CAST_OK)
+            if (DoCastSpellIfCan(m_creature, m_bIsRegularMode ? SPELL_FRENZY : SPELL_FRENZY_H, CAST_INTERRUPT_PREVIOUS) == CAST_OK)
             {
-                DoScriptText(EMOTE_BOSS_GENERIC_FRENZY, m_creature);
-                m_uiEnrageTimer = 60000;
+                switch(urand(0, 2))
+                {
+                    case 0: DoScriptText(SAY_FRENZY1, m_creature); break;
+                    case 1: DoScriptText(SAY_FRENZY2, m_creature); break;
+                    case 2: DoScriptText(SAY_FRENZY3, m_creature); break;
+                }
+                DoScriptText(EMOTE_FRENZY, m_creature);
             }
+            m_uiFrenzyTimer = 61000;
         }
         else 
-            m_uiEnrageTimer -= uiDiff;
+            m_uiFrenzyTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }

@@ -215,8 +215,8 @@ struct MANGOS_DLL_DECL boss_twinemperorsAI : public ScriptedAI
         for (ThreatList::const_iterator i = tList.begin();i != tList.end(); ++i)
         {
             Unit* pUnit = m_creature->GetMap()->GetUnit((*i)->getUnitGuid());
-
-            if (m_creature->IsWithinDistInMap(pUnit, dist))
+            
+            if (pUnit && m_creature->IsWithinDistInMap(pUnit, dist))
             {
                 if (!totallyRandom)
                     return pUnit;

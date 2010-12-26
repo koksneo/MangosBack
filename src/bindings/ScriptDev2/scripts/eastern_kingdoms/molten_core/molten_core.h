@@ -5,6 +5,11 @@
 #ifndef DEF_MOLTEN_CORE_H
 #define DEF_MOLTEN_CORE_H
 
+#define SPAWN_RAG_X                 847.4141
+#define SPAWN_RAG_Y                 -816.3093
+#define SPAWN_RAG_Z                 -229.7742
+#define SPAWN_RAG_O                 4.2232
+
 enum
 {
     MAX_ENCOUNTER           = 10,
@@ -36,8 +41,9 @@ enum
     DATA_GOLEMAGG           = 12,
     DATA_GARR               = 13,
     DATA_MAJORDOMO          = 14,
+    DATA_RAGNAROS           = 15,
 
-    DATA_BOSSES_DEAD_CHECK  = 15
+    DATA_BOSSES_DEAD_CHECK  = 16,
 };
 
 #endif

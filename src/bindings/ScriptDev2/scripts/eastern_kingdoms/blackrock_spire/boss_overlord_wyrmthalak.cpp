@@ -29,7 +29,7 @@ enum
     SPELL_SHOUT                = 23511,
     SPELL_CLEAVE               = 20691,
     SPELL_KNOCKAWAY            = 20686,
-    
+
     NPC_SPIRESTONE_WARLORD     = 9216,
     NPC_SMOLDERTHORN_BERSERKER = 9268
 
@@ -74,7 +74,7 @@ struct MANGOS_DLL_DECL boss_overlordwyrmthalakAI : public ScriptedAI
     
     void UpdateAI(const uint32 uiDiff)
     {
-        // Return since we have no target
+        //Return since we have no target
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
@@ -99,7 +99,7 @@ struct MANGOS_DLL_DECL boss_overlordwyrmthalakAI : public ScriptedAI
         // Cleave
         if (m_uiCleaveTimer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_CLEAVE);
+            DoCastSpellIfCan(m_creature->getVictim(),SPELL_CLEAVE);
             m_uiCleaveTimer = 7000;
         }
         else
@@ -114,7 +114,7 @@ struct MANGOS_DLL_DECL boss_overlordwyrmthalakAI : public ScriptedAI
         else
             m_uiKnockawayTimer -= uiDiff;
 
-        // Summon two Beserks
+        //Summon two Beserks
         if (!m_bSummoned && m_creature->GetHealthPercent() < 51.0f)
         {
             m_creature->SummonCreature(NPC_SPIRESTONE_WARLORD, afLocations[0][0], afLocations[0][1], afLocations[0][2], afLocations[0][3], TEMPSUMMON_TIMED_DESPAWN, 300000);
@@ -134,7 +134,7 @@ CreatureAI* GetAI_boss_overlordwyrmthalak(Creature* pCreature)
 
 void AddSC_boss_overlordwyrmthalak()
 {
-    Script* newscript;
+    Script *newscript;
     newscript = new Script;
     newscript->Name = "boss_overlord_wyrmthalak";
     newscript->GetAI = &GetAI_boss_overlordwyrmthalak;

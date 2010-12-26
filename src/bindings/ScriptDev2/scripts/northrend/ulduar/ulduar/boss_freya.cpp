@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: boss_freya
 SD%Complete: 0%
-SDComment:
+SDComment: Placeholder
 SDCategory: Ulduar
 EndScriptData */
 

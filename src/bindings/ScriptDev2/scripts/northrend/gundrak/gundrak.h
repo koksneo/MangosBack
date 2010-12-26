@@ -20,6 +20,7 @@ enum
     TYPE_COLOSSUS          = 2,
     TYPE_GALDARAH          = 3,
     TYPE_ECK               = 4,
+    TYPE_ELEMENTAL         = 15,
 
     NPC_SLADRAN            = 29304,
     NPC_MOORABI            = 29305,
@@ -47,7 +48,7 @@ enum
 
     GO_BRIDGE              = 193188,
     GO_COLLISION           = 192633,
-
+   
     SPELL_BEAM_MAMMOTH     = 57068,
     SPELL_BEAM_SNAKE       = 57071,
     SPELL_BEAM_ELEMENTAL   = 57072,
@@ -57,7 +58,7 @@ enum
     TIMER_VISUAL_KEY       = 2000,
 };
 
-typedef std::map<uint8, uint32>  TypeTimerMap;
+typedef std::map<uint8, uint32> TypeTimerMap;
 typedef std::pair<uint8, uint32> TypeTimerPair;
 
 class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
@@ -68,6 +69,8 @@ class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
 
         void Initialize();
 
+        bool IsEncounterInProgress() const;
+
         void OnCreatureCreate(Creature* pCreature);
         void OnObjectCreate(GameObject* pGo);
 
@@ -77,9 +80,7 @@ class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
 
         const char* Save() { return strInstData.c_str(); }
         void Load(const char* chrIn);
-
         void Update(uint32 uiDiff);
-
     protected:
         void DoAltarVisualEffect(uint8 uiType);
         uint32 m_auiEncounter[MAX_ENCOUNTER];
@@ -98,11 +99,15 @@ class MANGOS_DLL_DECL instance_gundrak : public ScriptedInstance
         uint64 m_uiAltarOfMoorabiGUID;
         uint64 m_uiAltarOfColossusGUID;
         uint64 m_uiBridgeGUID;
-        uint64 m_uiCollisionGUID;
+        uint64 m_uiColisionGUID;
+        uint32 m_uiElemental;
+        uint32 m_uiEckAddsCounter;
 
         uint64 m_uiSladranGUID;
         uint64 m_uiElementalGUID;
         uint64 m_uiColossusGUID;
+        uint64 m_uiMoorabiGUID;
+        uint64 m_uiEckGUID;
 
         TypeTimerMap m_mAltarInProgress;
         TypeTimerMap m_mBeamInProgress;

@@ -38,6 +38,7 @@ struct MANGOS_DLL_DECL instance_magisters_terrace : public ScriptedInstance
     instance_magisters_terrace(Map* pMap) : ScriptedInstance(pMap) {Initialize();}
 
     uint32 m_auiEncounter[MAX_ENCOUNTER];
+    std::string strInstData;
 
     uint32 m_uiDelrissaDeathCount;
 
@@ -126,6 +127,46 @@ struct MANGOS_DLL_DECL instance_magisters_terrace : public ScriptedInstance
                     m_uiDelrissaDeathCount = 0;
                 break;
         }
+
+        if (data == DONE)
+        {
+            OUT_SAVE_INST_DATA;
+
+            std::ostringstream saveStream;
+            saveStream << m_auiEncounter[0] << " " << m_auiEncounter[1] << " " << m_auiEncounter[2] << " "
+                << m_auiEncounter[3];
+            strInstData = saveStream.str();
+
+            SaveToDB();
+            OUT_SAVE_INST_DATA_COMPLETE;
+        }
+    }
+
+    const char* Save()
+    {
+        return strInstData.c_str();
+    }
+
+    void Load(const char* chrIn)
+    {
+        if (!chrIn)
+        {
+            OUT_LOAD_INST_DATA_FAIL;
+            return;
+        }
+
+        OUT_LOAD_INST_DATA(chrIn);
+
+        std::istringstream loadStream(chrIn);
+        loadStream >> m_auiEncounter[0] >> m_auiEncounter[1] >> m_auiEncounter[2] >> m_auiEncounter[3];
+
+        for(uint8 i = 0; i < MAX_ENCOUNTER; ++i)
+        {
+            if (m_auiEncounter[i] == IN_PROGRESS)
+                m_auiEncounter[i] = NOT_STARTED;
+        }
+
+        OUT_LOAD_INST_DATA_COMPLETE;
     }
 
     void OnCreatureCreate(Creature* pCreature)
@@ -142,12 +183,26 @@ struct MANGOS_DLL_DECL instance_magisters_terrace : public ScriptedInstance
     {
         switch(go->GetEntry())
         {
-            case 187896:  m_uiVexallusDoorGUID = go->GetGUID();       break;
             //SunwellRaid Gate 02
-            case 187979:  m_uiSelinDoorGUID = go->GetGUID();          break;
+            case 187979:  m_uiSelinDoorGUID = go->GetGUID();
+                if (m_auiEncounter[0] == DONE)
+                    go->SetGoState(GO_STATE_ACTIVE);
+                break;
+
             //Assembly Chamber Door
-            case 188065:  m_uiSelinEncounterDoorGUID = go->GetGUID(); break;
-            case 187770:  m_uiDelrissaDoorGUID = go->GetGUID();       break;
+            case 188065:  m_uiSelinEncounterDoorGUID = go->GetGUID();
+                break;
+
+            case 187896:  m_uiVexallusDoorGUID = go->GetGUID();
+                if (m_auiEncounter[1] == DONE)
+                    go->SetGoState(GO_STATE_ACTIVE);
+                break;
+
+            case 187770:  m_uiDelrissaDoorGUID = go->GetGUID();
+                if (m_auiEncounter[2] == DONE)
+                    go->SetGoState(GO_STATE_ACTIVE);
+                break;
+
             case 188064:  m_uiKaelDoorGUID = go->GetGUID();           break;
             case 188165:  m_auiKaelStatue[0] = go->GetGUID();         break;
             case 188166:  m_auiKaelStatue[1] = go->GetGUID();         break;

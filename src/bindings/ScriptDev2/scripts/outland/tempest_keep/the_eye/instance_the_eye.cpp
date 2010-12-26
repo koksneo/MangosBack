@@ -43,8 +43,10 @@ struct MANGOS_DLL_DECL instance_the_eye : public ScriptedInstance
     uint64 m_uiTelonicusGUID;
     uint64 m_uiKaelthasGUID;
     uint64 m_uiAstromancerGUID;
+    uint64 m_uiAlarGUID;
 
     uint32 m_uiKaelthasEventPhase;
+    uint32 m_uiAlarEventPhase;
 
     void Initialize()
     {
@@ -56,8 +58,10 @@ struct MANGOS_DLL_DECL instance_the_eye : public ScriptedInstance
         m_uiTelonicusGUID = 0;
         m_uiKaelthasGUID = 0;
         m_uiAstromancerGUID = 0;
+        m_uiAlarGUID = 0;
 
         m_uiKaelthasEventPhase = 0;
+        m_uiAlarEventPhase = 0;
     }
 
     bool IsEncounterInProgress() const
@@ -78,6 +82,7 @@ struct MANGOS_DLL_DECL instance_the_eye : public ScriptedInstance
             case 20060: m_uiSanguinarGUID = pCreature->GetGUID(); break;
             case 19622: m_uiKaelthasGUID = pCreature->GetGUID(); break;
             case 18805: m_uiAstromancerGUID = pCreature->GetGUID(); break;
+            case 19514: m_uiAlarGUID = pCreature->GetGUID(); break;
         }
     }
 
@@ -96,6 +101,11 @@ struct MANGOS_DLL_DECL instance_the_eye : public ScriptedInstance
                 break;
             case TYPE_ASTROMANCER:
                 m_auiEncounter[3] = uiData;
+                break;
+
+            case DATA_ALAREVENT:
+                m_uiAlarEventPhase = uiData;
+                m_auiEncounter[0] = (uiData) ? true : false;
                 break;
 
             case TYPE_KAELTHAS_PHASE:
@@ -119,6 +129,8 @@ struct MANGOS_DLL_DECL instance_the_eye : public ScriptedInstance
 
             case TYPE_KAELTHAS_PHASE:
                 return m_uiKaelthasEventPhase;
+            case DATA_ALAREVENT:
+                return m_uiAlarEventPhase;
         }
 
         return 0;
@@ -140,6 +152,8 @@ struct MANGOS_DLL_DECL instance_the_eye : public ScriptedInstance
                 return m_uiKaelthasGUID;
             case DATA_ASTROMANCER:
                 return m_uiAstromancerGUID;
+            case DATA_ALAR:
+                return m_uiAlarGUID;
         }
 
         return 0;

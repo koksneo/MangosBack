@@ -58,7 +58,6 @@ enum
     SPELL_SPITFIRE_TOTEM            = 38236,
     SPELL_POISON_CLEANSING_TOTEM    = 38306,
     SPELL_EARTHBIND_TOTEM           = 38304,
-    SPELL_WINDFURY_WEAPON           = 32911,                // triggers spell 32912 (Windfury)
 
     //Caribdis Spells
     SPELL_WATER_BOLT_VOLLEY         = 38335,
@@ -107,8 +106,11 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
                 if (pAdvisor->getVictim())
                     pAdvisor->AI()->EnterEvadeMode();
                 else if (!pAdvisor->isAlive())
+                {
                     pAdvisor->Respawn();
+                    pAdvisor->GetMotionMaster()->MoveTargetedHome();
             }
+        }
         }
 
         if (m_pInstance)
@@ -188,7 +190,12 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_KARATHRESS_EVENT, DONE);
+        {
+            if (GameObject* pGo = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(DATA_KARATHRESS_GEN)))
+                pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+
+            m_pInstance->SetData(TYPE_KARATHRESS_EVENT, SPECIAL);
+        }
 
         //support for quest 10944
         m_creature->SummonCreature(NPC_SEER_OLUM, afCoords_Olum[0], afCoords_Olum[1], afCoords_Olum[2], afCoords_Olum[3], TEMPSUMMON_TIMED_DESPAWN, 3600000);
@@ -221,15 +228,31 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
         //m_uiCataclysmicBolt_Timer
         if (m_uiCataclysmicBolt_Timer < uiDiff)
         {
-            //select a random unit other than the main tank
-            Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1);
+            Unit* pTarget;
 
-            //if there aren't other units, cast on the tank
+            ThreatList const& m_threatlist = m_creature->getThreatManager().getThreatList();
+            if (m_threatlist.empty())
+                return;
+            
+            for (ThreatList::const_iterator itr = m_threatlist.begin(); itr!= m_threatlist.end();++itr)
+            {
+                if (Unit* pTemp = m_creature->GetMap()->GetUnit((*itr)->getUnitGuid()))
+                {
+                    //player and has mana
+                    if ((pTemp->GetTypeId() == TYPEID_PLAYER) && (pTemp->getPowerType() == POWER_MANA))
+                    {
+                        pTarget = pTemp;
+                        break;
+                    }
+                }
+            }
+            // in case no player with mana or victim is not a player choose current victim
             if (!pTarget)
                 pTarget = m_creature->getVictim();
+            if (!pTarget)
+                return;
 
             m_creature->CastSpell(pTarget, SPELL_CATACLYSMIC_BOLT, false);
-
             m_uiCataclysmicBolt_Timer = 10000;
         }else m_uiCataclysmicBolt_Timer -= uiDiff;
 
@@ -243,8 +266,8 @@ struct MANGOS_DLL_DECL boss_fathomlord_karathressAI : public ScriptedAI
                     //stack max three times (one for each alive)
                     if (pAdvisor->isAlive())
                     {
-                        pAdvisor->InterruptNonMeleeSpells(false);
-                        pAdvisor->CastSpell(m_creature, SPELL_BLESSING_OF_THE_TIDES, false);
+                        m_creature->InterruptNonMeleeSpells(false);
+                        m_creature->CastSpell(m_creature, SPELL_BLESSING_OF_THE_TIDES, true);
                     }
                 }
             }
@@ -443,10 +466,17 @@ struct MANGOS_DLL_DECL boss_fathomguard_tidalvessAI : public Advisor_Base_AI
 
     // timers
     uint32 m_uiFrostShock_Timer;
+    uint32 m_uiPoison_Cleansing_Totem_Timer;
+    uint32 m_uiEarthbinding_Totem_Timer;
+    uint32 m_uiSpitfire_Totem_Timer;
 
     void Reset()
     {
         m_uiFrostShock_Timer = 25000;
+        uint32 m_uiPoison_Cleansing_Totem_Timer = 5000;
+        uint32 m_uiEarthbinding_Totem_Timer = 10000;
+        uint32 m_uiSpitfire_Totem_Timer = 20000;
+
     }
 
     void UpdateAI(const uint32 uiDiff)
@@ -476,6 +506,24 @@ struct MANGOS_DLL_DECL boss_fathomguard_tidalvessAI : public Advisor_Base_AI
             DoCastSpellIfCan(m_creature->getVictim(), SPELL_FROST_SHOCK);
             m_uiFrostShock_Timer = urand(25000, 30000);
         }else m_uiFrostShock_Timer -= uiDiff;
+
+        if (m_uiPoison_Cleansing_Totem_Timer < uiDiff)
+        {
+            DoCast(m_creature,SPELL_POISON_CLEANSING_TOTEM,false);
+            m_uiPoison_Cleansing_Totem_Timer = 20000;
+        }else m_uiPoison_Cleansing_Totem_Timer -= uiDiff;
+
+        if (m_uiEarthbinding_Totem_Timer < uiDiff)
+        {
+            DoCast(m_creature,SPELL_EARTHBIND_TOTEM,false);
+            m_uiEarthbinding_Totem_Timer = 20000;
+        }else m_uiEarthbinding_Totem_Timer -= uiDiff;
+
+        if (m_uiSpitfire_Totem_Timer < uiDiff)
+        {
+            DoCast(m_creature,SPELL_SPITFIRE_TOTEM,false);
+            m_uiSpitfire_Totem_Timer = 20000;
+        }else m_uiSpitfire_Totem_Timer -= uiDiff;
 
         DoMeleeAttackIfReady();
     }

@@ -129,7 +129,7 @@ struct MANGOS_DLL_DECL boss_zuljinAI : public ScriptedAI
         m_pInstance->SetData(TYPE_ZULJIN, DONE);
     }
 
-    void UpdateAI(const uint32 diff)
+    void UpdateAI(const uint32 uiDiff)
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;

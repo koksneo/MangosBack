@@ -88,8 +88,19 @@ struct MANGOS_DLL_DECL boss_patchwerkAI : public ScriptedAI
     {
         DoScriptText(urand(0, 1)?SAY_AGGRO1:SAY_AGGRO2, m_creature);
 
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_PATCHWERK, IN_PROGRESS);
+        if (!m_pInstance)
+            return;
+
+        m_pInstance->SetData(TYPE_PATCHWERK, IN_PROGRESS);
+
+        // call all creatures in area
+        if (!m_pInstance->lPatchwerkAreaMobs.empty())
+            for (std::list<uint64>::iterator itr = m_pInstance->lPatchwerkAreaMobs.begin(); itr != m_pInstance->lPatchwerkAreaMobs.end(); ++itr)
+            {
+                Creature* pCreature = m_creature->GetMap()->GetCreature(*itr);
+                if (pCreature && pCreature->isAlive() && !pCreature->isInCombat() && pCreature->AI())
+                    pCreature->AI()->AttackStart(pWho);
+            }
     }
 
     void JustReachedHome()
@@ -101,27 +112,43 @@ struct MANGOS_DLL_DECL boss_patchwerkAI : public ScriptedAI
     void DoHatefulStrike()
     {
         // The ability is used on highest HP target choosen of the top 2 (3 heroic) targets on threat list being in melee range
+        // Targets must be less than first in threat, but at least second/third highest threat. This requirement does not apply if only one target is in melee range.
         Unit* pTarget = NULL;
+        Unit *pMainTarget = NULL;
         uint32 uiHighestHP = 0;
         uint32 uiTargets = m_bIsRegularMode ? 2 : 3;
 
         ThreatList const& tList = m_creature->getThreatManager().getThreatList();
+
+        if (!tList.empty())
+            pMainTarget = m_creature->GetMap()->GetUnit(tList.front()->getUnitGuid());
+
         for (ThreatList::const_iterator iter = tList.begin();iter != tList.end(); ++iter)
         {
-            if (!uiTargets)
+            if (!uiTargets--)
                 break;
 
             if (Unit* pTempTarget = m_creature->GetMap()->GetUnit((*iter)->getUnitGuid()))
             {
+                if (pTempTarget == pMainTarget)
+                    continue;
+
                 if (pTempTarget->GetHealth() > uiHighestHP && m_creature->IsWithinDistInMap(pTempTarget, ATTACK_DISTANCE))
                 {
                     uiHighestHP = pTempTarget->GetHealth();
                     pTarget = pTempTarget;
                 }
             }
-
-            --uiTargets;
         }
+
+        // no target within melee range, so check the main target
+        if (!pTarget && pMainTarget)
+            if (m_creature->IsWithinDistInMap(pMainTarget, ATTACK_DISTANCE) )
+                pTarget = pMainTarget;
+
+        // if main target is not within melee range, then select any nearby target
+        if (!pTarget)
+            pTarget = m_creature->SelectRandomUnfriendlyTarget(0, ATTACK_DISTANCE);
 
         if (pTarget)
             DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_HATEFULSTRIKE : SPELL_HATEFULSTRIKE_H);
@@ -189,11 +216,76 @@ CreatureAI* GetAI_boss_patchwerk(Creature* pCreature)
     return new boss_patchwerkAI(pCreature);
 }
 
+/******
+** mob_living_poison
+******/
+enum
+{
+    ENTRY_LIVING_POISON   = 16027,
+    SPELL_EXPLODE         = 28433,
+    FROGGER_DEST_DISTANCE = 36
+};
+struct MANGOS_DLL_DECL mob_living_poisonAI : public ScriptedAI
+{
+    mob_living_poisonAI(Creature* pCreature) : ScriptedAI(pCreature)
+    {
+        m_bIsTempSummon = m_creature->IsTemporarySummon();
+        Reset();
+    }
+
+    bool m_bIsTempSummon;
+    uint32 uiSummonTimer;
+
+    void Reset()
+    {
+        uiSummonTimer = 6000;
+        if (!m_bIsTempSummon)
+            m_creature->SetVisibility(VISIBILITY_OFF);
+    }
+
+    void MoveInLineOfSight(Unit* pVictim)
+    {
+        if (!m_bIsTempSummon || !m_creature->IsHostileTo(pVictim) )
+            return;
+
+        if (m_creature->GetDistance2d(pVictim) < 4.5f)
+            DoCastSpellIfCan(m_creature, SPELL_EXPLODE, CAST_TRIGGERED);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_bIsTempSummon)
+            return;
+
+        if (uiSummonTimer < uiDiff)
+        {
+            if (Creature* pCreature = m_creature->SummonCreature(ENTRY_LIVING_POISON, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ(), m_creature->GetOrientation(), TEMPSUMMON_TIMED_DESPAWN, 15000) )
+            {
+                float fPointX, fPointY;
+                m_creature->GetNearPoint2D(fPointX, fPointY, float(FROGGER_DEST_DISTANCE), m_creature->GetOrientation());
+                pCreature->GetMotionMaster()->MovePoint(1, fPointX, fPointY, pCreature->GetPositionZ() );
+            }
+            uiSummonTimer = 6000;
+        }
+        else uiSummonTimer -= uiDiff;
+    }
+
+};
+CreatureAI* GetAI_mob_living_poison(Creature* pCreature)
+{
+    return new mob_living_poisonAI(pCreature);
+}
+
 void AddSC_boss_patchwerk()
 {
     Script* NewScript;
     NewScript = new Script;
     NewScript->Name = "boss_patchwerk";
     NewScript->GetAI = &GetAI_boss_patchwerk;
+    NewScript->RegisterSelf();
+
+    NewScript = new Script;
+    NewScript->Name = "mob_living_poison";
+    NewScript->GetAI = &GetAI_mob_living_poison;
     NewScript->RegisterSelf();
 }

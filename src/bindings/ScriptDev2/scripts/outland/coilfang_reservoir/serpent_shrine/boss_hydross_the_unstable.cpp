@@ -147,7 +147,12 @@ struct MANGOS_DLL_DECL boss_hydross_the_unstableAI : public ScriptedAI
         DoScriptText(m_bCorruptedForm ? SAY_CORRUPT_DEATH : SAY_CLEAN_DEATH, m_creature);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_HYDROSS_EVENT, DONE);
+		{
+			if (GameObject* pGo = m_creature->GetMap()->GetGameObject(m_pInstance->GetData64(DATA_HYDROS_GEN)))
+				pGo->RemoveFlag(GAMEOBJECT_FLAGS,GO_FLAG_INTERACT_COND);
+			
+			m_pInstance->SetData(TYPE_HYDROSS_EVENT, SPECIAL);
+		}
     }
 
     void SpawnAdds()

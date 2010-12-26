@@ -214,7 +214,7 @@ struct MANGOS_DLL_DECL boss_marliAI : public ScriptedAI
                 m_uiWebs_Timer -= uiDiff;
 
             if (m_bHasWebbed && m_uiCharge_Timer < uiDiff)
-            {
+            {   
                 //Shouldn't be random target but highestaggro not Webbed player
                 if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
                 {
@@ -330,7 +330,8 @@ struct MANGOS_DLL_DECL mob_spawn_of_marliAI : public ScriptedAI
             if (m_pInstance && m_pInstance->GetData(TYPE_MARLI) != DONE)
             {
                 DoCastSpellIfCan(m_creature,SPELL_LEVELUP);
-                m_creature->SetLevel(m_creature->getLevel() + 1);
+                if (m_creature->getLevel() < 80)
+                    m_creature->SetLevel(m_creature->getLevel() + 1);
             }
             m_uiLevelUp_Timer = 3000;
         }

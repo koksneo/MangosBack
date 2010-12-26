@@ -34,6 +34,8 @@ struct MANGOS_DLL_DECL instance_molten_core : public ScriptedInstance
     uint64 m_uiLucifronGUID, m_uiMagmadarGUID, m_uiGehennasGUID, m_uiGarrGUID, m_uiGeddonGUID, m_uiShazzrahGUID, m_uiSulfuronGUID, m_uiGolemaggGUID, m_uiMajorDomoGUID, m_uiRagnarosGUID, m_uiFlamewakerPriestGUID;
     uint64 m_uiRuneKoroGUID, m_uiRuneZethGUID, m_uiRuneMazjGUID, m_uiRuneTheriGUID, m_uiRuneBlazGUID, m_uiRuneKressGUID, m_uiRuneMohnGUID, m_uiFirelordCacheGUID;
 
+    uint8 m_uiMajorDomoPhase;
+
     void Initialize()
     {
         memset(&m_auiEncounter, 0, sizeof(m_auiEncounter));
@@ -127,9 +129,33 @@ struct MANGOS_DLL_DECL instance_molten_core : public ScriptedInstance
                 break;
             case NPC_DOMO:
                 m_uiMajorDomoGUID = pCreature->GetGUID();
+                switch (m_auiEncounter[8])
+                {
+                    case FAIL:
+                        pCreature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                        pCreature->SetVisibility(VISIBILITY_ON);
+                        pCreature->AI()->JustRespawned();
+                        break;
+                    case NOT_STARTED:
+                        if (!CanSpawnMajorDomo() )
+                        {
+                            pCreature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                            pCreature->SetVisibility(VISIBILITY_OFF);
+                        }
+                        break;
+                    default:
+                        break;
+                }
                 break;
             case NPC_RAGNAROS:
                 m_uiRagnarosGUID = pCreature->GetGUID();
+                pCreature->SetVisibility(VISIBILITY_OFF);
+                if (m_auiEncounter[8] == DONE)
+                {
+                    pCreature->SetObjectScale(0.1f);
+                    if (Creature *pDomo = pCreature->SummonCreature(NPC_DOMO, (float)SPAWN_RAG_X, (float)SPAWN_RAG_Y, (float)SPAWN_RAG_Z, (float)SPAWN_RAG_O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS) )
+                        pDomo->SetUInt32Value(UNIT_NPC_FLAGS, 1);
+                }
                 break;
             case NPC_FLAMEWAKERPRIEST:
                 m_uiFlamewakerPriestGUID = pCreature->GetGUID();
@@ -166,14 +192,32 @@ struct MANGOS_DLL_DECL instance_molten_core : public ScriptedInstance
                 m_auiEncounter[7] = uiData;
                 break;
             case TYPE_MAJORDOMO:
-                if (uiData == DONE)
-                    DoRespawnGameObject(m_uiFirelordCacheGUID);
                 m_auiEncounter[8] = uiData;
+                if (uiData == DONE)
+                {
+                    DoRespawnGameObject(m_uiFirelordCacheGUID);
+                    if (Creature* pRagnaros = instance->GetCreature(m_uiRagnarosGUID) )
+                    {
+                        if (Creature *pDomo = pRagnaros->SummonCreature(NPC_DOMO, (float)SPAWN_RAG_X, (float)SPAWN_RAG_Y, (float)SPAWN_RAG_Z, (float)SPAWN_RAG_O, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 7*DAY*IN_MILLISECONDS) )
+                            pDomo->SetUInt32Value(UNIT_NPC_FLAGS, 1);
+                    }
+                }
                 break;
             case TYPE_RAGNAROS:
                 m_auiEncounter[9] = uiData;
                 break;
         }
+
+        if (CanSpawnMajorDomo() )
+        {
+            if (Creature* pMajorDomo = instance->GetCreature(m_uiMajorDomoGUID) )
+            {
+                pMajorDomo->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
+                pMajorDomo->SetVisibility(VISIBILITY_ON);
+                pMajorDomo->AI()->JustRespawned();
+            }
+        }
+
 
         if (uiData == DONE)
         {
@@ -200,7 +244,7 @@ struct MANGOS_DLL_DECL instance_molten_core : public ScriptedInstance
     bool CanSpawnMajorDomo()
     {
         return m_auiEncounter[0] && m_auiEncounter[1] && m_auiEncounter[2] && m_auiEncounter[3] &&
-            m_auiEncounter[4] && m_auiEncounter[5] && m_auiEncounter[6];
+            m_auiEncounter[4] && m_auiEncounter[5] && m_auiEncounter[6] && (m_auiEncounter[8] == NOT_STARTED || m_auiEncounter[8] == FAIL);
     }
 
     uint32 GetData(uint32 uiType)
@@ -243,6 +287,8 @@ struct MANGOS_DLL_DECL instance_molten_core : public ScriptedInstance
                 return m_uiGarrGUID;
             case DATA_MAJORDOMO:
                 return m_uiMajorDomoGUID;
+            case DATA_RAGNAROS:
+                return m_uiRagnarosGUID;
         }
 
         return 0;

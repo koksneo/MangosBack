@@ -81,7 +81,7 @@ struct MANGOS_DLL_DECL npc_00x09hlAI : public npc_escortAI
                     float fX, fY, fZ;
                     m_creature->GetRandomPoint(147.927444f, -3851.513428f, 130.893f, 7.0f, fX, fY, fZ);
 
-                    m_creature->SummonCreature(NPC_MARAUDING_OWL, fX, fY, fZ, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25000);
+                    m_creature->SummonCreature(NPC_MARAUDING_OWL, fX, fY, fZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
                 }
                 break;
             case 44:
@@ -90,7 +90,7 @@ struct MANGOS_DLL_DECL npc_00x09hlAI : public npc_escortAI
                     float fX, fY, fZ;
                     m_creature->GetRandomPoint(-141.151581f, -4291.213867f, 120.130f, 7.0f, fX, fY, fZ);
 
-                    m_creature->SummonCreature(NPC_VILE_AMBUSHER, fX, fY, fZ, 0.0f, TEMPSUMMON_CORPSE_TIMED_DESPAWN, 25000);
+                    m_creature->SummonCreature(NPC_VILE_AMBUSHER, fX, fY, fZ, 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
                 }
                 break;
         }

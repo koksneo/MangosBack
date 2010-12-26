@@ -96,9 +96,11 @@ struct MANGOS_DLL_DECL boss_sarturaAI : public ScriptedAI
                 Unit* target = NULL;
                 target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1);
                 if (target)
-                m_creature->AddThreat(target);
-                m_creature->TauntApply(target);
-                AttackStart(target);
+                {
+                    m_creature->AddThreat(target);
+                    m_creature->TauntApply(target);
+                    AttackStart(target);
+                }
 
                 WhirlWindRandom_Timer = urand(3000, 7000);
             }else WhirlWindRandom_Timer -= diff;
@@ -125,9 +127,11 @@ struct MANGOS_DLL_DECL boss_sarturaAI : public ScriptedAI
                 Unit* target = NULL;
                 target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1);
                 if (target)
-                m_creature->AddThreat(target);
-                m_creature->TauntApply(target);
-                AttackStart(target);
+                {
+                    m_creature->AddThreat(target);
+                    m_creature->TauntApply(target);
+                    AttackStart(target);
+                }
 
                     AggroReset = true;
                     AggroReset_Timer = urand(2000, 5000);
@@ -217,9 +221,11 @@ struct MANGOS_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
                 Unit* target = NULL;
                 target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1);
                 if (target)
-                m_creature->AddThreat(target);
-                m_creature->TauntApply(target);
-                AttackStart(target);
+                {
+                    m_creature->AddThreat(target);
+                    m_creature->TauntApply(target);
+                    AttackStart(target);
+                }
 
                 WhirlWindRandom_Timer = urand(3000, 7000);
             }else WhirlWindRandom_Timer -= diff;
@@ -238,9 +244,11 @@ struct MANGOS_DLL_DECL mob_sartura_royal_guardAI : public ScriptedAI
                 Unit* target = NULL;
                 target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,1);
                 if (target)
-                m_creature->AddThreat(target);
-                m_creature->TauntApply(target);
-                AttackStart(target);
+                {
+                    m_creature->AddThreat(target);
+                    m_creature->TauntApply(target);
+                    AttackStart(target);
+                }
 
                 AggroReset = true;
                 AggroReset_Timer = urand(2000, 5000);

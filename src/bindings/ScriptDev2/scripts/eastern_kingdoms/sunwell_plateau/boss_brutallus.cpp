@@ -81,7 +81,7 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
 
         //TODO: correct me when pre-event implemented
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_BRUTALLUS, NOT_STARTED);
+            m_pInstance->SetData(DATA_BRUTALLUS_EVENT, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
@@ -89,7 +89,7 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
         DoScriptText(YELL_AGGRO, m_creature);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_BRUTALLUS, IN_PROGRESS);
+            m_pInstance->SetData(DATA_BRUTALLUS_EVENT, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -107,7 +107,7 @@ struct MANGOS_DLL_DECL boss_brutallusAI : public ScriptedAI
         DoScriptText(YELL_DEATH, m_creature);
 
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_BRUTALLUS, DONE);
+            m_pInstance->SetData(DATA_BRUTALLUS_EVENT, DONE);
     }
 
     void SpellHitTarget(Unit* pCaster, const SpellEntry* pSpell)
@@ -198,8 +198,8 @@ bool AreaTrigger_at_madrigosa(Player* pPlayer, AreaTriggerEntry const* pAt)
     {
         //this simply set encounter state, and trigger ice barrier become active
         //bosses can start pre-event based on this new state
-        if (pInstance->GetData(TYPE_BRUTALLUS) == NOT_STARTED)
-            pInstance->SetData(TYPE_BRUTALLUS, SPECIAL);
+        if (pInstance->GetData(DATA_BRUTALLUS_EVENT) == NOT_STARTED)
+            pInstance->SetData(DATA_BRUTALLUS_EVENT, SPECIAL);
     }
 
     return false;

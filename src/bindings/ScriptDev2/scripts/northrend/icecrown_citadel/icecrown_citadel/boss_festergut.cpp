@@ -22,7 +22,3 @@ SDCategory: Icecrown Citadel
 EndScriptData */
 
 #include "precompiled.h"
-
-void AddSC_boss_festergut()
-{
-}

@@ -63,9 +63,10 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
 
     instance_naxxramas* m_pInstance;
     bool m_bIsRegularMode;
+    int8 Direction;
 
+    uint8 CurrentSafeArea;
     uint8 m_uiPhase;
-    uint8 m_uiPhaseEruption;
 
     uint32 m_uiFeverTimer;
     uint32 m_uiDisruptionTimer;
@@ -73,15 +74,18 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
     uint32 m_uiPhaseTimer;
     uint32 m_uiTauntTimer;
     uint32 m_uiStartChannelingTimer;
+    uint32 m_uiDanceTimer;
 
     void ResetPhase()
     {
-        m_uiPhaseEruption = 0;
         m_uiFeverTimer = 4000;
         m_uiEruptionTimer = m_uiPhase == PHASE_GROUND ? urand(8000, 12000) : urand(2000, 3000);
         m_uiDisruptionTimer = 5000;
         m_uiStartChannelingTimer = 1000;
         m_uiPhaseTimer = m_uiPhase == PHASE_GROUND ? 90000 : 45000;
+        Direction = 1;
+        m_uiDanceTimer = 10000;
+        CurrentSafeArea = TOP_MOST;
     }
 
     void Reset()
@@ -129,6 +133,26 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
     {
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
+
+        if (m_uiDanceTimer < uiDiff)
+        {
+            for (uint8 i = TOP_MOST; i < TOTAL_AREAS; ++i)
+            {
+                if (i == CurrentSafeArea)
+                    continue;
+                
+                m_pInstance->ActivateAreaFissures(ChamberArea(i));
+            }
+
+            if (CurrentSafeArea == BOTTOM_LOWEST)
+                Direction = -1;
+            else if (CurrentSafeArea == TOP_MOST)
+                Direction = 1;
+
+            CurrentSafeArea = CurrentSafeArea + Direction;
+
+            m_uiDanceTimer = m_uiPhase == PHASE_GROUND ? 10000 : 3000;
+        }else m_uiDanceTimer -= uiDiff;
 
         if (m_uiPhase == PHASE_GROUND)
         {
@@ -210,6 +234,7 @@ struct MANGOS_DLL_DECL boss_heiganAI : public ScriptedAI
             m_uiTauntTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
+        EnterEvadeIfOutOfCombatArea(uiDiff);
     }
 };
 

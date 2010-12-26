@@ -49,6 +49,7 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
     uint64 m_uiStrangeGongGUID;
     uint64 m_uiMassiveGateGUID;
     uint64 m_uiMalacrassEntranceGUID;
+    uint64 m_uiWindDoorGUID;
 
     std::list<uint64> m_lEggsGUIDList;
     uint32 m_uiEggsRemainingCount_Left;
@@ -76,6 +77,7 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
         m_uiStrangeGongGUID = 0;
         m_uiMassiveGateGUID = 0;
         m_uiMalacrassEntranceGUID = 0;
+        m_uiWindDoorGUID = 0;
 
         m_lEggsGUIDList.clear();
         m_uiEggsRemainingCount_Left = 20;
@@ -116,6 +118,11 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
             case 186305:
                 m_uiMalacrassEntranceGUID = pGo->GetGUID();
                 break;
+            case GO_WIND_DOOR:
+                m_uiWindDoorGUID = pGo->GetGUID();
+                pGo->SetGoState(GO_STATE_ACTIVE);
+                break;
+
         }
     }
 
@@ -141,6 +148,10 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
                 }
                 break;
             case TYPE_AKILZON:
+                if (uiData == NOT_STARTED)
+                    instance->GetGameObject(m_uiWindDoorGUID)->SetGoState(GO_STATE_ACTIVE);
+                if (uiData == IN_PROGRESS)
+                    instance->GetGameObject(m_uiWindDoorGUID)->SetGoState(GO_STATE_READY);
                 if (uiData == DONE)
                 {
                     if (m_auiEncounter[0] == IN_PROGRESS)
@@ -148,6 +159,7 @@ struct MANGOS_DLL_DECL instance_zulaman : public ScriptedInstance
                         m_uiEventMinuteStep += MINUTE/6;    //add 10 minutes
                         DoUpdateWorldState(WORLD_STATE_COUNTER,m_uiEventMinuteStep);
                     }
+                    instance->GetGameObject(m_uiWindDoorGUID)->SetGoState(GO_STATE_ACTIVE);
                 }
                 m_auiEncounter[1] = uiData;
                 break;

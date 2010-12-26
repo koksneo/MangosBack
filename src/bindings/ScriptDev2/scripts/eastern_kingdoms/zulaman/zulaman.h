@@ -54,7 +54,9 @@ enum InstanceZA
     DATA_GO_ENTRANCE        = 23,
 
     NPC_EGG                 = 23817,
-    NPC_SPIRIT_LYNX         = 24143
+    NPC_SPIRIT_LYNX         = 24143,
+    // Akil'zon door
+    GO_WIND_DOOR            = 186858
 };
 
 #endif

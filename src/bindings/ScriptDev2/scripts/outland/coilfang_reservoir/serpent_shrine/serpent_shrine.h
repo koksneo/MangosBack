@@ -19,8 +19,22 @@ enum
     DATA_CARIBDIS                   = 12,
     DATA_SHARKKIS                   = 13,
     DATA_TIDALVESS                  = 14,
+    DATA_LEOTHERAS                  = 24,
+    DATA_LEOTHERAS_EVENT_STARTER    = 25,
 
     DATA_LADYVASHJ                  = 15,
+
+    DATA_SPELLBINDER1               = 26,
+    DATA_SPELLBINDER2               = 27,
+    DATA_SPELLBINDER3               = 28,
+
+    DATA_HYDROS_GEN                 = 40,
+    DATA_LURKER_GEN                 = 41,
+    DATA_LEOTHERAS_GEN              = 42,
+    DATA_MOROGRIM_GEN               = 43,
+    DATA_KARATHRESS_GEN             = 44,
+    DATA_BRIDGE_GEN                 = 45,
+
     TYPE_VASHJ_PHASE3_CHECK         = 16,
 
     TYPE_SHIELDGENERATOR1           = 20,

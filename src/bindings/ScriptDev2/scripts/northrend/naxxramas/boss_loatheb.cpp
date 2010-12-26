@@ -85,7 +85,7 @@ struct MANGOS_DLL_DECL boss_loathebAI : public ScriptedAI
     void JustReachedHome()
     {
         if (m_pInstance)
-            m_pInstance->SetData(TYPE_LOATHEB, NOT_STARTED);
+            m_pInstance->SetData(TYPE_LOATHEB, FAIL);
     }
 
     void JustSummoned(Creature* pSummoned)

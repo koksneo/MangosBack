@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: ulduar
 SD%Complete: 0%
-SDComment:
+SDComment: ---
 SDCategory: Ulduar
 EndScriptData */
 
@@ -56,4 +56,5 @@ enum TeleporterGossipItems
 
 void AddSC_ulduar()
 {
+    // Script goes here
 }

@@ -17,7 +17,7 @@
 /* ScriptData
 SDName: Nagrand
 SD%Complete: 90
-SDComment: Quest support: 9849, 9868, 9874, 9918, 9991, 10044, 10085, 10107, 10108, 10172, 10646. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
+SDComment: Quest support: 9849, 9868, 9874, 9918, 9991, 10044, 10085, 10107, 10108, 10172, 10646, 9923, 9924, 9955, 9948. TextId's unknown for altruis_the_sufferer and greatmother_geyah (npc_text)
 SDCategory: Nagrand
 EndScriptData */
 
@@ -30,6 +30,8 @@ npc_greatmother_geyah
 npc_lantresor_of_the_blade
 npc_maghar_captive
 npc_creditmarker_visit_with_ancestors
+go_corkis_prison
+go_warmaul_prison
 EndContentData */
 
 #include "precompiled.h"
@@ -58,9 +60,9 @@ struct MANGOS_DLL_DECL mob_shattered_rumblerAI : public ScriptedAI
             float y = m_creature->GetPositionY();
             float z = m_creature->GetPositionZ();
 
-            Hitter->SummonCreature(18181,x+(0.7 * (rand()%30)),y+(rand()%5),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
-            Hitter->SummonCreature(18181,x+(rand()%5),y-(rand()%5),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
-            Hitter->SummonCreature(18181,x-(rand()%5),y+(0.5 *(rand()%60)),z,0,TEMPSUMMON_CORPSE_TIMED_DESPAWN,60000);
+            Hitter->SummonCreature(18181,x+(0.7 * (rand()%30)),y+(rand()%5),z,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+            Hitter->SummonCreature(18181,x+(rand()%5),y-(rand()%5),z,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
+            Hitter->SummonCreature(18181,x-(rand()%5),y+(0.5 *(rand()%60)),z,0,TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 300000);
             m_creature->SetDeathState(CORPSE);
             Spawn = true;
         }
@@ -697,13 +699,275 @@ CreatureAI* GetAI_npc_creditmarker_visit_with_ancestors(Creature* pCreature)
     return new npc_creditmarker_visit_with_ancestorsAI(pCreature);
 }
 
+/*#####
+## go_corkis_prison
+#####*/
+
+enum
+{
+    QUEST_HELP                          = 9923,
+    QUEST_CORKIS_GONE                   = 9924,
+    QUEST_CHOWAR                        = 9955,
+    
+    GO_CORKIS_PRISON_1                  = 182349,
+    GO_CORKIS_PRISON_2                  = 182350,
+    GO_CORKIS_PRISON_3                  = 182521,
+    
+    NPC_CORKI                           = 18369,
+    NPC_CORKI_GONE                      = 20812,
+    NPC_CORKI_CHOWAR                    = 18445,
+    NPC_CORKI_EVENT                     = 18444,
+    
+    SPELL_DESPAWN_SELF                  = 43014,
+    
+    SAY_THANKS_1                        = -1999851,
+    SAY_THANKS_2                        = -1999891
+};
+
+bool GOHello_go_corkis_prison(Player* pPlayer, GameObject* pGo)
+{
+    uint64 uiCorkiEntry;
+    if (pPlayer->GetQuestStatus(QUEST_HELP) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_CORKIS_GONE) == QUEST_STATUS_INCOMPLETE || pPlayer->GetQuestStatus(QUEST_CHOWAR) == QUEST_STATUS_INCOMPLETE)
+    {
+        switch (pGo->GetEntry())
+        {
+        case GO_CORKIS_PRISON_1: uiCorkiEntry=NPC_CORKI;
+            break;
+        case GO_CORKIS_PRISON_2: uiCorkiEntry=NPC_CORKI_GONE;
+            break;
+        case GO_CORKIS_PRISON_3: uiCorkiEntry=NPC_CORKI_CHOWAR;
+            break;
+        }
+        if(Creature *pCorki = GetClosestCreatureWithEntry(pPlayer, uiCorkiEntry, INTERACTION_DISTANCE))
+        {
+            switch (uiCorkiEntry)
+            {
+            case NPC_CORKI:
+                pPlayer->KilledMonsterCredit(NPC_CORKI, pCorki->GetGUID());
+                DoScriptText(SAY_THANKS_1, pCorki);
+                break;
+            case NPC_CORKI_GONE:
+                pPlayer->KilledMonsterCredit(NPC_CORKI_GONE, pCorki->GetGUID());
+                DoScriptText(SAY_THANKS_2, pCorki);
+                break;
+            case NPC_CORKI_CHOWAR:
+                pPlayer->KilledMonsterCredit(NPC_CORKI_EVENT, pCorki->GetGUID());
+                break;
+            }
+            pCorki->CastSpell(pCorki, SPELL_DESPAWN_SELF, false);
+        }
+    }
+    return false;
+};
+
+/*#####
+## go_warmaul_prison
+#####*/
+
+enum
+{
+    QUEST_FINDING_THE_SURVIVORS        = 9948,
+    NPC_MAGHAR_PRISONER                = 18428,
+    SAY_MAGHAR_THANKS_1                = -1000040,
+    SAY_MAGHAR_THANKS_2                = -1000041,
+    SAY_MAGHAR_THANKS_3                = -1000042,
+};
+
+bool GOHello_go_warmaul_prison(Player* pPlayer, GameObject* pGo) 
+{
+    if (pPlayer->GetQuestStatus(QUEST_FINDING_THE_SURVIVORS) == QUEST_STATUS_INCOMPLETE)
+    {
+     Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_MAGHAR_PRISONER, INTERACTION_DISTANCE);
+        if(pCreature)
+        {
+            pPlayer->CastedCreatureOrGO(NPC_MAGHAR_PRISONER, pCreature->GetGUID(), 32347);
+                switch(urand(0,2))
+                {
+                    case 0: DoScriptText(SAY_MAGHAR_THANKS_1, pCreature); break;
+                    case 1: DoScriptText(SAY_MAGHAR_THANKS_2, pCreature); break;
+                    default: DoScriptText(SAY_MAGHAR_THANKS_3, pCreature); break;
+                }
+		
+            pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, false);
+        }
+    }
+    return false;
+};
+
+/*#####
+## npc_kurenai_captive
+#####*/
+
+enum
+{
+    SAY_START =       -1000482,
+    SAY_NO_ESCAPE =   -1000483,
+    SAY_MORE =        -1000484,
+    SAY_MORE_REPLY =  -1000485,
+    SAY_LIGHTNING =   -1000486,
+    SAY_SHOCK =       -1000487,
+    SAY_COMPLETE =    -1999930,
+
+    SPELL_CHAIN_LIGHTNING_A = 16006,
+    SPELL_EARTHBIND_TOTEM_A = 15786,
+    SPELL_FROST_SHOCK_A =     12548,
+    SPELL_HEALING_WAVE_A =    12491,
+
+    QUEST_TOTEM = 9879,
+
+    NPC_MURK_RAIDER_A =      18203,
+    NPC_MURK_BRUTE_A =       18211,
+    NPC_MURK_SCAVENGER_A =   18207,
+    NPC_MURK_PUTRIFIER_A =   18202
+};
+
+static float m_afAmbushC[]= {-1568.805786f, 8533.873047f, 1.958f};
+static float m_afAmbushD[]= {-1491.554321f, 8506.483398f, 1.248f};
+
+struct MANGOS_DLL_DECL npc_kurenai_captiveAI : public npc_escortAI
+{
+    npc_kurenai_captiveAI(Creature* pCreature) : npc_escortAI(pCreature) { Reset(); }
+
+    uint32 m_uiChainLightningTimer;
+    uint32 m_uiHealTimer;
+    uint32 m_uiFrostShockTimer;
+
+    void Reset()
+    {
+        m_uiChainLightningTimer = 1000;
+        m_uiHealTimer = 0;
+        m_uiFrostShockTimer = 6000;
+    }
+
+    void Aggro(Unit* pWho)
+    {
+        m_creature->CastSpell(m_creature, SPELL_EARTHBIND_TOTEM_A, false);
+    }
+
+    void WaypointReached(uint32 uiPointId)
+    {
+        switch(uiPointId)
+        {
+            case 5:
+            {
+                DoScriptText(SAY_MORE, m_creature);
+
+                if (Creature* pTemp = m_creature->SummonCreature(NPC_MURK_PUTRIFIER_A, m_afAmbushD[0], m_afAmbushD[1], m_afAmbushD[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000))
+                DoScriptText(SAY_MORE_REPLY, pTemp);
+
+                m_creature->SummonCreature(NPC_MURK_PUTRIFIER_A, m_afAmbushB[0]-2.5f, m_afAmbushD[1]-2.5f, m_afAmbushD[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+
+                m_creature->SummonCreature(NPC_MURK_SCAVENGER_A, m_afAmbushB[0]+2.5f, m_afAmbushD[1]+2.5f, m_afAmbushD[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                m_creature->SummonCreature(NPC_MURK_SCAVENGER_A, m_afAmbushB[0]+2.5f, m_afAmbushD[1]-2.5f, m_afAmbushD[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+                break;
+            }
+            case 7:
+            {
+                DoScriptText(SAY_COMPLETE, m_creature);
+
+                if (Player* pPlayer = GetPlayerForEscort())
+                pPlayer->GroupEventHappens(QUEST_TOTEM, m_creature);
+
+                SetRun();
+                break;
+            }
+            default:
+                break;
+        }
+    }
+
+    void JustSummoned(Creature* pSummoned)
+    {
+        if (pSummoned->GetEntry() == NPC_MURK_BRUTE_A)
+            DoScriptText(SAY_NO_ESCAPE, pSummoned);
+
+        if (pSummoned->IsTotem())
+            return;
+
+        pSummoned->RemoveSplineFlag(SPLINEFLAG_WALKMODE);
+        pSummoned->GetMotionMaster()->MovePoint(0, m_creature->GetPositionX(), m_creature->GetPositionY(), m_creature->GetPositionZ());
+    }
+
+    void SpellHitTarget(Unit* pTarget, const SpellEntry* pSpell)
+    {
+        if (pSpell->Id == SPELL_CHAIN_LIGHTNING_A)
+        {
+            if (urand(0, 9))
+            return;
+
+            DoScriptText(SAY_LIGHTNING, m_creature);
+        }
+    }
+
+    void UpdateEscortAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (m_uiChainLightningTimer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_CHAIN_LIGHTNING_A);
+            m_uiChainLightningTimer = urand(7000, 14000);
+        }
+        else
+            m_uiChainLightningTimer -= uiDiff;
+
+        if (m_creature->GetHealthPercent() < 30.0f)
+        {
+            if (m_uiHealTimer < uiDiff)
+            {
+            DoCastSpellIfCan(m_creature, SPELL_HEALING_WAVE_A);
+            m_uiHealTimer = 5000;
+            }
+            else
+                m_uiHealTimer -= uiDiff;
+        }
+
+        if (m_uiFrostShockTimer < uiDiff)
+        {
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_FROST_SHOCK_A);
+            m_uiFrostShockTimer = urand(7500, 15000);
+        }
+        else
+            m_uiFrostShockTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+bool QuestAccept_npc_kurenai_captive(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    if (pQuest->GetQuestId() == QUEST_TOTEM)
+    {
+        if (npc_kurenai_captiveAI* pEscortAI = dynamic_cast<npc_kurenai_captiveAI*>(pCreature->AI()))
+        {
+            pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+            pCreature->setFaction(FACTION_ESCORT_A_NEUTRAL_ACTIVE);
+
+            pEscortAI->Start(true, pPlayer->GetGUID(), pQuest);
+
+            DoScriptText(SAY_START, pCreature);
+
+            pCreature->SummonCreature(NPC_MURK_RAIDER_A, m_afAmbushC[0]+2.5f, m_afAmbushC[1]-2.5f, m_afAmbushC[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+            pCreature->SummonCreature(NPC_MURK_PUTRIFIER_A, m_afAmbushC[0]-2.5f, m_afAmbushC[1]+2.5f, m_afAmbushC[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+            pCreature->SummonCreature(NPC_MURK_BRUTE_A, m_afAmbushC[0], m_afAmbushC[1], m_afAmbushC[2], 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 25000);
+        }
+    }
+    return true;
+}
+
+CreatureAI* GetAI_npc_kurenai_captive(Creature* pCreature)
+{
+    return new npc_kurenai_captiveAI(pCreature);
+}
+
 /*######
 ## AddSC
 ######*/
 
 void AddSC_nagrand()
 {
-    Script* pNewScript;
+    Script *pNewScript;
 
     pNewScript = new Script;
     pNewScript->Name = "mob_shattered_rumbler";
@@ -751,4 +1015,21 @@ void AddSC_nagrand()
     pNewScript->Name = "npc_creditmarker_visit_with_ancestors";
     pNewScript->GetAI = &GetAI_npc_creditmarker_visit_with_ancestors;
     pNewScript->RegisterSelf();
+    
+    pNewScript = new Script;
+    pNewScript->Name = "go_corkis_prison";
+    pNewScript->pGOHello = &GOHello_go_corkis_prison;
+    pNewScript->RegisterSelf();
+    
+    pNewScript = new Script;
+    pNewScript->Name = "go_warmaul_prison";
+    pNewScript->pGOHello = &GOHello_go_warmaul_prison;
+    pNewScript->RegisterSelf();
+    
+    pNewScript = new Script;
+    pNewScript->Name = "npc_kurenai_captive";
+    pNewScript->GetAI = &GetAI_npc_kurenai_captive;
+    pNewScript->pQuestAccept = &QuestAccept_npc_kurenai_captive;
+    pNewScript->RegisterSelf();
+
 }

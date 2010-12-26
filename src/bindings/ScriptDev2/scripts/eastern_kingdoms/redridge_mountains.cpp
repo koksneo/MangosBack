@@ -71,7 +71,7 @@ struct MANGOS_DLL_DECL npc_corporal_keeshan_escortAI : public npc_escortAI
                 break;
         }
     }
-
+    
     void WaypointReached(uint32 uiWP)
     {
         switch (uiWP)
@@ -96,7 +96,7 @@ struct MANGOS_DLL_DECL npc_corporal_keeshan_escortAI : public npc_escortAI
         
         if (m_uiMockingBlowTimer < uiDiff)
         {
-            DoCastSpellIfCan(m_creature->getVictim(), SPELL_MOCKING_BLOW);
+            DoCastSpellIfCan(m_creature->getVictim(), SPELL_MOCKING_BLOW); 
             m_uiMockingBlowTimer = 5000;
         }
         else

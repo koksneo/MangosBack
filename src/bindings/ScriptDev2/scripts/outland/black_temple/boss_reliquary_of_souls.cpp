@@ -243,10 +243,10 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
         {
             if (npc_enslaved_soulAI* pSoulAI = dynamic_cast<npc_enslaved_soulAI*>(Soul->AI()))
                 pSoulAI->ReliquaryGUID = m_creature->GetGUID();
-
+                
             Soul->CastSpell(Soul, ENSLAVED_SOUL_PASSIVE, true);
             Soul->AddThreat(target);
-            ++SoulCount;
+            SoulCount++;
         }
     }
 
@@ -357,7 +357,7 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                     if (DespawnEssenceTimer < diff)
                     {
                         DoScriptText(SUFF_SAY_AFTER, EssenceSuffering);
-
+                        DespawnEssences();
                         EssenceSuffering->DeleteThreatList();
                         EssenceSuffering->SetDisplayId(11686);
                         EssenceSuffering->setFaction(35);
@@ -463,9 +463,8 @@ struct MANGOS_DLL_DECL boss_reliquary_of_soulsAI : public ScriptedAI
                         {
                             EssenceDesire->DeleteThreatList();
                             EssenceDesire->setFaction(35);
-
+                            DespawnEssences();
                             DoScriptText(DESI_SAY_AFTER, EssenceDesire);
-
                             EssenceDesire->SetDisplayId(11686);
                             m_creature->SetUInt32Value(UNIT_NPC_EMOTESTATE,0);
                             SummonEssenceTimer = 20000;
@@ -622,16 +621,15 @@ struct MANGOS_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
             if (pUnit && pUnit->isAlive() && pUnit->GetTypeId() == TYPEID_PLAYER)
                 targets.push_back(pUnit);
         }
-
         if (targets.empty())
             return;                                         // No targets added for some reason. No point continuing.
 
         targets.sort(ObjectDistanceOrder(m_creature));      // Sort players by distance.
         targets.resize(1);                                  // Only need closest target.
         Unit* target = targets.front();                     // Get the first target.
-
-        // Add threat equivalent to threat on victim.
-        m_creature->AddThreat(target, m_creature->getThreatManager().getThreat(m_creature->getVictim()));
+        if(target){
+            m_creature->AddThreat(target, 50000000.0f);
+        }
         DoCastSpellIfCan(target, SPELL_FIXATE);
     }
 
@@ -669,6 +667,7 @@ struct MANGOS_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         //Supposed to be cast on nearest target
         if (FixateTimer < diff)
         {
+            DoResetThreat();
             CastFixate();
             FixateTimer = 5000;
         }else FixateTimer -= diff;
@@ -692,6 +691,8 @@ struct MANGOS_DLL_DECL boss_essence_of_sufferingAI : public ScriptedAI
         DoMeleeAttackIfReady();
     }
 };
+
+
 struct MANGOS_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
 {
     boss_essence_of_desireAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
@@ -727,6 +728,7 @@ struct MANGOS_DLL_DECL boss_essence_of_desireAI : public ScriptedAI
     void Aggro(Unit* pWho)
     {
         m_creature->SetInCombatWithZone();
+        DoCast(pWho, AURA_OF_DESIRE, true);
     }
 
     void KilledUnit(Unit *victim)
@@ -901,7 +903,7 @@ struct MANGOS_DLL_DECL boss_essence_of_angerAI : public ScriptedAI
 
         if (SpiteTimer < diff)
         {
-            for(uint8 i = 0; i < 4; ++i)
+            for(uint8 i = 0; i < 4; i++)
             {
                 if (Unit* target = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                     DoCastSpellIfCan(target, SPELL_SPITE);

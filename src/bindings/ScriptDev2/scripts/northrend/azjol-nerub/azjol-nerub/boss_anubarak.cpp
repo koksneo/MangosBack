@@ -21,11 +21,28 @@ SDComment:
 SDCategory: Azjol'NerubstrInstData
 EndScriptData */
 
+
 #include "precompiled.h"
 #include "azjol-nerub.h"
 
 enum
 {
+    SPELL_CARRION_BEETLES           = 53520,
+    SPELL_SUMMON_CARRION_BEETLES    = 53521,
+    SPELL_LEECHING_SWARM            = 53467,
+
+    SPELL_IMPALE                    = 53454,
+    H_SPELL_IMPALE                  = 59446,
+
+    SPELL_POUND                     = 53472,
+    H_SPELL_POUND                   = 59433,
+
+    SPELL_SUBMERGE                  = 53421,
+
+    CREATURE_GUARDIAN               = 29216,
+    CREATURE_VENOMANCER             = 29217,
+    CREATURE_DATTER                 = 29213,
+
     SAY_INTRO                       = -1601014,
     SAY_AGGRO                       = -1601015,
     SAY_KILL_1                      = -1601016,
@@ -37,11 +54,7 @@ enum
     SAY_LOCUST_2                    = -1601022,
     SAY_LOCUST_3                    = -1601023,
     SAY_DEATH                       = -1601024
-};
-
-/*######
-## boss_anubarak
-######*/
+};                          
 
 struct MANGOS_DLL_DECL boss_anubarakAI : public ScriptedAI
 {
@@ -53,13 +66,45 @@ struct MANGOS_DLL_DECL boss_anubarakAI : public ScriptedAI
     }
 
     instance_azjol_nerub* m_pInstance;
+
+    bool bChanneling;
     bool m_bIsRegularMode;
+    bool bSummoned_Guardian;
+    bool bSummoned_Venomancer;
+    bool bSummoned_Datter;
+    uint8 Phase;
+    uint32 m_uiPhase_Time;
+
+    uint32 m_uiCarrionBittles_Timer;
+    uint32 m_uiLeechingSwarm_Timer;
+    uint32 m_uiImpale_Timer;
+    uint32 m_uiSpellPound_Timer;
+    uint32 m_uiSpellSubmerge_Timer;
+    uint32 m_uiUnderground_Timer;
+    uint32 m_uiVenomancer_Timer;
+    uint32 m_uiDatter_Timer;
 
     void Reset()
     {
+
+        m_uiCarrionBittles_Timer = 8000;
+        m_uiLeechingSwarm_Timer = 20000;
+        m_uiImpale_Timer = 9000;
+        m_uiSpellPound_Timer = 15000;
+
+        Phase = 0;
+        m_uiPhase_Time = 0;
+        bChanneling = false;
+
+        m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+        m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE);
+        
+        if (m_pInstance)
+            m_pInstance->SetData(TYPE_ANUBARAK, NOT_STARTED);
     }
 
-    void Aggro(Unit* pWho)
+
+    void Aggro(Unit *pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
 
@@ -67,42 +112,152 @@ struct MANGOS_DLL_DECL boss_anubarakAI : public ScriptedAI
             m_pInstance->SetData(TYPE_ANUBARAK, IN_PROGRESS);
     }
 
-    void KilledUnit(Unit* pVictim)
-    {
-        switch(urand(0, 2))
-        {
-            case 0: DoScriptText(SAY_KILL_1, m_creature); break;
-            case 1: DoScriptText(SAY_KILL_2, m_creature); break;
-            case 2: DoScriptText(SAY_KILL_3, m_creature); break;
-        }
-    }
 
-    void JustDied(Unit* pKiller)
+    void UpdateAI(const uint32 uiDiff)
+    {
+        //Return since we have no target
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+           return;  
+
+        if (bChanneling == true)
+        {
+            for (uint8 i = 0; i < 4; ++i)
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_SUMMON_CARRION_BEETLES);
+            bChanneling = false;
+        }
+
+        if (Phase == 1)
+        {
+            if (m_uiImpale_Timer <= uiDiff)
+            {
+                if (Unit *pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                    DoCastSpellIfCan(pTarget, m_bIsRegularMode ? SPELL_IMPALE : H_SPELL_IMPALE);
+                m_uiImpale_Timer = 9000;
+            } else m_uiImpale_Timer -= uiDiff;
+
+            if (!bSummoned_Guardian)
+            {
+                // has to be done by spell!!!!!
+                for (uint8 i = 0; i < 2; ++i)
+                {
+                    if (Creature *Guardian = m_creature->SummonCreature(CREATURE_GUARDIAN,550,282,224,0,TEMPSUMMON_CORPSE_DESPAWN,0))
+                    {
+                        Guardian->AddThreat(m_creature->getVictim(), 0.0f);
+                    }
+                }
+                bSummoned_Guardian = true;
+            }
+
+            if(!bSummoned_Venomancer)
+            {
+                // Has to be done by spell!!!!!
+                if (m_uiVenomancer_Timer <= uiDiff)
+                {
+                    if (m_uiPhase_Time > 1)
+                    {
+                        for (uint8 i = 0; i < 2; ++i)
+                        {
+                            if (Creature *Venomancer = m_creature->SummonCreature(CREATURE_VENOMANCER,550,282,224,0,TEMPSUMMON_CORPSE_DESPAWN,0))
+                            {
+                                Venomancer->AddThreat(m_creature->getVictim(), 0.0f);
+                            }
+                        }
+                        bSummoned_Venomancer = true;
+                    }
+                } else m_uiVenomancer_Timer -= uiDiff;
+            }
+
+            if(!bSummoned_Datter)
+            {
+                if (m_uiDatter_Timer <= uiDiff)
+                {
+                    // has to be done by spell!!!!
+                    if (m_uiPhase_Time > 2)
+                    {
+                        for (uint8 i = 0; i < 2; ++i)
+                        {
+                            if (Creature *Datter = m_creature->SummonCreature(CREATURE_DATTER,550,282,224,0,TEMPSUMMON_CORPSE_DESPAWN,0))
+                            {
+                                Datter->AddThreat(m_creature->getVictim(), 0.0f);
+                            }
+                        }
+                        bSummoned_Datter = true;
+                    }
+                } else m_uiDatter_Timer -= uiDiff;
+            }
+
+            if (m_uiUnderground_Timer <= uiDiff)
+            {
+                m_creature->RemoveAurasDueToSpell(SPELL_SUBMERGE);
+                m_creature->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+                Phase = 0;
+            } else m_uiUnderground_Timer -= uiDiff;
+        }
+
+        if (Phase == 0)
+        {
+            if (m_uiLeechingSwarm_Timer <= uiDiff)
+            {
+                DoCastSpellIfCan(m_creature, SPELL_LEECHING_SWARM, true);
+                m_uiLeechingSwarm_Timer = 19000;
+            } else m_uiLeechingSwarm_Timer -= uiDiff;
+
+            if (m_uiCarrionBittles_Timer <= uiDiff)
+            {
+                bChanneling = true;
+                DoCastSpellIfCan(m_creature->getVictim(), SPELL_CARRION_BEETLES);
+                m_uiCarrionBittles_Timer = 25000;
+            } else m_uiCarrionBittles_Timer -= uiDiff;
+
+            if (m_uiSpellPound_Timer <= uiDiff)
+            {
+                 DoCastSpellIfCan(m_creature->getVictim(), m_bIsRegularMode ? SPELL_POUND : H_SPELL_POUND);
+                 m_uiSpellPound_Timer = 16500;
+            } else m_uiSpellPound_Timer -= uiDiff;
+        }
+
+        if ((m_uiPhase_Time == 0 && m_creature->GetHealthPercent() <= 75.0f)
+            || (m_uiPhase_Time == 1 && m_creature->GetHealthPercent() <= 50.0f)
+            || (m_uiPhase_Time == 2 && m_creature->GetHealthPercent() <= 25.0f))
+        {
+            ++m_uiPhase_Time;
+
+            bSummoned_Guardian = false;
+            bSummoned_Venomancer = false;
+            bSummoned_Datter = false;
+
+            m_uiUnderground_Timer = 40000;
+            m_uiVenomancer_Timer = 25000;
+            m_uiDatter_Timer = 32000;
+
+            DoCastSpellIfCan(m_creature, SPELL_SUBMERGE);
+
+            m_creature->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE|UNIT_FLAG_NOT_SELECTABLE);
+
+            Phase = 1;
+        }
+
+        if (Phase != 1)
+            DoMeleeAttackIfReady();
+    }
+    
+    void JustDied(Unit *pKiller)
     {
         DoScriptText(SAY_DEATH, m_creature);
-
+        
         if (m_pInstance)
             m_pInstance->SetData(TYPE_ANUBARAK, DONE);
     }
 
-    void JustReachedHome()
+    void KilledUnit(Unit *pVictim)
     {
-        if (m_pInstance)
-            m_pInstance->SetData(TYPE_ANUBARAK, NOT_STARTED);
-    }
-
-    void UpdateAI(const uint32 uiDiff)
-    {
-        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
-            return;
-
-        DoMeleeAttackIfReady();
+        DoScriptText(urand(0, 1) > 0 ? SAY_KILL_2 : SAY_KILL_3, m_creature);
     }
 };
 
-CreatureAI* GetAI_boss_anubarak(Creature* pCreature)
+CreatureAI* GetAI_boss_anubarak(Creature *pCreature)
 {
-    return new boss_anubarakAI(pCreature);
+    return new boss_anubarakAI (pCreature);
 }
 
 void AddSC_boss_anubarak()

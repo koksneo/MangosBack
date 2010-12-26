@@ -44,7 +44,6 @@ enum
     SPELL_GUST_OF_WIND      = 43621,
 
     SPELL_ELECTRICAL_STORM  = 43648,
-    SPELL_STORMCLOUD_VISUAL = 45213,
 
     SPELL_BERSERK           = 45078,
 
@@ -84,12 +83,15 @@ struct MANGOS_DLL_DECL boss_akilzonAI : public ScriptedAI
         m_uiSummonEagleTimer = 65000;
         m_uiBerserkTimer = MINUTE*8*IN_MILLISECONDS;
         m_bIsBerserk = false;
+
+        m_pInstance->SetData(TYPE_AKILZON, NOT_STARTED);
     }
 
     void Aggro(Unit* pWho)
     {
         DoScriptText(SAY_AGGRO, m_creature);
         m_creature->SetInCombatWithZone();
+        m_pInstance->SetData(TYPE_AKILZON, IN_PROGRESS);
     }
 
     void KilledUnit(Unit* pVictim)
@@ -129,13 +131,7 @@ struct MANGOS_DLL_DECL boss_akilzonAI : public ScriptedAI
         if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
             return;
 
-        if (m_uiCallLightTimer < uiDiff)
-        {
-            m_creature->CastSpell(m_creature->getVictim(), SPELL_CALL_LIGHTNING, false);
-            m_uiCallLightTimer = urand(15000, 25000);
-        }else m_uiCallLightTimer -= uiDiff;
-
-        if (m_uiStaticDisruptTimer < uiDiff)
+        if (m_uiStaticDisruptTimer <= uiDiff)
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
                 m_creature->CastSpell(pTarget, SPELL_STATIC_DISRUPTION, false);
@@ -143,7 +139,7 @@ struct MANGOS_DLL_DECL boss_akilzonAI : public ScriptedAI
             m_uiStaticDisruptTimer = urand(7000, 14000);
         }else m_uiStaticDisruptTimer -= uiDiff;
 
-        if (m_uiStormTimer < uiDiff)
+        if (m_uiStormTimer <= uiDiff)
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
             {
@@ -151,28 +147,32 @@ struct MANGOS_DLL_DECL boss_akilzonAI : public ScriptedAI
                     m_creature->InterruptNonMeleeSpells(false);
 
                 DoScriptText(EMOTE_STORM, m_creature);
-                m_creature->CastSpell(pTarget, SPELL_ELECTRICAL_STORM, false);
+                DoCastSpellIfCan(pTarget, SPELL_ELECTRICAL_STORM);
             }
-
-            m_uiStormTimer = 60000;
+            m_uiStormTimer = urand(45000, 65000);
         }else m_uiStormTimer -= uiDiff;
 
-        if (m_uiGustOfWindTimer < uiDiff)
+        if (m_uiGustOfWindTimer <= uiDiff)
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 1))
-                m_creature->CastSpell(pTarget, SPELL_GUST_OF_WIND, false);
+                DoCastSpellIfCan(pTarget, SPELL_GUST_OF_WIND);
 
-            m_uiGustOfWindTimer = urand(20000, 30000);
+            // Trigger call of lightning
+            // maybe should be placed in dummy effect in MaNGOS?
+            if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
+                DoCastSpellIfCan(pTarget, SPELL_CALL_LIGHTNING);
+            
+            m_uiGustOfWindTimer = urand(9000, 17000);
         }else m_uiGustOfWindTimer -= uiDiff;
 
-        if (m_uiSummonEagleTimer < uiDiff)
+        if (m_uiSummonEagleTimer <= uiDiff)
         {
             DoScriptText(urand(0,1) ? SAY_SUMMON : SAY_SUMMON_ALT, m_creature);
             DoSummonEagles();
             m_uiSummonEagleTimer = 60000;
         }else m_uiSummonEagleTimer -= uiDiff;
 
-        if (!m_bIsBerserk && m_uiBerserkTimer < uiDiff)
+        if (!m_bIsBerserk && m_uiBerserkTimer <= uiDiff)
         {
             DoScriptText(SAY_ENRAGE, m_creature);
             m_creature->CastSpell(m_creature, SPELL_BERSERK, true);
@@ -265,7 +265,7 @@ struct MANGOS_DLL_DECL mob_soaring_eagleAI : public ScriptedAI
 
         if (m_bCanMoveToRandom)
         {
-            if (m_uiReturnTimer < uiDiff)
+            if (m_uiReturnTimer <= uiDiff)
             {
                 DoMoveToRandom();
                 m_uiReturnTimer = 800;
@@ -275,7 +275,7 @@ struct MANGOS_DLL_DECL mob_soaring_eagleAI : public ScriptedAI
         if (!m_bCanCast)
             return;
 
-        if (m_uiEagleSwoopTimer < uiDiff)
+        if (m_uiEagleSwoopTimer <= uiDiff)
         {
             if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM,0))
             {

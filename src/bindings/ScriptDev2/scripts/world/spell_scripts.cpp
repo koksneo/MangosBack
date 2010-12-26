@@ -224,6 +224,15 @@ enum
     NPC_SENTRY_BOT                      = 25753,
     SPELL_SUMMON_SENTRY_BOT             = 46068,
 
+    SPELL_GAVROK_RUNEBREAKER            = 47604,
+    NPC_FREED_GIANT                     = 26783,
+    NPC_WEAKENED_GIANT                  = 26872,
+    SAY_GIANT_FREED_0                   = -1999773,
+    SAY_GIANT_FREED_1                   = -1999772,
+    SAY_GIANT_FREED_2                   = -1999771,
+    SAY_GIANT_FREED_3                   = -1999770,
+    EMOTE_ZAPPING_FAILED                = -1999769,
+
     // target woodlands walker
     SPELL_STRENGTH_ANCIENTS             = 47575,
     SPELL_CREATE_BARK_WALKERS           = 47550,
@@ -244,6 +253,12 @@ enum
     NPC_DARKSPINE_MYRMIDON              = 25060,
     NPC_DARKSPINE_SIREN                 = 25073,
 
+    // Quest "War Is Hell" 11270
+    NPC_FALLEN_COMBATANT_1              = 24009,
+    NPC_FALLEN_COMBATANT_2              = 24010,
+    SPELL_FALLEN_COMBATAN_CREDIT        = 43297,
+    SPELL_BURN_BODY                     = 42793,
+    
     // quest 14107
     SPELL_BLESSING_OF_PEACE             = 66719,
     NPC_FALLEN_HERO_SPIRIT              = 32149,
@@ -263,7 +278,7 @@ enum
     // quest 12813, by item 40587
     SPELL_DARKMENDER_TINCTURE           = 52741,
     SPELL_SUMMON_CORRUPTED_SCARLET      = 54415,
-    NPC_CORPSES_RISE_CREDIT_BUNNY       = 29398,
+    NPC_CORPSES_RISE_CREDIT_BUNNY       = 29398
 };
 
 bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
@@ -377,11 +392,11 @@ bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
             
             if (Unit* pCaster = pAura->GetCaster())
                 DoScriptText(SAY_SPECIMEN, pCaster);
-
-            Unit* pTarget = pAura->GetTarget();
-            if (pTarget->GetTypeId() == TYPEID_UNIT)
+            
+            
+            if (pAura->GetTarget()->GetTypeId() == TYPEID_UNIT)
             {
-                Creature* pCreature = (Creature*)pTarget;
+                Creature* pCreature = (Creature*)pAura->GetTarget();
 
                 if (pCreature->GetEntry() == NPC_NEXUS_DRAKE_HATCHLING)
                 {
@@ -409,6 +424,40 @@ bool EffectAuraDummy_spell_aura_dummy_npc(const Aura* pAura, bool bApply)
             }
 
             return false;
+        }
+        case SPELL_FUMPING:
+        {
+            if (pAura->GetEffIndex() == EFFECT_INDEX_2)
+            {
+                switch(urand(0,2))
+                {
+                    case 0:
+                    {
+                        ((Unit*)pAura->GetCaster())->CastSpell((Creature*)pAura->GetTarget(), SPELL_SUMMON_HAISHULUD, true);
+                        break;
+                    }
+                    case 1:
+                    {
+                        for (int i = 0; i<2; ++i)
+                        {
+                            if (Creature* pSandGnome = ((Unit*)pAura->GetCaster())->SummonCreature(NPC_SAND_GNOME, ((Creature*)pAura->GetTarget())->GetPositionX(), ((Creature*)pAura->GetTarget())->GetPositionY(), ((Creature*)pAura->GetTarget())->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                                pSandGnome->AI()->AttackStart((Unit*)pAura->GetCaster());
+                        }
+                        break;
+                    }
+                    case 2:
+                    {
+                        for (int i = 0; i<2; ++i)
+                        {
+                            if (Creature* pMatureBoneSifter = ((Unit*)pAura->GetCaster())->SummonCreature(NPC_MATURE_BONE_SIFTER, ((Creature*)pAura->GetTarget())->GetPositionX(), ((Creature*)pAura->GetTarget())->GetPositionY(), ((Creature*)pAura->GetTarget())->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
+                                pMatureBoneSifter->AI()->AttackStart((Unit*)pAura->GetCaster());
+                        }
+                        break;
+                    }
+                }
+                ((Creature*)pAura->GetTarget())->ForcedDespawn();
+            }
+            return true;
         }
     }
 
@@ -690,6 +739,35 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
             }
             return true;
         }
+        case SPELL_GAVROK_RUNEBREAKER:
+        {
+            if (uiEffIndex == EFFECT_INDEX_0 && pCaster->GetTypeId() == TYPEID_PLAYER)
+            {
+                if (urand(0, 4) > 3)
+                {
+                    pCreatureTarget->UpdateEntry(NPC_FREED_GIANT);
+                    pCreatureTarget->RemoveAllAuras();
+                    pCreatureTarget->DeleteThreatList();
+                    pCreatureTarget->CombatStop(true);
+                    switch(urand(0, 3))
+                    {
+                        case 0: DoScriptText(SAY_GIANT_FREED_0, pCreatureTarget); break;
+                        case 1: DoScriptText(SAY_GIANT_FREED_1, pCreatureTarget); break;
+                        case 2: DoScriptText(SAY_GIANT_FREED_2, pCreatureTarget); break;
+                        case 3: DoScriptText(SAY_GIANT_FREED_3, pCreatureTarget); break;
+                    }
+                    ((Player*)pCaster)->KilledMonsterCredit(NPC_FREED_GIANT, pCreatureTarget->GetGUID());
+                    pCreatureTarget->ForcedDespawn(30000);
+                }
+                else
+                {
+                    pCreatureTarget->UpdateEntry(NPC_WEAKENED_GIANT);
+                    DoScriptText(EMOTE_ZAPPING_FAILED, pCreatureTarget);
+                    pCreatureTarget->AI()->AttackStart(pCaster);
+                }
+            }
+            return true;
+        }
         case SPELL_ORB_OF_MURLOC_CONTROL:
         {
             pCreatureTarget->CastSpell(pCaster, SPELL_GREENGILL_SLAVE_FREED, true);
@@ -701,40 +779,14 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
 
             return true;
         }
-        case SPELL_FUMPING:
+        case SPELL_BURN_BODY:
         {
-            if (uiEffIndex == EFFECT_INDEX_2)
-            {
-                switch(urand(0,2))
-                {
-                    case 0:
-                    {
-                        pCaster->CastSpell(pCreatureTarget, SPELL_SUMMON_HAISHULUD, true);
-                        break;
-                    }
-                    case 1:
-                    {
-                        for (int i = 0; i<2; ++i)
-                        {
-                            if (Creature* pSandGnome = pCaster->SummonCreature(NPC_SAND_GNOME, pCreatureTarget->GetPositionX(), pCreatureTarget->GetPositionY(), pCreatureTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
-                                pSandGnome->AI()->AttackStart(pCaster);
-                        }
-                        break;
-                    }
-                    case 2:
-                    {
-                        for (int i = 0; i<2; ++i)
-                        {
-                            if (Creature* pMatureBoneSifter = pCaster->SummonCreature(NPC_MATURE_BONE_SIFTER, pCreatureTarget->GetPositionX(), pCreatureTarget->GetPositionY(), pCreatureTarget->GetPositionZ(), 0.0f, TEMPSUMMON_TIMED_DESPAWN_OUT_OF_COMBAT, 30000))
-                                pMatureBoneSifter->AI()->AttackStart(pCaster);
-                        }
-                        break;
-                    }
-                }
-                pCreatureTarget->ForcedDespawn();
-            }
+            if (pCreatureTarget->GetEntry() == NPC_FALLEN_COMBATANT_1 || pCreatureTarget->GetEntry() == NPC_FALLEN_COMBATANT_2)
+                pCreatureTarget->CastSpell(pCaster, SPELL_FALLEN_COMBATAN_CREDIT, true);
+
             return true;
         }
+
     }
 
     return false;
@@ -742,7 +794,7 @@ bool EffectDummyCreature_spell_dummy_npc(Unit* pCaster, uint32 uiSpellId, SpellE
 
 void AddSC_spell_scripts()
 {
-    Script* newscript;
+    Script *newscript;
 
     newscript = new Script;
     newscript->Name = "spell_dummy_go";

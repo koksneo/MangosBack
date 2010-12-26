@@ -54,13 +54,14 @@ enum
     SPELL_MULTI_SHOT            = 38310,
     SPELL_SHOCK_BLAST           = 38509,
     SPELL_ENTANGLE              = 38316,
-    SPELL_STATIC_CHARGE_TRIGGER = 38280,
+    SPELL_STATIC_CHARGE_TRIGGER = 31715, //38280, <- nie dziala, trzeba obmyslic jak zmusic lady do castowania tego sama na siebie
     SPELL_FORKED_LIGHTNING      = 38145,
     SPELL_SHOOT                 = 38295,
 
     SPELL_TOXIC_SPORES          = 38575,
     SPELL_MAGIC_BARRIER         = 38112,
     SPELL_SURGE                 = 38044,
+    SPELL_THROW_KEY                = 38134,
 
     //tainted elemental
     SPELL_POISON_BOLT           = 38253,
@@ -72,7 +73,9 @@ enum
     NPC_COILFANG_ELITE          = 22055,
     NPC_TOXIC_SPOREBAT          = 22140,
 
-    NPC_SHIELD_GENERATOR        = 19870
+    NPC_SHIELD_GENERATOR        = 19870,
+
+    ITEM_TAINTED_CORE            = 31088
 };
 
 const float afMiddlePos[3]   = {30.134f, -923.65f, 42.9f};
@@ -81,14 +84,14 @@ const float afSporebatPos[4] = {30.977156f, -925.297761f, 77.176567f, 5.223932f}
 
 const float afElementPos[8][4] =
 {
-    {8.3f  , -835.3f , 21.9f, 5.0f},
-    {53.4f , -835.3f , 21.9f, 4.5f},
-    {96.0f , -861.9f , 21.8f, 4.0f},
-    {96.0f , -986.4f , 21.4f, 2.5f},
-    {54.4f , -1010.6f, 22.0f, 1.8f},
-    {9.8f  , -1012.0f, 21.7f, 1.4f},
-    {-35.0f, -987.6f , 21.5f, 0.8f},
-    {-58.9f, -901.6f , 21.5f, 6.0f}
+    {16.9f , -867.9f , 41.1f , 5.0f},
+    {42.9f , -868.9f , 41.1f , 4.5f},
+    {71.7f , -886.2f , 40.9f , 4.0f},
+    {71.6f , -961.8f , 41.1f , 2.5f},
+    {45.4f , -978.4f , 41.1f , 1.8f},
+    {17.3f , -978.8f , 41.0f , 1.4f},
+    {-10.6f , -963.7f , 41.04f , 0.8f},
+    {-25.4f , -909.9f , 41.1f , 6.0f}
 };
 
 const float afCoilfangElitePos[3][4] =
@@ -141,6 +144,7 @@ struct MANGOS_DLL_DECL boss_lady_vashjAI : public ScriptedAI
     uint32 m_uiSummonSporebat_StaticTimer;
     uint8  m_uiEnchantedElemental_Pos;
     uint8  m_uiPhase;
+    uint64 m_uiPlayer;
 
     bool m_bEntangle;
 
@@ -197,7 +201,10 @@ struct MANGOS_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         }
 
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_LADYVASHJ_EVENT, IN_PROGRESS);
+            m_pInstance->DestroyItemFromAllPlayers(ITEM_TAINTED_CORE);
+        }
     }
 
     void MovementInform(uint32 uiType, uint32 uiPointId)
@@ -265,7 +272,10 @@ struct MANGOS_DLL_DECL boss_lady_vashjAI : public ScriptedAI
         DoScriptText(SAY_DEATH, m_creature);
 
         if (m_pInstance)
+        {
             m_pInstance->SetData(TYPE_LADYVASHJ_EVENT, DONE);
+            m_pInstance->DestroyItemFromAllPlayers(ITEM_TAINTED_CORE);
+        }
     }
 
     void CastShootOrMultishot()
@@ -472,7 +482,7 @@ struct MANGOS_DLL_DECL boss_lady_vashjAI : public ScriptedAI
                     //set life 50%, not correct. Must remove 5% for each generator switched off
                     m_creature->SetHealth(m_creature->GetMaxHealth()/2);
 
-                    //m_creature->RemoveAurasDueToSpell(SPELL_MAGIC_BARRIER);
+                    m_creature->RemoveAurasDueToSpell(SPELL_MAGIC_BARRIER);
 
                     SetCombatMovement(true);
 
@@ -644,6 +654,16 @@ struct MANGOS_DLL_DECL mob_shield_generator_channelAI : public ScriptedAI
     void Reset() { }
 
     void MoveInLineOfSight(Unit* pWho) { }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if(m_pInstance)
+        {
+            Creature* vashj = m_creature->GetMap()->GetCreature(m_pInstance->GetData64(DATA_LADYVASHJ));
+            if( vashj && !vashj->HasAura(SPELL_MAGIC_BARRIER))
+                m_creature->CastSpell(vashj,SPELL_MAGIC_BARRIER,true);
+        }
+    }
 };
 
 //this is wrong, alternative script needed
@@ -658,7 +678,6 @@ bool ItemUse_item_tainted_core(Player* pPlayer, Item* pItem, SpellCastTargets co
     }
 
     Creature* pVashj = pPlayer->GetMap()->GetCreature(pInstance->GetData64(DATA_LADYVASHJ));
-
     if (!pVashj)
         return true;
 
@@ -666,45 +685,63 @@ bool ItemUse_item_tainted_core(Player* pPlayer, Item* pItem, SpellCastTargets co
 
     if (pVashjAI && pVashjAI->m_uiPhase == 2)
     {
-        if (sctTargets.getGOTarget() && sctTargets.getGOTarget()->GetTypeId()==TYPEID_GAMEOBJECT)
+        Unit* target = pPlayer->GetMap()->GetUnit((pPlayer)->GetSelectionGuid());
+        
+        if (!target || target->GetTypeId()!=TYPEID_PLAYER)
         {
-            uint32 uiIdentifier;
-            uint8 uiChannelIdentifier;
-            switch(sctTargets.getGOTarget()->GetEntry())
+            if (sctTargets.getGOTarget() && sctTargets.getGOTarget()->GetTypeId()==TYPEID_GAMEOBJECT)
             {
-                case 185052:
-                    uiIdentifier = TYPE_SHIELDGENERATOR1;
-                    uiChannelIdentifier = 0;
-                    break;
-                case 185053:
-                    uiIdentifier = TYPE_SHIELDGENERATOR2;
-                    uiChannelIdentifier = 1;
-                    break;
-                case 185051:
-                    uiIdentifier = TYPE_SHIELDGENERATOR3;
-                    uiChannelIdentifier = 2;
-                    break;
-                case 185054:
-                    uiIdentifier = TYPE_SHIELDGENERATOR4;
-                    uiChannelIdentifier = 3;
-                    break;
-                default:
+                error_log("Debug: Tainted Core used by %u", pPlayer->GetGUID());//usunac jesli wszytsko bedzie  OK
+                uint32 uiIdentifier;
+                uint8 uiChannelIdentifier;
+                switch(sctTargets.getGOTarget()->GetEntry())
+                {
+                    case 185052:
+                        uiIdentifier = TYPE_SHIELDGENERATOR1;
+                        uiChannelIdentifier = 0;
+                        break;
+                    case 185053:
+                        uiIdentifier = TYPE_SHIELDGENERATOR2;
+                        uiChannelIdentifier = 1;
+                        break;
+                    case 185051:
+                        uiIdentifier = TYPE_SHIELDGENERATOR3;
+                        uiChannelIdentifier = 2;
+                        break;
+                    case 185054:
+                        uiIdentifier = TYPE_SHIELDGENERATOR4;
+                        uiChannelIdentifier = 3;
+                        break;
+                    default:
+                        return true;
+                        break;
+                }
+
+                if (pInstance->GetData(uiIdentifier) == DONE)
                     return true;
-                    break;
-            }
 
-            if (pInstance->GetData(uiIdentifier) == DONE)
-                return true;
-
-            //get and remove channel
+                //get and remove channel
             if (Creature* pChannel = pVashj->GetMap()->GetCreature(pVashjAI->m_auiShieldGeneratorChannel[uiChannelIdentifier]))
-                pChannel->SetDeathState(JUST_DIED);         //calls Unsummon()
+                    pChannel->SetDeathState(JUST_DIED);         //calls Unsummon()
 
-            pInstance->SetData(uiIdentifier, DONE);
+                pInstance->SetData(uiIdentifier, DONE);
 
-            //remove this item
-            pPlayer->DestroyItemCount(31088, 1, true);
+                //remove this item
+                pPlayer->DestroyItemCount(ITEM_TAINTED_CORE, 1, true);
+            }
         }
+        else
+        {
+            if (target && target->GetTypeId() == TYPEID_PLAYER && target->isAlive() && target->IsInRange(pPlayer,0,39,true))
+                {
+                    error_log("Debyg code SSC: Tainted Core thrown to %u by %t",target->GetGUID(),pPlayer->GetGUID()); //usunac jesli wszystko bedzie OK
+                    pPlayer->DestroyItemCount(ITEM_TAINTED_CORE,pPlayer->GetItemCount(ITEM_TAINTED_CORE),true);
+                    pPlayer->CastSpell(target,SPELL_THROW_KEY,true);
+                    return false;
+                }
+        }
+
+        
     }
     return true;
 }

@@ -74,6 +74,7 @@ struct Script
 
 //Generic scripting text function
 void DoScriptText(int32 iTextEntry, WorldObject* pSource, Unit* pTarget = NULL);
+int GetCustomFix(int32 uId);
 
 #if COMPILER == COMPILER_GNU
 #define FUNC_PTR(name,callconvention,returntype,parameters)    typedef returntype(*name)parameters __attribute__ ((callconvention));

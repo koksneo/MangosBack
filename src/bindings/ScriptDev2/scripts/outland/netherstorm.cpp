@@ -757,6 +757,32 @@ CreatureAI* GetAI_npc_bessy(Creature* pCreature)
 }
 
 /*######
+## GO_Ethereal_Power_Pad
+######*/
+enum
+{
+	QUEST_NOT_SO_MODEST_PROPOSAL    = 10270,
+	ITEM_TELEPORTER_POWER_PACK      = 28969,
+	NPC_IMAGE_OF_WIND_TRADER_MARID  = 20518
+
+};
+bool GOHello_go_Ethereal_Teleport_pad(Player* pPlayer, GameObject* pGo)
+{
+	Creature* pMarid = GetClosestCreatureWithEntry(pPlayer, NPC_IMAGE_OF_WIND_TRADER_MARID, 30.0f);
+
+    if (pMarid)
+        return true;
+
+	if ((pPlayer->GetQuestRewardStatus(QUEST_NOT_SO_MODEST_PROPOSAL) == QUEST_STATUS_COMPLETE)|| pPlayer->GetQuestStatus(QUEST_NOT_SO_MODEST_PROPOSAL) == QUEST_STATUS_COMPLETE )
+	{
+		pPlayer->SummonCreature(NPC_IMAGE_OF_WIND_TRADER_MARID, 4007.11f, 1517.15f, -116.363f, -0.453786f, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 30000);
+
+	}
+	return true;
+
+}
+
+/*######
 ## npc_maxx_a_million
 ######*/
 
@@ -780,7 +806,6 @@ struct MANGOS_DLL_DECL npc_maxx_a_million_escortAI : public npc_escortAI
     uint32 m_uiSubEventTimer;
     uint64 m_uiAlleyGUID;
     uint64 m_uiLastDraeneiMachineGUID;
-
     void Reset()
     {
         if (!HasEscortState(STATE_ESCORT_ESCORTING))
@@ -956,6 +981,7 @@ CreatureAI* GetAI_npc_zeppit(Creature* pCreature)
     return new npc_zeppitAI(pCreature);
 }
 
+
 void AddSC_netherstorm()
 {
     Script* pNewScript;
@@ -998,6 +1024,11 @@ void AddSC_netherstorm()
     pNewScript->pQuestAccept = &QuestAccept_npc_bessy;
     pNewScript->RegisterSelf();
 
+    pNewScript = new Script;
+    pNewScript->Name = "go_Ethereal_Teleport_pad";
+    pNewScript->pGOHello = &GOHello_go_Ethereal_Teleport_pad;
+    pNewScript->RegisterSelf();
+    
     pNewScript = new Script;
     pNewScript->Name = "npc_maxx_a_million";
     pNewScript->GetAI = &GetAI_npc_maxx_a_million;

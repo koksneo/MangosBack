@@ -294,12 +294,13 @@ struct MANGOS_DLL_DECL boss_felblood_kaelthasAI : public ScriptedAI
                         float x = KaelLocations[random][0];
                         float y = KaelLocations[random][1];
 
-                        if (Creature* Phoenix = m_creature->SummonCreature(CREATURE_PHOENIX, x, y, LOCATION_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000))
+                        Creature* Phoenix = m_creature->SummonCreature(CREATURE_PHOENIX, x, y, LOCATION_Z, 0, TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN, 60000);
+                        if (Phoenix && pTarget)
                         {
                             Phoenix->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE + UNIT_FLAG_NON_ATTACKABLE);
                             SetThreatList(Phoenix);
-                            Phoenix->AI()->AttackStart(pTarget);
-                            DoScriptText(SAY_PHOENIX, m_creature);
+                                Phoenix->AI()->AttackStart(pTarget);
+                                DoScriptText(SAY_PHOENIX, m_creature);
                         }
                     }
 

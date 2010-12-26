@@ -121,7 +121,7 @@ struct MANGOS_DLL_DECL npc_galen_goodwardAI : public npc_escortAI
         {
             if (HasEscortState(STATE_ESCORT_NONE))
                 DoScriptText(SAY_PERIODIC, m_creature);
-            m_uiPeriodicSay = 6000;
+            m_uiPeriodicSay = 60000;
         }
         else
             m_uiPeriodicSay -= uiDiff;

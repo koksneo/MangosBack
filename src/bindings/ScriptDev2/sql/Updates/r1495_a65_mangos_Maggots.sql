@@ -1,1 +1,0 @@
-UPDATE creature_template SET scriptname = 'mob_maggot' WHERE entry = 28630;

@@ -3458,9 +3458,14 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
         // special case (spell specific functionality)
         if (m_modifier.m_miscvalue == 0)
         {
+            // player applied only
+            if (target->GetTypeId() != TYPEID_PLAYER)
+                return;
+
             switch (GetId())
             {
-                case 16739:                                 // Orb of Deception
+                // Orb of Deception
+                case 16739:
                 {
                     uint32 orb_model = target->GetNativeDisplayId();
                     switch(orb_model)
@@ -3509,27 +3514,25 @@ void Aura::HandleAuraTransform(bool apply, bool Real)
                     }
                     break;
                 }
-                case 42365:                                 // Murloc costume
-                    target->SetDisplayId(21723);
-                    break;
-                case 65386:                                 // Honor the Dead
+                // Murloc costume
+                case 42365: target->SetDisplayId(21723); break;
+                // Honor the Dead
+                case 65386:
                 case 65495:
                 {
                     switch(target->getGender())
                     {
                         case GENDER_MALE:
-                            target->SetDisplayId(29203);    // Chapman
+                            target->SetDisplayId(29203);  // Chapman
                             break;
                         case GENDER_FEMALE:
                         case GENDER_NONE:
-                            target->SetDisplayId(29204);    // Catrina
+                            target->SetDisplayId(29204);  // Catrina
                             break;
                     }
                     break;
                 }
-                default:
-                    sLog.outError("Aura::HandleAuraTransform, spell %u does not have creature entry defined, need custom defined model.", GetId());
-                    break;
+                default: break;
             }
         }
         else

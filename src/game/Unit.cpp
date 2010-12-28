@@ -8110,7 +8110,8 @@ void Unit::ClearInCombat()
     // Player's state will be cleared in Player::UpdateContestedPvP
     if (GetTypeId() != TYPEID_PLAYER)
     {
-            if (((Creature*)this)->GetCreatureInfo()->unit_flags & UNIT_FLAG_OOC_NOT_ATTACKABLE)
+        Creature* creature = (Creature*)this;
+        if (creature->GetCreatureInfo() && creature->GetCreatureInfo()->unit_flags & UNIT_FLAG_OOC_NOT_ATTACKABLE)
             SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_OOC_NOT_ATTACKABLE);
 
         clearUnitState(UNIT_STAT_ATTACK_PLAYER);
@@ -9137,19 +9138,18 @@ int32 Unit::CalculateSpellDamage(Unit const* target, SpellEntry const* spellProt
     if (comboDamage != 0 && unitPlayer && target && (target->GetObjectGuid() == unitPlayer->GetComboTargetGuid()))
         value += (int32)(comboDamage * comboPoints);
 
-    if (Player* modOwner = GetSpellModOwner())
+    if(Player* modOwner = GetSpellModOwner())
     {
         modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_ALL_EFFECTS, value);
-		
         switch(effect_index)
         {
-            case EFFECT_INDEX_0:
+            case 0:
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT1, value);
                 break;
-            case EFFECT_INDEX_1:
+            case 1:
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT2, value);
                 break;
-            case EFFECT_INDEX_2:
+            case 2:
                 modOwner->ApplySpellMod(spellProto->Id, SPELLMOD_EFFECT3, value);
                 break;
         }

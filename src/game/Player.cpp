@@ -21400,7 +21400,6 @@ void Player::SendEnterVehicle(Vehicle *vehicle)
     SendMessageToSet(&data, true);*/
 }
 
-
 bool Player::isTotalImmune()
 {
     AuraList const& immune = GetAurasByType(SPELL_AURA_SCHOOL_IMMUNITY);

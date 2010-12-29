@@ -1023,7 +1023,7 @@ bool WorldSession::VerifyMovementInfo(MovementInfo const& movementInfo, ObjectGu
 
 void WorldSession::HandleMoverRelocation(MovementInfo& movementInfo)
 {
-    movementInfo.UpdateTime(getMSTime());
+    movementInfo.UpdateTime(WorldTimer::getMSTime());
 
     Unit *mover = _player->GetMover();
 

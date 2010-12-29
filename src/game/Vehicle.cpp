@@ -295,9 +295,9 @@ void Vehicle::SetDeathState(DeathState s)                       // overwrite vir
     }
 }
 
-void Vehicle::Update(uint32 diff)
+void Vehicle::Update( uint32 update_diff, uint32 diff)
 {
-    Creature::Update(diff);
+    Creature::Update(update_diff, diff);
 
     if(despawn)
     {

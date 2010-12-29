@@ -157,7 +157,7 @@ void WorldSession::HandleMessagechatOpcode( WorldPacket & recv_data )
             }
 
             GetPlayer()->UpdateSpeakTime();
-        }
+		}
     }
 
     switch(type)

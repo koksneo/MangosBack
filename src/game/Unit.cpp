@@ -464,7 +464,7 @@ void Unit::SendMonsterMoveTransport(Unit *vehicle)
     data << float(vehicle->GetPositionX());
     data << float(vehicle->GetPositionY());
     data << float(vehicle->GetPositionZ());
-    data << uint32(getMSTime());
+    data << uint32(WorldTimer::getMSTime());
 
     data << uint8(4);                                       // unknown
     data << float(0);                                       // facing angle
@@ -11581,7 +11581,7 @@ void Unit::EnterVehicle(Vehicle *vehicle, int8 seat_id, bool force)
     data << uint8(seat_id);
     data << uint8(0);
     data << v->GetPositionX() << v->GetPositionY() << v->GetPositionZ();
-    data << uint32(getMSTime());
+    data << uint32(WorldTimer::getMSTime());
 
     data << uint8(4);
     data << float(0);

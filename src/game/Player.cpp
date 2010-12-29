@@ -21400,37 +21400,6 @@ void Player::SendEnterVehicle(Vehicle *vehicle)
     SendMessageToSet(&data, true);*/
 }
 
-void Player::ExitVehicle(Vehicle *vehicle)
-{
-    vehicle->SetCharmerGuid(ObjectGuid());
-    vehicle->SetFlag(UNIT_NPC_FLAGS, UNIT_NPC_FLAG_SPELLCLICK);
-    vehicle->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_PLAYER_CONTROLLED);
-    vehicle->setFaction((GetTeam() == ALLIANCE) ? vehicle->GetCreatureInfo()->faction_A : vehicle->GetCreatureInfo()->faction_H);
-
-    SetCharm(NULL);
-    m_camera.ResetView();
-
-    SetClientControl(vehicle, 0);
-    SetMover(NULL);
-
-    WorldPacket data(MSG_MOVE_TELEPORT_ACK, 30);
-    data << GetPackGUID();
-    data << uint32(0);                                      // counter?
-    data << uint32(MOVEFLAG_ROOT);                          // fly unk
-    data << uint16(MOVEFLAG2_UNK4);                         // special flags
-    data << uint32(WorldTimer::getMSTime());                            // time
-    data << vehicle->GetPositionX();                        // x
-    data << vehicle->GetPositionY();                        // y
-    data << vehicle->GetPositionZ();                        // z
-    data << vehicle->GetOrientation();                      // o
-    data << uint32(0);                                      // fall time
-    GetSession()->SendPacket(&data);
-
-    RemovePetActionBar();
-
-    // maybe called at dummy aura remove?
-    // CastSpell(this, 45472, true);                        // Parachute
-}
 
 bool Player::isTotalImmune()
 {

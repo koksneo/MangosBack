@@ -155,7 +155,7 @@ bool VehicleKit::AddPassenger(Unit *unit, int8 seatId)
     unit->m_movementInfo.AddMovementFlag(MOVEFLAG_ONTRANSPORT);
     unit->m_movementInfo.SetTransportData(m_pBase->GetGUID(),
         veSeat->m_attachmentOffsetX, veSeat->m_attachmentOffsetY, veSeat->m_attachmentOffsetZ,
-        veSeat->m_passengerYaw, getMSTime(), seat->first, veSeat);
+        veSeat->m_passengerYaw, WorldTimer::getMSTime(), seat->first, veSeat);
 
     if (unit->GetTypeId() == TYPEID_PLAYER)
     {
@@ -365,7 +365,7 @@ bool Vehicle::Create(uint32 guidlow, Map *map, uint32 phaseMask, uint32 Entry, u
     LoadCreatureAddon();
 
     m_regenHealth = false;
-    m_creation_time = getMSTime();
+    m_creation_time = WorldTimer::getMSTime();
 
     SetFloatValue(UNIT_FIELD_HOVERHEIGHT, 1.0f);
 

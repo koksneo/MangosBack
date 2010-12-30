@@ -2,8 +2,8 @@
 -- this should be redone if some new data come
 -- if it is not appying than you have to change custom entry to freeone
 DELETE FROM creature_template where entry = 40002;
-INSERT INTO creature_template VALUES
-('40002','0','0','0','0','0','1141','0','1141','0','Arcane Prison Spell Focus',NULL,NULL,'0','1','1','64','64','0','0','20','35','35','0','0.91','1','0','2','2','0','1','1','2000','2200','0','33554434','0','0','0','0','0','0','1.76','2.42','100','10','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','0','','0','4','0.01','1','0','0','0','0','0','0','0','88','1','0','0','130','');
+INSERT INTO `creature_template` VALUES
+(40002, 0, 0, 0, 0, 0, 1141, 0, 1141, 0, 'Arcane Prison Spell Focus', NULL, NULL, 0, 1, 1, 64, 64, 0, 0, 20, 35, 35, 0, 0.91, 1.14286, 1, 0, 2, 2, 0, 1, 1, 2000, 2200, 0, 33554434, 0, 0, 0, 0, 0, 0, 1.76, 2.42, 100, 10, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, '', 0, 4, 0.01, 1, 0, 0, 0, 0, 0, 0, 0, 88, 1, 0, 0, 0 , 0, 130, '');
 DELETE FROM creature WHERE id = 40002;
 INSERT INTO creature VALUES
 ('9000004','40002','571','1','1','0','0','3485.32','6115.87','74.2931','2.77507','300','0','0','1','0','0','0'),
@@ -31,8 +31,3 @@ WHERE entry IN (25320,25318);
 -- Q Prison Break - Arcane Prisoners (Alliance & Horde)
 UPDATE creature_template SET ScriptName = 'mob_arcane_prisoner' WHERE entry IN (25320,25318);
 
--- Q: Prison Break 
-DELETE FROM script_texts WHERE entry IN (-1999803,-1999802);
-INSERT INTO script_texts (`entry`,`content_default`,`comment`) VALUES
-(-1999803,'Thank you, $R. I shall not forget your kindness!','Arcane Prisoner - Succeded'),
-(-1999802,'It is.... too late for me....','Arcane Prisoner - Succeded');

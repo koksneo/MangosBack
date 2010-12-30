@@ -15,8 +15,8 @@ faction_H = 416
 WHERE entry IN (2748,7309,7076,7077,4857,10120);
 
 -- Achaedas
-REPLACE INTO creature_addon VALUES
-(33537,0,0,4097,0,0,'10255 0');
+REPLACE INTO creature_addon (guid,mount,bytes1,b2_0_sheath,auras) VALUES
+(33537,0,0,4097,'10255 0');
 
 -- Awake Guardian
 DELETE FROM spell_script_target WHERE entry = 10259;

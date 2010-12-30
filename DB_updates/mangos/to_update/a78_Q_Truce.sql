@@ -19,8 +19,8 @@ INSERT INTO gossip_scripts (id, delay, command, datalong, datalong2, dataint) VA
 (26423,0,8,27921,0,0);
 
 DELETE FROM spell_scripts WHERE id=50001;
-INSERT INTO spell_scripts VALUES
-(50001,0,0,1,0,0,0,0x01,2000007013,0,0,0,0);
+INSERT INTO spell_scripts (id,delay,command,datalong,datalong2,datalong3,datalong4,data_flags,dataint) VALUES
+(50001,0,0,1,0,0,0,0x01,2000007013);
 
 DELETE FROM db_script_string WHERE entry=2000007013;
 INSERT INTO db_script_string (entry,content_default) VALUES

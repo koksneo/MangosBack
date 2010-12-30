@@ -117,16 +117,18 @@ struct MANGOS_DLL_DECL mob_mature_netherwing_drakeAI : public ScriptedAI
                 {
                     if (Player* pPlayer = m_creature->GetMap()->GetPlayer(uiPlayerGUID))
                     {
-                        if (GameObject* pGo = pPlayer->GetGameObject(SPELL_PLACE_CARCASS))
-                        {
+                        // GObject can't be found. temporar workaround (same working in practic)
+                        //if (GameObject* pGo = pPlayer->GetGameObject(SPELL_PLACE_CARCASS))
+                        //{
                             if (m_creature->GetMotionMaster()->GetCurrentMovementGeneratorType() == WAYPOINT_MOTION_TYPE)
                                 m_creature->GetMotionMaster()->MovementExpired();
 
                             m_creature->GetMotionMaster()->MoveIdle();
                             m_creature->StopMoving();
 
-                            m_creature->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
-                        }
+                            //m_creature->GetMotionMaster()->MovePoint(POINT_ID, pGo->GetPositionX(), pGo->GetPositionY(), pGo->GetPositionZ());
+                            m_creature->GetMotionMaster()->MovePoint(POINT_ID, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ());
+                        //}
                     }
                     bCanEat = false;
                 }

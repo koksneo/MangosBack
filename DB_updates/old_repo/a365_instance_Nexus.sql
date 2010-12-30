@@ -3,14 +3,14 @@ DELETE FROM creature_ai_scripts WHERE id IN (2692806,2692904,2693006);
 INSERT INTO creature_ai_scripts VALUES
 (2692806,26928,1,0,100,6,10000,10000,0,0, 41,0,0,0, 0,0,0,0, 0,0,0,0,'Grand Magus Telestra OOC despawn'),
 (2692904,26929,1,0,100,6,10000,10000,0,0, 41,0,0,0, 0,0,0,0, 0,0,0,0,'Grand Magus Telestra OOC despawn'),
-(2693006,26930,1,0,100,6,10000,10000,0,0, 41,0,0,0, 0,0,0,0, 0,0,0,0,'Grand Magus Telestra OOC despawn'),
+(2693006,26930,1,0,100,6,10000,10000,0,0, 41,0,0,0, 0,0,0,0, 0,0,0,0,'Grand Magus Telestra OOC despawn');
 
 ###################################### boss_anomalus ######################################################
 
 -- rift - invisible 
 UPDATE creature_template SET
-modelid_A = 25206,
-modelid_H = 25206
+modelid_1 = 25206,
+modelid_2 = 25206
 WHERE entry IN (26918,30522);
 UPDATE creature_template SET AIName = 'EventAI', ScriptName = '' WHERE entry IN (26918);
 

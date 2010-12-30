@@ -4,8 +4,8 @@ INSERT into spell_script_target VALUES
 (55197,0,191760);
 
 DELETE from event_scripts WHERE id=19410;
-INSERT into event_scripts VALUES
-(19410,0,10,29775,120000,0,0,0,0,7991.81,-827.674,968.263,2.89725);
+INSERT into event_scripts (id,delay,command,datalong,datalong2,x,y,z,o) VALUES
+(19410,0,10,29775,120000,7991.81,-827.674,968.263,2.89725);
 
 DELETE from creature WHERE id=29775;
 

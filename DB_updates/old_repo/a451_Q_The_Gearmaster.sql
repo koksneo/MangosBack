@@ -1,9 +1,9 @@
 -- Support for quest The gearmaster(11798)
 
 DELETE FROM event_scripts WHERE id=17209;
-INSERT INTO event_scripts VALUES
-(17209,0,8,27995,0,0,0,0,0,0),
-(17209,0,10,25834,300000,0,3999.99,4854.41,25.9699,4.69093);
+INSERT INTO event_scripts (id,delay,command,datalong,datalong2,x,y,z,o) VALUES
+(17209,0,8,27995,0,0,0,0,0),
+(17209,0,10,25834,300000,3999.99,4854.41,25.9699,4.69093);
 
 -- Gearmaster Mechazod
 UPDATE creature_template SET

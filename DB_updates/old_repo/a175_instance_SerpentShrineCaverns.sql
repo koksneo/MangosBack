@@ -1,17 +1,16 @@
 -- out of combat bug
 UPDATE `creature_template` SET `InhabitType` = '3' WHERE `entry` = '21217';
-DELETE FROM `creature_model_info` WHERE modelid IN (20216);
-INSERT INTO `creature_model_info` VALUES ('20216', '14', '15', '2', '0'); 
 
 -- add lurker
 DELETE FROM `creature` WHERE id IN (21217);
-INSERT INTO `creature` VALUES (NULL, '21217', '548', '1', '0', '0', '40.4058', '-417.108', '-21.5911', '3.03312', '604800', '0', '0', '3794000', '0', '0', '0');
-
-DELETE FROM creature_ai_scripts WHERE creature_id IN (21865);
+INSERT INTO `creature` VALUES 
+(93838, 21217, 548, 1, 1, 0, 0, 40.4058, -417.108, -21.5911, 3.03312, 604800, 0, 0, 2655000, 0, 0, 0);
 
 -- Coilfang Ambusher AI update
-INSERT INTO `creature_ai_scripts` VALUES ( NULL , '21865', '0', '0', '100', '6', '0', '0','0','0', '21', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Coilfang Ambusher - Stop Movement on Aggro');
-INSERT INTO `creature_ai_scripts` VALUES ( NULL , '21865', '0', '0', '100', '7', '7300', '7300','7300','7300', '11', '29576', '4', '0', '0', '0', '0', '0', '0', '0', '0', '0', 'Coilfang Ambusher - Multishoot');
+DELETE FROM creature_ai_scripts WHERE creature_id=21865;
+INSERT INTO `creature_ai_scripts` VALUES 
+(2186501, 21865, 0, 0, 100, 3, 500, 500, 3600, 7200, 11, 37770, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Coilfang Ambusher - Cast Shoot'),
+(2186502, 21865, 0, 0, 100, 3, 7300, 7300, 12000, 17200, 11, 37790, 4, 0, 0, 0, 0, 0, 0, 0, 0, 0, 'Coilfang Ambusher - Cast Spread Shot');
 
 -- Tidwalker Lurker (summon)
 DELETE FROM creature_ai_scripts WHERE creature_id = 21920;

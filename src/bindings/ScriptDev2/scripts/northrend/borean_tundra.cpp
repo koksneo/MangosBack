@@ -946,16 +946,14 @@ struct MANGOS_DLL_DECL npc_beryl_sorcererAI : public FollowerAI
 {
     npc_beryl_sorcererAI(Creature* pCreature) : FollowerAI(pCreature) { 
         Reset(); 
-        m_uiNormalFaction = pCreature->getFaction();
     }
 
     bool bEnslaved;
     uint64 uiChainerGUID;
-    uint32 m_uiNormalFaction;
 
     void Reset()
     {
-         m_creature->setFaction(m_uiNormalFaction);
+         m_creature->setFaction(14);
          bEnslaved = false;
     }
     void EnterCombat(Unit* pWho)

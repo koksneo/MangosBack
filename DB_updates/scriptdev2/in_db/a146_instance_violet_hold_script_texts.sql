@@ -1,8 +1,8 @@
 -- Instance Violet Hold
 
 -- Erekem texts
-DELETE FROM script_texts WHERE entry BETWEEN -1608010 AND -1608017;
-INSERT INTO script_texts (entry,content_default,sound,type,comment) VALUES
+
+REPLACE INTO script_texts (entry,content_default,sound,type,comment) VALUES
 (-1608010,'Not--caww--get in way of--rrak-rrak--flee! ',14219,1,'A_VH_Erekem_Aggro'),
 # (-1608011,'',14222,1,'A_VH_Erekem_Slay01'),
 # (-1608012,'',14223,1,'A_VH_Erekem_Slay02'),
@@ -13,8 +13,8 @@ INSERT INTO script_texts (entry,content_default,sound,type,comment) VALUES
 (-1608017,'Nasty little...A-ak, kaw! Kill! Yes, kill you! ',14221,1,'A_VH_Erekem_BothAddsDead');
 
 -- Ichoron texts
-DELETE FROM script_texts WHERE entry BETWEEN -1608018 AND -1608026;
-INSERT INTO script_texts (entry,content_default,sound,type,comment) VALUES
+
+REPLACE INTO script_texts (entry,content_default,sound,type,comment) VALUES
 (-1608018,'Stand aside, mortals!',14230,1,'A_VH_Ichoron_Aggro'),
 (-1608019,'I am a force of nature!',14234,1,'A_VH_Ichoron_Slay01'),
 (-1608020,'I shall pass!',14235,1,'A_VH_Ichoron_Slay02'),
@@ -26,8 +26,8 @@ INSERT INTO script_texts (entry,content_default,sound,type,comment) VALUES
 (-1608026,'Water can hold any form, take any shape... overcome any obstacle.',14232,1,'A_VH_Ichoron_Bubble');
 
 -- Xevozz texts
-DELETE FROM script_texts WHERE entry BETWEEN -1608027 AND -1608036;
-INSERT INTO script_texts (entry,content_default,sound,type,comment) VALUES
+
+REPLACE INTO script_texts (entry,content_default,sound,type,comment) VALUES
 (-1608027,'It seems my freedom must be bought with blood... ',14499,1,'A_VH_Xevozz_Aggro'),
 (-1608028,'Nothing personal. ',14504,1,'A_VH_Xevozz_Slay01'),
 (-1608029,'Business concluded.',14505,1,'A_VH_Xevozz_Slay02'),
@@ -40,8 +40,8 @@ INSERT INTO script_texts (entry,content_default,sound,type,comment) VALUES
 (-1608036,'Intriguing... a high quantity of arcane energy is near. Time for some prospecting...',14500,1,'A_VH_Xevozz_SummonEnergy');
 
 -- Zuramat texts
-DELETE FROM script_texts WHERE entry BETWEEN -1608037 AND -1608044;
-INSERT INTO script_texts (entry,content_default,sound,type,comment) VALUES
+
+REPLACE INTO script_texts (entry,content_default,sound,type,comment) VALUES
 (-1608037,'Eradicate.',13996,1,'A_VH_Zuramat_Aggro'),
 (-1608038,'More... energy.',13999,1,'A_VH_Zuramat_Slay01'),
 (-1608039,'Relinquish.',14000,1,'A_VH_Zuramat_Slay02'),
@@ -52,8 +52,8 @@ INSERT INTO script_texts (entry,content_default,sound,type,comment) VALUES
 (-1608044,'Gaze... into the void.',13998,1,'A_VH_Zuramat_Whisper');
 
 -- Cyanigosa
-DELETE FROM script_texts WHERE entry BETWEEN -1608045 AND -1608054;
-INSERT INTO script_texts (entry,content_default,sound,type,comment) VALUES
+
+REPLACE INTO script_texts (entry,content_default,sound,type,comment) VALUES
 (-1608045,'A valiant defense, but this city must be razed. I will fulfill Malygos\'s wishes myself!',13946,1,'A_VH_Cyanigosa_Spawn'),
 (-1608046,'We finish this now, champions of Kirin Tor!',13947,1,'A_VH_Cyanigosa_Aggro'),
 (-1608047,'Shiver and die!',13948,1,'A_VH_Cyanigosa_BreathAttack'),
@@ -67,8 +67,8 @@ INSERT INTO script_texts (entry,content_default,sound,type,comment) VALUES
 
 
 -- Lieutenant Sinclari (30658)
-DELETE FROM script_texts WHERE entry=-1608009;
-INSERT INTO script_texts (entry,content_default,type,comment) VALUES
+
+REPLACE INTO script_texts (entry,content_default,type,comment) VALUES
 (-1608009,'You did it! You held the Blue Dragonblight back and defeated their commander. Amazing work!',1,'sinclair SAY_END');
 DELETE FROM gossip_texts WHERE entry IN (-3608001,-3608000);
 INSERT INTO gossip_texts (entry,content_default,comment) VALUES
@@ -78,14 +78,14 @@ INSERT INTO gossip_texts (entry,content_default,comment) VALUES
 
 
 -- Boss emotes
-DELETE FROM script_texts WHERE entry=-1608008;
-INSERT INTO script_texts (entry,content_default,type,comment) VALUES
+
+REPLACE INTO script_texts (entry,content_default,type,comment) VALUES
 (-1608008,'Ichoron\'s Protective Bubble shatters!',3,'EMOTE_ICHORON_PROTECTIVE_BUBBLE');
 
 
 -- Azure texts
-DELETE FROM script_texts WHERE entry BETWEEN -1608055 AND -1608065;
-INSERT INTO script_texts (entry,content_default,type,comment) VALUES
+
+REPLACE INTO script_texts (entry,content_default,type,comment) VALUES
 (-1608055,'The Kirin Tor must be stopped!',0,'AZURE_SAY_AGGRO_1'),
 (-1608056,'Dalaran must fall!',0,'AZURE_SAY_AGGRO_2'),
 (-1608057,'The Nexus War will not be stopped!',0,'AZURE_SAY_AGGRO_3'),

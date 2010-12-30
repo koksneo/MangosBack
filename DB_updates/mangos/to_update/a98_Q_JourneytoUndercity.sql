@@ -16,7 +16,7 @@ INSERT INTO db_script_string (entry,content_default) VALUES
 (2000003000,'%s looks down at the discarded necklace. In her sandess the lady incants a glamour, which beckons forth Highborne spirits. The chamber resonates with their ancient song about the Sin\'dorei...');
 
 DELETE FROM quest_end_scripts WHERE id=9180;
-INSERT INTO quest_end_scripts VALUES
+INSERT INTO quest_end_scripts (id,delay,command,datalong,datalong2,datalong3,datalong4,data_flags,dataint,x,y,z,o) VALUES
 (9180,0,15,36568,0,0,0,0,0,0,0,0,0),
 (9180,0,0,2,10181,50,0,0x04,2000003000,0,0,0,0),
 (9180,8,10,21641,18000,0,0,0,0,1296.11,310.007,-58.837,2.38355),

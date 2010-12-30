@@ -1851,6 +1851,7 @@ struct MANGOS_DLL_DECL mob_flame_tsunamiAI : public ScriptedAI
     {
         m_creature->SetDisplayId(11686);
         m_creature->AddSplineFlag(SPLINEFLAG_FLYING);
+        m_creature->SetSpeedRate(MOVE_WALK, 4.5f, true);
         m_uiMovementStartTimer = 4000;
     }
 

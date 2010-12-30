@@ -4,8 +4,8 @@
 
 UPDATE creature_template SET 
 AIName='EventAI',
-modelid_A=11686,
-modelid_H=11686
+modelid_1=11686,
+modelid_2=11686
 WHERE entry IN (26889,26887);
 
 DELETE FROM creature_ai_scripts WHERE creature_id IN (26889,26887);

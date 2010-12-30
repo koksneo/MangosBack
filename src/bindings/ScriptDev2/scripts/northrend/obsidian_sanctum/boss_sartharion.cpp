@@ -687,6 +687,8 @@ struct MANGOS_DLL_DECL boss_sartharionAI : public ScriptedAI
             m_uiCheckTwilightTimer -= uiDiff;
 
         DoMeleeAttackIfReady();
+
+        EnterEvadeIfOutOfCombatArea(uiDiff);
     }
 };
 

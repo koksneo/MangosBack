@@ -406,6 +406,12 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             pUnit->CastSpell(pUnit, SPELL_ARCANE_OVERLOAD, false, 0, 0, m_creature->GetGUID());
             pUnit->SetFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
         }
+        else if (pSpell->Id == SPELL_SURGE_OF_POWER || pSpell->Id == SPELL_SURGE_OF_POWER_H)
+        {
+            // "Malygos fixes his eyes on you!"
+            if (Player *pPlr = pUnit->GetCharmerOrOwnerPlayerOrPlayerItself())
+                DoScriptText(EMOTE_SURGE_WHISPER, m_creature, pPlr);
+        }
     }
 
     void JustSummoned(Creature* pSummoned)
@@ -823,6 +829,9 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 SetCombatMovement(false);
                 m_creature->GetMotionMaster()->Clear();
                 m_creature->GetMotionMaster()->MovePoint(POINT_ID_VORTEX_AIR, CENTER_X, CENTER_Y, AIR_Z);
+                // remove Spark's buff
+                if (SpellAuraHolder *holder = m_creature->GetSpellAuraHolder(SPELL_POWER_SPARK))
+                    m_creature->RemoveSpellAuraHolder(holder);
                 m_uiSubPhase = SUBPHASE_VORTEX;
                 m_uiVortexPhase = 0;
                 m_uiVortexTimer = 60000;
@@ -1118,7 +1127,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             {
                 if (m_uiTimer <= uiDiff)
                 {
-                    m_uiSubPhase = 0;
+                    m_uiSubPhase = 35;
                     DoScriptText(SAY_AGGRO3, m_creature);
                     m_uiArcaneStormTimer = 6000;
                 }
@@ -1159,20 +1168,15 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
 
             if (m_uiStaticFieldTimer <= uiDiff)
             {
-                for (uint8 i = 0; i<=50; ++i)
+                if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
                 {
-                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                        if (pTarget->GetEntry() == NPC_WYRMREST_SKYTALON)
-                        {
-                            switch (urand(0, 5))
-                            {
-                                case 0: DoScriptText(SAY_CAST_SPELL1, m_creature); break;
-                                case 1: DoScriptText(SAY_CAST_SPELL2, m_creature); break;
-                                case 2: DoScriptText(SAY_CAST_SPELL3, m_creature); break;
-                            }
-                            DoCast(pTarget, SPELL_STATIC_FIELD_MISSILE);
-                            break;
-                        }
+                    switch (urand(0, 5))
+                    {
+                        case 0: DoScriptText(SAY_CAST_SPELL1, m_creature); break;
+                        case 1: DoScriptText(SAY_CAST_SPELL2, m_creature); break;
+                        case 2: DoScriptText(SAY_CAST_SPELL3, m_creature); break;
+                    }
+                    DoCast(pTarget, SPELL_STATIC_FIELD_MISSILE);
                 }
 
                 m_uiStaticFieldTimer = urand(10000, 16000);
@@ -1182,27 +1186,37 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
 
             /*if (m_uiSurgeOfPowerTimer <= uiDiff)
             {
-                for (uint8 i = 0; i<=50; ++i)
+                if (!m_bIsRegularMode)
                 {
-                    if (Unit* pTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
-                        //if (pTarget->GetEntry() == NPC_WYRMREST_SKYTALON)
-                        if (pTarget->GetTypeId() == TYPEID_PLAYER)
+                    DoCast(m_creature, SPELL_SURGE_OF_POWER_H);
+                }
+                else
+                {
+                    if (Unit* pRandomTarget = m_creature->SelectAttackingTarget(ATTACKING_TARGET_RANDOM, 0))
+                    {
+                        Creature *pVictim;
+
+                        if (pRandomTarget->GetEntry() == NPC_WYRMREST_SKYTALON)
+                        {
+                            pVictim = (Creature*)pRandomTarget;
+                        }
+                        else if (pRandomTarget->GetTypeId() == TYPEID_PLAYER)
                         {
                             if (m_pInstance)
-                                if (Creature *pVictim = m_pInstance->instance->GetAnyTypeCreature(ObjectGuid(pTarget->GetVehicleGUID())))
-                                {
-                                    m_uiSubPhase = SUBPHASE_SURGE_OF_POWER;
-                                    m_uiTimer = 6500;
-
-                                    if (urand(0, 1))
-                                        DoScriptText(SAY_SURGE_OF_POWER, m_creature);
-
-                                    DoCast(pVictim, m_bIsRegularMode ? SPELL_SURGE_OF_POWER : SPELL_SURGE_OF_POWER_H);
-                                    // "Malygos fixes his eyes on you!"
-                                    DoScriptText(EMOTE_SURGE_WHISPER, m_creature, pTarget);
-                                    break;
-                                }
+                                pVictim = m_pInstance->instance->GetAnyTypeCreature(ObjectGuid(pRandomTarget->GetVehicleGUID()));
                         }
+
+                        if (pVictim)
+                        {
+                            m_uiSubPhase = SUBPHASE_SURGE_OF_POWER;
+                            m_uiTimer = 6500;
+
+                            if (urand(0, 1))
+                                DoScriptText(SAY_SURGE_OF_POWER, m_creature);
+
+                            DoCast(pVictim, SPELL_SURGE_OF_POWER);
+                        }
+                    }
                 }
 
                 m_uiSurgeOfPowerTimer = urand(5000, 15000);

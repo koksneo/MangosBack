@@ -461,7 +461,6 @@ Player::Player (WorldSession *session): Unit(), m_mover(this), m_camera(this), m
     // group is initialized in the reference constructor
     SetGroupInvite(NULL);
     m_groupUpdateMask = 0;
-    m_auraUpdateMask = 0;
 
     duel = NULL;
 

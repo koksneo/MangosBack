@@ -545,6 +545,63 @@ bool GOHello_go_still_at_it_quest(Player* pPlayer, GameObject* pGo)
     return false;
 };
 
+/*#######################
+# mob_mosswalker_victim #
+########################*/ 
+enum
+{
+    QUEST_MOSSWALKER_SAVIOR          = 12580, 
+    SPELL_DESPAWN_SELF               = 43014,
+    NPC_MOSSWALKER_KILL_CREDIT       = 28644,
+    SAY_SAVED_1                      = -1770000,
+    SAY_SAVED_2                      = -1770001,
+    SAY_SAVED_3                      = -1770002,
+    SAY_SAVED_4                      = -1770003,
+    SAY_DIE_1                        = -1770004,
+    SAY_DIE_2                        = -1770005,
+    SAY_DIE_3                        = -1770006,
+    SAY_DIE_4                        = -1770007,
+    SAY_DIE_5                        = -1770008,
+};
+
+int32 SavedText[4] = {SAY_SAVED_1,SAY_SAVED_2,SAY_SAVED_3,SAY_SAVED_4};
+int32 DieText[5]   = {SAY_DIE_1,SAY_DIE_2,SAY_DIE_3,SAY_DIE_4,SAY_DIE_5};
+
+#define GOSSIP_EVENT_CHECK_PULSE "<Check for pulse.>"
+
+bool GossipHello_mob_mosswalker_victim(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if (pPlayer->GetQuestStatus(QUEST_MOSSWALKER_SAVIOR) == QUEST_STATUS_INCOMPLETE) 
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_EVENT_CHECK_PULSE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+    pPlayer->SEND_GOSSIP_MENU(pPlayer->GetGossipTextId(pCreature) , pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_mob_mosswalker_victim(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF)
+    {
+        pPlayer->CLOSE_GOSSIP_MENU();
+
+        if(urand(0, 1))
+        {
+                DoScriptText(DieText[urand(0,4)], pCreature); 
+                pCreature->ForcedDespawn(2000);
+        }
+        else 
+        {
+                DoScriptText(SavedText[urand(0,3)], pCreature); 
+                pPlayer->KilledMonsterCredit(NPC_MOSSWALKER_KILL_CREDIT,pCreature->GetGUID());
+                pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, true);
+        }
+    }
+    return true;
+}
+
 void AddSC_sholazar_basin()
 {
     Script *newscript;
@@ -584,5 +641,11 @@ void AddSC_sholazar_basin()
     newscript->GetAI = &GetAI_npc_tipsy_mcmanus;
     newscript->pGossipHello = &GossipHello_npc_tipsy_mcmanus;
     newscript->pGossipSelect = &GossipSelect_npc_tipsy_mcmanus;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_mosswalker_victim";
+    newscript->pGossipHello = &GossipHello_mob_mosswalker_victim;
+    newscript->pGossipSelect = &GossipSelect_mob_mosswalker_victim;
     newscript->RegisterSelf();
 }

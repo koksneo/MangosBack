@@ -1,7 +1,8 @@
 -- Instance Ulduar
 
 -- ****** Ignis the Furnace Master ******
-UPDATE `creature_template` SET `mechanic_immune_mask` = 617299839, `ScriptName` = "boss_ignis" WHERE `entry` = 33118;
+UPDATE `creature_template` SET `ScriptName` = "boss_ignis" WHERE `entry` = 33118;
+UPDATE `creature_template` SET lootid = entry, `mechanic_immune_mask` = 617299839 WHERE entry IN (33118, 33190);
 UPDATE `creature_template` SET `ScriptName` = "mob_iron_construct" WHERE `entry` = 33121;
 UPDATE `creature_template` SET `AIName` = "EventAI" WHERE `entry` = 33221;
 DELETE FROM `creature_ai_scripts` WHERE `creature_id` = 33221;
@@ -50,7 +51,8 @@ INSERT INTO `reference_loot_template` VALUES
 (33191, 45187, 0, 1, 1, 1, 0, 0, 0);
 
 -- ****** Razorscale ******
-UPDATE creature_template SET mechanic_immune_mask=617299803, `lootid` = `entry`, `InhabitType` = 7, `ScriptName`="boss_razorscale" WHERE entry=33186;
+UPDATE creature_template SET `ScriptName`="boss_razorscale" WHERE entry=33186;
+UPDATE creature_template SET mechanic_immune_mask=617299803, `lootid` = `entry`, `InhabitType` = 7 WHERE entry IN (33186, 33724);
 -- original x=587.547, y= -174.927, z = 391.517; make the boss fly before encounter starts
 update creature set position_x = 590.346741, position_y = -226.947647, position_z = 460.897583 where id = 33186;
 UPDATE gameobject_template SET flags= 6553648, ScriptName="go_broken_harpoon" WHERE entry = 194565;
@@ -112,7 +114,8 @@ INSERT INTO `reference_loot_template` VALUES
 (33725, 45137, 0, 1, 1, 1, 0, 0, 0);
 
 -- ****** XT-002 Deconstructor ******
-UPDATE `creature_template` SET `lootid` = 33293, `mechanic_immune_mask` = 617299839, `lootid` = `entry`, `ScriptName` = "boss_xt_002" WHERE `entry` = 33293;
+UPDATE `creature_template` SET `ScriptName` = "boss_xt_002" WHERE `entry` = 33293;
+UPDATE `creature_template` SET `mechanic_immune_mask` = 617299839, `lootid` = `entry` WHERE entry IN (33293, 33885);
 UPDATE `creature_template` SET `ScriptName` = "mob_xtheart" WHERE `entry` = 33329;
 UPDATE `creature_template` SET `ScriptName` = "mob_pummeler" WHERE `entry` = 33344;
 UPDATE `creature_template` SET `ScriptName` = "mob_boombot" WHERE `entry` = 33346;

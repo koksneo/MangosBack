@@ -602,6 +602,303 @@ bool GossipSelect_mob_mosswalker_victim(Player* pPlayer, Creature* pCreature, ui
     return true;
 }
 
+/*#######################
+# npc_artruis_heartless #
+#######################*/ 
+enum
+{
+    SPELL_FROSTBOLT                 = 15530,
+    SPELL_ICE_LANCE                 = 54261,
+    SPELL_ICY_VEINS                 = 54792,
+    SPELL_FROST_NOVA                = 11831,
+    SPELL_BINDINGS_OF_SUBMISSION    = 52185,
+    GO_ARTRUISS_PYLACTERY           = 190777,
+    SAY_AGGRO                       = -1780000,
+    EMOTE_SHIELDED                  = -1780001,
+
+};
+struct MANGOS_DLL_DECL npc_artruisAI : public ScriptedAI
+{
+    npc_artruisAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+
+    uint32 m_uiFrostboltTimer;
+    uint32 m_uiIcyVeinsTimer;
+    uint32 m_uiIceLanceTimer;
+    uint32 m_uiFrostNovaTimer;
+    bool bIsBinded;
+    bool bCastedBindings;
+
+    void Reset() 
+    {
+        m_uiFrostboltTimer = 1000;
+        m_uiIceLanceTimer  = 200;
+        m_uiFrostNovaTimer = 100;
+        m_uiIcyVeinsTimer  = 4500;
+        bIsBinded          = false ;
+        bCastedBindings    = false ;
+        
+        m_creature->RemoveAurasDueToSpell(SPELL_BINDINGS_OF_SUBMISSION);        
+    }
+    void Aggro(Unit* pWho)
+    {
+        DoScriptText(SAY_AGGRO, m_creature); 
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        if(GameObject* pGo = GetClosestGameObjectWithEntry(m_creature, GO_ARTRUISS_PYLACTERY, 30.0f))
+            {
+                pGo->SetRespawnTime(1*MINUTE);
+                pGo->Respawn();
+            }
+    }
+    
+    void UpdateAI (uint32 const uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if(!bIsBinded)
+        {
+            if (m_uiIceLanceTimer <= uiDiff)     
+            {  
+                DoCast(m_creature->getVictim(), SPELL_ICE_LANCE);
+                m_uiIceLanceTimer = 7000;                    
+            } else m_uiIceLanceTimer -= uiDiff;
+
+            if (m_uiFrostNovaTimer <= uiDiff)     
+            { 
+                DoCast(m_creature->getVictim(), SPELL_FROST_NOVA);
+                m_uiFrostNovaTimer = 14000;                    
+            } else m_uiFrostNovaTimer -= uiDiff;
+
+            if (m_uiFrostboltTimer <= uiDiff)     
+            { 
+                DoCast(m_creature->getVictim(), SPELL_FROSTBOLT);
+                m_uiFrostboltTimer = 4000;                    
+            } else m_uiFrostboltTimer -= uiDiff;
+
+            if (m_uiIcyVeinsTimer <= uiDiff)     
+            { 
+                DoCast(m_creature->getVictim(), SPELL_ICY_VEINS);
+                m_uiIcyVeinsTimer = 25000;                    
+            } else m_uiIcyVeinsTimer -= uiDiff;
+            
+            if(!bCastedBindings &&(m_creature->GetHealth()*100 / m_creature->GetMaxHealth()) < 30)
+            {
+                 m_creature->InterruptNonMeleeSpells(true);
+                DoCast(m_creature->getVictim(), SPELL_BINDINGS_OF_SUBMISSION);
+                DoScriptText(EMOTE_SHIELDED, m_creature); 
+                bCastedBindings = true;
+                bIsBinded = true;
+
+            }
+        }
+
+
+    }
+
+
+};
+CreatureAI* GetAI_npc_artruis(Creature* pCreature)
+{
+    return new npc_artruisAI(pCreature);
+} 
+/*##################
+# npc_jaloot_zepik #
+##################*/ 
+enum
+{
+    SPELL_TOMB_OF_HEARTLESS         = 52182,
+    SPELL_Z_OPEN_WOUND              = 52873,
+    SPELL_Z_SPIKE_TRAP              = 52886,
+    SPELL_J_LIGHTNING_WHIRL         = 52943,
+    SPELL_J_SPARK_FRENZY            = 52964,
+    FACTION_MONSTER                 = 14,
+    FACTION_TO_RESTORE              = 250,
+    NPC_ZEPIK                       = 28668,
+    NPC_JALOOT                      = 28667,
+    NPC_ARTRUIS_HEARTLESS           = 28659,
+};
+struct MANGOS_DLL_DECL npc_jaloot_zepikAI : public ScriptedAI
+{
+    npc_jaloot_zepikAI(Creature* pCreature) : ScriptedAI(pCreature) {Reset();}
+
+    uint32 m_uiZOpenWoundTimer; 
+    uint32 m_uiZSpikeTrapTimer; 
+    uint32 m_uiJLightningWhirlTimer; 
+    uint32 m_uiJSparkFrenzyTimer;
+    uint32 m_uiCheckArtruisTimer;
+
+    void Reset() 
+    {
+        m_creature->setFaction(FACTION_TO_RESTORE);
+        m_creature->CastSpell(m_creature, SPELL_TOMB_OF_HEARTLESS,false);
+        m_uiZOpenWoundTimer = 2000;
+        m_uiZSpikeTrapTimer = 4000;
+        m_uiJLightningWhirlTimer = 2000;
+        m_uiJSparkFrenzyTimer = 4000;
+        m_uiCheckArtruisTimer = 5000;
+    }
+
+    void SpellHit(Unit* pCaster, const SpellEntry *pSpell)
+    {
+        switch (pSpell->Id)
+        {
+            case 52185: m_creature->RemoveAurasDueToSpell(SPELL_TOMB_OF_HEARTLESS); 
+                        if(Creature* pArtruis = GetClosestCreatureWithEntry(m_creature, NPC_ARTRUIS_HEARTLESS, 60.0f))
+                         {                             
+                                m_creature->Attack( pArtruis->getVictim(),true);
+                                m_creature->GetMotionMaster()->MoveChase(pArtruis->getVictim());
+                         }
+                        m_creature->setFaction(FACTION_MONSTER);
+                        break;
+        }
+    }
+    
+    void AttackStart(Unit* pWho)
+    {
+        if(pWho->GetTypeId() == TYPEID_PLAYER)
+        {
+            switch(m_creature->GetEntry())
+            {
+                case NPC_ZEPIK: if(Creature* pJaloot = GetClosestCreatureWithEntry(m_creature, NPC_JALOOT, 30.0f))
+                                {
+                                    pJaloot->AddThreat(m_creature->getVictim(),9999.9f,false);
+                                    pJaloot->Attack( m_creature->getVictim(),true);
+                                }
+                                break;
+
+                case NPC_JALOOT: if(Creature* pZepik = GetClosestCreatureWithEntry(m_creature, NPC_ZEPIK, 60.0f))
+                                {
+                                      pZepik->AddThreat(m_creature->getVictim(),9999.9f,false);
+                                      pZepik->Attack( m_creature->getVictim(),true);
+                                }
+                                break;
+
+                default: break;
+            }   
+        }
+
+    }
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        switch(m_creature->GetEntry())
+        {
+            case NPC_ZEPIK:
+                 Zepik_UpdateAI(uiDiff);
+                 break;
+
+            case NPC_JALOOT:
+                 Jaloot_UpdateAI(uiDiff);
+                 break;
+            default: break;
+         }
+
+        if (m_uiCheckArtruisTimer <= uiDiff)     
+        { 
+             if(Creature* pArtruis = GetClosestCreatureWithEntry(m_creature, NPC_ARTRUIS_HEARTLESS, 30.0f))
+             {
+                 if(!pArtruis->isAlive())
+                     EnterEvadeMode();
+             }
+                                
+        } else m_uiCheckArtruisTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+
+    }
+
+    void Zepik_UpdateAI(const uint32 uiDiff)
+    {
+            if (m_uiZOpenWoundTimer <= uiDiff)     
+            { 
+                DoCast(m_creature->getVictim(), SPELL_Z_OPEN_WOUND);
+                m_uiZOpenWoundTimer = 4000;                    
+            } else m_uiZOpenWoundTimer -= uiDiff;
+            
+            if (m_uiZSpikeTrapTimer <= uiDiff)     
+            { 
+                DoCast(m_creature->getVictim(), SPELL_Z_SPIKE_TRAP);
+                m_uiZSpikeTrapTimer = 4000;                    
+            } else m_uiZSpikeTrapTimer -= uiDiff;
+    }
+
+    void Jaloot_UpdateAI(const uint32 uiDiff)
+    {
+        if (m_uiJLightningWhirlTimer <= uiDiff)     
+            { 
+                DoCast(m_creature->getVictim(), SPELL_J_LIGHTNING_WHIRL);
+                m_uiJLightningWhirlTimer = 4000;                    
+            } else m_uiJLightningWhirlTimer -= uiDiff;
+            
+            if (m_uiJSparkFrenzyTimer <= uiDiff)     
+            { 
+                DoCast(m_creature->getVictim(), SPELL_J_SPARK_FRENZY);
+                m_uiJSparkFrenzyTimer = 4000;                    
+            } else m_uiJSparkFrenzyTimer -= uiDiff;
+
+    }
+
+    void JustDied(Unit* pKiller)
+    {
+        switch(m_creature->GetEntry())
+        {
+            case NPC_ZEPIK: if(Creature* pJaloot = GetClosestCreatureWithEntry(m_creature, NPC_JALOOT, 30.0f))
+                             {
+                                  pJaloot->setFaction(FACTION_TO_RESTORE);
+                                  
+                                  if(Creature* pArtruis = GetClosestCreatureWithEntry(pJaloot, NPC_ARTRUIS_HEARTLESS, 30.0f))
+                                  {
+                                      pJaloot->AddThreat(pArtruis, 999999.9f,true);
+                                      pJaloot->Attack( pArtruis,true);
+                                      m_creature->GetMotionMaster()->MoveChase(pArtruis);
+                                      pArtruis->RemoveAurasDueToSpell(SPELL_BINDINGS_OF_SUBMISSION);
+                                  }
+                             }
+                             break;
+
+            case NPC_JALOOT: if(Creature* pZepik = GetClosestCreatureWithEntry(m_creature, NPC_ZEPIK, 60.0f))
+                             {
+                                  pZepik->setFaction(FACTION_TO_RESTORE);
+                                  if(Creature* pArtruis = GetClosestCreatureWithEntry(pZepik, NPC_ARTRUIS_HEARTLESS, 60.0f))
+                                  {
+                                      pZepik->AddThreat(pArtruis, 999999.9f,true);
+                                      pZepik->Attack( pArtruis,true);
+                                      m_creature->GetMotionMaster()->MoveChase(pArtruis);
+                                      pArtruis->RemoveAurasDueToSpell(SPELL_BINDINGS_OF_SUBMISSION);
+                                  }
+                             }
+                             break;
+
+            default: break;
+        }
+        if(Creature* pArtruis = GetClosestCreatureWithEntry(m_creature, NPC_ARTRUIS_HEARTLESS, 30.0f))
+        {
+            if (npc_artruisAI* pArtruisAI = dynamic_cast<npc_artruisAI*>(pArtruis->AI()))
+            {
+                pArtruisAI->bIsBinded = false;
+            }
+        }
+
+    }
+
+    void JustReachedHome()
+    {
+        m_creature->CastSpell(m_creature, SPELL_TOMB_OF_HEARTLESS,false);  
+    } 
+
+};
+
+CreatureAI* GetAI_npc_jaloot_zepik(Creature* pCreature)
+{
+    return new npc_jaloot_zepikAI(pCreature);
+}
+
+
 void AddSC_sholazar_basin()
 {
     Script *newscript;
@@ -648,4 +945,14 @@ void AddSC_sholazar_basin()
     newscript->pGossipHello = &GossipHello_mob_mosswalker_victim;
     newscript->pGossipSelect = &GossipSelect_mob_mosswalker_victim;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_jaloot_zepik";
+    newscript->GetAI = &GetAI_npc_jaloot_zepik;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_artruis";
+    newscript->GetAI = &GetAI_npc_artruis;
+    newscript->RegisterSelf(); 
 }

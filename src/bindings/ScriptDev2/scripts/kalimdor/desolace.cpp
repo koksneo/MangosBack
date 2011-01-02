@@ -24,6 +24,7 @@ EndScriptData */
 /* ContentData
 npc_aged_dying_ancient_kodo
 go_hand_of_iruxos_crystal
+go_demon_portal
 EndContentData */
 
 #include "precompiled.h"
@@ -168,24 +169,46 @@ bool GossipHello_npc_aged_dying_ancient_kodo(Player* pPlayer, Creature* pCreatur
 
 enum
 {
-QUEST_HAND_OF_IRUXOS    = 5381,
-NPC_DEMON_SPIRIT        = 11876
+	QUEST_HAND_OF_IRUXOS    = 5381,
+	NPC_DEMON_SPIRIT        = 11876
+
 };
 
 bool GOHello_go_hand_of_iruxos_crystal (Player* pPlayer, GameObject* pGo)
 {
-Creature* pDemon = GetClosestCreatureWithEntry(pPlayer, NPC_DEMON_SPIRIT, 25.0f);
+	Creature* pDemon = GetClosestCreatureWithEntry(pPlayer, NPC_DEMON_SPIRIT, 25.0f);
+	
+	if (pDemon)
+		return true;
+	
+	if (pPlayer->GetQuestStatus(QUEST_HAND_OF_IRUXOS) == QUEST_STATUS_INCOMPLETE)
+	{
+		pPlayer->SummonCreature(NPC_DEMON_SPIRIT, -359.605f, 1781.72f, 139.352f, 5.31098f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN , 99999999);
+	}
+	return true;
+};
 
-    if (pDemon)
-        return true;
-
-if (pPlayer->GetQuestStatus(QUEST_HAND_OF_IRUXOS) == QUEST_STATUS_INCOMPLETE)
+/*######
+## go_demon_portal
+######*/
+enum
 {
-pPlayer->SummonCreature(NPC_DEMON_SPIRIT, -359.605f, 1781.72f, 139.352f, 5.31098f, TEMPSUMMON_TIMED_OR_DEAD_DESPAWN , 99999999);
+    QUEST_PORTAL_LEGIONS             = 5581,
+    NPC_DEMON_PORTAL_GUARDIAN        = 11937
 
-}
-return true;
+};
+bool GOHello_go_demon_portal(Player* pPlayer, GameObject* pGo)
+{
+	Creature* pCreature = GetClosestCreatureWithEntry(pPlayer, NPC_DEMON_PORTAL_GUARDIAN, 5.0f);
 
+	if (pCreature)
+		return true;
+
+	if (pPlayer->GetQuestStatus(QUEST_PORTAL_LEGIONS) == QUEST_STATUS_INCOMPLETE)
+	{
+		pPlayer->SummonCreature(NPC_DEMON_PORTAL_GUARDIAN, pPlayer->GetPositionX(), pPlayer->GetPositionY(), pPlayer->GetPositionZ(), pPlayer->GetOrientation(), TEMPSUMMON_TIMED_OR_DEAD_DESPAWN, 99999999);
+	}
+	return true;
 };
 
 void AddSC_desolace()
@@ -203,5 +226,10 @@ void AddSC_desolace()
     newscript = new Script;	
     newscript->Name = "go_hand_of_iruxos_crystal";
     newscript->pGOHello = &GOHello_go_hand_of_iruxos_crystal;
+    newscript->RegisterSelf();
+	
+	newscript = new Script;	
+    newscript->Name = "go_demon_portal";
+    newscript->pGOHello = &GOHello_go_demon_portal;
     newscript->RegisterSelf();
 }

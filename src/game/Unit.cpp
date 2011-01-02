@@ -9318,17 +9318,24 @@ int32 Unit::CalculateSpellDamage(Unit const* target, SpellEntry const* spellProt
 int32 Unit::CalculateBaseSpellDuration(SpellEntry const* spellProto, uint32* periodicTime)
 {
     int32 duration = GetSpellDuration(spellProto);
+    Player *unitPlayer;
 
     if (duration < 0)
         return duration;
 
-    if (GetTypeId() == TYPEID_PLAYER)
-    {
-        int32 maxduration = GetSpellMaxDuration(spellProto);
+    if(GetTypeId() == TYPEID_PLAYER)
+        unitPlayer = (Player*)this;
+    else if(((Creature*)this)->IsVehicle())
+        unitPlayer = (Player*)GetCharmer();
+    else
+        unitPlayer = NULL;
 
-        if (duration != maxduration)
-            duration += int32((maxduration - duration) * ((Player*)this)->GetComboPoints() / 5);
-    }
+    uint8 comboPoints = unitPlayer ? unitPlayer->GetComboPoints() : 0;
+
+    int32 maxduration = GetSpellMaxDuration(spellProto);
+
+    if (duration != maxduration)
+        duration += int32((maxduration - duration) * comboPoints / 5);
 
     Player* modOwner = GetSpellModOwner();
 

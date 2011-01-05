@@ -709,9 +709,9 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                         if (pSpell)
                             pSpell->Attributes |= SPELL_ATTR_CANT_CANCEL;
 
-                        Creature* pVortex = m_creature->SummonCreature(NPC_VORTEX, VORTEX_FARSIGHT_X, VORTEX_FARSIGHT_Y, VORTEX_FARSIGHT_Z, VORTEX_FARSIGHT_O, TEMPSUMMON_TIMED_DESPAWN, 15000);
+                        //Creature* pVortex = m_creature->SummonCreature(NPC_VORTEX, VORTEX_FARSIGHT_X, VORTEX_FARSIGHT_Y, VORTEX_FARSIGHT_Z, VORTEX_FARSIGHT_O, TEMPSUMMON_TIMED_DESPAWN, 15000);
                         Map* pMap = m_creature->GetMap();
-                        if (pMap && pVortex)
+                        if (pMap/* && pVortex*/)
                         {
                             Map::PlayerList const &lPlayers = pMap->GetPlayers();
                             for (Map::PlayerList::const_iterator itr = lPlayers.begin(); itr != lPlayers.end(); ++itr)
@@ -722,7 +722,7 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                                 //Far sight, should be vehicle but this is enough
                                 //Crash the server in group update far members, dunno why
                                 //I will try to use this again, maybe I have fix...
-                                itr->getSource()->GetCamera().SetView(pVortex);
+                                //itr->getSource()->GetCamera().SetView(pVortex);
                                 if (pSpell)
                                     itr->getSource()->CastSpell(itr->getSource(), pSpell, true);
                                 else

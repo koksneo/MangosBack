@@ -14,7 +14,6 @@ INSERT INTO `creature` (`guid`,`id`,`map`,`spawnMask`,`phaseMask`,`modelid`,`equ
 
 -- change MovementType for Plaguehound
 UPDATE `creature_template` SET MovementType = 2 WHERE entry = 24156;
-SELECT * FROM `creature_template` WHERE entry = 24156;
 
 -- Plaguehound roars
 DELETE FROM creature_movement_scripts WHERE id=2415601;

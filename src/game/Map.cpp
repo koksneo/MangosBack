@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -31,7 +31,7 @@
 #include "ObjectAccessor.h"
 #include "ObjectMgr.h"
 #include "World.h"
-#include "ScriptCalls.h"
+#include "ScriptMgr.h"
 #include "Group.h"
 #include "MapRefManager.h"
 #include "DBCEnums.h"
@@ -1471,7 +1471,7 @@ void InstanceMap::CreateInstanceData(bool load)
     if (mInstance)
     {
         i_script_id = mInstance->script_id;
-        i_data = Script->CreateInstanceData(this);
+        i_data = sScriptMgr.CreateInstanceData(this);
     }
 
     if(!i_data)
@@ -2401,7 +2401,7 @@ void Map::ScriptsProcess()
                 Unit* spellSource = (Unit*)cmdSource;
 
                 //TODO: when GO cast implemented, code below must be updated accordingly to also allow GO spell cast
-                spellSource->CastSpell(spellTarget, step.script->castSpell.spellId, false);
+                spellSource->CastSpell(spellTarget, step.script->castSpell.spellId, (step.script->castSpell.flags & 0x04) != 0);
 
                 break;
             }
@@ -2718,7 +2718,7 @@ void Map::ScriptsProcess()
                     pOwner->SetDisplayId(step.script->morph.creatureOrModelEntry);
                 else
                 {
-                    CreatureInfo const* ci = GetCreatureTemplateStore(step.script->morph.creatureOrModelEntry);
+                    CreatureInfo const* ci = ObjectMgr::GetCreatureTemplate(step.script->morph.creatureOrModelEntry);
                     uint32 display_id = Creature::ChooseDisplayId(ci);
 
                     pOwner->SetDisplayId(display_id);
@@ -2775,7 +2775,7 @@ void Map::ScriptsProcess()
                     pOwner->Mount(step.script->mount.creatureOrModelEntry);
                 else
                 {
-                    CreatureInfo const* ci = GetCreatureTemplateStore(step.script->mount.creatureOrModelEntry);
+                    CreatureInfo const* ci = ObjectMgr::GetCreatureTemplate(step.script->mount.creatureOrModelEntry);
                     uint32 display_id = Creature::ChooseDisplayId(ci);
 
                     pOwner->Mount(display_id);

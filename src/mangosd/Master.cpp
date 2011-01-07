@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2005-2010 MaNGOS <http://getmangos.com/>
+ * Copyright (C) 2005-2011 MaNGOS <http://getmangos.com/>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -34,10 +34,11 @@
 #include "Database/DatabaseEnv.h"
 #include "CliRunnable.h"
 #include "RASocket.h"
-#include "ScriptCalls.h"
 #include "Util.h"
 #include "revision_sql.h"
 #include "MaNGOSsoap.h"
+#include "MassMailMgr.h"
+#include "DBCStores.h"
 
 #include <ace/OS_NS_signal.h>
 #include <ace/TP_Reactor.h>
@@ -346,6 +347,9 @@ int Master::Run()
     ///- Clean account database before leaving
     clearOnlineAccounts();
 
+    // send all still queued mass mails (before DB connections shutdown)
+    sMassMailMgr.Update(true);
+
     ///- Wait for DB delay threads to end
     CharacterDatabase.HaltDelayThread();
     WorldDatabase.HaltDelayThread();
@@ -402,10 +406,6 @@ int Master::Run()
 
         delete cliThread;
     }
-
-    // for some unknown reason, unloading scripts here and not in worldrunnable
-    // fixes a memory leak related to detaching threads from the module
-    UnloadScriptingModule();
 
     ///- Exit the process with specified return value
     return World::GetExitCode();

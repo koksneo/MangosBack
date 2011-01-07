@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug_NoPCH|Win32">
@@ -438,6 +438,7 @@
     <ClCompile Include="..\..\src\game\Mail.cpp" />
     <ClCompile Include="..\..\src\game\Map.cpp" />
     <ClCompile Include="..\..\src\game\MapManager.cpp" />
+    <ClCompile Include="..\..\src\game\MassMailMgr.cpp" />
     <ClCompile Include="..\..\src\game\MapUpdater.cpp" />
     <ClCompile Include="..\..\src\game\MiscHandler.cpp" />
     <ClCompile Include="..\..\src\game\MotionMaster.cpp" />
@@ -476,7 +477,6 @@
     <ClCompile Include="..\..\src\game\RandomMovementGenerator.cpp" />
     <ClCompile Include="..\..\src\game\ReactorAI.cpp" />
     <ClCompile Include="..\..\src\game\ReputationMgr.cpp" />
-    <ClCompile Include="..\..\src\game\ScriptCalls.cpp" />
     <ClCompile Include="..\..\src\game\ScriptMgr.cpp" />
     <ClCompile Include="..\..\src\game\SkillDiscovery.cpp" />
     <ClCompile Include="..\..\src\game\SkillExtraItems.cpp" />
@@ -598,6 +598,7 @@
     <ClInclude Include="..\..\src\game\MapManager.h" />
     <ClInclude Include="..\..\src\game\MapReference.h" />
     <ClInclude Include="..\..\src\game\MapRefManager.h" />
+    <ClInclude Include="..\..\src\game\MassMailMgr.h" />
     <ClInclude Include="..\..\src\game\MapUpdater.h" />
     <ClInclude Include="..\..\src\game\MotionMaster.h" />
     <ClInclude Include="..\..\src\game\MovementGenerator.h" />
@@ -622,7 +623,6 @@
     <ClInclude Include="..\..\src\game\RandomMovementGenerator.h" />
     <ClInclude Include="..\..\src\game\ReactorAI.h" />
     <ClInclude Include="..\..\src\game\ReputationMgr.h" />
-    <ClInclude Include="..\..\src\game\ScriptCalls.h" />
     <ClInclude Include="..\..\src\game\ScriptMgr.h" />
     <ClInclude Include="..\..\src\game\SharedDefines.h" />
     <ClInclude Include="..\..\src\game\SkillDiscovery.h" />

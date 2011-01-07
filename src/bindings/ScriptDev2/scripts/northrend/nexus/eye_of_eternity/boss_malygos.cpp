@@ -554,7 +554,6 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
                 pTempVortexVisual->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NON_ATTACKABLE);
                 pTempVortexVisual->RemoveFlag(UNIT_FIELD_FLAGS, UNIT_FLAG_NOT_SELECTABLE);
                 pTempVortexVisual->setFaction(85);
-                m_creature->AddThreat(pTempVortexVisual, 1000000000.0f);
 
                 pTempVortexVisual->CastSpell(pTempVortexVisual, SPELL_VORTEX_VISUAL, true);
             }
@@ -687,8 +686,12 @@ struct MANGOS_DLL_DECL boss_malygosAI : public ScriptedAI
             SetCombatMovement(true);
             DoCast(m_creature, SPELL_BERSERK, true);
             m_uiEnrageTimer = 600000;
-            m_creature->GetMotionMaster()->Clear(false, true);
-            m_creature->GetMotionMaster()->MoveChase(m_creature->getVictim());
+
+            if (Unit *pVictim = m_creature->getVictim())
+            {
+                m_creature->GetMotionMaster()->Clear(false, true);
+                m_creature->GetMotionMaster()->MoveChase(pVictim);
+            }
         }
         else
             m_uiEnrageTimer -= uiDiff;

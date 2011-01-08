@@ -785,6 +785,11 @@ LexicsCutterNoActionOnGM = 1
 #        Default: 1 (true)
 #                 0 (false)
 #
+#    ShowProgressBars
+#        Control show progress bars for load steps at server startup
+#        Default: 1 (true)
+#                 0 (false)
+#
 #    WaitAtStartupError
 #        After startup error report wait <Enter> or some time before continue (and possible close console window)
 #                 -1 (wait until <Enter> press)
@@ -858,6 +863,7 @@ PetUnsummonAtMount = 1
 ClientCacheVersion = 0
 Event.Announce = 0
 BeepAtStart = 1
+ShowProgressBars = 1
 WaitAtStartupError = 0
 Motd = "Welcome to the Massive Network Game Object Server."
 
@@ -1353,6 +1359,11 @@ Visibility.Distance.Grey.Object = 10
 #         Default: 1 (enabled)
 #                  0 (disabled)
 #
+#    Death.Ghost.RunSpeed.World
+#    Death.Ghost.RunSpeed.Battleground
+#         Modifies the speed of player's ghosts, removed upon reviving, not permanent/saved, in non-BG and BG maps
+#         Default: 1.0 (normal speed)
+#
 #    BattleGround.Random.ResetHour
 #        Hour when random bg reset (0..23)
 #        Default: 6
@@ -1415,6 +1426,8 @@ Death.CorpseReclaimDelay.PvP = 1
 Death.CorpseReclaimDelay.PvE = 1
 Death.Bones.World = 1
 Death.Bones.BattlegroundOrArena = 1
+Death.Ghost.RunSpeed.World = 1.0
+Death.Ghost.RunSpeed.Battleground = 1.0
 
 ###################################################################################################################
 # BATTLEGROUND CONFIG

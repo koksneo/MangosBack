@@ -33,7 +33,9 @@ npc_lurgglbr
 EndContentData */
 
 #include "precompiled.h"
+#include "ObjectMgr.h"
 #include "escort_ai.h"
+#include "follower_ai.h"
 
 /*######
 ## npc_fizzcrank_fullthrottle
@@ -526,6 +528,506 @@ CreatureAI* GetAI_npc_lurgglbr(Creature* pCreature)
 {
     return new npc_lurgglbrAI(pCreature);
 }
+/*######
+## mob_elder
+######*/
+enum
+{
+    SPELL_ANCESTOR_RITUAL               = 45536,
+    SPELL_GREEN_BEAM                    = 39165,
+
+    NPC_ELDER_KESUK                     = 25397,
+    NPC_ELDER_SAGANI                    = 25398,
+    NPC_ELDER_TAKRET                    = 25399,
+    
+    GO_ELDER_KESUK                      = 191088,
+    GO_ELDER_SAGANI                     = 191089,
+    GO_ELDER_TAKRET                     = 191090,
+
+    POINT_ID                            = 1
+};
+
+struct MANGOS_DLL_DECL mob_elderAI : public ScriptedAI
+{
+    mob_elderAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+
+    bool bEventInProgress;
+    uint64 uiPlayerGUID;
+    uint32 m_uiResetTimer;
+
+    void Reset()
+    {
+        uiPlayerGUID = 0;
+        m_uiResetTimer = 10000;
+
+        m_creature->InterruptSpell(CURRENT_CHANNELED_SPELL,false);
+        m_creature->RemoveAllAuras();
+        m_creature->SetDisplayId(m_creature->GetNativeDisplayId());
+        m_creature->GetMotionMaster()->MoveTargetedHome();
+
+        bEventInProgress = false;
+    }
+
+    void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+    {
+        if (!pCaster || bEventInProgress)
+            return;
+
+        if (pCaster->GetTypeId() == TYPEID_PLAYER && pSpell->Id == SPELL_ANCESTOR_RITUAL)
+        {
+            bEventInProgress = true;
+            uiPlayerGUID = pCaster->GetGUID();
+            m_creature->GetMotionMaster()->MoveIdle();
+            m_creature->StopMoving();
+
+            uint32 go_entry;
+            switch (m_creature->GetEntry())
+            {
+                case NPC_ELDER_SAGANI:  go_entry = GO_ELDER_SAGANI; break;
+                case NPC_ELDER_KESUK:   go_entry = GO_ELDER_KESUK; break;
+                case NPC_ELDER_TAKRET:  go_entry = GO_ELDER_TAKRET; break;
+                default: break;
+            }
+            
+            float x,y,z;
+            if (GameObject* pGo = GetClosestGameObjectWithEntry(pCaster, go_entry, DEFAULT_VISIBILITY_DISTANCE))
+                pGo->GetNearPoint(pGo,x,y,z,2.0f,2.0f,pGo->GetOrientation());
+            else 
+            {
+                error_log("SD2: mob_elder (%s entry %u) couldn't find gameobject entry %u. Please check your database",m_creature->GetName(),m_creature->GetEntry(),go_entry);
+                Reset();
+            }
+
+            m_creature->GetMotionMaster()->MovePoint(POINT_ID,x,y,z);
+        }
+    }
+
+    void MovementInform(uint32 type, uint32 id)
+    {
+        if (type != POINT_MOTION_TYPE)
+            return;
+
+        Player* pPlayer = m_creature->GetMap()->GetPlayer(uiPlayerGUID);
+
+        if (!pPlayer)
+            return;
+
+        if (id == POINT_ID)
+        {
+            DoCast(m_creature,SPELL_GREEN_BEAM,false);
+            // Because spell focus is m_creature not static gameobject or something we have to check if player actualy is near m_creature
+            if (pPlayer->GetDistance(m_creature) < 5.0f)
+                pPlayer->KilledMonsterCredit(m_creature->GetEntry(),m_creature->GetGUID()); 
+        }
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (m_creature->HasAura(SPELL_GREEN_BEAM))
+        {
+            if (m_uiResetTimer <= uiDiff)
+                Reset();
+            else m_uiResetTimer -= uiDiff;
+        }
+    }
+};
+
+CreatureAI* GetAI_mob_elder(Creature* pCreature)
+{
+    return new mob_elderAI(pCreature);
+}
+
+// Oh Noes, the Tadpoles! 
+// HACKED!
+enum Tadpole_Cage
+{
+    MOB_WINTERFIN_TADPOLE       = 25201,
+    GO_TADPOLE_CAGE             = 187373,
+    QUEST_OH_NOES_THE_TADPOLES  = 11560
+};
+
+int32 Speaches[7] =
+{ 
+    -1999806,-1999805,-1999804,           // negative
+    -1999810,-1999809,-1999808,-1999807   // positive
+};
+
+struct MANGOS_DLL_DECL mob_tadpoleAI : public ScriptedAI
+{
+    mob_tadpoleAI(Creature* pCreature) : ScriptedAI(pCreature) { Reset(); }
+
+    bool bIsFollowing;
+    bool bIsResetingCage;
+    uint32 Timer;
+
+    void Reset() 
+    {
+        if (GameObject* pGo = GetClosestGameObjectWithEntry(m_creature,GO_TADPOLE_CAGE,2.0f))
+        {
+            pGo->SetGoState(GO_STATE_READY);
+            pGo->RemoveFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+        }
+
+        bIsFollowing = false;
+        bIsResetingCage = false;
+        Timer = urand(15000, 30000);
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (bIsFollowing || bIsResetingCage)
+            if (Timer <= uiDiff)
+            {
+                if (bIsFollowing)
+                {
+                    DoScriptText(Speaches[urand(5, 6)],m_creature);
+                    Timer = urand(28000,59000);
+                }
+                // if player is not eligeble for tadpole to follow lets reset him and his cage
+                else if (bIsResetingCage)    
+                    Reset();
+            }else Timer -= uiDiff;
+   }
+};
+
+CreatureAI* GetAI_mob_tadpole(Creature* pCreature)
+{
+    return new mob_tadpoleAI(pCreature);
+}
+
+bool GOHello_go_tadpole_cage(Player* pPlayer, GameObject* pGo)
+{
+    if (!pPlayer)
+        return false;
+
+
+    std::list<Creature*> lCreatureList;
+    GetCreatureListWithEntryInGrid(lCreatureList, pGo, MOB_WINTERFIN_TADPOLE, 2.0f);
+
+    if (!lCreatureList.empty())
+    {
+        for (std::list<Creature*>::iterator itr = lCreatureList.begin(); itr != lCreatureList.end(); ++itr)
+        {
+            if ((*itr) && (*itr)->isAlive())
+            {
+                if (pPlayer->GetQuestStatus(QUEST_OH_NOES_THE_TADPOLES) != QUEST_STATUS_INCOMPLETE)
+                {
+                    //choose one of negative speaches
+                    DoScriptText(Speaches[urand(0, 2)],(*itr),pPlayer);
+                    ((mob_tadpoleAI*)(*itr)->AI())->bIsResetingCage = true;
+                    continue;
+                }
+
+                else if (Creature* pNewTadpole = (*itr)->SummonCreature(MOB_WINTERFIN_TADPOLE,(*itr)->GetPositionX(),(*itr)->GetPositionY(),(*itr)->GetPositionZ(),(*itr)->GetOrientation(),TEMPSUMMON_TIMED_OR_CORPSE_DESPAWN,urand(60000,120000)))
+                {
+                    pNewTadpole->GetMotionMaster()->MoveFollow(pPlayer, float(urand(1, 4)), 2*M_PI/float(urand(1, 20)));
+                    pPlayer->KilledMonsterCredit((*itr)->GetEntry(),(*itr)->GetGUID());
+                    (*itr)->ForcedDespawn();
+                    if (pPlayer->getGender() == GENDER_MALE)
+                        DoScriptText(Speaches[3],pNewTadpole,pPlayer);
+                    else DoScriptText(Speaches[4],pNewTadpole,pPlayer);
+                    ((mob_tadpoleAI*)pNewTadpole->AI())->bIsFollowing = true;
+                }
+            }
+        }
+    }
+
+    lCreatureList.clear();
+    // just open the door without despawn
+    pGo->SetGoState(GO_STATE_ACTIVE);
+    // and make cage not targetable
+    pGo->SetFlag(GAMEOBJECT_FLAGS, GO_FLAG_UNK1);
+    return true;
+}
+
+enum PrisonBreak
+{
+    QUEST_PRISON_BREAK          = 11587,
+    SPELL_HEARTSTONE_VISUAL     = 45451,
+    SPELL_PRISON_BREAK_CREDIT   = 45456,
+
+    SAY_SUCCEDED                = -1999803,
+    SAY_FAILED                  = -1999802
+};
+
+struct MANGOS_DLL_DECL mob_arcane_prisonerAI : public ScriptedAI
+{
+    mob_arcane_prisonerAI(Creature* pCreature) : ScriptedAI(pCreature){Reset();}
+    
+    bool bEventDone;
+    uint32 m_uiEventTimer;
+
+    void Reset() 
+    {
+        // small amount of time is needed to let npc fall on the ground
+        m_uiEventTimer = 1000;
+        bEventDone = false;
+    }
+
+    void UpdateAI (const uint32 uiDiff)
+    {
+        if (!bEventDone && m_uiEventTimer <= uiDiff)
+        {
+            bEventDone = true;
+            // update server with position of NPC after it fall on the ground
+            // this will prevent to spawn eventual corpse in the air (cosmetic effect)
+            float x,y,z;
+            m_creature->GetPosition(x, y, z);
+            z = m_creature->GetMap()->GetTerrain()->GetHeight(x, y, MAX_HEIGHT, false);
+            m_creature->Relocate(x, y, z+2);
+
+            if (urand(0, 2) < 2)
+            {
+                DoScriptText(SAY_FAILED, m_creature, NULL);
+                m_creature->DealDamage(m_creature, m_creature->GetMaxHealth(), NULL, DIRECT_DAMAGE, SPELL_SCHOOL_MASK_NONE, NULL, false);
+            }
+            else
+            {
+                if (Player* pPlayer = m_creature->GetMap()->GetPlayer(m_creature->GetCreatorGuid()))
+                {
+                    DoScriptText(SAY_SUCCEDED, m_creature, pPlayer);
+                    if (pPlayer->GetQuestStatus(QUEST_PRISON_BREAK) == QUEST_STATUS_INCOMPLETE)
+                        DoCastSpellIfCan(pPlayer, SPELL_PRISON_BREAK_CREDIT, CAST_TRIGGERED);
+                }
+                DoCastSpellIfCan(m_creature, SPELL_HEARTSTONE_VISUAL);
+            }
+        }
+        else
+            m_uiEventTimer -= uiDiff;
+    }
+};
+
+CreatureAI* GetAI_mob_arcane_prisoner(Creature* pCreature)
+{
+    return new mob_arcane_prisonerAI(pCreature);
+}
+
+/*#####
+## go_mammoth_trap
+#####*/
+
+enum
+{
+    QUEST_HELP_THOSE_THAT    =  11876,
+    NPC_TRAPPED_MAMMOTH      =  25850,
+    SPELL_DESPAWN_SELF       =  43014
+};
+
+bool GOHello_go_mammoth_trap(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestStatus(QUEST_HELP_THOSE_THAT) == QUEST_STATUS_INCOMPLETE)
+    {
+        Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_TRAPPED_MAMMOTH, INTERACTION_DISTANCE);
+        if(pCreature)
+        {
+            pPlayer->KilledMonsterCredit(NPC_TRAPPED_MAMMOTH, pCreature->GetGUID());
+            pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, false);
+        }
+    }
+    return false;
+};
+
+/*######
+## npc_beryl_sorcerer
+######*/
+
+enum eBerylSorcerer
+{
+    NPC_CAPTURED_BERLY_SORCERER         = 25474,
+    NPC_LIBRARIAN_DONATHAN              = 25262,
+
+    SPELL_ARCANE_CHAINS                 = 45611,
+    SPELL_COSMETIC_CHAINS               = 54324,
+    SPELL_COSMETIC_ENSLAVE_CHAINS_SELF  = 45631
+};
+
+struct MANGOS_DLL_DECL npc_beryl_sorcererAI : public FollowerAI
+{
+    npc_beryl_sorcererAI(Creature* pCreature) : FollowerAI(pCreature) { 
+        Reset(); 
+    }
+
+    bool bEnslaved;
+    uint64 uiChainerGUID;
+
+    void Reset()
+    {
+         m_creature->setFaction(14);
+         bEnslaved = false;
+    }
+    void EnterCombat(Unit* pWho)
+    {
+            AttackStart(pWho);
+    }
+    
+    void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+    {
+        if (pSpell->Id == SPELL_ARCANE_CHAINS && pCaster->GetTypeId() == TYPEID_PLAYER && !bEnslaved)
+            {
+                EnterEvadeMode(); //We make sure that the npc is not attacking the player!
+                m_creature->setFaction(35);
+                uiChainerGUID = pCaster->GetGUID();
+                if(Player *pChainer = m_creature->GetMap()->GetPlayer(uiChainerGUID))
+                {
+                StartFollow(pChainer, 35, NULL);
+                m_creature->UpdateEntry(NPC_CAPTURED_BERLY_SORCERER);
+                DoCast(m_creature, SPELL_COSMETIC_ENSLAVE_CHAINS_SELF, true);
+               
+                bEnslaved = true;
+                }
+            }
+    }
+
+    void MoveInLineOfSight(Unit* pWho)
+    {
+            FollowerAI::MoveInLineOfSight(pWho);
+
+            if (pWho->GetEntry() == NPC_LIBRARIAN_DONATHAN && m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+            {
+                if(Player *pChainer = m_creature->GetMap()->GetPlayer(uiChainerGUID))
+                {
+                    pChainer->KilledMonsterCredit(NPC_CAPTURED_BERLY_SORCERER,m_creature->GetGUID());
+                    SetFollowComplete();
+                    m_creature->ForcedDespawn(1000);
+                }
+            }
+     }
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (!m_creature->getVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+    }
+
+};
+
+CreatureAI* GetAI_npc_beryl_sorcerer(Creature* pCreature)
+{
+    return new npc_beryl_sorcererAI(pCreature);
+}
+
+/*#####
+## go_scourge_cage
+#####*/
+
+enum
+{
+    QUEST_MERCIFUL_FREEDOM      =  11676,
+    NPC_SCOURGE_PRISONER        =  25610,
+};
+
+bool GOHello_go_scourge_cage(Player* pPlayer, GameObject* pGo)
+{
+    if (pPlayer->GetQuestStatus(QUEST_MERCIFUL_FREEDOM) == QUEST_STATUS_INCOMPLETE)
+    {
+        Creature *pCreature = GetClosestCreatureWithEntry(pGo, NPC_SCOURGE_PRISONER, INTERACTION_DISTANCE);
+        if(pCreature)
+        {
+            pPlayer->KilledMonsterCredit(NPC_SCOURGE_PRISONER, pCreature->GetGUID());
+            pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, false);
+        }
+    }
+    return false;
+};
+
+/*######
+## npc_nexus_drake_hatchling
+######*/
+
+enum
+{
+    SPELL_DRAKE_HARPOON             = 46607,
+    SPELL_RED_DRAGONBLOOD           = 46620,
+    SPELL_DRAKE_HATCHLING_SUBDUED   = 46691,
+    SPELL_SUBDUED                   = 46675,
+
+    NPC_RAELORASZ                   = 26117,
+    DRAKE_HUNT_KILL_CREDIT          = 26175,
+
+    QUEST_DRAKE_HUNT                = 11919,
+    QUEST_DRAKE_HUNT_D              = 11940
+
+};
+
+struct MANGOS_DLL_DECL npc_nexus_drakeAI : public FollowerAI
+{
+    npc_nexus_drakeAI(Creature* pCreature) : FollowerAI(pCreature) { Reset(); }
+    
+     uint64 uiHarpoonerGUID;
+     bool bWithRedDragonBlood;
+     bool bIsFollowing;
+
+     void Reset()
+     {
+         bWithRedDragonBlood = false;
+         bIsFollowing = false;
+     }
+
+     void EnterCombat(Unit* pWho)
+     {
+         AttackStart(pWho);
+     }
+     
+     void SpellHit(Unit* pCaster, SpellEntry const* pSpell)
+     {
+            if (pSpell->Id == SPELL_DRAKE_HARPOON && pCaster->GetTypeId() == TYPEID_PLAYER)
+            {
+                uiHarpoonerGUID = pCaster->GetGUID();
+                DoCast(m_creature, SPELL_RED_DRAGONBLOOD, true);
+            }
+            m_creature->Attack(pCaster,true);
+            bWithRedDragonBlood = true;
+     }
+
+     void MoveInLineOfSight(Unit *pWho)
+     {
+         FollowerAI::MoveInLineOfSight(pWho);
+
+
+         if (pWho->GetEntry() == NPC_RAELORASZ && m_creature->IsWithinDistInMap(pWho, INTERACTION_DISTANCE))
+         {
+           if (Player *pHarpooner = m_creature->GetMap()->GetPlayer(uiHarpoonerGUID))
+                 {
+                    
+                     pHarpooner->KilledMonsterCredit(DRAKE_HUNT_KILL_CREDIT,m_creature->GetGUID());
+                     pHarpooner->RemoveAurasByCasterSpell(SPELL_DRAKE_HATCHLING_SUBDUED,uiHarpoonerGUID);
+                     SetFollowComplete();
+                     uiHarpoonerGUID = 0;
+                     m_creature->ForcedDespawn(1000);
+                 }
+              
+          }
+      }
+     
+     void UpdateAI(const uint32 uidiff)
+        {
+            if (bWithRedDragonBlood && uiHarpoonerGUID && !m_creature->HasAura(SPELL_RED_DRAGONBLOOD))
+            {
+                if (Player *pHarpooner = m_creature->GetMap()->GetPlayer(uiHarpoonerGUID))
+                {
+                    EnterEvadeMode();
+                    StartFollow(pHarpooner, 35, NULL);
+
+                    DoCast(m_creature, SPELL_SUBDUED, true);
+                    pHarpooner->CastSpell(pHarpooner, SPELL_DRAKE_HATCHLING_SUBDUED, true);
+
+                    m_creature->AttackStop();
+                    bIsFollowing = true;
+                    bWithRedDragonBlood = false;
+                }
+            }
+            if(bIsFollowing && !m_creature->HasAura(SPELL_SUBDUED))
+            {
+                m_creature->ForcedDespawn(1000);
+            }
+
+            if (!m_creature->getVictim())
+                return;
+
+            DoMeleeAttackIfReady();
+        }
+};
 
 void AddSC_borean_tundra()
 {
@@ -576,4 +1078,46 @@ void AddSC_borean_tundra()
     newscript->GetAI = &GetAI_npc_lurgglbr;
     newscript->pQuestAcceptNPC = &QuestAccept_npc_lurgglbr;
     newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_elder";
+    newscript->GetAI = &GetAI_mob_elder;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_arcane_prisoner";
+    newscript->GetAI = &GetAI_mob_arcane_prisoner;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_tadpole_cage";
+    newscript->pGOHello = &GOHello_go_tadpole_cage;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_tadpole";
+    newscript->GetAI = &GetAI_mob_tadpole;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_mammoth_trap";
+    newscript->pGOHello = &GOHello_go_mammoth_trap;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_beryl_sorcerer";
+    newscript->GetAI = &GetAI_npc_beryl_sorcerer;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "go_scourge_cage";
+    newscript->pGOHello = &GOHello_go_scourge_cage;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_nexus_drake";
+    newscript->GetAI = &GetAI_npc_nexus_drake;
+    newscript->RegisterSelf();
+
+
 }

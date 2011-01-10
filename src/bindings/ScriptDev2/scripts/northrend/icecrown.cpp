@@ -27,6 +27,7 @@ npc_dame_evniki_kapsalis
 EndContentData */
 
 #include "precompiled.h"
+#include "escort_ai.h"
 
 /*######
 ## npc_arete
@@ -131,6 +132,195 @@ bool GossipSelect_npc_dame_evniki_kapsalis(Player* pPlayer, Creature* pCreature,
     return true;
 }
 
+/*######
+## npc_father_kamaros
+######*/
+
+enum FatherKamaros
+{
+    QUEST_IM_NOT_DEAD_YET_A         = 13221,
+    QUEST_IM_NOT_DEAD_YET_H         = 13229,
+    SPELL_SW_PAIN                   = 17146,
+    SPELL_PW_SHIELD                 = 32595,
+    SPELL_PW_FORTITUDE              = 58921,
+    SPELL_HOLY_SMITE                = 25054,
+
+    SAY_ESCORT_START_1              = -1999766,
+    SAY_ESCORT_START_2              = -1999765,
+    SAY_ESCORT_COMPLETE_1           = -1999764,
+    SAY_ESCORT_COMPLETE_2           = -1999763,
+};
+
+struct MANGOS_DLL_DECL npc_father_kamarosAI : public npc_escortAI
+{
+    npc_father_kamarosAI(Creature* pCreature) : npc_escortAI(pCreature){Reset();}
+
+    bool bSpoken;
+    bool bFinalPointReached;
+    uint32 m_uiSpeachInterval;
+    uint32 m_uiSpellTimer;
+   
+    void Reset()
+    {
+        bSpoken = false;
+        bFinalPointReached = false;
+        m_uiSpeachInterval = 5000;
+        m_uiSpellTimer     = 0;
+    }
+
+    void WaypointReached(uint32 uiPointId)
+    {
+        if (uiPointId == 30)
+        {
+            if (Player* pPlayer = GetPlayerForEscort())
+            {
+                m_creature->SetFacingToObject(pPlayer);
+                DoScriptText(SAY_ESCORT_COMPLETE_1, m_creature, pPlayer);
+                pPlayer->AreaExploredOrEventHappens(pPlayer->GetTeam() == HORDE ? QUEST_IM_NOT_DEAD_YET_H : QUEST_IM_NOT_DEAD_YET_A);
+            }
+            SetEscortPaused(true);
+            bSpoken = true;
+            SetRun(true);
+        }
+    }
+
+    void JustStartedEscort()
+    {
+        SetEscortPaused(true);
+        bSpoken = true;
+    }
+
+    void UpdateAI(const uint32 uiDiff)
+    {
+        if (bSpoken)
+        {
+            if (m_uiSpeachInterval < uiDiff)
+            {
+                if (Player* pPlayer = GetPlayerForEscort())
+                    DoScriptText(bFinalPointReached ? SAY_ESCORT_START_2 : SAY_ESCORT_COMPLETE_2, m_creature, pPlayer);
+                bSpoken = false;
+                m_uiSpeachInterval = 5000;
+                SetEscortPaused(false);
+            }
+            else
+                m_uiSpeachInterval -= uiDiff;
+        }
+        npc_escortAI::UpdateAI(uiDiff);
+    }
+
+    void UpdateEscortAI(const uint32 uiDiff)
+    {
+        if (!m_creature->SelectHostileTarget() || !m_creature->getVictim())
+            return;
+
+        if (m_uiSpellTimer < uiDiff)
+        {
+            Player* pPlayer = GetPlayerForEscort();
+            switch(urand(0, 3))
+            {
+                case 0: DoCastSpellIfCan(pPlayer, SPELL_PW_SHIELD); break;
+                case 1: DoCastSpellIfCan(m_creature, SPELL_PW_SHIELD); break;
+                case 2: DoCastSpellIfCan(m_creature->getVictim(), SPELL_SW_PAIN); break;
+                case 3: DoCastSpellIfCan(m_creature->getVictim(), SPELL_HOLY_SMITE); break;
+            }
+            m_uiSpellTimer = 5000;
+        }
+        else
+            m_uiSpellTimer -= uiDiff;
+
+        DoMeleeAttackIfReady();
+    }
+};
+
+CreatureAI* GetAI_npc_father_kamaros(Creature* pCreature)
+{
+    return new npc_father_kamarosAI (pCreature);
+}
+
+bool QuestAccept_npc_father_kamaros(Player* pPlayer, Creature* pCreature, const Quest* pQuest)
+{
+    switch(pQuest->GetQuestId())
+    {
+        case QUEST_IM_NOT_DEAD_YET_A:
+        case QUEST_IM_NOT_DEAD_YET_H:
+        {
+            if (npc_father_kamarosAI* pEscortAI = dynamic_cast<npc_father_kamarosAI*>(pCreature->AI()))
+            {
+                pCreature->SetStandState(UNIT_STAND_STATE_STAND);
+                pCreature->SetFacingToObject(pPlayer);
+                DoScriptText(SAY_ESCORT_START_1, pCreature, pPlayer);
+                pCreature->CastSpell(pPlayer, SPELL_PW_FORTITUDE, false);
+                pEscortAI->Start(false, pPlayer->GetGUID(), pQuest);
+            }
+        }
+        break;
+    }
+    return true;
+}
+
+/*######
+## mob_saronite_mine_slave (31397)
+######*/
+
+enum
+{
+    QUEST_SLAVES_TO_SARNOITE_A       = 13300, //Alliance version
+    SPELL_DESPAWN_SELF               = 43014,
+    NPC_SLAVES_TO_SARONITE_CREDIT    = 31866,
+    QUEST_SLAVES_TO_SARNOITE_H       = 13302,  //Horde version
+    SARONITE_SLAVE_TEXTID            = 14068,
+    SARONITE_SLAVE_TEXT1             = -1999000,
+    SARONITE_SLAVE_TEXT2             = -1999001,
+    SARONITE_SLAVE_TEXT3             = -1999002
+};
+
+#define GOSSIP_EVENT_FREE      "Go on, you're free. Get out of here!"
+
+bool GossipHello_mob_mine_slave(Player* pPlayer, Creature* pCreature)
+{
+    if (pCreature->isQuestGiver())
+        pPlayer->PrepareQuestMenu(pCreature->GetGUID());
+
+    if ( (pPlayer->GetQuestStatus(QUEST_SLAVES_TO_SARNOITE_A) == QUEST_STATUS_INCOMPLETE) ||
+        (pPlayer->GetQuestStatus(QUEST_SLAVES_TO_SARNOITE_H) == QUEST_STATUS_INCOMPLETE) )
+        pPlayer->ADD_GOSSIP_ITEM(GOSSIP_ICON_CHAT, GOSSIP_EVENT_FREE, GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+
+    pPlayer->SEND_GOSSIP_MENU(SARONITE_SLAVE_TEXTID, pCreature->GetGUID());
+    return true;
+}
+
+bool GossipSelect_mob_mine_slave(Player* pPlayer, Creature* pCreature, uint32 uiSender, uint32 uiAction)
+{
+    if (uiAction == GOSSIP_ACTION_INFO_DEF)
+    {
+        pPlayer->CLOSE_GOSSIP_MENU();
+
+        switch (urand(0, 10))
+        {
+            case 0:
+                switch(urand(1, 3))
+                {
+                    case 1: DoScriptText(SARONITE_SLAVE_TEXT1, pCreature); break;
+                    case 2: DoScriptText(SARONITE_SLAVE_TEXT2, pCreature); break;
+                    case 3: DoScriptText(SARONITE_SLAVE_TEXT3, pCreature); break;
+                }
+                pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, true);
+                break;
+
+            case 1:
+                pCreature->setFaction(16);
+                pCreature->AI()->AttackStart(pPlayer);
+                break;
+
+            default:
+                pPlayer->KilledMonsterCredit(NPC_SLAVES_TO_SARONITE_CREDIT, pCreature->GetGUID());
+                pCreature->CastSpell(pCreature, SPELL_DESPAWN_SELF, true);
+                break;
+        }
+    }
+    return true;
+}
+
 void AddSC_icecrown()
 {
     Script* newscript;
@@ -145,5 +335,17 @@ void AddSC_icecrown()
     newscript->Name = "npc_dame_evniki_kapsalis";
     newscript->pGossipHello = &GossipHello_npc_dame_evniki_kapsalis;
     newscript->pGossipSelect = &GossipSelect_npc_dame_evniki_kapsalis;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "npc_father_kamaros";
+    newscript->GetAI = &GetAI_npc_father_kamaros;
+    newscript->pQuestAccept = &QuestAccept_npc_father_kamaros;
+    newscript->RegisterSelf();
+
+    newscript = new Script;
+    newscript->Name = "mob_mine_slave";
+    newscript->pGossipHello =  &GossipHello_mob_mine_slave;
+    newscript->pGossipSelect = &GossipSelect_mob_mine_slave;
     newscript->RegisterSelf();
 }
